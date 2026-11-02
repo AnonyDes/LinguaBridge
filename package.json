@@ -1,0 +1,10 @@
+{
+  "name": "focused-maxwell",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --dir linguabridge build",
+    "test": "pnpm --dir linguabridge test",
+    "dev": "pnpm --dir linguabridge dev",
+    "lint": "pnpm --dir linguabridge lint"
+  }
+}

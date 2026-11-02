@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LanguagePackManifest",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "iso639_3",
+    "locale",
+    "version",
+    "schemaVersion",
+    "status",
+    "capabilities",
+    "supportedSourceLangs",
+    "supportedTargetLangs",
+    "license",
+    "provenance",
+    "qualityStatus"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "nativeName": {
+      "type": "string"
+    },
+    "iso639_3": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 4
+    },
+    "locale": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_installed",
+        "installed_incomplete",
+        "internal_testing",
+        "under_review",
+        "approved_limited",
+        "production_approved",
+        "deprecated",
+        "disabled"
+      ]
+    },
+    "capabilities": {
+      "type": "object",
+      "required": [
+        "hasDictionary",
+        "hasParallelCorpus",
+        "hasSpeech",
+        "hasPronunciation",
+        "hasGlossary"
+      ],
+      "properties": {
+        "hasDictionary": { "type": "boolean" },
+        "hasParallelCorpus": { "type": "boolean" },
+        "hasSpeech": { "type": "boolean" },
+        "hasPronunciation": { "type": "boolean" },
+        "hasGlossary": { "type": "boolean" }
+      }
+    },
+    "supportedSourceLangs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "supportedTargetLangs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "orthographicVariants": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "license": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "string"
+    },
+    "attribution": {
+      "type": "string"
+    },
+    "qualityStatus": {
+      "type": "string",
+      "enum": ["unverified", "reviewed", "certified"]
+    },
+    "reviewedBy": {
+      "type": "string"
+    },
+    "checksum": {
+      "type": "string"
+    },
+    "installationRequirements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "_note": {
+      "type": "string"
+    }
+  }
+}

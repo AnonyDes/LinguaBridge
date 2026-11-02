@@ -1,0 +1,23 @@
+{
+  "id": "basaa",
+  "name": "Basaa",
+  "nativeName": "Ɓàsàa",
+  "iso639_3": "bas",
+  "locale": "bas-CM",
+  "version": "0.0.1-template",
+  "schemaVersion": "1.0.0",
+  "status": "not_installed",
+  "capabilities": {
+    "hasDictionary": false,
+    "hasParallelCorpus": false,
+    "hasSpeech": false,
+    "hasPronunciation": false,
+    "hasGlossary": false
+  },
+  "supportedSourceLangs": [],
+  "supportedTargetLangs": [],
+  "license": "TBD — Awaiting linguistic resource acquisition and rights verification",
+  "provenance": "Configuration template only — zero linguistic data loaded",
+  "qualityStatus": "unverified",
+  "_note": "This is a configuration template. This pack MUST remain disabled until: (1) verified linguistic resources are acquired, (2) a qualified Basaa linguist reviews all entries, (3) translation quality meets production standards, (4) an administrator explicitly activates the pack. A user MUST NEVER see Basaa as a supported language based solely on this template."
+}

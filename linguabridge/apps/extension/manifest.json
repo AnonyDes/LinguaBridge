@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "LinguaBridge Accessibility Assistant",
+  "version": "0.1.0",
+  "description": "Multilingual accessibility and financial inclusion assistant for Cameroon web applications",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "http://localhost:3001/*",
+    "http://localhost:3000/*",
+    "https://*/*",
+    "http://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "LinguaBridge Assistant"
+  },
+  "background": {
+    "service_worker": "dist/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dist/*", "*.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@linguabridge/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsup src/background.ts src/content.ts src/popup.ts --format esm --no-splitting && node scripts/postbuild.js",
+    "test": "vitest run",
+    "dev": "tsup src/background.ts src/content.ts src/popup.ts --format esm --no-splitting --watch"
+  },
+  "dependencies": {
+    "@linguabridge/shared-types": "workspace:*",
+    "@linguabridge/sdk-js": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "@types/chrome": "^0.0.280"
+  }
+}
