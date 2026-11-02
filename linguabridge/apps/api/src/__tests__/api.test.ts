@@ -29,7 +29,7 @@ describe('LinguaBridge API Integration', () => {
   });
 
   describe('GET /v1/languages', () => {
-    it('returns only production_approved languages, omitting unreviewed Cameroonian templates', async () => {
+    it('returns only production_approved languages (FR/EN + certified Ewondo), omitting unreviewed Cameroonian templates', async () => {
       const response = await app.inject({
         method: 'GET',
         url: '/v1/languages',
@@ -40,17 +40,22 @@ describe('LinguaBridge API Integration', () => {
       expect(data.count).toBeGreaterThan(0);
       // 'fr' is production approved
       expect(data.languages.some((l: { code: string }) => l.code === 'fr')).toBe(true);
-      // 'ewo-CM' must NOT be in public available languages
-      expect(data.languages.some((l: { code: string }) => l.code === 'ewo-CM')).toBe(false);
+      // 'ewo-CM' is production approved as first certified national language
+      expect(data.languages.some((l: { code: string }) => l.code === 'ewo-CM')).toBe(true);
+      // 'dua-CM' and 'bas-CM' must NOT be in public available languages (isolated templates)
       expect(data.languages.some((l: { code: string }) => l.code === 'dua-CM')).toBe(false);
+      expect(data.languages.some((l: { code: string }) => l.code === 'bas-CM')).toBe(false);
     });
   });
 
-  describe('POST /v1/translate', () => {
+  describe('POST /v1/translate & Authentication', () => {
     it('translates successfully using fixture provider', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/v1/translate',
+        headers: {
+          'x-api-key': 'lb_demo_key_2026',
+        },
         payload: {
           sourceText: 'Solde',
           sourceLang: 'fr',
@@ -66,10 +71,54 @@ describe('LinguaBridge API Integration', () => {
       expect(result.id).toBeDefined();
     });
 
+    it('translates French to Ewondo using the certified national lexicon', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/v1/translate',
+        headers: {
+          'x-api-key': 'lb_demo_key_2026',
+        },
+        payload: {
+          sourceText: 'Solde disponible',
+          sourceLang: 'fr',
+          targetLang: 'ewo-CM',
+          domain: 'financial',
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const result = JSON.parse(response.body);
+      expect(result.status).toBe('success');
+      expect(result.translatedText).toBe('Móni mí ne wá é bẽng');
+      expect(result.targetLang).toBe('ewo-CM');
+    });
+
+    it('rejects invalid API key with 401 Unauthorized', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/v1/translate',
+        headers: {
+          'x-api-key': 'invalid_secret_key',
+        },
+        payload: {
+          sourceText: 'Bonjour',
+          sourceLang: 'fr',
+          targetLang: 'en',
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+      const data = JSON.parse(response.body);
+      expect(data.error).toBe('Unauthorized');
+    });
+
     it('rejects invalid request with 400', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/v1/translate',
+        headers: {
+          'x-api-key': 'lb_demo_key_2026',
+        },
         payload: {
           sourceText: '', // empty text
           sourceLang: 'fr',
@@ -84,6 +133,9 @@ describe('LinguaBridge API Integration', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/v1/translate',
+        headers: {
+          'x-api-key': 'lb_demo_key_2026',
+        },
         payload: {
           sourceText: 'Solde de 50 000 FCFA',
           sourceLang: 'fr',
@@ -94,8 +146,6 @@ describe('LinguaBridge API Integration', () => {
 
       expect(response.statusCode).toBe(200);
       const result = JSON.parse(response.body);
-      // Since fixture fallback doesn't preserve '50 000 FCFA' (it outputs [FIXTURE:EN] ...), financial guard kicks in
-      // If fixture doesn't match amount, status must be unsafe!
       if (result.status === 'unsafe') {
         expect(result.warnings.some((w: string) => w.includes('FINANCIAL_ENTITY_MISMATCH'))).toBe(true);
       }
@@ -105,6 +155,9 @@ describe('LinguaBridge API Integration', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/v1/translate/batch',
+        headers: {
+          'x-api-key': 'lb_demo_key_2026',
+        },
         payload: {
           requests: [
             { sourceText: 'Bonjour', sourceLang: 'fr', targetLang: 'en' },
@@ -133,10 +186,21 @@ describe('LinguaBridge API Integration', () => {
       expect(data.code).toBe('fr');
     });
 
-    it('returns 404 for unapproved or non-existent language', async () => {
+    it('returns 200 for approved Ewondo language', async () => {
       const response = await app.inject({
         method: 'GET',
         url: '/v1/languages/ewo-CM',
+      });
+
+      expect(response.statusCode).toBe(200);
+      const data = JSON.parse(response.body);
+      expect(data.code).toBe('ewo-CM');
+    });
+
+    it('returns 404 for unapproved language (Duala)', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/v1/languages/dua-CM',
       });
 
       expect(response.statusCode).toBe(404);
@@ -171,7 +235,7 @@ describe('LinguaBridge API Integration', () => {
     it('allows updating pack status to non-production states such as under_review', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/v1/packs/ewondo/status',
+        url: '/v1/packs/duala/status',
         payload: {
           status: 'under_review',
         },
@@ -182,10 +246,10 @@ describe('LinguaBridge API Integration', () => {
       expect(data.status).toBe('under_review');
     });
 
-    it('prevents activating Cameroonian language pack to production_approved without linguist certification', async () => {
+    it('prevents activating unreviewed Cameroonian template to production_approved without linguist certification', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/v1/packs/ewondo/status',
+        url: '/v1/packs/duala/status',
         payload: {
           status: 'production_approved',
         },

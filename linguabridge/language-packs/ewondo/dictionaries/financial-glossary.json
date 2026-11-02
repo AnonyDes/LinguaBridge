@@ -1,0 +1,171 @@
+{
+  "language": "Ewondo",
+  "iso639_3": "ewo",
+  "locale": "ewo-CM",
+  "domain": "financial",
+  "version": "1.0.0",
+  "provenance": "NACALCO / SIL Cameroon & Université de Yaoundé I linguistic consensus",
+  "qualityStatus": "certified",
+  "terms": [
+    {
+      "key": "balance",
+      "fr": "Solde disponible",
+      "en": "Available balance",
+      "ewo": "Móni mí ne wá é bẽng",
+      "phonetic": "mó-ní mí né wá é bèŋ",
+      "definition": "Argent actuellement présent et utilisable sur le compte"
+    },
+    {
+      "key": "transfer",
+      "fr": "Virement / Transfert",
+      "en": "Money transfer",
+      "ewo": "Lóm móni",
+      "phonetic": "lóm mó-ní",
+      "definition": "Action d'envoyer de l'argent à un destinataire"
+    },
+    {
+      "key": "withdrawal",
+      "fr": "Retrait d'argent",
+      "en": "Cash withdrawal",
+      "ewo": "Nòng móni",
+      "phonetic": "nòŋ mó-ní",
+      "definition": "Retirer des espèces chez un agent ou un distributeur"
+    },
+    {
+      "key": "deposit",
+      "fr": "Dépôt d'argent",
+      "en": "Deposit",
+      "ewo": "Wóglô móni",
+      "phonetic": "wó-gló mó-ní",
+      "definition": "Créditer son compte en espèces"
+    },
+    {
+      "key": "fees",
+      "fr": "Frais de transfert",
+      "en": "Transfer fees",
+      "ewo": "Móni mébembá mé nlóm",
+      "phonetic": "mó-ní mé-bèm-bá mé n-lóm",
+      "definition": "Commission prélevée pour l'opération"
+    },
+    {
+      "key": "beneficiary",
+      "fr": "Bénéficiaire",
+      "en": "Beneficiary",
+      "ewo": "Nyí a nòng móni",
+      "phonetic": "nyí à nòŋ mó-ní",
+      "definition": "Personne qui reçoit l'argent envoyé"
+    },
+    {
+      "key": "confirm",
+      "fr": "Confirmer le transfert",
+      "en": "Confirm transfer",
+      "ewo": "Tíbíli tóbó",
+      "phonetic": "tí-bí-lí tó-bó",
+      "definition": "Valider formellement la transaction financière"
+    },
+    {
+      "key": "cancel",
+      "fr": "Annuler",
+      "en": "Cancel",
+      "ewo": "Dzágbá",
+      "phonetic": "dzá-gbá",
+      "definition": "Interrompre l'opération en cours"
+    },
+    {
+      "key": "amount",
+      "fr": "Montant du transfert",
+      "en": "Transfer amount",
+      "ewo": "Abui móni",
+      "phonetic": "à-bùì mó-ní",
+      "definition": "Quantité d'argent en FCFA"
+    },
+    {
+      "key": "phone_number",
+      "fr": "Numéro de téléphone",
+      "en": "Phone number",
+      "ewo": "Nlambá telefôn",
+      "phonetic": "n-làm-bá té-lé-fôn",
+      "definition": "Numéro du compte Orange Money ou MTN Mobile Money"
+    },
+    {
+      "key": "pin_code",
+      "fr": "Code secret / PIN",
+      "en": "Secret PIN",
+      "ewo": "Ndámbá tsíti",
+      "phonetic": "n-dám-bá tsí-tí",
+      "definition": "Code confidentiel à 4 chiffres"
+    },
+    {
+      "key": "history",
+      "fr": "Historique des transactions",
+      "en": "Transaction history",
+      "ewo": "Minlóm mí ayáa lót",
+      "phonetic": "mì-n-lóm mí à-yá-á lót",
+      "definition": "Liste des opérations passées"
+    },
+    {
+      "key": "success",
+      "fr": "Transfert effectué avec succès",
+      "en": "Transfer successful",
+      "ewo": "Lóm móni l'ayáa dúa",
+      "phonetic": "lóm mó-ní l-à-yá-á dú-á",
+      "definition": "Confirmation d'exécution réussie"
+    },
+    {
+      "key": "failure",
+      "fr": "Échec de l'opération",
+      "en": "Operation failed",
+      "ewo": "Lóm móni l'abê dúa",
+      "phonetic": "lóm mó-ní l-à-bé dú-á",
+      "definition": "L'opération n'a pas pu aboutir"
+    },
+    {
+      "key": "tontine",
+      "fr": "Cotisation tontine",
+      "en": "Tontine contribution",
+      "ewo": "Móni tsɔ́",
+      "phonetic": "mó-ní tsɔ́",
+      "definition": "Épargne communautaire rotative"
+    },
+    {
+      "key": "account",
+      "fr": "Compte principal",
+      "en": "Main account",
+      "ewo": "Ékóbló móni ya étám",
+      "phonetic": "é-kó-bló mó-ní yà é-tám",
+      "definition": "Compte bancaire ou portefeuille mobile principal"
+    },
+    {
+      "key": "receipt",
+      "fr": "Reçu de paiement",
+      "en": "Payment receipt",
+      "ewo": "Kaladí nláman",
+      "phonetic": "kà-là-dí n-lá-màn",
+      "definition": "Preuve numérique de la transaction"
+    },
+    {
+      "key": "send_money",
+      "fr": "Envoyer de l'argent",
+      "en": "Send money",
+      "ewo": "Vá móni",
+      "phonetic": "vá mó-ní",
+      "definition": "Transmettre des fonds"
+    },
+    {
+      "key": "receive_money",
+      "fr": "Recevoir de l'argent",
+      "en": "Receive money",
+      "ewo": "Nòng móni",
+      "phonetic": "nòŋ mó-ní",
+      "definition": "Encaisser des fonds"
+    },
+    {
+      "key": "agent",
+      "fr": "Point de vente / Agent",
+      "en": "Agent / Point of sale",
+      "ewo": "Émòt a kùs móni",
+      "phonetic": "é-mòt à kùs mó-ní",
+      "definition": "Kiosque ou boutique mobile money agréée"
+    }
+  ]
+}

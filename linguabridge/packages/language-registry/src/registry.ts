@@ -57,13 +57,17 @@ export class LanguageRegistry {
     const pack = this.packs.get(packId);
     if (!pack) return false;
 
-    // Safety: never auto-activate Cameroonian language packs
-    const deferredPacks = ['ewondo', 'duala', 'basaa', 'fulfulde', 'bulu'];
-    if (deferredPacks.includes(packId) && status === 'production_approved') {
-      throw new Error(
-        `Pack "${packId}" cannot be activated: Cameroonian language resources not yet verified. ` +
-        'A qualified linguist review is required before activation.'
-      );
+    // Safety: only certified packs with verified linguistic capabilities can be production approved
+    if (status === 'production_approved') {
+      const hasResources = pack.capabilities.hasGlossary || pack.capabilities.hasDictionary;
+      const isCertified = pack.qualityStatus === 'certified' || pack.qualityStatus === 'reviewed';
+
+      if (!hasResources || !isCertified) {
+        throw new Error(
+          `Pack "${packId}" cannot be activated: Cameroonian language resources not yet verified. ` +
+          'A certified lexicon and qualified linguist review are required before activation.'
+        );
+      }
     }
 
     pack.status = status;

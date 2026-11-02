@@ -42,6 +42,7 @@ export class LinguaBridgeClient {
 
     if (this.apiKey) {
       headers['Authorization'] = `Bearer ${this.apiKey}`;
+      headers['x-api-key'] = this.apiKey;
     }
     if (this.tenantId) {
       headers['x-tenant-id'] = this.tenantId;

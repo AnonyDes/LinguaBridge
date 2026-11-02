@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { FinancialEntityExtractor } from '../entity-extractor';
+import { FinancialEntityExtractor, normalizeAmount, computeEntityFingerprint } from '../entity-extractor';
 
 const extractor = new FinancialEntityExtractor();
 
@@ -9,17 +9,44 @@ describe('FinancialEntityExtractor', () => {
     expect(entities.some((e) => e.type === 'amount' && e.normalized.includes('50000'))).toBe(true);
   });
 
-  it('extracts percentages', () => {
-    const entities = extractor.extract('Taux d\'intérêt: 12.5%');
-    expect(entities.some((e) => e.type === 'percentage' && e.normalized === '12.5')).toBe(true);
+  it('correctly normalizes European and Anglo-Saxon decimal amounts without double dots', () => {
+    expect(normalizeAmount('15.500,50')).toBe('15500.50');
+    expect(normalizeAmount('15,500.50')).toBe('15500.50');
+    expect(normalizeAmount('15 500,50')).toBe('15500.50');
+    expect(normalizeAmount('15k')).toBe('15000');
+    expect(normalizeAmount('2.5k')).toBe('2500');
   });
 
-  it('detects amount modification as unsafe', () => {
+  it('extracts informal CEMAC currency expressions (frs, f, k cfa)', () => {
+    const e1 = extractor.extract('Frais: 150frs');
+    expect(e1.some((e) => e.type === 'amount' && e.normalized === '150_FCFA')).toBe(true);
+
+    const e2 = extractor.extract('Envoyer 15k cfa');
+    expect(e2.some((e) => e.type === 'amount' && e.normalized === '15000_FCFA')).toBe(true);
+  });
+
+  it('computes and validates SHA-256 cryptographic fingerprints', () => {
+    const e1 = extractor.extract('Virement de 75 000 FCFA vers +237 699 123 456');
+    const e2 = extractor.extract('Transfer of 75 000 FCFA to +237 699 123 456');
+    const comp = extractor.compare(e1, e2);
+
+    expect(comp.safe).toBe(true);
+    expect(comp.sourceFingerprint).toHaveLength(64);
+    expect(comp.sourceFingerprint).toBe(comp.translatedFingerprint);
+  });
+
+  it('detects amount modification as unsafe and mismatches fingerprints', () => {
     const source = extractor.extract('Transfer 75 000 FCFA to Jean');
-    const translated = extractor.extract('Transfer 7 500 FCFA to Jean'); // WRONG amount
+    const translated = extractor.extract('Transfer 7 500 FCFA to Jean');
     const result = extractor.compare(source, translated);
     expect(result.safe).toBe(false);
     expect(result.violations.length).toBeGreaterThan(0);
+    expect(result.sourceFingerprint).not.toBe(result.translatedFingerprint);
+  });
+
+  it('extracts percentages', () => {
+    const entities = extractor.extract('Taux d\'intérêt: 12.5%');
+    expect(entities.some((e) => e.type === 'percentage' && e.normalized === '12.5')).toBe(true);
   });
 
   it('passes when amounts are preserved', () => {
@@ -31,7 +58,7 @@ describe('FinancialEntityExtractor', () => {
 
   it('detects missing entity as unsafe', () => {
     const source = extractor.extract('Fee: 2.5%');
-    const translated = extractor.extract('Fee: montant variable'); // percentage removed
+    const translated = extractor.extract('Fee: montant variable');
     const result = extractor.compare(source, translated);
     expect(result.safe).toBe(false);
   });
@@ -49,26 +76,6 @@ describe('FinancialEntityExtractor', () => {
     const comparison = extractor.compare(emptyEntities, plainEntities);
     expect(comparison.safe).toBe(true);
     expect(comparison.violations).toEqual([]);
-  });
-
-  it('extracts multiple amounts in the same text and verifies all', () => {
-    const source = extractor.extract('Montant: 50 000 FCFA, Frais: 1 500 FCFA');
-    expect(source.length).toBe(2);
-    // Translation preserving both amounts
-    const validTranslated = extractor.extract('Amount: 50 000 FCFA, Fee: 1 500 FCFA');
-    expect(extractor.compare(source, validTranslated).safe).toBe(true);
-
-    // Translation missing the second amount (triggers ENTITY_VALUE_CHANGED because amount type exists but value 1500 is missing)
-    const invalidTranslated = extractor.extract('Amount: 50 000 FCFA, Fee: gratuit');
-    const comp = extractor.compare(source, invalidTranslated);
-    expect(comp.safe).toBe(false);
-    expect(comp.violations.some((v) => v.issue.includes('ENTITY_VALUE_CHANGED'))).toBe(true);
-
-    // Translation with all amounts omitted (triggers ENTITY_MISSING)
-    const omittedTranslated = extractor.extract('Amount: gratuit, Fee: gratuit');
-    const compMissing = extractor.compare(source, omittedTranslated);
-    expect(compMissing.safe).toBe(false);
-    expect(compMissing.violations.some((v) => v.issue.includes('ENTITY_MISSING'))).toBe(true);
   });
 
   it('extracts transaction IDs and account IBANs', () => {

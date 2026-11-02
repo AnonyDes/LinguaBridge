@@ -98,6 +98,25 @@ describe('Web Application & CameroPay UI', () => {
     expect(container.textContent).toContain('Zero financial drift guaranteed');
   });
 
+  it('switches CameroPay interface to Ewondo national language', async () => {
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<CameroPayDemo />);
+    });
+
+    const buttons = Array.from(container.querySelectorAll('button'));
+    const ewoButton = buttons.find((b) => b.textContent?.includes('Kóbɔ́ Ewondo'));
+    expect(ewoButton).toBeDefined();
+
+    await act(async () => {
+      ewoButton?.click();
+    });
+
+    expect(container.textContent).toContain('Lóm móni');
+    expect(container.textContent).toContain('Móni mí ne wá é bẽng');
+    expect(container.textContent).toContain('Nlambá nyí a nòng móni');
+  });
+
   it('renders Developer Dashboard with Cameroon pack isolation policy', async () => {
     const root = createRoot(container);
     await act(async () => {

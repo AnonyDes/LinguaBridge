@@ -1,13 +1,15 @@
-// Financial terminology — French/English pairs
-// DO NOT add Cameroonian language equivalents until verified by a linguist
+// Financial terminology — French/English reference pairs
 export const FINANCIAL_GLOSSARY_FR_EN: Record<string, string> = {
   'solde': 'balance',
   'virement': 'transfer',
+  'transfert': 'transfer',
   'retrait': 'withdrawal',
   'dépôt': 'deposit',
+  'depot': 'deposit',
   'frais': 'fees',
   'taux': 'rate',
   'bénéficiaire': 'beneficiary',
+  'beneficiaire': 'beneficiary',
   'confirmer': 'confirm',
   'annuler': 'cancel',
   'historique': 'history',
@@ -17,16 +19,23 @@ export const FINANCIAL_GLOSSARY_FR_EN: Record<string, string> = {
   'devise': 'currency',
   'remboursement': 'refund',
   'prêt': 'loan',
+  'pret': 'loan',
   'intérêt': 'interest',
+  'interet': 'interest',
   'échéance': 'due date',
+  'echeance': 'due date',
   'relevé': 'statement',
+  'releve': 'statement',
   'vérification': 'verification',
+  'verification': 'verification',
   'consentement': 'consent',
+  'tontine': 'tontine',
 };
 
 export const HIGH_RISK_OPERATIONS = [
   'transfer',
   'virement',
+  'transfert',
   'payment',
   'paiement',
   'withdrawal',

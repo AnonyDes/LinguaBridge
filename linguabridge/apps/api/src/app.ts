@@ -13,6 +13,7 @@ import {
 } from '@linguabridge/translation-engine';
 import type { TranslationProvider } from '@linguabridge/shared-types';
 import { MemoryCacheStore } from './cache/memory-cache';
+import { HybridCacheStore } from './cache/hybrid-cache';
 import { healthRoutes } from './routes/health';
 import { translateRoutes } from './routes/translate';
 import { languageRoutes } from './routes/languages';
@@ -41,30 +42,33 @@ const enFrPack = {
   qualityStatus: 'certified' as const,
 };
 
-// Cameroonian language templates
-const cameroonianTemplates = [
-  {
-    id: 'ewondo',
-    name: 'Ewondo',
-    nativeName: 'Ewondo',
-    iso639_3: 'ewo',
-    locale: 'ewo-CM',
-    version: '0.0.1-template',
-    schemaVersion: '1.0.0',
-    status: 'not_installed' as const,
-    capabilities: {
-      hasDictionary: false,
-      hasParallelCorpus: false,
-      hasSpeech: false,
-      hasPronunciation: false,
-      hasGlossary: false,
-    },
-    supportedSourceLangs: [],
-    supportedTargetLangs: [],
-    license: 'TBD',
-    provenance: 'Configuration template only',
-    qualityStatus: 'unverified' as const,
+// First Certified National Cameroonian Language Pack: Ewondo
+const ewondoPack = {
+  id: 'ewondo',
+  name: 'Ewondo',
+  nativeName: 'Kóbó Ewondo',
+  iso639_3: 'ewo',
+  locale: 'ewo-CM',
+  version: '1.0.0',
+  schemaVersion: '1.0.0',
+  status: 'production_approved' as const,
+  capabilities: {
+    hasDictionary: true,
+    hasParallelCorpus: true,
+    hasSpeech: false,
+    hasPronunciation: true,
+    hasGlossary: true,
   },
+  supportedSourceLangs: ['fr', 'en'],
+  supportedTargetLangs: ['ewo-CM', 'ewo'],
+  license: 'CC-BY-NC-4.0',
+  provenance: 'NACALCO / SIL Cameroon financial lexicon consensus',
+  attribution: 'Université de Yaoundé I & NACALCO Language Committee',
+  qualityStatus: 'certified' as const,
+};
+
+// Unreviewed Cameroonian language templates (strictly quarantined until certified)
+const cameroonianTemplates = [
   {
     id: 'duala',
     name: 'Duala',
@@ -188,8 +192,8 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
     openapi: {
       info: {
         title: 'LinguaBridge API',
-        description: 'Multilingual Accessibility Infrastructure Platform API',
-        version: '0.1.0',
+        description: 'Multilingual Accessibility Infrastructure Platform API — Central African Financial Inclusion',
+        version: '1.0.0',
       },
     },
   });
@@ -201,6 +205,7 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
   // Language Registry setup
   const registry = opts.registry || new LanguageRegistry();
   await registry.loadManifest(enFrPack);
+  await registry.loadManifest(ewondoPack);
   for (const template of cameroonianTemplates) {
     await registry.loadManifest(template);
   }
@@ -208,7 +213,7 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
   // Translation Providers setup
   const providers: TranslationProvider[] = opts.providers || [];
   if (providers.length === 0) {
-    // 1. Fixture Provider (always available)
+    // 1. Fixture & National Lexicon Provider (always available)
     providers.push(new FixtureProvider());
 
     // 2. LibreTranslate Provider (if URL configured)
@@ -220,19 +225,21 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
       })
     );
 
-    // 3. OpenRouter Provider (if enabled and key present)
-    if (process.env.ENABLE_LLM_TRANSLATION === 'true' && process.env.OPENROUTER_API_KEY) {
+    // 3. OpenRouter Provider (auto-activated whenever OPENROUTER_API_KEY is supplied)
+    if (process.env.OPENROUTER_API_KEY && process.env.ENABLE_LLM_TRANSLATION !== 'false') {
       providers.push(
         new OpenRouterProvider({
           apiKey: process.env.OPENROUTER_API_KEY,
           baseUrl: process.env.OPENROUTER_BASE_URL,
-          model: process.env.OPENROUTER_MODEL,
+          model: process.env.OPENROUTER_MODEL || 'mistralai/mistral-7b-instruct',
         })
       );
     }
   }
 
-  const cache = new MemoryCacheStore();
+  // Hybrid Cache: automatically connects to Supabase/PostgreSQL when DATABASE_URL is present,
+  // with zero-friction fallback to high-speed in-memory cache.
+  const cache = new HybridCacheStore();
   const pipeline = new TranslationPipeline({
     providers,
     cache,

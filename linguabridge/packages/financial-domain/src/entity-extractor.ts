@@ -1,25 +1,78 @@
+import { createHash } from 'node:crypto';
 import type { FinancialEntity, FinancialGuardResult } from '@linguabridge/shared-types';
 
 const AMOUNT_PATTERNS = [
-  // FCFA/XAF amounts: 50 000 FCFA, 50,000 XAF, 50.000 CFA
-  /\b(\d[\d\s,\.]*(?:\s*\d{3})*)\s*(FCFA|XAF|CFA|EUR|USD|GBP|NGN|GHS)\b/gi,
-  // Standalone large numbers in financial context
-  /\b(\d{1,3}(?:[\s,]\d{3})+)(?:\s*(FCFA|XAF|CFA|EUR|USD|GBP))?\b/g,
+  // FCFA/XAF amounts with currency: 50 000 FCFA, 50,000 XAF, 50.000 CFA, 15000frs, 15000f, 15k cfa
+  /\b(\d[\d\s,\.]*(?:\s*\d{3})*|\d+(?:[.,]\d+)?\s*k)\s*(FCFA|XAF|CFA|EUR|USD|GBP|NGN|GHS|FRS|F)\b/gi,
+  // Standalone large numbers in financial context (thousands separated)
+  /\b(\d{1,3}(?:[\s,\.]\d{3})+)(?:\s*(FCFA|XAF|CFA|EUR|USD|GBP|FRS|F))?\b/gi,
 ];
 
 const PERCENTAGE_PATTERN = /\b(\d+(?:[.,]\d+)?)\s*(?:%|pour\s*cent\b|percent\b)/gi;
 const IBAN_PATTERN = /\b[A-Z]{2}\d{2}[A-Z0-9]{10,30}\b/g;
 const PHONE_PATTERN = /(?:^|[^\w+])((?:\+237|00237|237)?[\s-]?[6-9](?:[\s-]?\d){8})\b/g;
 const DATE_PATTERN = /\b(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})\b/g;
-const TRANSACTION_ID_PATTERN = /\b(?:TXN|REF|ID|ORDER)[A-Z0-9]{6,20}\b/gi;
+const TRANSACTION_ID_PATTERN = /\b(?:TXN|REF|ID|ORDER|TX-)[A-Z0-9]{4,20}\b/gi;
 
-function normalizeAmount(raw: string): string {
-  // Remove all whitespace separators, normalize decimal
-  return raw
-    .replace(/\s/g, '')
-    .replace(/,(\d{3})/g, '$1') // Remove thousands comma
-    .replace(',', '.') // Normalize decimal comma to dot
-    .trim();
+export function normalizeAmount(raw: string): string {
+  const trimmed = raw.trim();
+
+  // Handle 'k' multiplier (e.g. 15k -> 15000, 2.5k -> 2500)
+  const kMatch = trimmed.match(/^(\d+(?:[.,]\d+)?)\s*k$/i);
+  if (kMatch) {
+    const val = parseFloat(kMatch[1].replace(',', '.'));
+    return String(Math.round(val * 1000));
+  }
+
+  // Remove whitespace
+  let clean = trimmed.replace(/\s+/g, '');
+
+  const hasComma = clean.includes(',');
+  const hasDot = clean.includes('.');
+
+  if (hasComma && hasDot) {
+    const lastComma = clean.lastIndexOf(',');
+    const lastDot = clean.lastIndexOf('.');
+    if (lastDot > lastComma) {
+      // 15,500.50 -> US format (comma thousands, dot decimal)
+      clean = clean.replace(/,/g, '');
+    } else {
+      // 15.500,50 -> FR format (dot thousands, comma decimal)
+      clean = clean.replace(/\./g, '').replace(',', '.');
+    }
+  } else if (hasComma) {
+    const parts = clean.split(',');
+    if (parts.length === 2 && parts[1].length === 3 && parts[0].length >= 1) {
+      // 15,000 -> thousands comma
+      clean = clean.replace(',', '');
+    } else if (parts.length > 2) {
+      // 1,000,000 -> thousands commas
+      clean = clean.replace(/,/g, '');
+    } else {
+      // 15,50 -> decimal comma
+      clean = clean.replace(',', '.');
+    }
+  } else if (hasDot) {
+    const parts = clean.split('.');
+    if (parts.length === 2 && parts[1].length === 3 && parts[0].length >= 1) {
+      // 15.000 -> European thousands dot
+      clean = clean.replace('.', '');
+    } else if (parts.length > 2) {
+      // 1.000.000 -> multiple thousands dots
+      clean = clean.replace(/\./g, '');
+    }
+  }
+
+  return clean;
+}
+
+export function computeEntityFingerprint(entities: FinancialEntity[]): string {
+  if (entities.length === 0) return '0000000000000000000000000000000000000000000000000000000000000000';
+  const canonical = entities
+    .map((e) => `${e.type}:${e.normalized}`)
+    .sort()
+    .join('|');
+  return createHash('sha256').update(canonical).digest('hex');
 }
 
 export class FinancialEntityExtractor {
@@ -47,7 +100,14 @@ export class FinancialEntityExtractor {
       let match;
       while ((match = regex.exec(text)) !== null) {
         const raw = match[0];
-        const normalized = normalizeAmount(match[1]) + (match[2] ? '_' + match[2].toUpperCase() : '');
+        let currency = match[2] ? match[2].toUpperCase() : '';
+        // Canonicalize CEMAC currency names to FCFA
+        if (currency === 'F' || currency === 'FRS' || currency === 'CFA' || currency === 'XAF') {
+          currency = 'FCFA';
+        }
+
+        const normalizedVal = normalizeAmount(match[1]);
+        const normalized = normalizedVal + (currency ? '_' + currency : '');
         addEntity('amount', raw, normalized, match.index, match.index + raw.length);
       }
     }
@@ -97,17 +157,17 @@ export class FinancialEntityExtractor {
   compare(
     sourceEntities: FinancialEntity[],
     translatedEntities: FinancialEntity[]
-  ): FinancialGuardResult {
+  ): FinancialGuardResult & { sourceFingerprint: string; translatedFingerprint: string } {
     const violations: FinancialGuardResult['violations'] = [];
+    const sourceFingerprint = computeEntityFingerprint(sourceEntities);
+    const translatedFingerprint = computeEntityFingerprint(translatedEntities);
 
     for (const sourceEntity of sourceEntities) {
-      // Find matching entity by type and normalized value in translation
       const match = translatedEntities.find(
         (te) => te.type === sourceEntity.type && te.normalized === sourceEntity.normalized
       );
 
       if (!match) {
-        // Check if entity exists with different value (CRITICAL: amount changed)
         const sameType = translatedEntities.filter((te) => te.type === sourceEntity.type);
 
         if (sameType.length > 0) {
@@ -128,8 +188,10 @@ export class FinancialEntityExtractor {
     }
 
     return {
-      safe: violations.length === 0,
+      safe: violations.length === 0 && sourceFingerprint === translatedFingerprint,
       violations,
+      sourceFingerprint,
+      translatedFingerprint,
     };
   }
 }

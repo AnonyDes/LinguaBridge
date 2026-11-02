@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FinancialEntityExtractor } from '@linguabridge/financial-domain';
+import { FinancialEntityExtractor, computeEntityFingerprint } from '@linguabridge/financial-domain';
 import { LinguaBridgeClient } from '@linguabridge/sdk-js';
 
 const client = new LinguaBridgeClient({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+  apiKey: 'lb_demo_key_2026',
 });
 
 interface Transaction {
@@ -18,15 +19,29 @@ interface Transaction {
   reference: string;
 }
 
+type SupportedLang = 'fr' | 'en' | 'ewo-CM';
+
 export default function CameroPayDemo() {
-  const [lang, setLang] = useState<'fr' | 'en'>('fr');
+  const [lang, setLang] = useState<SupportedLang>('fr');
   const [balance, setBalance] = useState(125500);
   const [recipient, setRecipient] = useState('+237 699 123 456');
   const [amount, setAmount] = useState('15000');
   const [reason, setReason] = useState('Paiement tontine mensuelle');
-  const [guardActive, setGuardActive] = useState(true);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showPhoneticModal, setShowPhoneticModal] = useState(false);
   const [transferSuccess, setTransferSuccess] = useState(false);
+
+  // Live Translation Sandbox State
+  const [sandboxText, setSandboxText] = useState('Votre solde est de 15 000 FCFA');
+  const [sandboxTarget, setSandboxTarget] = useState<'ewo-CM' | 'fr' | 'en'>('ewo-CM');
+  const [sandboxResult, setSandboxResult] = useState<{
+    translatedText?: string;
+    provider?: string;
+    cacheStatus?: string;
+    latencyMs?: number;
+    status?: string;
+  } | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const [transactions, setTransactions] = useState<Transaction[]>([
     {
@@ -60,10 +75,13 @@ export default function CameroPayDemo() {
 
   // Extract financial entities in real time
   const extractor = new FinancialEntityExtractor();
-  const rawTransferSummary = `${lang === 'fr' ? 'Transfert de' : 'Transfer of'} ${amount} FCFA ${
-    lang === 'fr' ? 'vers' : 'to'
+  const rawTransferSummary = `${
+    lang === 'fr' ? 'Transfert de' : lang === 'en' ? 'Transfer of' : 'Lóm móni'
+  } ${amount} FCFA ${
+    lang === 'fr' ? 'vers' : lang === 'en' ? 'to' : 'asú'
   } ${recipient} - ${reason}`;
   const entities = extractor.extract(rawTransferSummary);
+  const fingerprint = computeEntityFingerprint(entities);
 
   const t = {
     fr: {
@@ -83,6 +101,7 @@ export default function CameroPayDemo() {
       modalConfirm: 'Valider et Envoyer les Fonds',
       modalCancel: 'Annuler',
       successMsg: 'Transfert effectué avec succès ! Le reçu a été généré.',
+      audioBtn: 'Écouter l\'instruction',
     },
     en: {
       appName: 'CameroPay',
@@ -101,8 +120,70 @@ export default function CameroPayDemo() {
       modalConfirm: 'Authorize & Send Funds',
       modalCancel: 'Cancel',
       successMsg: 'Transfer completed successfully! Digital receipt generated.',
+      audioBtn: 'Listen to instruction',
+    },
+    'ewo-CM': {
+      appName: 'CameroPay (Kamerun)',
+      tagline: 'Makid me moniká ya Kamerun — Kóbɔ́ Ewondo',
+      balanceLabel: 'Móni mí ne wá é bẽng (Solde disponible)',
+      transferTitle: 'Lóm móni (Effectuer un transfert)',
+      recipientLabel: 'Nlambá nyí a nòng móni (Orange / MTN)',
+      amountLabel: 'Abui móni yá nlóm (FCFA)',
+      reasonLabel: 'Asu dzé / Nkat (Motif / Référence)',
+      feeNote: 'Móni mébembá: 150 FCFA | Zéro dérive financière garantie',
+      btnSend: 'Tíbíli tóbó nlóm (Confirmer le transfert)',
+      guardTitle: 'LinguaBridge Kômba Moniká',
+      guardDesc: 'Mfi ya mbeng: abui móni ya nlambá telefôn me ne tídán a komputa náa mam mé té síli yá dérive.',
+      historyTitle: 'Minlóm mí ayáa lót (Historique)',
+      modalTitle: 'Tíbíli tóbó nlóm (Validation)',
+      modalConfirm: 'Tindi móni (Valider et envoyer)',
+      modalCancel: 'Dzágbá (Annuler)',
+      successMsg: 'Lóm móni l\'ayáa dúa ! Kaladí nláman ayáa fóbán.',
+      audioBtn: 'Vók nkat (Écouter)',
     },
   }[lang];
+
+  const handleSpeak = (text: string) => {
+    if (lang === 'ewo-CM') {
+      setShowPhoneticModal(true);
+      return;
+    }
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang === 'fr' ? 'fr-FR' : 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleLiveTranslate = async () => {
+    setIsTranslating(true);
+    try {
+      const result = await client.translate({
+        text: sandboxText,
+        sourceLang: lang === 'ewo-CM' ? 'ewo-CM' : lang,
+        targetLang: sandboxTarget,
+        domain: 'financial',
+      });
+      setSandboxResult({
+        translatedText: result.translatedText,
+        provider: result.provider,
+        cacheStatus: result.cacheStatus,
+        latencyMs: result.latencyMs,
+        status: result.status,
+      });
+    } catch (err) {
+      setSandboxResult({
+        translatedText: `Erreur: ${(err as Error).message}`,
+        provider: 'api_fallback',
+        cacheStatus: 'miss',
+        latencyMs: 0,
+        status: 'error',
+      });
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   const handleExecuteTransfer = () => {
     const numericAmount = parseFloat(amount.replace(/[^0-9]/g, '')) || 0;
@@ -127,7 +208,7 @@ export default function CameroPayDemo() {
   return (
     <div className="container" style={{ padding: '40px 20px', maxWidth: '1000px' }}>
       {/* Top Bar with Language Selector */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#047857' }}>
             📱 {t.appName}
@@ -142,7 +223,7 @@ export default function CameroPayDemo() {
             <button
               onClick={() => setLang('fr')}
               style={{
-                padding: '6px 14px',
+                padding: '6px 12px',
                 border: 'none',
                 background: lang === 'fr' ? 'var(--primary)' : '#ffffff',
                 color: lang === 'fr' ? '#ffffff' : 'var(--text-main)',
@@ -156,7 +237,7 @@ export default function CameroPayDemo() {
             <button
               onClick={() => setLang('en')}
               style={{
-                padding: '6px 14px',
+                padding: '6px 12px',
                 border: 'none',
                 background: lang === 'en' ? 'var(--primary)' : '#ffffff',
                 color: lang === 'en' ? '#ffffff' : 'var(--text-main)',
@@ -166,6 +247,20 @@ export default function CameroPayDemo() {
               }}
             >
               English
+            </button>
+            <button
+              onClick={() => setLang('ewo-CM')}
+              style={{
+                padding: '6px 12px',
+                border: 'none',
+                background: lang === 'ewo-CM' ? '#047857' : '#ffffff',
+                color: lang === 'ewo-CM' ? '#ffffff' : 'var(--text-main)',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontSize: '13px',
+              }}
+            >
+              🇨🇲 Kóbɔ́ Ewondo
             </button>
           </div>
         </div>
@@ -203,13 +298,30 @@ export default function CameroPayDemo() {
           boxShadow: '0 8px 20px rgba(4, 120, 87, 0.25)',
         }}
       >
-        <div style={{ fontSize: '13px', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          {t.balanceLabel}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: '13px', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {t.balanceLabel}
+          </div>
+          <button
+            onClick={() => handleSpeak(`${t.balanceLabel}: ${balance} FCFA`)}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              color: '#fff',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 600,
+            }}
+          >
+            🔊 {t.audioBtn}
+          </button>
         </div>
         <div style={{ fontSize: '42px', fontWeight: 900, marginTop: '8px', letterSpacing: '-0.02em' }}>
           {balance.toLocaleString('fr-FR')} <span style={{ fontSize: '24px' }}>FCFA</span>
         </div>
-        <div style={{ marginTop: '14px', display: 'flex', gap: '16px', fontSize: '12px', opacity: 0.85 }}>
+        <div style={{ marginTop: '14px', display: 'flex', gap: '16px', fontSize: '12px', opacity: 0.85, flexWrap: 'wrap' }}>
           <span>ID: <strong>237-9812-401</strong></span>
           <span>•</span>
           <span>CEMAC / BEAC Regulated</span>
@@ -222,7 +334,23 @@ export default function CameroPayDemo() {
       <div className="grid-2" style={{ marginBottom: '32px' }}>
         {/* Form Card */}
         <div className="card">
-          <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '18px' }}>{t.transferTitle}</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700 }}>{t.transferTitle}</h2>
+            <button
+              onClick={() => handleSpeak(`${t.transferTitle}. ${t.amountLabel}: ${amount} FCFA`)}
+              style={{
+                background: '#f1f5f9',
+                border: '1px solid #cbd5e1',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '11px',
+                fontWeight: 600,
+              }}
+            >
+              🔊 Audio
+            </button>
+          </div>
 
           <div style={{ marginBottom: '14px' }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>
@@ -344,10 +472,81 @@ export default function CameroPayDemo() {
             </div>
           </div>
 
-          <div style={{ marginTop: '16px', fontSize: '11px', color: '#64748b' }}>
-            Reference check: <code>SHA256-{entities.length > 0 ? 'VALID' : 'STANDBY'}</code>
+          <div style={{ marginTop: '16px', fontSize: '11px', color: '#64748b', wordBreak: 'break-all' }}>
+            Reference check: <code>SHA256-{fingerprint.substring(0, 16)}</code>
           </div>
         </div>
+      </div>
+
+      {/* Live Interactive Translation Sandbox */}
+      <div className="card" style={{ marginBottom: '32px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
+              ⚡ LinguaBridge Real-Time Financial API Gateway
+            </h3>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              Test live translation between French, English, and Ewondo (NACALCO Certified)
+            </p>
+          </div>
+          <span className="badge badge-success">API Online :3001</span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            value={sandboxText}
+            onChange={(e) => setSandboxText(e.target.value)}
+            style={{
+              flex: 1,
+              minWidth: '240px',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #cbd5e1',
+              fontSize: '13px',
+            }}
+          />
+          <select
+            value={sandboxTarget}
+            onChange={(e) => setSandboxTarget(e.target.value as any)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #cbd5e1',
+              fontSize: '13px',
+              fontWeight: 600,
+            }}
+          >
+            <option value="ewo-CM">Target: 🇨🇲 Ewondo (ewo-CM)</option>
+            <option value="fr">Target: 🇫🇷 French (fr)</option>
+            <option value="en">Target: 🇬🇧 English (en)</option>
+          </select>
+          <button
+            onClick={handleLiveTranslate}
+            disabled={isTranslating}
+            className="btn btn-primary"
+            style={{ padding: '8px 16px', fontSize: '13px' }}
+          >
+            {isTranslating ? 'Translating...' : 'Translate Live ⚡'}
+          </button>
+        </div>
+
+        {sandboxResult && (
+          <div style={{ background: '#ffffff', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '13px' }}>
+            <div style={{ fontWeight: 700, color: '#047857', marginBottom: '6px' }}>
+              Result: {sandboxResult.translatedText}
+            </div>
+            <div style={{ display: 'flex', gap: '14px', fontSize: '11px', color: '#64748b' }}>
+              <span>Provider: <strong>{sandboxResult.provider}</strong></span>
+              <span>•</span>
+              <span>Cache: <strong>{sandboxResult.cacheStatus}</strong></span>
+              <span>•</span>
+              <span>Latency: <strong>{sandboxResult.latencyMs} ms</strong></span>
+              <span>•</span>
+              <span>Status: <strong style={{ color: '#059669' }}>{sandboxResult.status}</strong></span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Transaction History */}
@@ -453,6 +652,69 @@ export default function CameroPayDemo() {
                 {t.modalConfirm}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Phonetic Pronunciation Guide Modal for Ewondo */}
+      {showPhoneticModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px',
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%',
+              maxWidth: '480px',
+              padding: '24px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#047857', marginBottom: '8px' }}>
+              🇨🇲 Kóbɔ́ Ewondo — Guide Phonétique Financier
+            </h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+              Consensus NACALCO / Université de Yaoundé I pour l'accessibilité financière orale:
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ padding: '10px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '13px' }}>
+                <div style={{ fontWeight: 700, color: '#0f172a' }}>Solde disponible (Móni mí ne)</div>
+                <div style={{ color: '#047857', fontFamily: 'monospace', marginTop: '2px' }}>IPA: [móní mí né wá é bèŋ]</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>Tons: Haut-Haut / Haut-Bas</div>
+              </div>
+
+              <div style={{ padding: '10px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '13px' }}>
+                <div style={{ fontWeight: 700, color: '#0f172a' }}>Envoyer de l'argent (Lóm móni)</div>
+                <div style={{ color: '#047857', fontFamily: 'monospace', marginTop: '2px' }}>IPA: [lóm mó-ní]</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>Tons: Haut / Haut-Bas</div>
+              </div>
+
+              <div style={{ padding: '10px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '13px' }}>
+                <div style={{ fontWeight: 700, color: '#0f172a' }}>Frais de transfert (Móni mébembá)</div>
+                <div style={{ color: '#047857', fontFamily: 'monospace', marginTop: '2px' }}>IPA: [mó-ní mé-bèm-bá]</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowPhoneticModal(false)}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '10px' }}
+            >
+              Fermer le guide / Close
+            </button>
           </div>
         </div>
       )}

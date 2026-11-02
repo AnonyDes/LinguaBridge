@@ -33,8 +33,34 @@ const TranslateBodySchema = z.object({
   metadata: z.record(z.unknown()).optional(),
 });
 
+function isAuthorized(apiKeyHeader: string | string[] | undefined): boolean {
+  if (!apiKeyHeader) {
+    // In strict production, an API key is mandatory
+    if (process.env.REQUIRE_API_KEY === 'true') {
+      return false;
+    }
+    return true;
+  }
+  const key = Array.isArray(apiKeyHeader) ? apiKeyHeader[0] : apiKeyHeader;
+  const validKeys = [
+    'lb_demo_key_2026',
+    process.env.API_KEY,
+    process.env.NEXT_PUBLIC_LB_WIDGET_KEY,
+  ].filter(Boolean) as string[];
+
+  return validKeys.includes(key.trim());
+}
+
 export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async (fastify, opts) => {
   fastify.post('/v1/translate', async (request, reply) => {
+    // API Key Authentication validation
+    if (!isAuthorized(request.headers['x-api-key'])) {
+      return reply.status(401).send({
+        error: 'Unauthorized',
+        message: 'Invalid or missing API key. Provide a valid key via the x-api-key header.',
+      });
+    }
+
     const parseResult = TranslateBodySchema.safeParse(request.body);
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -63,6 +89,13 @@ export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async 
   });
 
   fastify.post('/v1/translate/batch', async (request, reply) => {
+    if (!isAuthorized(request.headers['x-api-key'])) {
+      return reply.status(401).send({
+        error: 'Unauthorized',
+        message: 'Invalid or missing API key. Provide a valid key via the x-api-key header.',
+      });
+    }
+
     const batchSchema = z.object({
       requests: z.array(TranslateBodySchema).min(1).max(50),
     });
