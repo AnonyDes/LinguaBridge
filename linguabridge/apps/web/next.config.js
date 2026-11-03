@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
-const isGithubActions = process.env.GITHUB_ACTIONS === 'true';
-const basePath = isGithubActions ? '/LinguaBridge' : '';
+const isGhPages = process.env.GITHUB_ACTIONS === 'true' || process.env.GH_PAGES === 'true';
+const basePath = isGhPages ? '/LinguaBridge' : '';
 
 const nextConfig = {
   reactStrictMode: true,
