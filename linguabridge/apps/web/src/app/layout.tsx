@@ -26,7 +26,7 @@ export default function RootLayout({
               <Link href="/cameropay">CameroPay Demo</Link>
               <Link href="/dashboard">Developer Dashboard</Link>
               <a
-                href="https://github.com/linguabridge"
+                href="https://github.com/AnonyDes/LinguaBridge"
                 target="_blank"
                 rel="noreferrer"
                 className="btn btn-outline"

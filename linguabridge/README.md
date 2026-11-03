@@ -4,6 +4,7 @@
 > *Empowering 10M+ unbanked and informal economic actors across Cameroon & CEMAC with sovereign, zero-drift linguistic infrastructure for Mobile Money and Digital Microfinance.*
 
 [![CI/CD Tests](https://img.shields.io/badge/tests-18%20passed-brightgreen.svg)](#testing--verification)
+[![GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success.svg)](https://AnonyDes.github.io/LinguaBridge/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg)](https://www.typescriptlang.org/)
 [![Turborepo](https://img.shields.io/badge/Turborepo-Monorepo-ef4444.svg)](https://turbo.build/)
 [![National Language](https://img.shields.io/badge/Language%20Pack-Ewondo%20(ewo--CM)-059669.svg)](#certified-national-language-ewondo)
@@ -105,10 +106,16 @@ Visit the interactive apps:
 
 ---
 
-## ☁️ Turnkey Cloud Deployment (Only 3 Keys Needed)
+## ☁️ Turnkey Deployment (GitHub Pages or Vercel)
 
 Full details available in [docs/deployment/TURNKEY_DEPLOYMENT.md](docs/deployment/TURNKEY_DEPLOYMENT.md):
 
+### Option A: 100% Free GitHub Pages (Automated via GitHub Actions)
+LinguaBridge includes an automated workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) that automatically builds and deploys the showcase on every push:
+- **Live URL**: `https://AnonyDes.github.io/LinguaBridge/`
+- Zero external accounts or hosting configuration required.
+
+### Option B: Cloud API & Vercel
 1. **Supabase PostgreSQL**:
    - Create a project on [supabase.com](https://supabase.com).
    - Paste [`infrastructure/migrations/supabase-init.sql`](infrastructure/migrations/supabase-init.sql) into SQL Editor and click **Run**.
