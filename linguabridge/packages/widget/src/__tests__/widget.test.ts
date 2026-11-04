@@ -21,12 +21,13 @@ describe('LinguaBridgeWidget', () => {
       }
       if (url.includes('/v1/translate/batch')) {
         const body = JSON.parse(init?.body as string);
+        const list = body.items || body.requests || [];
         return {
           ok: true,
           json: async () => ({
-            results: body.items.map((i: any) => ({
-              originalText: i.sourceText,
-              translatedText: `En-${i.sourceText}`,
+            results: list.map((i: any) => ({
+              originalText: i.sourceText || i.text,
+              translatedText: `En-${i.sourceText || i.text}`,
               status: 'success',
             })),
           }),
@@ -95,8 +96,9 @@ describe('LinguaBridgeWidget', () => {
     expect(batchCalls.length).toBe(2);
 
     const secondCallBody = JSON.parse(batchCalls[1][1].body);
+    const secondCallList = secondCallBody.requests || secondCallBody.items;
     // Crucial check: verify that sourceText sent in 2nd call is the pristine original text, NOT the translation
-    expect(secondCallBody.items[0].sourceText).toBe('Envoyer 5000 FCFA');
+    expect(secondCallList[0].sourceText).toBe('Envoyer 5000 FCFA');
 
     // Restoration restores original
     widget.restoreOriginalPage();

@@ -16,7 +16,8 @@
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch"
   },
   "dependencies": {
-    "@linguabridge/shared-types": "workspace:*"
+    "@linguabridge/shared-types": "workspace:*",
+    "@linguabridge/financial-domain": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.0.0",

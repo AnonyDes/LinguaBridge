@@ -1,0 +1,9 @@
+{
+  "name": "tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run -c ./vitest.config.ts"
+  }
+}

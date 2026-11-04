@@ -18,6 +18,30 @@ import { healthRoutes } from './routes/health';
 import { translateRoutes } from './routes/translate';
 import { languageRoutes } from './routes/languages';
 import { packRoutes } from './routes/packs';
+import {
+  TranslateRequestSchema,
+  TranslationResultSchema,
+  BatchTranslateRequestSchema,
+  BatchTranslateResponseSchema,
+  AsyncBatchTranslateRequestSchema,
+  AsyncBatchTranslateResponseSchema,
+  LanguageItemSchema,
+  LanguagesListResponseSchema,
+  PackSummarySchema,
+  PacksListResponseSchema,
+  FullPackManifestSchema,
+  UpdatePackStatusBodySchema,
+  UpdatePackStatusResponseSchema,
+  HealthResponseSchema,
+  BatchCompletedWebhookPayloadSchema,
+  BatchFailedWebhookPayloadSchema,
+  FinancialDriftWebhookPayloadSchema,
+  Error400Schema,
+  Error401Schema,
+  Error404Schema,
+  Error422Schema,
+  Error500Schema,
+} from './schemas/openapi-schemas';
 
 // Built-in English-French production pack
 const enFrPack = {
@@ -168,6 +192,11 @@ export interface AppOptions {
 export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> {
   const fastify = Fastify({
     logger: opts.enableLogging ?? false,
+    ajv: {
+      customOptions: {
+        strict: false,
+      },
+    },
   });
 
   // Security headers
@@ -187,19 +216,187 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
     timeWindow: '1 minute',
   });
 
-  // Swagger Documentation
+  // Schema error handler
+  fastify.setErrorHandler((error, _request, reply) => {
+    if (error.validation) {
+      return reply.status(400).send({
+        error: 'Bad Request',
+        message: error.message || 'Validation failed for request parameters or body',
+        details: error.validation,
+      });
+    }
+    return reply.status(error.statusCode || 500).send({
+      error: error.name || 'Internal Server Error',
+      message: error.message || 'An unexpected server error occurred',
+    });
+  });
+
+  // Automated OpenAPI 3.1 Documentation Generation
   await fastify.register(swagger, {
     openapi: {
+      openapi: '3.1.0',
       info: {
-        title: 'LinguaBridge API',
-        description: 'Multilingual Accessibility Infrastructure Platform API — Central African Financial Inclusion',
+        title: 'LinguaBridge API Gateway',
+        description:
+          'Universal Multilingual Accessibility Infrastructure Platform API — Sovereign African Language Translations with Cryptographic AST Zero-Drift Financial Protection.\n\n### Authentication\nProvide a valid API key in the `x-api-key` header (e.g. `lb_demo_key_2026`).\n\n### Interactive Documentation\nExplore request and response schemas, error examples, and live cURL snippets directly below.',
         version: '1.0.0',
+        contact: {
+          name: 'LinguaBridge Core Infrastructure Team',
+          url: 'https://linguabridge.org',
+          email: 'api@linguabridge.org',
+        },
+        license: {
+          name: 'Apache-2.0 / MIT Dual License',
+          url: 'https://linguabridge.org/license',
+        },
+      },
+      servers: [
+        {
+          url: 'http://localhost:3001',
+          description: 'Local development server',
+        },
+        {
+          url: 'https://api.linguabridge.org',
+          description: 'Production API Gateway',
+        },
+      ],
+      components: {
+        securitySchemes: {
+          ApiKeyAuth: {
+            type: 'apiKey',
+            name: 'x-api-key',
+            in: 'header',
+            description:
+              'LinguaBridge API Key for authentication and tenant isolation (e.g., `lb_demo_key_2026`).',
+          },
+        },
+        schemas: {
+          TranslateRequest: TranslateRequestSchema,
+          TranslationResult: TranslationResultSchema,
+          BatchTranslateRequest: BatchTranslateRequestSchema,
+          BatchTranslateResponse: BatchTranslateResponseSchema,
+          AsyncBatchTranslateRequest: AsyncBatchTranslateRequestSchema,
+          AsyncBatchTranslateResponse: AsyncBatchTranslateResponseSchema,
+          LanguageItem: LanguageItemSchema,
+          LanguagesListResponse: LanguagesListResponseSchema,
+          PackSummary: PackSummarySchema,
+          PacksListResponse: PacksListResponseSchema,
+          FullPackManifest: FullPackManifestSchema,
+          UpdatePackStatusBody: UpdatePackStatusBodySchema,
+          UpdatePackStatusResponse: UpdatePackStatusResponseSchema,
+          HealthResponse: HealthResponseSchema,
+          BatchCompletedWebhookPayload: BatchCompletedWebhookPayloadSchema,
+          BatchFailedWebhookPayload: BatchFailedWebhookPayloadSchema,
+          FinancialDriftWebhookPayload: FinancialDriftWebhookPayloadSchema,
+          Error400: Error400Schema,
+          Error401: Error401Schema,
+          Error404: Error404Schema,
+          Error422: Error422Schema,
+          Error500: Error500Schema,
+        },
+      },
+      security: [{ ApiKeyAuth: [] }],
+      tags: [
+        {
+          name: 'Translation',
+          description:
+            'Financial AST-guarded sovereign language translation and synchronous/asynchronous batch processing',
+        },
+        {
+          name: 'Languages',
+          description: 'Certified national languages catalog and discovery (quarantined templates isolated)',
+        },
+        {
+          name: 'Packs',
+          description: 'Administrative language pack management, capability matrix, and lifecycle transitions',
+        },
+        {
+          name: 'System',
+          description: 'Operational readiness, uptime, and translation provider telemetry',
+        },
+      ],
+      webhooks: {
+        'translation.batch.completed': {
+          post: {
+            summary: 'Asynchronous batch translation completed',
+            description:
+              'Dispatched to destination webhookUrl when an asynchronous batch translation completes. Payload includes array of TranslationResult objects with cryptographic AST verification fingerprints and is secured with HMAC SHA-256 in X-LinguaBridge-Signature.',
+            requestBody: {
+              required: true,
+              description: 'Completed batch event payload',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/BatchCompletedWebhookPayload',
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'Webhook delivery acknowledged by receiver',
+              },
+            },
+          },
+        },
+        'translation.batch.failed': {
+          post: {
+            summary: 'Asynchronous batch translation failed',
+            description:
+              'Dispatched when an asynchronous batch translation encounters a failure. Secured with HMAC SHA-256 in X-LinguaBridge-Signature.',
+            requestBody: {
+              required: true,
+              description: 'Batch failure event payload',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/BatchFailedWebhookPayload',
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'Webhook failure event acknowledged',
+              },
+            },
+          },
+        },
+        'audit.financial_drift_detected': {
+          post: {
+            summary: 'Financial entity drift / tampering detected',
+            description:
+              'Real-time security alert dispatched when the AST Financial Guard detects an entity mismatch (monetary amount, currency, phone number, account ID) between source and translated text. Secured with HMAC SHA-256 in X-LinguaBridge-Signature.',
+            requestBody: {
+              required: true,
+              description: 'Financial drift alert payload',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/FinancialDriftWebhookPayload',
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'Security alert acknowledged by fintech monitoring system',
+              },
+            },
+          },
+        },
       },
     },
   });
 
+  // Swagger UI Interactive Documentation Gateway
   await fastify.register(swaggerUi, {
     routePrefix: '/docs',
+    uiConfig: {
+      docExpansion: 'list',
+      deepLinking: true,
+    },
+    staticCSP: false,
   });
 
   // Language Registry setup

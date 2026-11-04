@@ -1,4 +1,16 @@
-export { LinguaBridgeClient, LinguaBridgeError, type LinguaBridgeClientOptions } from './client';
+export {
+  LinguaBridgeClient,
+  LinguaBridgeError,
+  AuthenticationError,
+  ValidationError,
+  FinancialDriftError,
+  verifyZeroDrift,
+  type LinguaBridgeClientOptions,
+  type ZeroDriftResult,
+  type ZeroDriftViolation,
+  type BatchTranslateItem,
+} from './client';
+
 export type {
   TranslationRequest,
   TranslationResult,

@@ -1,14 +1,30 @@
-import type { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import type { TranslationPipeline } from '@linguabridge/translation-engine';
 import type { TranslationRequest } from '@linguabridge/shared-types';
+import {
+  TranslateRequestSchema,
+  TranslationResultSchema,
+  BatchTranslateRequestSchema,
+  BatchTranslateResponseSchema,
+  AsyncBatchTranslateRequestSchema,
+  AsyncBatchTranslateResponseSchema,
+  ApiKeyHeaderSchema,
+  Error400Schema,
+  Error401Schema,
+  Error500Schema,
+  CURL_TRANSLATE,
+  CURL_TRANSLATE_BATCH,
+  CURL_TRANSLATE_ASYNC,
+} from '../schemas/openapi-schemas';
+import { webhookDispatcher } from '../webhooks/webhook-dispatcher';
 
 export interface TranslateRouteOptions {
   pipeline: TranslationPipeline;
 }
 
-const TranslateBodySchema = z.object({
+const TranslateBodyZodSchema = z.object({
   id: z.string().optional(),
   sourceText: z.string().min(1, 'sourceText cannot be empty'),
   sourceLang: z.string().min(2),
@@ -35,7 +51,6 @@ const TranslateBodySchema = z.object({
 
 function isAuthorized(apiKeyHeader: string | string[] | undefined): boolean {
   if (!apiKeyHeader) {
-    // In strict production, an API key is mandatory
     if (process.env.REQUIRE_API_KEY === 'true') {
       return false;
     }
@@ -51,17 +66,82 @@ function isAuthorized(apiKeyHeader: string | string[] | undefined): boolean {
   return validKeys.includes(key.trim());
 }
 
-export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async (fastify, opts) => {
-  fastify.post('/v1/translate', async (request, reply) => {
-    // API Key Authentication validation
-    if (!isAuthorized(request.headers['x-api-key'])) {
-      return reply.status(401).send({
-        error: 'Unauthorized',
-        message: 'Invalid or missing API key. Provide a valid key via the x-api-key header.',
-      });
-    }
+async function authPreValidation(request: FastifyRequest, reply: FastifyReply) {
+  if (!isAuthorized(request.headers['x-api-key'])) {
+    return reply.status(401).send({
+      error: 'Unauthorized',
+      message: 'Invalid or missing API key. Provide a valid key via the x-api-key header.',
+    });
+  }
+}
 
-    const parseResult = TranslateBodySchema.safeParse(request.body);
+export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async (fastify, opts) => {
+  const singleTranslateSchema = {
+    tags: ['Translation'],
+    summary: 'Translate text with financial zero-drift AST protection',
+    description: `Translates source text into certified African sovereign languages (such as Ewondo ewo-CM) or international languages. For financial domains, cryptographic zero-drift AST analysis protects amounts, currencies, account numbers, and phone numbers.\n\n### Interactive cURL\n\`\`\`bash\n${CURL_TRANSLATE}\n\`\`\``,
+    'x-codeSamples': [
+      {
+        lang: 'Shell',
+        label: 'cURL',
+        source: CURL_TRANSLATE,
+      },
+    ],
+    headers: ApiKeyHeaderSchema,
+    body: TranslateRequestSchema,
+    response: {
+      200: TranslationResultSchema,
+      400: Error400Schema,
+      401: Error401Schema,
+      500: Error500Schema,
+    },
+  };
+
+  const batchTranslateSchema = {
+    tags: ['Translation'],
+    summary: 'Synchronous batch translation (1 to 50 items)',
+    description: `Translates an array of 1 to 50 items simultaneously with atomic financial entity preservation.\n\n### Interactive cURL\n\`\`\`bash\n${CURL_TRANSLATE_BATCH}\n\`\`\``,
+    'x-codeSamples': [
+      {
+        lang: 'Shell',
+        label: 'cURL',
+        source: CURL_TRANSLATE_BATCH,
+      },
+    ],
+    headers: ApiKeyHeaderSchema,
+    body: BatchTranslateRequestSchema,
+    response: {
+      200: BatchTranslateResponseSchema,
+      400: Error400Schema,
+      401: Error401Schema,
+      500: Error500Schema,
+    },
+  };
+
+  const asyncBatchTranslateSchema = {
+    tags: ['Translation'],
+    summary: 'Asynchronous batch translation with signed webhook dispatch',
+    description: `Submits an asynchronous batch translation. Results are dispatched upon completion to the provided \`webhookUrl\` with HMAC SHA-256 signatures (\`X-LinguaBridge-Signature\`).\n\n### Interactive cURL\n\`\`\`bash\n${CURL_TRANSLATE_ASYNC}\n\`\`\``,
+    'x-codeSamples': [
+      {
+        lang: 'Shell',
+        label: 'cURL',
+        source: CURL_TRANSLATE_ASYNC,
+      },
+    ],
+    headers: ApiKeyHeaderSchema,
+    body: AsyncBatchTranslateRequestSchema,
+    response: {
+      202: AsyncBatchTranslateResponseSchema,
+      400: Error400Schema,
+      401: Error401Schema,
+      500: Error500Schema,
+    },
+  };
+
+  // Single translate handler
+  const singleTranslateHandler = async (request: FastifyRequest, reply: FastifyReply) => {
+    const parseResult = TranslateBodyZodSchema.safeParse(request.body);
     if (!parseResult.success) {
       return reply.status(400).send({
         error: 'Bad Request',
@@ -78,6 +158,30 @@ export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async 
 
     try {
       const result = await opts.pipeline.process(translationRequest);
+
+      // Financial Drift Alert Webhook Trigger:
+      // If AST Financial Guard flagged the translation as 'unsafe', trigger webhook notification
+      if (result.status === 'unsafe') {
+        const auditWebhookUrl =
+          (request.headers['x-audit-webhook-url'] as string) ||
+          process.env.FINANCIAL_AUDIT_WEBHOOK_URL;
+        if (auditWebhookUrl) {
+          webhookDispatcher
+            .dispatchFinancialDrift(auditWebhookUrl, {
+              translationId: result.id,
+              sourceText: result.originalText,
+              translatedText: result.translatedText,
+              sourceLang: result.sourceLang,
+              targetLang: result.targetLang,
+              domain: translationRequest.domain,
+              violations: result.warnings,
+              detectedAt: new Date().toISOString(),
+              tenantId: translationRequest.tenantId,
+            })
+            .catch((err) => request.log.error(err, 'Failed to dispatch financial drift webhook'));
+        }
+      }
+
       return reply.status(200).send(result);
     } catch (err) {
       request.log.error(err, 'Translation pipeline failed');
@@ -86,21 +190,15 @@ export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async 
         message: 'Translation pipeline encountered an unexpected error',
       });
     }
-  });
+  };
 
-  fastify.post('/v1/translate/batch', async (request, reply) => {
-    if (!isAuthorized(request.headers['x-api-key'])) {
-      return reply.status(401).send({
-        error: 'Unauthorized',
-        message: 'Invalid or missing API key. Provide a valid key via the x-api-key header.',
-      });
-    }
-
-    const batchSchema = z.object({
-      requests: z.array(TranslateBodySchema).min(1).max(50),
+  // Batch translate handler
+  const batchTranslateHandler = async (request: FastifyRequest, reply: FastifyReply) => {
+    const batchZodSchema = z.object({
+      requests: z.array(TranslateBodyZodSchema).min(1).max(50),
     });
 
-    const parseResult = batchSchema.safeParse(request.body);
+    const parseResult = batchZodSchema.safeParse(request.body);
     if (!parseResult.success) {
       return reply.status(400).send({
         error: 'Bad Request',
@@ -124,5 +222,94 @@ export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async 
         message: 'Batch translation pipeline encountered an unexpected error',
       });
     }
-  });
+  };
+
+  // Asynchronous batch translate handler
+  const asyncBatchTranslateHandler = async (request: FastifyRequest, reply: FastifyReply) => {
+    const asyncZodSchema = z.object({
+      requests: z.array(TranslateBodyZodSchema).min(1).max(50),
+      webhookUrl: z.string().url('webhookUrl must be a valid URL'),
+      webhookSecret: z.string().optional(),
+    });
+
+    const parseResult = asyncZodSchema.safeParse(request.body);
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: 'Bad Request',
+        message: 'Invalid async batch translation request body',
+        details: parseResult.error.issues,
+      });
+    }
+
+    const { requests: rawRequests, webhookUrl, webhookSecret } = parseResult.data;
+    const batchId = uuidv4();
+    const requests: TranslationRequest[] = rawRequests.map((r) => ({
+      ...r,
+      id: r.id || uuidv4(),
+    }));
+
+    const startTime = Date.now();
+
+    // Start background processing and respond 202 Accepted immediately
+    setImmediate(async () => {
+      try {
+        const results = await opts.pipeline.processBatch(requests);
+        const durationMs = Date.now() - startTime;
+        const failedCount = results.filter((r) => r.status === 'failed' || r.status === 'unsafe').length;
+        const successCount = results.length - failedCount;
+
+        await webhookDispatcher.dispatchBatchCompleted(
+          webhookUrl,
+          {
+            batchId,
+            totalCount: results.length,
+            successCount,
+            failedCount,
+            results,
+            durationMs,
+          },
+          webhookSecret
+        );
+      } catch (err) {
+        request.log.error(err, 'Async batch translation processing failed');
+        await webhookDispatcher.dispatchBatchFailed(
+          webhookUrl,
+          {
+            batchId,
+            error: (err as Error).name || 'BATCH_PROCESSING_FAILED',
+            message: (err as Error).message || 'Failed to process translation batch',
+            totalCount: requests.length,
+            failedRequests: requests,
+          },
+          webhookSecret
+        );
+      }
+    });
+
+    return reply.status(202).send({
+      batchId,
+      status: 'queued',
+      totalCount: requests.length,
+      webhookUrl,
+      message: 'Asynchronous batch translation accepted and queued for processing',
+    });
+  };
+
+  for (const prefix of ['/api/v1', '/v1']) {
+    fastify.post(
+      `${prefix}/translate`,
+      { schema: singleTranslateSchema, preValidation: authPreValidation },
+      singleTranslateHandler
+    );
+    fastify.post(
+      `${prefix}/translate/batch`,
+      { schema: batchTranslateSchema, preValidation: authPreValidation },
+      batchTranslateHandler
+    );
+    fastify.post(
+      `${prefix}/translate/async`,
+      { schema: asyncBatchTranslateSchema, preValidation: authPreValidation },
+      asyncBatchTranslateHandler
+    );
+  }
 };

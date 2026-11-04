@@ -1,0 +1,36 @@
+{
+  "name": "@linguabridge/cli",
+  "version": "0.1.0",
+  "description": "Developer Command Line Interface for LinguaBridge Universal Interoperability Suite",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "lb": "./dist/bin.js",
+    "linguabridge": "./dist/bin.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "@linguabridge/financial-domain": "workspace:*",
+    "@linguabridge/language-registry": "workspace:*",
+    "@linguabridge/shared-types": "workspace:*",
+    "@linguabridge/translation-engine": "workspace:*",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}
