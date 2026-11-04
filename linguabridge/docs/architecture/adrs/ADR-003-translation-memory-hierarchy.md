@@ -7,7 +7,7 @@
 2026-11-01
 
 ## Context
-In retail banking, mobile money, and USSD financial flows in Cameroon, user interface text is highly repetitive. Over 85% of queries consist of standard UI labels (e.g., *« Solde de votre compte »*, *« Confirmer le transfert »*, *« Retrait d'espèces »*, *« Code secret »*).
+In retail banking, mobile money, and digital financial flows in Cameroon, user interface text is highly repetitive. Over 85% of queries consist of standard UI labels (e.g., *« Solde de votre compte »*, *« Confirmer le transfert »*, *« Retrait d'espèces »*, *« Code secret »*).
 
 Invoking remote neural machine translation engines (e.g., Meta NLLB or DeepL) for every repeated user request introduces significant network latency (150-400ms), external API consumption costs, and probabilistic drift on previously approved terminology.
 

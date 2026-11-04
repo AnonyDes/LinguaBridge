@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-LinguaBridge addresses a foundational barrier in Central African financial technology: while mobile money (MTN Mobile Money, Orange Money, Express Union) and digital microfinance are the primary channels of financial inclusion in Cameroon, software interfaces, USSD menus, and customer agreements remain almost exclusively in French or English. 
+LinguaBridge addresses a foundational barrier in Central African financial technology: while mobile money (MTN Mobile Money, Orange Money, Express Union) and digital microfinance are the primary channels of financial inclusion in Cameroon, software interfaces, web banking portals, and customer agreements remain almost exclusively in French or English. 
 
 In a country of over 250 indigenous languages, large segments of the population—especially rural smallholders, market traders, and tontine members—face language-induced financial exclusion. Generic machine translation systems (Google Translate, DeepL) lack adequate parallel data for Cameroonian languages, fail to account for tonal orthography, and introduce unacceptable hallucination risks on numerical quantities and currency amounts.
 

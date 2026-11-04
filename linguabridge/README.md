@@ -3,7 +3,7 @@
 > **SAFINUM Innovate Challenge 2026 Submission**  
 > *Empowering 10M+ unbanked and informal economic actors across Cameroon & CEMAC with sovereign, zero-drift linguistic infrastructure for Mobile Money and Digital Microfinance.*
 
-[![CI/CD Tests](https://img.shields.io/badge/tests-18%20passed-brightgreen.svg)](#testing--verification)
+[![CI/CD Tests](https://img.shields.io/badge/tests-167%20passed%20(21%20tasks)-brightgreen.svg)](#testing--verification)
 [![GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success.svg)](https://AnonyDes.github.io/LinguaBridge/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg)](https://www.typescriptlang.org/)
 [![Turborepo](https://img.shields.io/badge/Turborepo-Monorepo-ef4444.svg)](https://turbo.build/)
@@ -32,7 +32,7 @@ linguabridge/
 ├── apps/
 │   ├── api/             # Fastify API Gateway (:3001) with Hybrid Cache (Supabase/Memory)
 │   ├── web/             # Next.js 14 Showcase & CameroPay Demo App (:3000)
-│   └── extension/       # Chrome / Kiwi Browser Extension for Web & USSD Portals
+│   └── extension/       # Chrome Browser Extension for Web Banking & Fintech Portals
 ├── packages/
 │   ├── shared-types/    # Core TypeScript interfaces & contracts
 │   ├── financial-domain/# Financial Entity Extractor, AST parsing, SHA-256 integrity
