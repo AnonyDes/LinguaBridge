@@ -55,11 +55,13 @@ globalThis.window = window;
 globalThis.document = document;
 globalThis.chrome = window.chrome;
 globalThis.NodeFilter = window.NodeFilter;
+globalThis.Node = window.Node;
+globalThis.MutationObserver = window.MutationObserver;
 
 // 4. Execute content.js directly using Function
 try {
-  const runner = new Function('window', 'document', 'chrome', 'NodeFilter', contentJs);
-  runner(window, document, window.chrome, window.NodeFilter);
+  const runner = new Function('window', 'document', 'chrome', 'NodeFilter', 'Node', 'MutationObserver', contentJs);
+  runner(window, document, window.chrome, window.NodeFilter, window.Node, window.MutationObserver);
   console.log('✓ content.js evaluated without any SyntaxError or runtime exception');
 } catch (err) {
   console.error('✗ content.js evaluation failed:', err);
@@ -108,6 +110,7 @@ console.log('✓ Translated Nayokan section:', window.document.getElementById('n
 
 if (h1Text.includes('Mbólo') && balanceText.includes('25000 FCFA')) {
   console.log('🎉 ALL LIVE IN-PAGE TRANSLATION CHECKS PASSED PERFECTLY!');
+  process.exit(0);
 } else {
   console.error('✗ Unexpected translation output:', { h1Text, balanceText, btnText });
   process.exit(1);

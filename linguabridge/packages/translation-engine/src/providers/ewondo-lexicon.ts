@@ -2721,10 +2721,28 @@ export const APERTIUM_EWONDO_ENTRIES: LexiconEntry[] = [
 
 export const FINANCIAL_GLOSSARY_ENTRIES: LexiconEntry[] = [
   {
+    "ewo": "Móni mí ne",
+    "fra": "Solde",
+    "en": "Balance",
+    "phonetic": "mó-ní mí né"
+  },
+  {
     "ewo": "Móni mí ne wá é bẽng",
     "fra": "Solde disponible",
     "en": "Available balance",
     "phonetic": "mó-ní mí né wá é bèŋ"
+  },
+  {
+    "ewo": "Móni mí ne náná",
+    "fra": "Solde actuel",
+    "en": "Current balance",
+    "phonetic": "mó-ní mí né ná-ná"
+  },
+  {
+    "ewo": "Móni mí ne tégué abui",
+    "fra": "Solde insuffisant",
+    "en": "Insufficient funds",
+    "phonetic": "mó-ní mí né té-gé à-bùì"
   },
   {
     "ewo": "Lóm móni",
@@ -2733,94 +2751,10 @@ export const FINANCIAL_GLOSSARY_ENTRIES: LexiconEntry[] = [
     "phonetic": "lóm mó-ní"
   },
   {
-    "ewo": "Nòng móni",
-    "fra": "Retrait d'argent",
-    "en": "Cash withdrawal",
-    "phonetic": "nòŋ mó-ní"
-  },
-  {
-    "ewo": "Wóglô móni",
-    "fra": "Dépôt d'argent",
-    "en": "Deposit",
-    "phonetic": "wó-gló mó-ní"
-  },
-  {
-    "ewo": "Móni mébembá mé nlóm",
-    "fra": "Frais de transfert",
-    "en": "Transfer fees",
-    "phonetic": "mó-ní mé-bèm-bá mé n-lóm"
-  },
-  {
-    "ewo": "Nyí a nòng móni",
-    "fra": "Bénéficiaire",
-    "en": "Beneficiary",
-    "phonetic": "nyí à nòŋ mó-ní"
-  },
-  {
-    "ewo": "Tíbíli tóbó",
-    "fra": "Confirmer le transfert",
-    "en": "Confirm transfer",
-    "phonetic": "tí-bí-lí tó-bó"
-  },
-  {
-    "ewo": "Dzágbá",
-    "fra": "Annuler",
-    "en": "Cancel",
-    "phonetic": "dzá-gbá"
-  },
-  {
-    "ewo": "Abui móni",
-    "fra": "Montant du transfert",
-    "en": "Transfer amount",
-    "phonetic": "à-bùì mó-ní"
-  },
-  {
-    "ewo": "Nlambá telefôn",
-    "fra": "Numéro de téléphone",
-    "en": "Phone number",
-    "phonetic": "n-làm-bá té-lé-fôn"
-  },
-  {
-    "ewo": "Ndámbá tsíti",
-    "fra": "Code secret / PIN",
-    "en": "Secret PIN",
-    "phonetic": "n-dám-bá tsí-tí"
-  },
-  {
-    "ewo": "Minlóm mí ayáa lót",
-    "fra": "Historique des transactions",
-    "en": "Transaction history",
-    "phonetic": "mì-n-lóm mí à-yá-á lót"
-  },
-  {
-    "ewo": "Lóm móni l'ayáa dúa",
-    "fra": "Transfert effectué avec succès",
-    "en": "Transfer successful",
-    "phonetic": "lóm mó-ní l-à-yá-á dú-á"
-  },
-  {
-    "ewo": "Lóm móni l'abê dúa",
-    "fra": "Échec de l'opération",
-    "en": "Operation failed",
-    "phonetic": "lóm mó-ní l-à-bé dú-á"
-  },
-  {
-    "ewo": "Móni tsɔ́",
-    "fra": "Cotisation tontine",
-    "en": "Tontine contribution",
-    "phonetic": "mó-ní tsɔ́"
-  },
-  {
-    "ewo": "Ékóbló móni ya étám",
-    "fra": "Compte principal",
-    "en": "Main account",
-    "phonetic": "é-kó-bló mó-ní yà é-tám"
-  },
-  {
-    "ewo": "Kaladí nláman",
-    "fra": "Reçu de paiement",
-    "en": "Payment receipt",
-    "phonetic": "kà-là-dí n-lá-màn"
+    "ewo": "Minlóm mí móni",
+    "fra": "Virements / Transferts",
+    "en": "Transfers",
+    "phonetic": "mì-n-lóm mí mó-ní"
   },
   {
     "ewo": "Vá móni",
@@ -2835,10 +2769,394 @@ export const FINANCIAL_GLOSSARY_ENTRIES: LexiconEntry[] = [
     "phonetic": "nòŋ mó-ní"
   },
   {
+    "ewo": "Nòng móni",
+    "fra": "Retrait d'argent",
+    "en": "Cash withdrawal",
+    "phonetic": "nòŋ mó-ní"
+  },
+  {
+    "ewo": "Minlòng mí móni",
+    "fra": "Retraits",
+    "en": "Withdrawals",
+    "phonetic": "mì-n-lòŋ mí mó-ní"
+  },
+  {
+    "ewo": "Wóglô móni",
+    "fra": "Dépôt d'argent",
+    "en": "Deposit",
+    "phonetic": "wó-gló mó-ní"
+  },
+  {
+    "ewo": "Mewóglô móni",
+    "fra": "Dépôts",
+    "en": "Deposits",
+    "phonetic": "me-wó-gló mó-ní"
+  },
+  {
+    "ewo": "Móni mébembá",
+    "fra": "Frais",
+    "en": "Fees",
+    "phonetic": "mó-ní mé-bèm-bá"
+  },
+  {
+    "ewo": "Móni mébembá mé nlóm",
+    "fra": "Frais de transfert",
+    "en": "Transfer fees",
+    "phonetic": "mó-ní mé-bèm-bá mé n-lóm"
+  },
+  {
+    "ewo": "Móni mébembá mé nnòng",
+    "fra": "Frais de retrait",
+    "en": "Cash out fees",
+    "phonetic": "mó-ní mé-bèm-bá mé n-nòŋ"
+  },
+  {
+    "ewo": "Móni mébembá mé ékóbló",
+    "fra": "Frais de tenue de compte",
+    "en": "Account maintenance fees",
+    "phonetic": "mó-ní mé-bèm-bá mé é-kó-bló"
+  },
+  {
+    "ewo": "Tégé móni mébembá",
+    "fra": "Sans frais",
+    "en": "Free of charge",
+    "phonetic": "té-gé mó-ní mé-bèm-bá"
+  },
+  {
+    "ewo": "Nyí a nòng móni",
+    "fra": "Bénéficiaire",
+    "en": "Beneficiary",
+    "phonetic": "nyí à nòŋ mó-ní"
+  },
+  {
+    "ewo": "Nyí a lóm móni",
+    "fra": "Expéditeur",
+    "en": "Sender",
+    "phonetic": "nyí à lóm mó-ní"
+  },
+  {
+    "ewo": "Tíbíli tóbó",
+    "fra": "Confirmer",
+    "en": "Confirm",
+    "phonetic": "tí-bí-lí tó-bó"
+  },
+  {
+    "ewo": "Tíbíli tóbó nlóm",
+    "fra": "Confirmer le transfert",
+    "en": "Confirm transfer",
+    "phonetic": "tí-bí-lí tó-bó n-lóm"
+  },
+  {
+    "ewo": "Dzágbá",
+    "fra": "Annuler",
+    "en": "Cancel",
+    "phonetic": "dzá-gbá"
+  },
+  {
+    "ewo": "Dzágbá nlóm",
+    "fra": "Annuler la transaction",
+    "en": "Cancel transaction",
+    "phonetic": "dzá-gbá n-lóm"
+  },
+  {
+    "ewo": "Abui móni",
+    "fra": "Montant",
+    "en": "Amount",
+    "phonetic": "à-bùì mó-ní"
+  },
+  {
+    "ewo": "Abui móni yá nlóm",
+    "fra": "Montant du transfert",
+    "en": "Transfer amount",
+    "phonetic": "à-bùì mó-ní yá n-lóm"
+  },
+  {
+    "ewo": "Abui móni mésë",
+    "fra": "Montant total",
+    "en": "Total amount",
+    "phonetic": "à-bùì mó-ní mé-së"
+  },
+  {
+    "ewo": "Nlambá telefôn",
+    "fra": "Numéro de téléphone",
+    "en": "Phone number",
+    "phonetic": "n-làm-bá té-lé-fôn"
+  },
+  {
+    "ewo": "Ndámbá tsíti",
+    "fra": "Code secret / PIN",
+    "en": "Secret PIN",
+    "phonetic": "n-dám-bá tsí-tí"
+  },
+  {
+    "ewo": "Ndámbá tsíti éyɔŋ zia",
+    "fra": "Mot de passe temporaire / OTP",
+    "en": "One-time password",
+    "phonetic": "n-dám-bá tsí-tí é-yɔ̀ŋ zì-à"
+  },
+  {
+    "ewo": "Minlóm mí ayáa lót",
+    "fra": "Historique des transactions",
+    "en": "Transaction history",
+    "phonetic": "mì-n-lóm mí à-yá-á lót"
+  },
+  {
+    "ewo": "Nlóm móni",
+    "fra": "Transaction",
+    "en": "Transaction",
+    "phonetic": "n-lóm mó-ní"
+  },
+  {
+    "ewo": "Lóm móni l'ayáa dúa",
+    "fra": "Transfert effectué avec succès",
+    "en": "Transfer successful",
+    "phonetic": "lóm mó-ní l-à-yá-á dú-á"
+  },
+  {
+    "ewo": "Lóm móni l'abê dúa",
+    "fra": "Échec de l'opération",
+    "en": "Operation failed",
+    "phonetic": "lóm mó-ní l-à-bé dú-á"
+  },
+  {
+    "ewo": "É ngá yange",
+    "fra": "En attente",
+    "en": "Pending",
+    "phonetic": "é ŋá yaŋ-ge"
+  },
+  {
+    "ewo": "É ngá bɔban",
+    "fra": "En cours",
+    "en": "In progress",
+    "phonetic": "é ŋá bò-ban"
+  },
+  {
+    "ewo": "Móni tsɔ́",
+    "fra": "Cotisation tontine",
+    "en": "Tontine contribution",
+    "phonetic": "mó-ní tsɔ́"
+  },
+  {
+    "ewo": "Éyɔŋ tsɔ́",
+    "fra": "Tour de tontine",
+    "en": "Tontine turn",
+    "phonetic": "é-yɔ̀ŋ tsɔ́"
+  },
+  {
+    "ewo": "Esulán tsɔ́",
+    "fra": "Réunion de tontine",
+    "en": "Tontine meeting",
+    "phonetic": "é-sù-lán tsɔ́"
+  },
+  {
+    "ewo": "Nòng móni tsɔ́",
+    "fra": "Ramassage tontine",
+    "en": "Tontine payout",
+    "phonetic": "nòŋ mó-ní tsɔ́"
+  },
+  {
+    "ewo": "Ékóbló",
+    "fra": "Compte",
+    "en": "Account",
+    "phonetic": "é-kó-bló"
+  },
+  {
+    "ewo": "Makóbló",
+    "fra": "Comptes",
+    "en": "Accounts",
+    "phonetic": "ma-kó-bló"
+  },
+  {
+    "ewo": "Ékóbló móni ya étám",
+    "fra": "Compte principal",
+    "en": "Main account",
+    "phonetic": "é-kó-bló mó-ní yà é-tám"
+  },
+  {
+    "ewo": "Ékóbló étám",
+    "fra": "Compte courant",
+    "en": "Current account",
+    "phonetic": "é-kó-bló é-tám"
+  },
+  {
+    "ewo": "Ékóbló bóm móni",
+    "fra": "Compte d'épargne",
+    "en": "Savings account",
+    "phonetic": "é-kó-bló bóm mó-ní"
+  },
+  {
+    "ewo": "Bóm móni",
+    "fra": "Épargne",
+    "en": "Savings",
+    "phonetic": "bóm mó-ní"
+  },
+  {
+    "ewo": "Nlambá ékóbló",
+    "fra": "Numéro de compte",
+    "en": "Account number",
+    "phonetic": "n-làm-bá é-kó-bló"
+  },
+  {
+    "ewo": "Kaladí ékóbló",
+    "fra": "Relevé de compte",
+    "en": "Bank statement",
+    "phonetic": "kà-là-dí é-kó-bló"
+  },
+  {
+    "ewo": "Kaladí nláman",
+    "fra": "Reçu de paiement",
+    "en": "Payment receipt",
+    "phonetic": "kà-là-dí n-lá-màn"
+  },
+  {
+    "ewo": "Tóbó móni",
+    "fra": "Paiement",
+    "en": "Payment",
+    "phonetic": "tó-bó mó-ní"
+  },
+  {
+    "ewo": "Tóbó móni yá kaladí",
+    "fra": "Paiement de facture",
+    "en": "Bill payment",
+    "phonetic": "tó-bó mó-ní yá kà-là-dí"
+  },
+  {
+    "ewo": "Tóbó móni nkús",
+    "fra": "Paiement marchand",
+    "en": "Merchant payment",
+    "phonetic": "tó-bó mó-ní n-kús"
+  },
+  {
+    "ewo": "Ndámbá nkús",
+    "fra": "Code marchand",
+    "en": "Merchant code",
+    "phonetic": "n-dám-bá n-kús"
+  },
+  {
+    "ewo": "Ndámbá scan",
+    "fra": "Scanner pour payer",
+    "en": "Scan to pay",
+    "phonetic": "n-dám-bá skan"
+  },
+  {
+    "ewo": "Kùs fón",
+    "fra": "Recharge téléphonique",
+    "en": "Airtime recharge",
+    "phonetic": "kùs fón"
+  },
+  {
+    "ewo": "Nda móni",
+    "fra": "Banque",
+    "en": "Bank",
+    "phonetic": "n-da mó-ní"
+  },
+  {
+    "ewo": "Menda mé móni",
+    "fra": "Banques",
+    "en": "Banks",
+    "phonetic": "men-da mé mó-ní"
+  },
+  {
+    "ewo": "Nda móni tsɔ́",
+    "fra": "Microfinance",
+    "en": "Microfinance",
+    "phonetic": "n-da mó-ní tsɔ́"
+  },
+  {
+    "ewo": "Kálá móni",
+    "fra": "Prêt / Crédit",
+    "en": "Loan",
+    "phonetic": "ká-lá mó-ní"
+  },
+  {
+    "ewo": "Kùs kálá móni",
+    "fra": "Remboursement de prêt",
+    "en": "Loan repayment",
+    "phonetic": "kùs ká-lá mó-ní"
+  },
+  {
+    "ewo": "Abui móni mébembá",
+    "fra": "Taux d'intérêt",
+    "en": "Interest rate",
+    "phonetic": "à-bùì mó-ní mé-bèm-bá"
+  },
+  {
+    "ewo": "Mos yá manë",
+    "fra": "Date d'échéance",
+    "en": "Due date",
+    "phonetic": "mos yá ma-në"
+  },
+  {
+    "ewo": "Mbaán kálá móni",
+    "fra": "Caution / Garantie",
+    "en": "Collateral",
+    "phonetic": "m-ba-án ká-lá mó-ní"
+  },
+  {
+    "ewo": "Kaladí nda móni",
+    "fra": "Carte bancaire",
+    "en": "Bank card",
+    "phonetic": "kà-là-dí n-da mó-ní"
+  },
+  {
+    "ewo": "Kaladí kálá móni",
+    "fra": "Carte de crédit",
+    "en": "Credit card",
+    "phonetic": "kà-là-dí ká-lá mó-ní"
+  },
+  {
+    "ewo": "Kaladí móni",
+    "fra": "Carte de débit",
+    "en": "Debit card",
+    "phonetic": "kà-là-dí mó-ní"
+  },
+  {
+    "ewo": "Dib kaladí móni",
+    "fra": "Bloquer la carte",
+    "en": "Block card",
+    "phonetic": "dib kà-là-dí mó-ní"
+  },
+  {
+    "ewo": "Yob kaladí móni",
+    "fra": "Débloquer la carte",
+    "en": "Unblock card",
+    "phonetic": "yob kà-là-dí mó-ní"
+  },
+  {
+    "ewo": "Masín móni",
+    "fra": "Distributeur automatique / GAB",
+    "en": "ATM",
+    "phonetic": "ma-sín mó-ní"
+  },
+  {
     "ewo": "Émòt a kùs móni",
     "fra": "Point de vente / Agent",
     "en": "Agent / Point of sale",
     "phonetic": "é-mòt à kùs mó-ní"
+  },
+  {
+    "ewo": "Mbaán",
+    "fra": "Sécurité",
+    "en": "Security",
+    "phonetic": "m-ba-án"
+  },
+  {
+    "ewo": "É ne mbaán",
+    "fra": "Sécurisé",
+    "en": "Secured",
+    "phonetic": "é né m-ba-án"
+  },
+  {
+    "ewo": "Lóm móni é ne mbaán",
+    "fra": "Transfert sécurisé",
+    "en": "Secured transfer",
+    "phonetic": "lóm mó-ní é né m-ba-án"
+  },
+  {
+    "ewo": "Asu dzé / nkat",
+    "fra": "Motif du paiement / Référence",
+    "en": "Payment reason / reference",
+    "phonetic": "a-sú dzé / n-kat"
   }
 ];
 
@@ -3085,6 +3403,13 @@ export const EXTENDED_BANKING_UI_LEXICON: Record<string, { ewo: string; phonetic
   'notifications': { ewo: 'Minkat', phonetic: 'mìn-kat' },
   'message': { ewo: 'Nkat', phonetic: 'n-kat' },
   'messages': { ewo: 'Minkat', phonetic: 'mìn-kat' },
+  'motif du paiement': { ewo: 'Asu dzé', phonetic: 'a-sú dzé' },
+  'motif de paiement': { ewo: 'Asu dzé', phonetic: 'a-sú dzé' },
+  'motif': { ewo: 'Asu dzé', phonetic: 'a-sú dzé' },
+  'raison du paiement': { ewo: 'Asu dzé', phonetic: 'a-sú dzé' },
+  'ref': { ewo: 'Nkat', phonetic: 'n-kat' },
+  'référence': { ewo: 'Nkat', phonetic: 'n-kat' },
+  'reference': { ewo: 'Nkat', phonetic: 'n-kat' },
   'bonjour': { ewo: 'Mbólo', phonetic: 'm-bó-lo' },
   'bonsoir': { ewo: 'Mbólo ngoge', phonetic: 'm-bó-lo ŋo-ge' },
   'merci': { ewo: 'Akíba', phonetic: 'a-kí-ba' },
@@ -3323,6 +3648,115 @@ const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
   'great': 'anɛn',
   'yes': 'ɔwɛ',
   'no': 'tégué',
+
+  // Banking & Financial Operations (English)
+  'available balance': 'Móni mí ne wá é bẽng',
+  'current balance': 'Móni mí ne náná',
+  'account balance': 'Móni mí ne',
+  'insufficient funds': 'Móni mí ne tégué abui',
+  'insufficient balance': 'Móni mí ne tégué abui',
+  'money transfer': 'Lóm móni',
+  'transfer money': 'Lóm móni',
+  'make a transfer': 'Lóm móni',
+  'make a money transfer': 'Lóm móni',
+  'send money': 'Lóm móni',
+  'receive money': 'Nòng móni',
+  'cash withdrawal': 'Nòng móni',
+  'cash withdraw': 'Nòng móni',
+  'withdraw money': 'Nòng móni',
+  'withdraw cash': 'Nòng móni',
+  'cash out': 'Nòng móni',
+  'cash in': 'Wóglô móni',
+  'deposit money': 'Wóglô móni',
+  'deposit cash': 'Wóglô móni',
+  'make a deposit': 'Wóglô móni',
+  'make a withdrawal': 'Nòng móni',
+  'confirm transfer': 'Tíbíli tóbó nlóm',
+  'confirm payment': 'Tíbíli tóbó nlóm',
+  'confirm transaction': 'Tíbíli tóbó nlóm',
+  'cancel transfer': 'Dzágbá nlóm',
+  'cancel transaction': 'Dzágbá nlóm',
+  'transfer fees': 'Móni mébembá mé nlóm',
+  'withdrawal fees': 'Móni mébembá mé nnòng',
+  'account maintenance fees': 'Móni mébembá mé ékóbló',
+  'maintenance fees': 'Móni mébembá mé ékóbló',
+  'free of charge': 'Tégé móni mébembá',
+  'zero fees': 'Tégé móni mébembá',
+  'no fees': 'Tégé móni mébembá',
+  'account statement': 'Kaladí ékóbló',
+  'bank statement': 'Kaladí ékóbló',
+  'savings account': 'Ékóbló bóm móni',
+  'current account': 'Ékóbló étám',
+  'checking account': 'Ékóbló étám',
+  'main account': 'Ékóbló móni ya étám',
+  'account number': 'Nlambá ékóbló',
+  'bank account': 'Ékóbló nda móni',
+  'phone number': 'Nlambá telefôn',
+  'mobile number': 'Nlambá telefôn',
+  'recipient phone': 'Nlambá nyí a nòng móni',
+  'recipient number': 'Nlambá nyí a nòng móni',
+  'recipient mobile number': 'Nlambá nyí a nòng móni',
+  'secret pin': 'Ndámbá tsíti',
+  'pin code': 'Ndámbá tsíti',
+  'enter your pin': 'Tsilí ndámbá tsíti wên',
+  'enter pin': 'Tsilí ndámbá tsíti',
+  'one-time password': 'Ndámbá tsíti éyɔŋ zia',
+  'transaction history': 'Minlóm mí ayáa lót',
+  'transaction details': 'Mimbònán mé nlóm móni',
+  'transaction ID': 'Nkat nlóm móni',
+  'reference number': 'Nkat nlóm',
+  'payment receipt': 'Kaladí nláman',
+  'digital receipt': 'Kaladí nláman',
+  'proof of payment': 'Kaladí nláman',
+  'download receipt': 'Nòng kaladí nláman',
+  'view receipt': 'Yên kaladí nláman',
+  'transfer successful': 'Lóm móni l\'ayáa dúa',
+  'transaction successful': 'Lóm móni l\'ayáa dúa',
+  'payment successful': 'Tóbó móni l\'ayáa dúa',
+  'transfer failed': 'Lóm móni l\'abê dúa',
+  'transaction failed': 'Lóm móni l\'abê dúa',
+  'bill payment': 'Tóbó móni yá kaladí',
+  'pay bills': 'Tóbó móni yá kaladí',
+  'pay bill': 'Tóbó móni yá kaladí',
+  'merchant payment': 'Tóbó móni nkús',
+  'merchant code': 'Ndámbá nkús',
+  'scan to pay': 'Ndámbá scan',
+  'airtime recharge': 'Kùs fón',
+  'buy airtime': 'Kùs fón',
+  'mobile recharge': 'Kùs fón',
+  'data bundle': 'Kùs fón',
+  'tontine contribution': 'Móni tsɔ́',
+  'tontine turn': 'Éyɔŋ tsɔ́',
+  'tontine meeting': 'Esulán tsɔ́',
+  'tontine payout': 'Nòng móni tsɔ́',
+  'microfinance institution': 'Nda móni tsɔ́',
+  'microfinance': 'Nda móni tsɔ́',
+  'personal loan': 'Kálá móni',
+  'loan repayment': 'Kùs kálá móni',
+  'repay loan': 'Kùs kálá móni',
+  'interest rate': 'Abui móni mébembá',
+  'due date': 'Mos yá manë',
+  'bank card': 'Kaladí nda móni',
+  'debit card': 'Kaladí móni',
+  'credit card': 'Kaladí kálá móni',
+  'block card': 'Dib kaladí móni',
+  'unblock card': 'Yob kaladí móni',
+  'total amount': 'Abui móni mésë',
+  'transfer amount': 'Abui móni yá nlóm',
+  'payment amount': 'Abui móni yá tóbó',
+  'automated teller machine': 'Masín móni',
+  'atm': 'Masín móni',
+  'branch': 'Tò nda móni',
+  'secured transfer': 'Lóm móni é ne mbaán',
+  'secured payment': 'Tóbó móni é ne mbaán',
+  'secure banking': 'Nda móni é ne mbaán',
+  'in progress': 'É ngá bɔban',
+  'pending': 'É ngá yange',
+  'orange money': 'Orange Money',
+  'mtn momo': 'MTN MoMo',
+  'mobile money': 'Móni fón',
+  'purpose of payment': 'Asu dzé',
+  'payment reason': 'Asu dzé',
 };
 for (const [enWord, ewoWord] of Object.entries(ENGLISH_COMMON_ENTRIES)) {
   enToEwoMap.set(enWord.toLowerCase().trim(), ewoWord);
@@ -3412,59 +3846,146 @@ export function getEwondoPhonetic(ewondoText: string): string {
   if (ewoPhoneticMap.has(norm)) {
     return ewoPhoneticMap.get(norm)!;
   }
-  // Generate phonetic approximation suitable for speech synthesis articulation
-  return ewondoText
-    .replace(/ɔ́/g, 'ó')
-    .replace(/ɔ̀/g, 'ò')
-    .replace(/ɔ/g, 'o')
-    .replace(/ɛ́/g, 'é')
-    .replace(/ɛ̀/g, 'è')
-    .replace(/ɛ/g, 'e')
-    .replace(/ə́/g, 'é')
-    .replace(/ə̀/g, 'è')
-    .replace(/ə/g, 'e')
-    .replace(/ë/g, 'e')
-    .replace(/ŋ/g, 'ng')
-    .replace(/kp/g, 'kp')
-    .replace(/gb/g, 'gb')
-    .replace(/[\u0300-\u036f]/g, '');
+
+  // Multi-word phonetic phrase matching first
+  let working = norm;
+  const multiWordPhonetics = Array.from(ewoPhoneticMap.keys())
+    .filter((k) => k.includes(' ') || k.includes("'"))
+    .sort((a, b) => b.length - a.length);
+
+  for (const phrase of multiWordPhonetics) {
+    if (working.includes(phrase)) {
+      working = working.split(phrase).join(ewoPhoneticMap.get(phrase)!);
+    }
+  }
+
+  // Token-by-token phonetic replacement & acoustic normalization
+  const tokens = working.split(/(\s+|[,;:.!?()\/\-])/);
+  const phoneticTokens = tokens.map((tok) => {
+    if (ewoPhoneticMap.has(tok.toLowerCase())) {
+      return ewoPhoneticMap.get(tok.toLowerCase())!;
+    }
+    // Bantu acoustic articulation normalization
+    return tok
+      .replace(/ɔ́/g, 'ó')
+      .replace(/ɔ̀/g, 'ò')
+      .replace(/ɔ/g, 'o')
+      .replace(/ɛ́/g, 'é')
+      .replace(/ɛ̀/g, 'è')
+      .replace(/ɛ/g, 'e')
+      .replace(/ə́/g, 'é')
+      .replace(/ə̀/g, 'è')
+      .replace(/ə/g, 'e')
+      .replace(/ë/g, 'e')
+      .replace(/ŋ/g, 'ng')
+      .replace(/kp/g, 'kp')
+      .replace(/gb/g, 'gb')
+      .replace(/[\u0300-\u036f]/g, '');
+  });
+
+  return phoneticTokens.join('');
+}
+
+interface GuardedEntity {
+  placeholder: string;
+  raw: string;
+  start: number;
+  end: number;
+}
+
+function extractAndGuardEntities(text: string): { guardedText: string; entities: GuardedEntity[] } {
+  const spans: { start: number; end: number; raw: string }[] = [];
+
+  const PATTERNS: RegExp[] = [
+    // Monetary amounts with currencies (FCFA, XAF, CFA, EUR, USD, etc.) or k multiplier
+    /\b(?:\d[\d\s,\.]*(?:\s*\d{3})*|\d+(?:[.,]\d+)?\s*k)\s*(?:FCFA|XAF|CFA|EUR|USD|GBP|NGN|GHS|FRS|F)\b/gi,
+    // Formatted IBANs & banking account numbers (spaced or unspaced)
+    /\b[A-Z]{2}\d{2}(?:[\s-]?[A-Z0-9]{4}){2,7}(?:[\s-]?[A-Z0-9]{1,4})?\b|\b[A-Z]{2}\d{2}[A-Z0-9]{10,30}\b/gi,
+    // Transaction IDs & references (TXN, REF, ID, ORDER, #)
+    /\b(?:TXN|REF|ID|ORDER|TX-)[A-Z0-9\-]{4,25}\b/gi,
+    /#\d{3,10}\b/g,
+    // Phone numbers (Cameroonian +237, 00237, 237, or 9-digit local)
+    /(?:^|[^\w+])((?:\+237|00237|237)?[\s-]?[6-9](?:[\s-]?\d){8})\b/g,
+    // Percentages
+    /\b\d+(?:[.,]\d+)?\s*(?:%|pour\s*cent\b|percent\b)/gi,
+  ];
+
+  for (const pat of PATTERNS) {
+    const rx = new RegExp(pat.source, pat.flags);
+    let m;
+    while ((m = rx.exec(text)) !== null) {
+      let raw = m[0];
+      let start = m.index;
+      if (m[1]) {
+        raw = m[1].trim();
+        start = m.index + m[0].indexOf(raw);
+      }
+      const end = start + raw.length;
+      spans.push({ start, end, raw });
+    }
+  }
+
+  // Sort spans by starting index
+  spans.sort((a, b) => a.start - b.start);
+
+  // De-duplicate / resolve overlapping spans (keep the longest span)
+  const nonOverlapping: { start: number; end: number; raw: string }[] = [];
+  for (const span of spans) {
+    if (nonOverlapping.length === 0) {
+      nonOverlapping.push(span);
+      continue;
+    }
+    const last = nonOverlapping[nonOverlapping.length - 1];
+    if (span.start < last.end) {
+      if (span.end - span.start > last.end - last.start) {
+        nonOverlapping[nonOverlapping.length - 1] = span;
+      }
+    } else {
+      nonOverlapping.push(span);
+    }
+  }
+
+  // Replace each financial entity span with an immutable placeholder
+  const entities: GuardedEntity[] = [];
+  let result = '';
+  let cursor = 0;
+  for (let i = 0; i < nonOverlapping.length; i++) {
+    const s = nonOverlapping[i];
+    result += text.slice(cursor, s.start);
+    const placeholder = `___FIN_GUARD_${i}___`;
+    result += placeholder;
+    entities.push({ placeholder, raw: s.raw, start: s.start, end: s.end });
+    cursor = s.end;
+  }
+  result += text.slice(cursor);
+
+  return { guardedText: result, entities };
 }
 
 export function translateSentenceToEwondo(text: string): string {
   const trimmed = text.trim();
   if (!trimmed) return text;
 
-  // 1. Direct multi-word / exact check
-  const exact = lookupEwondoWord(trimmed) || lookupEwondoFromEnglish(trimmed);
+  // 1. Guard financial entities deterministically (amounts, phones, account numbers, txn IDs)
+  const { guardedText, entities } = extractAndGuardEntities(trimmed);
+
+  // 2. Direct exact phrase match check
+  const exact = lookupEwondoWord(guardedText) || lookupEwondoFromEnglish(guardedText);
   if (exact) {
-    if (trimmed === trimmed.toUpperCase() && trimmed.length > 1) {
-      return exact.toUpperCase();
+    let result = exact;
+    if (guardedText === guardedText.toUpperCase() && guardedText.length > 1) {
+      result = exact.toUpperCase();
+    } else if (guardedText[0] === guardedText[0].toUpperCase()) {
+      result = exact.charAt(0).toUpperCase() + exact.slice(1);
     }
-    if (trimmed[0] === trimmed[0].toUpperCase()) {
-      return exact.charAt(0).toUpperCase() + exact.slice(1);
+    for (const ent of entities) {
+      result = result.split(ent.placeholder).join(ent.raw);
     }
-    return exact;
+    return result;
   }
 
-  // 2. Financial transfer pattern: "Transfert de 15 000 FCFA vers le +237 699 123 456"
-  const transferMatch = trimmed.match(
-    /(?:transfert|virement|paiement|envoi)\s+(?:de\s+)?(\d[\d\s,.\u00a0]*\s*(?:FCFA|XAF|CFA)?)\s+(?:vers|à|au)\s+([^\-]+)(?:\s*-\s*(.*))?/i
-  );
-  if (transferMatch) {
-    const amount = transferMatch[1].trim();
-    const recipient = transferMatch[2].trim();
-    const reason = transferMatch[3] ? ` - ${transferMatch[3].trim()}` : '';
-    return `Lóm móni mé ${amount} é be ${recipient}${reason}`;
-  }
-
-  // 3. Amount pattern: "Solde de 250 000 FCFA"
-  const balanceMatch = trimmed.match(/(?:solde|balance)\s+(?:est\s+de\s+|de\s+|disponible\s*:?\s*)?(\d[\d\s,.\u00a0]*\s*(?:FCFA|XAF|CFA)?)/i);
-  if (balanceMatch && balanceMatch[1]) {
-    return `Móni mí ne: ${balanceMatch[1].trim()}`;
-  }
-
-  // 4. Multi-word phrases with Unicode boundary matching (sorted by descending length)
-  let workingText = trimmed;
+  // 3. Multi-word phrases with Unicode boundary matching (sorted by descending length)
+  let workingText = guardedText;
   const multiWordKeys = [
     ...Array.from(frToEwoMap.keys()),
     ...Array.from(enToEwoMap.keys()),
@@ -3483,7 +4004,7 @@ export function translateSentenceToEwondo(text: string): string {
     }
   }
 
-  // 5. Individual tokens & French elision handling
+  // 4. Token-by-token replacement & French elision handling
   const words = workingText.split(/(\s+|[,;:.!?()\/\-]|(?<=[ldcsqnjm]['’])(?=[\p{L}]))/u);
   const translatedTokens: string[] = [];
 
@@ -3496,13 +4017,20 @@ export function translateSentenceToEwondo(text: string): string {
       translatedTokens.push(token);
       continue;
     }
+
+    // Preserve entity placeholders without modification
+    if (/^___FIN_GUARD_\d+___$/.test(token)) {
+      translatedTokens.push(token);
+      continue;
+    }
+
     // Preserve pure numbers and currency codes
     if (/^[\d\s.,\u00a0]+$/.test(token) || /^(FCFA|XAF|CFA|EUR|USD|XOF)$/i.test(token)) {
       translatedTokens.push(token);
       continue;
     }
 
-    // Check if current token is an elision prefix like "d'", "l'", "c'", "s'", "n'", "qu'"
+    // French elision prefix: d', l', c', s', n', qu'
     if (/^[ldcsqnjm]['’]$/i.test(token)) {
       let nextWordIdx = i + 1;
       while (nextWordIdx < words.length && !words[nextWordIdx]) nextWordIdx++;
@@ -3541,7 +4069,14 @@ export function translateSentenceToEwondo(text: string): string {
     translatedTokens.push(token);
   }
 
-  return translatedTokens.join('');
+  let finalTranslation = translatedTokens.join('');
+
+  // 5. Deterministically restore all guarded financial entities (amounts, phones, IBANs, txn IDs)
+  for (const ent of entities) {
+    finalTranslation = finalTranslation.split(ent.placeholder).join(ent.raw);
+  }
+
+  return finalTranslation;
 }
 
 function escapeRegExp(string: string) {

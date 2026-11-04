@@ -9,10 +9,10 @@ const AMOUNT_PATTERNS = [
 ];
 
 const PERCENTAGE_PATTERN = /\b(\d+(?:[.,]\d+)?)\s*(?:%|pour\s*cent\b|percent\b)/gi;
-const IBAN_PATTERN = /\b[A-Z]{2}\d{2}[A-Z0-9]{10,30}\b/g;
+const IBAN_PATTERN = /\b[A-Z]{2}\d{2}(?:[\s-]?[A-Z0-9]{4}){2,7}(?:[\s-]?[A-Z0-9]{1,4})?\b|\b[A-Z]{2}\d{2}[A-Z0-9]{10,30}\b/gi;
 const PHONE_PATTERN = /(?:^|[^\w+])((?:\+237|00237|237)?[\s-]?[6-9](?:[\s-]?\d){8})\b/g;
 const DATE_PATTERN = /\b(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})\b/g;
-const TRANSACTION_ID_PATTERN = /\b(?:TXN|REF|ID|ORDER|TX-)[A-Z0-9]{4,20}\b/gi;
+const TRANSACTION_ID_PATTERN = /\b(?:TXN|REF|ID|ORDER|TX-)[A-Z0-9\-]{4,25}\b/gi;
 
 export function normalizeAmount(raw: string): string {
   const trimmed = raw.trim();
@@ -124,7 +124,7 @@ export class FinancialEntityExtractor {
     // Extract IBANs / account IDs
     const ibanRegex = new RegExp(IBAN_PATTERN.source, IBAN_PATTERN.flags);
     while ((match = ibanRegex.exec(text)) !== null) {
-      addEntity('account_id', match[0], match[0].toUpperCase(), match.index, match.index + match[0].length);
+      addEntity('account_id', match[0], match[0].replace(/[\s-]/g, '').toUpperCase(), match.index, match.index + match[0].length);
     }
 
     // Extract phone numbers

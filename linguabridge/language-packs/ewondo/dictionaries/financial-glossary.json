@@ -3,17 +3,41 @@
   "iso639_3": "ewo",
   "locale": "ewo-CM",
   "domain": "financial",
-  "version": "1.0.0",
-  "provenance": "NACALCO / SIL Cameroon & Université de Yaoundé I linguistic consensus",
+  "version": "1.1.0",
+  "provenance": "NACALCO / SIL Cameroon & Université de Yaoundé I linguistic consensus (CEMAC Banking & Mobile Money)",
   "qualityStatus": "certified",
   "terms": [
     {
       "key": "balance",
+      "fr": "Solde",
+      "en": "Balance",
+      "ewo": "Móni mí ne",
+      "phonetic": "mó-ní mí né",
+      "definition": "Position financière ou somme d'argent présente sur le compte"
+    },
+    {
+      "key": "available_balance",
       "fr": "Solde disponible",
       "en": "Available balance",
       "ewo": "Móni mí ne wá é bẽng",
       "phonetic": "mó-ní mí né wá é bèŋ",
-      "definition": "Argent actuellement présent et utilisable sur le compte"
+      "definition": "Argent actuellement présent et immédiatement utilisable sur le compte"
+    },
+    {
+      "key": "current_balance",
+      "fr": "Solde actuel",
+      "en": "Current balance",
+      "ewo": "Móni mí ne náná",
+      "phonetic": "mó-ní mí né ná-ná",
+      "definition": "Solde au moment précis de la consultation"
+    },
+    {
+      "key": "insufficient_balance",
+      "fr": "Solde insuffisant",
+      "en": "Insufficient funds",
+      "ewo": "Móni mí ne tégué abui",
+      "phonetic": "mó-ní mí né té-gé à-bùì",
+      "definition": "Fonds disponibles insuffisants pour couvrir la transaction"
     },
     {
       "key": "transfer",
@@ -24,6 +48,30 @@
       "definition": "Action d'envoyer de l'argent à un destinataire"
     },
     {
+      "key": "transfers",
+      "fr": "Virements / Transferts",
+      "en": "Transfers",
+      "ewo": "Minlóm mí móni",
+      "phonetic": "mì-n-lóm mí mó-ní",
+      "definition": "Ensemble des opérations d'envoi de fonds"
+    },
+    {
+      "key": "send_money",
+      "fr": "Envoyer de l'argent",
+      "en": "Send money",
+      "ewo": "Lóm móni",
+      "phonetic": "lóm mó-ní",
+      "definition": "Transmettre des fonds à une personne ou entreprise"
+    },
+    {
+      "key": "receive_money",
+      "fr": "Recevoir de l'argent",
+      "en": "Receive money",
+      "ewo": "Nòng móni",
+      "phonetic": "nòŋ mó-ní",
+      "definition": "Encaisser des fonds transférés"
+    },
+    {
       "key": "withdrawal",
       "fr": "Retrait d'argent",
       "en": "Cash withdrawal",
@@ -32,20 +80,68 @@
       "definition": "Retirer des espèces chez un agent ou un distributeur"
     },
     {
+      "key": "withdrawals",
+      "fr": "Retraits",
+      "en": "Withdrawals",
+      "ewo": "Minlòng mí móni",
+      "phonetic": "mì-n-lòŋ mí mó-ní",
+      "definition": "Opérations de retrait en espèces"
+    },
+    {
       "key": "deposit",
       "fr": "Dépôt d'argent",
       "en": "Deposit",
       "ewo": "Wóglô móni",
       "phonetic": "wó-gló mó-ní",
-      "definition": "Créditer son compte en espèces"
+      "definition": "Créditer son compte ou son portefeuille en espèces"
+    },
+    {
+      "key": "deposits",
+      "fr": "Dépôts",
+      "en": "Deposits",
+      "ewo": "Mewóglô móni",
+      "phonetic": "me-wó-gló mó-ní",
+      "definition": "Opérations de versement de fonds"
     },
     {
       "key": "fees",
+      "fr": "Frais",
+      "en": "Fees",
+      "ewo": "Móni mébembá",
+      "phonetic": "mó-ní mé-bèm-bá",
+      "definition": "Commission prélevée pour l'opération"
+    },
+    {
+      "key": "transfer_fees",
       "fr": "Frais de transfert",
       "en": "Transfer fees",
       "ewo": "Móni mébembá mé nlóm",
       "phonetic": "mó-ní mé-bèm-bá mé n-lóm",
-      "definition": "Commission prélevée pour l'opération"
+      "definition": "Frais facturés pour l'envoi de monnaie"
+    },
+    {
+      "key": "withdrawal_fees",
+      "fr": "Frais de retrait",
+      "en": "Cash out fees",
+      "ewo": "Móni mébembá mé nnòng",
+      "phonetic": "mó-ní mé-bèm-bá mé n-nòŋ",
+      "definition": "Frais facturés lors du retrait d'espèces"
+    },
+    {
+      "key": "account_maintenance_fees",
+      "fr": "Frais de tenue de compte",
+      "en": "Account maintenance fees",
+      "ewo": "Móni mébembá mé ékóbló",
+      "phonetic": "mó-ní mé-bèm-bá mé é-kó-bló",
+      "definition": "Frais périodiques de gestion bancaire"
+    },
+    {
+      "key": "free_of_charge",
+      "fr": "Gratuit / Sans frais",
+      "en": "Free of charge",
+      "ewo": "Tégé móni mébembá",
+      "phonetic": "té-gé mó-ní mé-bèm-bá",
+      "definition": "Opération sans commission débitée"
     },
     {
       "key": "beneficiary",
@@ -53,15 +149,31 @@
       "en": "Beneficiary",
       "ewo": "Nyí a nòng móni",
       "phonetic": "nyí à nòŋ mó-ní",
-      "definition": "Personne qui reçoit l'argent envoyé"
+      "definition": "Personne ou entité qui reçoit l'argent envoyé"
+    },
+    {
+      "key": "sender",
+      "fr": "Expéditeur",
+      "en": "Sender",
+      "ewo": "Nyí a lóm móni",
+      "phonetic": "nyí à lóm mó-ní",
+      "definition": "Personne qui initie et paye le transfert"
     },
     {
       "key": "confirm",
-      "fr": "Confirmer le transfert",
-      "en": "Confirm transfer",
+      "fr": "Confirmer",
+      "en": "Confirm",
       "ewo": "Tíbíli tóbó",
       "phonetic": "tí-bí-lí tó-bó",
       "definition": "Valider formellement la transaction financière"
+    },
+    {
+      "key": "confirm_transfer",
+      "fr": "Confirmer le transfert",
+      "en": "Confirm transfer",
+      "ewo": "Tíbíli tóbó nlóm",
+      "phonetic": "tí-bí-lí tó-bó n-lóm",
+      "definition": "Valider définitivement l'ordre de transfert"
     },
     {
       "key": "cancel",
@@ -69,15 +181,23 @@
       "en": "Cancel",
       "ewo": "Dzágbá",
       "phonetic": "dzá-gbá",
-      "definition": "Interrompre l'opération en cours"
+      "definition": "Interrompre l'opération en cours sans débit"
     },
     {
       "key": "amount",
-      "fr": "Montant du transfert",
-      "en": "Transfer amount",
+      "fr": "Montant",
+      "en": "Amount",
       "ewo": "Abui móni",
       "phonetic": "à-bùì mó-ní",
       "definition": "Quantité d'argent en FCFA"
+    },
+    {
+      "key": "total_amount",
+      "fr": "Montant total",
+      "en": "Total amount",
+      "ewo": "Abui móni mésë",
+      "phonetic": "à-bùì mó-ní mé-së",
+      "definition": "Montant principal majoré des commissions"
     },
     {
       "key": "phone_number",
@@ -85,7 +205,63 @@
       "en": "Phone number",
       "ewo": "Nlambá telefôn",
       "phonetic": "n-làm-bá té-lé-fôn",
-      "definition": "Numéro du compte Orange Money ou MTN Mobile Money"
+      "definition": "Numéro de compte mobile (Orange Money, MTN MoMo)"
+    },
+    {
+      "key": "account",
+      "fr": "Compte",
+      "en": "Account",
+      "ewo": "Ékóbló",
+      "phonetic": "é-kó-bló",
+      "definition": "Compte financier ou portefeuille"
+    },
+    {
+      "key": "accounts",
+      "fr": "Comptes",
+      "en": "Accounts",
+      "ewo": "Makóbló",
+      "phonetic": "ma-kó-bló",
+      "definition": "Ensemble des comptes de l'utilisateur"
+    },
+    {
+      "key": "main_account",
+      "fr": "Compte principal",
+      "en": "Main account",
+      "ewo": "Ékóbló móni ya étám",
+      "phonetic": "é-kó-bló mó-ní yà é-tám",
+      "definition": "Compte bancaire ou portefeuille mobile par défaut"
+    },
+    {
+      "key": "savings_account",
+      "fr": "Compte d'épargne",
+      "en": "Savings account",
+      "ewo": "Ékóbló bóm móni",
+      "phonetic": "é-kó-bló bóm mó-ní",
+      "definition": "Compte rémunéré dédié à la constitution d'une réserve"
+    },
+    {
+      "key": "current_account",
+      "fr": "Compte courant",
+      "en": "Current account",
+      "ewo": "Ékóbló étám",
+      "phonetic": "é-kó-bló é-tám",
+      "definition": "Compte pour opérations quotidiennes de débit et crédit"
+    },
+    {
+      "key": "account_number",
+      "fr": "Numéro de compte",
+      "en": "Account number",
+      "ewo": "Nlambá ékóbló",
+      "phonetic": "n-làm-bá é-kó-bló",
+      "definition": "Identifiant unique bancaire ou RIB / IBAN"
+    },
+    {
+      "key": "bank_statement",
+      "fr": "Relevé de compte",
+      "en": "Bank statement",
+      "ewo": "Kaladí ékóbló",
+      "phonetic": "kà-là-dí é-kó-bló",
+      "definition": "Document récapitulatif des opérations mensuelles"
     },
     {
       "key": "pin_code",
@@ -93,7 +269,15 @@
       "en": "Secret PIN",
       "ewo": "Ndámbá tsíti",
       "phonetic": "n-dám-bá tsí-tí",
-      "definition": "Code confidentiel à 4 chiffres"
+      "definition": "Code numérique confidentiel d'autorisation"
+    },
+    {
+      "key": "otp",
+      "fr": "Mot de passe à usage unique / OTP",
+      "en": "One-time password",
+      "ewo": "Ndámbá tsíti éyɔŋ zia",
+      "phonetic": "n-dám-bá tsí-tí é-yɔ̀ŋ zì-à",
+      "definition": "Code de sécurité temporaire reçu par SMS"
     },
     {
       "key": "history",
@@ -101,7 +285,15 @@
       "en": "Transaction history",
       "ewo": "Minlóm mí ayáa lót",
       "phonetic": "mì-n-lóm mí à-yá-á lót",
-      "definition": "Liste des opérations passées"
+      "definition": "Journal des mouvements financiers passés"
+    },
+    {
+      "key": "transaction",
+      "fr": "Transaction / Opération",
+      "en": "Transaction",
+      "ewo": "Nlóm móni",
+      "phonetic": "n-lóm mó-ní",
+      "definition": "Opération financière unitaire"
     },
     {
       "key": "success",
@@ -109,7 +301,7 @@
       "en": "Transfer successful",
       "ewo": "Lóm móni l'ayáa dúa",
       "phonetic": "lóm mó-ní l-à-yá-á dú-á",
-      "definition": "Confirmation d'exécution réussie"
+      "definition": "Confirmation formelle de bon aboutissement"
     },
     {
       "key": "failure",
@@ -120,20 +312,12 @@
       "definition": "L'opération n'a pas pu aboutir"
     },
     {
-      "key": "tontine",
-      "fr": "Cotisation tontine",
-      "en": "Tontine contribution",
-      "ewo": "Móni tsɔ́",
-      "phonetic": "mó-ní tsɔ́",
-      "definition": "Épargne communautaire rotative"
-    },
-    {
-      "key": "account",
-      "fr": "Compte principal",
-      "en": "Main account",
-      "ewo": "Ékóbló móni ya étám",
-      "phonetic": "é-kó-bló mó-ní yà é-tám",
-      "definition": "Compte bancaire ou portefeuille mobile principal"
+      "key": "pending",
+      "fr": "En attente",
+      "en": "Pending",
+      "ewo": "É ngá yange",
+      "phonetic": "é ŋá yaŋ-ge",
+      "definition": "En cours de traitement ou de validation"
     },
     {
       "key": "receipt",
@@ -141,23 +325,175 @@
       "en": "Payment receipt",
       "ewo": "Kaladí nláman",
       "phonetic": "kà-là-dí n-lá-màn",
-      "definition": "Preuve numérique de la transaction"
+      "definition": "Preuve numérique ou papier de la transaction"
     },
     {
-      "key": "send_money",
-      "fr": "Envoyer de l'argent",
-      "en": "Send money",
-      "ewo": "Vá móni",
-      "phonetic": "vá mó-ní",
-      "definition": "Transmettre des fonds"
+      "key": "payment",
+      "fr": "Paiement",
+      "en": "Payment",
+      "ewo": "Tóbó móni",
+      "phonetic": "tó-bó mó-ní",
+      "definition": "Règlement financier d'un bien ou d'une dette"
     },
     {
-      "key": "receive_money",
-      "fr": "Recevoir de l'argent",
-      "en": "Receive money",
-      "ewo": "Nòng móni",
-      "phonetic": "nòŋ mó-ní",
-      "definition": "Encaisser des fonds"
+      "key": "pay_bill",
+      "fr": "Paiement de facture",
+      "en": "Bill payment",
+      "ewo": "Tóbó móni yá kaladí",
+      "phonetic": "tó-bó mó-ní yá kà-là-dí",
+      "definition": "Règlement de facture d'eau, d'électricité ou scolarité"
+    },
+    {
+      "key": "merchant_payment",
+      "fr": "Paiement marchand",
+      "en": "Merchant payment",
+      "ewo": "Tóbó móni nkús",
+      "phonetic": "tó-bó mó-ní n-kús",
+      "definition": "Règlement effectué chez un commerçant"
+    },
+    {
+      "key": "merchant_code",
+      "fr": "Code marchand",
+      "en": "Merchant code",
+      "ewo": "Ndámbá nkús",
+      "phonetic": "n-dám-bá n-kús",
+      "definition": "Identifiant numérique du commerçant agréé"
+    },
+    {
+      "key": "scan_to_pay",
+      "fr": "Scanner pour payer",
+      "en": "Scan to pay",
+      "ewo": "Ndámbá scan",
+      "phonetic": "n-dám-bá skan",
+      "definition": "Paiement sans contact par scan de QR code"
+    },
+    {
+      "key": "airtime_recharge",
+      "fr": "Recharge de crédit téléphonique",
+      "en": "Buy airtime",
+      "ewo": "Kùs fón",
+      "phonetic": "kùs fón",
+      "definition": "Achat de minutes ou data télécom"
+    },
+    {
+      "key": "tontine",
+      "fr": "Cotisation tontine",
+      "en": "Tontine contribution",
+      "ewo": "Móni tsɔ́",
+      "phonetic": "mó-ní tsɔ́",
+      "definition": "Épargne solidaire et communautaire rotative"
+    },
+    {
+      "key": "tontine_round",
+      "fr": "Tour de tontine",
+      "en": "Tontine turn",
+      "ewo": "Éyɔŋ tsɔ́",
+      "phonetic": "é-yɔ̀ŋ tsɔ́",
+      "definition": "Attribution rotative du lot de la tontine"
+    },
+    {
+      "key": "tontine_meeting",
+      "fr": "Réunion de tontine",
+      "en": "Tontine meeting",
+      "ewo": "Esulán tsɔ́",
+      "phonetic": "é-sù-lán tsɔ́",
+      "definition": "Séance périodique de collecte et d'attribution"
+    },
+    {
+      "key": "tontine_payout",
+      "fr": "Ramassage tontine / Gain",
+      "en": "Tontine payout",
+      "ewo": "Nòng móni tsɔ́",
+      "phonetic": "nòŋ mó-ní tsɔ́",
+      "definition": "Encaissement de la cagnotte par l'adhérent"
+    },
+    {
+      "key": "microfinance",
+      "fr": "Microfinance / EMF",
+      "en": "Microfinance",
+      "ewo": "Nda móni tsɔ́",
+      "phonetic": "n-da mó-ní tsɔ́",
+      "definition": "Établissement financier de proximité et d'inclusion"
+    },
+    {
+      "key": "bank",
+      "fr": "Banque",
+      "en": "Bank",
+      "ewo": "Nda móni",
+      "phonetic": "n-da mó-ní",
+      "definition": "Établissement bancaire"
+    },
+    {
+      "key": "loan",
+      "fr": "Prêt / Crédit",
+      "en": "Loan",
+      "ewo": "Kálá móni",
+      "phonetic": "ká-lá mó-ní",
+      "definition": "Fonds avancés remboursables avec intérêt"
+    },
+    {
+      "key": "loan_repayment",
+      "fr": "Remboursement de prêt",
+      "en": "Loan repayment",
+      "ewo": "Kùs kálá móni",
+      "phonetic": "kùs ká-lá mó-ní",
+      "definition": "Paiement périodique d'une tranche de dette"
+    },
+    {
+      "key": "interest_rate",
+      "fr": "Taux d'intérêt",
+      "en": "Interest rate",
+      "ewo": "Abui móni mébembá",
+      "phonetic": "à-bùì mó-ní mé-bèm-bá",
+      "definition": "Pourcentage rémunérant le prêt ou l'épargne"
+    },
+    {
+      "key": "due_date",
+      "fr": "Date d'échéance",
+      "en": "Due date",
+      "ewo": "Mos yá manë",
+      "phonetic": "mos yá ma-në",
+      "definition": "Date limite de paiement sans pénalité"
+    },
+    {
+      "key": "collateral",
+      "fr": "Caution / Garantie",
+      "en": "Collateral",
+      "ewo": "Mbaán kálá móni",
+      "phonetic": "m-ba-án ká-lá mó-ní",
+      "definition": "Garantie matérielle ou financière sur un prêt"
+    },
+    {
+      "key": "bank_card",
+      "fr": "Carte bancaire",
+      "en": "Bank card",
+      "ewo": "Kaladí nda móni",
+      "phonetic": "kà-là-dí n-da mó-ní",
+      "definition": "Support plastique de paiement et retrait"
+    },
+    {
+      "key": "block_card",
+      "fr": "Bloquer la carte / Opposition",
+      "en": "Block card",
+      "ewo": "Dib kaladí móni",
+      "phonetic": "dib kà-là-dí mó-ní",
+      "definition": "Neutraliser la carte en cas de perte ou vol"
+    },
+    {
+      "key": "unblock_card",
+      "fr": "Débloquer la carte",
+      "en": "Unblock card",
+      "ewo": "Yob kaladí móni",
+      "phonetic": "yob kà-là-dí mó-ní",
+      "definition": "Réactiver la carte bancaire après vérification"
+    },
+    {
+      "key": "atm",
+      "fr": "Distributeur automatique / GAB",
+      "en": "ATM",
+      "ewo": "Masín móni",
+      "phonetic": "ma-sín mó-ní",
+      "definition": "Guichet automatique d'espèces"
     },
     {
       "key": "agent",
@@ -166,6 +502,30 @@
       "ewo": "Émòt a kùs móni",
       "phonetic": "é-mòt à kùs mó-ní",
       "definition": "Kiosque ou boutique mobile money agréée"
+    },
+    {
+      "key": "security",
+      "fr": "Sécurité / Sécurisé",
+      "en": "Security",
+      "ewo": "Mbaán",
+      "phonetic": "m-ba-án",
+      "definition": "Garantie de sûreté et de confidentialité"
+    },
+    {
+      "key": "secured_transfer",
+      "fr": "Transfert sécurisé",
+      "en": "Secured transfer",
+      "ewo": "Lóm móni é ne mbaán",
+      "phonetic": "lóm mó-ní é né m-ba-án",
+      "definition": "Virement protégé par chiffrement bancaire"
+    },
+    {
+      "key": "purpose_of_payment",
+      "fr": "Motif du paiement / Référence",
+      "en": "Payment reason / reference",
+      "ewo": "Asu dzé / nkat",
+      "phonetic": "a-sú dzé / n-kat",
+      "definition": "Explication de la finalité de la transaction"
     }
   ]
 }

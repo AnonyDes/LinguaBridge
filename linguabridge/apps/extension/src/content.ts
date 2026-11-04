@@ -5,6 +5,27 @@ class EwondoSpeechPlayer {
   private isPlaying = false;
   private audioCtx: AudioContext | null = null;
   private onEndCallback: (() => void) | null = null;
+  private cachedVoice: SpeechSynthesisVoice | null = null;
+  private voicesLoaded = false;
+
+  constructor() {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      this.initVoice();
+      if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+        window.speechSynthesis.onvoiceschanged = () => this.initVoice();
+      }
+    }
+  }
+
+  private initVoice(): void {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      this.cachedVoice =
+        voices.find((v) => v.lang.startsWith('fr') || v.lang.startsWith('es') || v.lang.startsWith('it')) || voices[0];
+      this.voicesLoaded = true;
+    }
+  }
 
   public speak(text: string, phonetic?: string, onEnd?: () => void): void {
     if (typeof window === 'undefined') return;
@@ -16,18 +37,16 @@ class EwondoSpeechPlayer {
 
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(spokenText);
-      // Pacing for tone clarity and Bantu phonetic articulation
+      // Pacing for crystal-clear tone clarity and Bantu phonetic articulation
       utterance.rate = 0.82;
       utterance.pitch = 1.0;
       utterance.lang = 'fr-FR'; // Pure continental vowels matching Bantu phonology
 
-      // Prefer French or multilingual acoustic voice for phonetic vowels
-      const voices = window.speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        const voice = voices.find((v) => v.lang.startsWith('fr') || v.lang.startsWith('es') || v.lang.startsWith('it'));
-        if (voice) {
-          utterance.voice = voice;
-        }
+      if (!this.cachedVoice && !this.voicesLoaded) {
+        this.initVoice();
+      }
+      if (this.cachedVoice) {
+        utterance.voice = this.cachedVoice;
       }
 
       utterance.onstart = () => {
@@ -113,6 +132,12 @@ class ExtensionAssistant {
   private isTouchSpeakEnabled = false;
   private speechPlayer = new EwondoSpeechPlayer();
 
+  // Lightweight debounced MutationObserver for dynamic SPA banking portals (Afriland, BICEC, Ecobank, UBA, Orange Money)
+  private mutationObserver: MutationObserver | null = null;
+  private mutationDebounceTimeout: any = null;
+  private pendingMutations: Set<Node> = new Set();
+  private isTranslating = false;
+
   private onMouseUpHandler: (() => void) | null = null;
   private onRuntimeMessageHandler: ((msg: any) => void) | null = null;
   private onMouseOverHandler: ((e: MouseEvent) => void) | null = null;
@@ -146,6 +171,7 @@ class ExtensionAssistant {
       document.body.appendChild(this.container);
 
       this.setupListeners();
+      this.setupMutationObserver();
     };
 
     if (document.readyState === 'loading') {
@@ -383,57 +409,166 @@ class ExtensionAssistant {
     }
   }
 
-  public translateFullPage(): void {
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-      acceptNode: (node) => {
-        if (!node.textContent || !node.textContent.trim()) return NodeFilter.FILTER_REJECT;
-        const parent = node.parentElement;
-        if (!parent) return NodeFilter.FILTER_REJECT;
-        const tag = parent.tagName.toLowerCase();
-        if (['script', 'style', 'code', 'pre', 'noscript'].includes(tag)) {
-          return NodeFilter.FILTER_REJECT;
+  private setupMutationObserver(): void {
+    if (typeof MutationObserver === 'undefined') return;
+    if (typeof document === 'undefined' || !document.body) return;
+
+    this.mutationObserver = new MutationObserver((mutations) => {
+      // Prevent recursive trigger loops while applying translation
+      if (this.isTranslating) return;
+      if (!this.isPageTranslated) return;
+
+      let hasRelevantMutations = false;
+      for (let i = 0; i < mutations.length; i++) {
+        const m = mutations[i];
+        if (m.type === 'childList') {
+          for (let j = 0; j < m.addedNodes.length; j++) {
+            const node = m.addedNodes[j];
+            if (this.isExtensionNode(node)) continue;
+            this.pendingMutations.add(node);
+            hasRelevantMutations = true;
+          }
+        } else if (m.type === 'characterData') {
+          const target = m.target;
+          if (this.isExtensionNode(target)) continue;
+          this.pendingMutations.add(target);
+          hasRelevantMutations = true;
         }
-        if (parent.closest('#linguabridge-extension-root')) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      },
+      }
+
+      if (hasRelevantMutations) {
+        this.scheduleDebouncedMutation();
+      }
     });
 
-    const textNodes: { node: Node; text: string; leading: string; trailing: string }[] = [];
-    let curr = walker.nextNode();
-    while (curr) {
-      if (!this.originalTextMap.has(curr)) {
-        this.originalTextMap.set(curr, curr.textContent || '');
-      }
-      const sourceText = this.originalTextMap.get(curr) || curr.textContent || '';
-      const trimmed = sourceText.trim();
-      if (trimmed) {
-        const match = sourceText.match(/^(\s*)([\s\S]*?)(\s*)$/);
-        const leading = match ? match[1] : '';
-        const trailing = match ? match[3] : '';
-        textNodes.push({ node: curr, text: trimmed, leading, trailing });
-      }
-      curr = walker.nextNode();
-    }
+    this.mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+  }
 
-    if (textNodes.length === 0) return;
-
-    // Direct in-page translation using embedded Apertium/NACALCO engine (instantaneous, 100% reliable)
-    for (const item of textNodes) {
-      const translated = translateSentenceToEwondo(item.text);
-      if (translated && translated !== item.text) {
-        item.node.textContent = item.leading + translated + item.trailing;
+  private isExtensionNode(node: Node | null): boolean {
+    if (!node) return false;
+    if (node.nodeType === 1) { // Node.ELEMENT_NODE
+      const el = node as HTMLElement;
+      if (el.id === 'linguabridge-extension-root' || el.closest?.('#linguabridge-extension-root')) {
+        return true;
+      }
+    } else if (node.parentElement) {
+      if (
+        node.parentElement.id === 'linguabridge-extension-root' ||
+        node.parentElement.closest?.('#linguabridge-extension-root')
+      ) {
+        return true;
       }
     }
-    this.isPageTranslated = true;
-    this.render();
+    return false;
+  }
+
+  private scheduleDebouncedMutation(): void {
+    if (this.mutationDebounceTimeout) {
+      clearTimeout(this.mutationDebounceTimeout);
+    }
+    this.mutationDebounceTimeout = setTimeout(() => {
+      this.processPendingMutations();
+    }, 50);
+  }
+
+  private processPendingMutations(): void {
+    if (!this.isPageTranslated || this.pendingMutations.size === 0) {
+      this.pendingMutations.clear();
+      return;
+    }
+
+    this.isTranslating = true;
+    try {
+      for (const node of this.pendingMutations) {
+        this.translateNodeSubtree(node);
+      }
+    } finally {
+      this.pendingMutations.clear();
+      this.isTranslating = false;
+    }
+  }
+
+  private translateNodeSubtree(rootNode: Node): void {
+    if (!rootNode || !rootNode.isConnected) return;
+    if (this.isExtensionNode(rootNode)) return;
+
+    if (rootNode.nodeType === 3) { // Node.TEXT_NODE
+      this.translateSingleTextNode(rootNode);
+      return;
+    }
+
+    if (rootNode.nodeType === 1) { // Node.ELEMENT_NODE
+      const el = rootNode as HTMLElement;
+      const tag = el.tagName?.toLowerCase();
+      if (['script', 'style', 'code', 'pre', 'noscript'].includes(tag)) return;
+
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+        acceptNode: (node) => {
+          if (!node.textContent || !node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          const parentTag = parent.tagName?.toLowerCase();
+          if (['script', 'style', 'code', 'pre', 'noscript'].includes(parentTag)) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (this.isExtensionNode(parent)) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+
+      let curr = walker.nextNode();
+      while (curr) {
+        this.translateSingleTextNode(curr);
+        curr = walker.nextNode();
+      }
+    }
+  }
+
+  private translateSingleTextNode(node: Node): void {
+    if (!this.originalTextMap.has(node)) {
+      this.originalTextMap.set(node, node.textContent || '');
+    }
+    const sourceText = this.originalTextMap.get(node) || node.textContent || '';
+    const trimmed = sourceText.trim();
+    if (trimmed) {
+      const match = sourceText.match(/^(\s*)([\s\S]*?)(\s*)$/);
+      const leading = match ? match[1] : '';
+      const trailing = match ? match[3] : '';
+      const translated = translateSentenceToEwondo(trimmed);
+      if (translated && translated !== trimmed) {
+        node.textContent = leading + translated + trailing;
+      }
+    }
+  }
+
+  public translateFullPage(): void {
+    this.isTranslating = true;
+    try {
+      this.translateNodeSubtree(document.body);
+      this.isPageTranslated = true;
+      this.render();
+    } finally {
+      this.isTranslating = false;
+    }
   }
 
   public restorePage(): void {
-    for (const [node, original] of this.originalTextMap.entries()) {
-      node.textContent = original;
+    this.isTranslating = true;
+    try {
+      for (const [node, original] of this.originalTextMap.entries()) {
+        if (node.isConnected) {
+          node.textContent = original;
+        }
+      }
+      this.isPageTranslated = false;
+      this.render();
+    } finally {
+      this.isTranslating = false;
     }
-    this.isPageTranslated = false;
-    this.render();
   }
 
   private render() {
@@ -733,6 +868,15 @@ class ExtensionAssistant {
       document.removeEventListener('click', this.onClickElementHandler, true);
       this.onClickElementHandler = null;
     }
+    if (this.mutationObserver) {
+      this.mutationObserver.disconnect();
+      this.mutationObserver = null;
+    }
+    if (this.mutationDebounceTimeout) {
+      clearTimeout(this.mutationDebounceTimeout);
+      this.mutationDebounceTimeout = null;
+    }
+    this.pendingMutations.clear();
     if (this.onTouchEndHandler) {
       document.removeEventListener('touchend', this.onTouchEndHandler, true);
       this.onTouchEndHandler = null;

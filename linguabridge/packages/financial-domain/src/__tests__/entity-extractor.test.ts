@@ -83,4 +83,13 @@ describe('FinancialEntityExtractor', () => {
     expect(entities.some((e) => e.type === 'transaction_id' && e.normalized === 'TXN987654321')).toBe(true);
     expect(entities.some((e) => e.type === 'account_id')).toBe(true);
   });
+
+  it('extracts spaced IBANs and hyphenated transaction references with zero normalization drift', () => {
+    const e1 = extractor.extract('Account: CM21 1000 5001 2301 2345 6789 012 Ref: TXN-8492019-X');
+    const e2 = extractor.extract('Compte: CM2110005001230123456789012 Réf: TXN-8492019-X');
+    const comp = extractor.compare(e1, e2);
+    expect(comp.safe).toBe(true);
+    expect(e1.some((e) => e.type === 'account_id' && e.normalized === 'CM2110005001230123456789012')).toBe(true);
+    expect(e1.some((e) => e.type === 'transaction_id' && e.normalized === 'TXN-8492019-X')).toBe(true);
+  });
 });
