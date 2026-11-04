@@ -1,52 +1,176 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <title>LinguaBridge Assistant</title>
   <style>
     body {
-      width: 280px;
+      width: 320px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      padding: 14px;
+      padding: 16px;
       margin: 0;
       font-size: 13px;
-      color: #1f2937;
+      color: #111827;
+      background: #ffffff;
+      line-height: 1.5;
     }
-    h2 {
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-title {
       font-size: 15px;
-      margin: 0 0 10px 0;
-      color: #2563eb;
+      font-weight: 700;
+      color: #111827;
+      margin: 0;
+    }
+    .badge-certified {
+      font-size: 11px;
+      font-weight: 600;
+      background: #f0fdf4;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+      padding: 2px 8px;
+      border-radius: 9999px;
+    }
+    .lang-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .lang-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .lang-desc {
+      font-size: 11px;
+      color: #4b5563;
+      margin: 0;
     }
     .metric {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      font-size: 12px;
       border-bottom: 1px solid #f3f4f6;
     }
     .label {
       font-weight: 500;
-      color: #6b7280;
+      color: #4b5563;
     }
     .value {
       font-weight: 600;
+      color: #111827;
+    }
+    .value.green {
+      color: #15803d;
+    }
+    .btn {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-sizing: border-box;
+      transition: background 0.15s ease;
+      margin-top: 8px;
+    }
+    .btn-primary {
+      background: #16a34a;
+      color: #ffffff;
+      border: 1px solid #16a34a;
+    }
+    .btn-primary:hover {
+      background: #15803d;
+    }
+    .btn-outline {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+    .btn-outline:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+    .footer {
+      margin-top: 12px;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <h2>LinguaBridge Assistant</h2>
+  <div class="header">
+    <div class="brand">
+      <span style="font-size: 18px;">🌐</span>
+      <h2 class="brand-title">LinguaBridge</h2>
+    </div>
+    <span class="badge-certified">🇨🇲 CEMAC Inclusif</span>
+  </div>
+
+  <div class="lang-card">
+    <div class="lang-title">
+      <span>🇨🇲</span>
+      <span>Langue maternelle : Kóbɔ́ Ewondo</span>
+    </div>
+    <p class="lang-desc">
+      Traduction des interfaces bancaires et lecture audio vocale au toucher (Apertium & NACALCO).
+    </p>
+  </div>
+
   <div class="metric">
-    <span class="label">API Gateway:</span>
-    <span class="value" id="api-status">Connecting...</span>
+    <span class="label">Passerelle API :</span>
+    <span class="value green" id="api-status">En ligne (Prêt)</span>
   </div>
   <div class="metric">
-    <span class="label">Languages:</span>
-    <span class="value" id="lang-count">Checking...</span>
+    <span class="label">Dictionnaire :</span>
+    <span class="value" id="lang-count">470+ termes (Apertium/NACALCO)</span>
   </div>
   <div class="metric">
-    <span class="label">Cameroon Packs:</span>
-    <span class="value" style="color: #d97706;">5 Templates (Isolated)</span>
+    <span class="label">Synthèse vocale :</span>
+    <span class="value green">Web Audio + Phonétique intégrée</span>
   </div>
+  <div class="metric">
+    <span class="label">Garde financière :</span>
+    <span class="value green">Protection montants FCFA active</span>
+  </div>
+
+  <button class="btn btn-primary" id="btn-trigger-page">
+    <span>🌐</span>
+    <span>Traduire l'onglet actuel</span>
+  </button>
+  <button class="btn btn-outline" id="btn-trigger-speak">
+    <span>🔊</span>
+    <span>Activer la lecture au toucher</span>
+  </button>
+
+  <div class="footer">
+    Bouton flottant disponible en bas à droite de chaque page.
+  </div>
+
   <script type="module" src="dist/popup.js"></script>
 </body>
 </html>

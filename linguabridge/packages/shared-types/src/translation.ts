@@ -59,6 +59,7 @@ export interface TranslationResult {
   packVersion?: string;
   glossaryVersion?: string;
   memoryId?: string;
+  phonetic?: string;
 }
 
 export interface TranslationProvider {

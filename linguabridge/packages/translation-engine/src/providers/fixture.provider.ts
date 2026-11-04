@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { TranslationProvider, TranslationRequest, TranslationResult, ProviderHealth } from '@linguabridge/shared-types';
+import { translateSentenceToEwondo, getEwondoPhonetic } from './ewondo-lexicon';
 
 const FIXTURES: Record<string, string> = {
   // FR -> EN
@@ -118,17 +119,21 @@ export class FixtureProvider implements TranslationProvider {
 
     // Dynamic phrase templating for financial sentences like:
     // "Transfert de 15 000 FCFA vers le +237 699 123 456"
+    // 3. Apertium & Extended Ewondo Morphological sentence translator
     if (!found && (request.targetLang === 'ewo-CM' || request.targetLang === 'ewo')) {
-      const transferMatch = normSource.match(/(?:transfert|virement)\s+(?:de\s+)?(\d[\d\s,\.]*\s*(?:FCFA|XAF|CFA)?)\s+(?:vers|à)\s+([^\-]+)(?:\s*-\s*(.*))?/i);
-      if (transferMatch) {
-        const amount = transferMatch[1].trim();
-        const recipient = transferMatch[2].trim();
-        const reason = transferMatch[3] ? ` - ${transferMatch[3].trim()}` : '';
-        found = `Lóm móni mé ${amount} é be ${recipient}${reason}`;
+      const ewoSentence = translateSentenceToEwondo(normSource);
+      if (ewoSentence && ewoSentence !== normSource) {
+        found = ewoSentence;
       }
     }
 
-    const translatedText = found ?? `[FIXTURE:${request.targetLang.toUpperCase()}] ${request.sourceText}`;
+    const translatedText = found ?? (
+      (request.targetLang === 'ewo-CM' || request.targetLang === 'ewo')
+        ? translateSentenceToEwondo(request.sourceText)
+        : `[FIXTURE:${request.targetLang.toUpperCase()}] ${request.sourceText}`
+    );
+
+    const isRecognized = !!found || (request.targetLang === 'ewo-CM' || request.targetLang === 'ewo');
 
     return Promise.resolve({
       id: request.id || randomUUID(),
@@ -137,11 +142,12 @@ export class FixtureProvider implements TranslationProvider {
       sourceLang: request.sourceLang,
       targetLang: request.targetLang,
       provider: this.id,
-      status: found ? 'success' : 'unverified',
+      status: isRecognized ? 'success' : 'unverified',
       cacheStatus: 'miss',
-      warnings: found ? [] : ['DEMO_FIXTURE_TRANSLATION — Term not in certified lexicon'],
+      warnings: isRecognized ? [] : ['DEMO_FIXTURE_TRANSLATION — Term not in certified lexicon'],
       latencyMs: 1,
-      speechAvailable: request.targetLang === 'fr' || request.targetLang === 'en',
+      speechAvailable: true,
+      phonetic: (request.targetLang === 'ewo-CM' || request.targetLang === 'ewo') ? getEwondoPhonetic(translatedText) : undefined,
     });
   }
 

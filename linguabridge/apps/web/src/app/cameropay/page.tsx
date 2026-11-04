@@ -306,12 +306,13 @@ export default function CameroPayDemo() {
       <div
         className="card"
         style={{
-          background: 'linear-gradient(135deg, #065f46 0%, #047857 100%)',
+          background: '#15803d',
           color: '#ffffff',
           marginBottom: '24px',
-          padding: '28px',
-          borderRadius: '14px',
-          boxShadow: '0 8px 20px rgba(4, 120, 87, 0.25)',
+          padding: '24px',
+          borderRadius: '8px',
+          border: '1px solid #14532d',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

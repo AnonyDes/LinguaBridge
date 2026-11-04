@@ -4,13 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsup src/background.ts src/content.ts src/popup.ts --format esm --no-splitting && node scripts/postbuild.js",
+    "build": "tsup && node scripts/postbuild.js",
     "test": "vitest run",
-    "dev": "tsup src/background.ts src/content.ts src/popup.ts --format esm --no-splitting --watch"
+    "dev": "tsup --watch"
   },
   "dependencies": {
     "@linguabridge/shared-types": "workspace:*",
-    "@linguabridge/sdk-js": "workspace:*"
+    "@linguabridge/sdk-js": "workspace:*",
+    "@linguabridge/translation-engine": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.0.0",

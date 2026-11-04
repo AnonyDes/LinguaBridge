@@ -1,0 +1,2714 @@
+{
+  "source": "https://github.com/Ngue-Um/apertium-ewo-fra",
+  "license": "GPL-3.0",
+  "description": "Apertium Ewondo-French bilingual dictionary compiled by Dr. Emmanuel Ngue-Um (with Bantu noun class morphology resolved)",
+  "count": 451,
+  "entries": [
+    {
+      "ewo": "a",
+      "fra": "il",
+      "pos": "prn",
+      "par": "cl_0"
+    },
+    {
+      "ewo": "môt",
+      "fra": "personne",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "môt",
+      "fra": "homme",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "módo",
+      "fra": "humanité",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "minga",
+      "fra": "femme",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "abui",
+      "fra": "beaucoup",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "a",
+      "fra": "à",
+      "pos": "pr",
+      "par": ""
+    },
+    {
+      "ewo": "abum",
+      "fra": "ventre",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "abò",
+      "fra": "pied",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "afë",
+      "fra": "autre",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "afi",
+      "fra": "malgré",
+      "pos": "pr",
+      "par": ""
+    },
+    {
+      "ewo": "dzal",
+      "fra": "village",
+      "pos": "n",
+      "par": "n_5a/6_sg/pl"
+    },
+    {
+      "ewo": "byaǹ",
+      "fra": "médicament",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "nyaǹ",
+      "fra": "mer",
+      "pos": "n",
+      "par": "n_9/6_sg/pl"
+    },
+    {
+      "ewo": "anë",
+      "fra": "comme",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "angondo",
+      "fra": "horreur",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "atòm",
+      "fra": "ulcère",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "avus",
+      "fra": "camaraderie",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "baala",
+      "fra": "garder",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mba",
+      "fra": "tambour",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "mbè",
+      "fra": "porte",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "di",
+      "fra": "manger",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "badë",
+      "fra": "encore",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bam",
+      "fra": "gronder",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "aǹ",
+      "fra": "médicament",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "anyaǹ",
+      "fra": "son frère",
+      "pos": "n",
+      "par": "n_1/1_sg/sg"
+    },
+    {
+      "ewo": "dzas",
+      "fra": "don",
+      "pos": "n",
+      "par": "n_5b/6_sg/pl"
+    },
+    {
+      "ewo": "asu",
+      "fra": "pour",
+      "pos": "cnjcoo",
+      "par": ""
+    },
+    {
+      "ewo": "bum",
+      "fra": "ventre",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "ai",
+      "fra": "avec",
+      "pos": "cnjcoo",
+      "par": ""
+    },
+    {
+      "ewo": "ayoǹ",
+      "fra": "chaleur",
+      "pos": "n",
+      "par": "n_5/5_sg/sg"
+    },
+    {
+      "ewo": "mbadëlòg",
+      "fra": "malchance",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "bal",
+      "fra": "sarcler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ban",
+      "fra": "appuyer sur",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mbanda",
+      "fra": "invitation",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "mbaǹ",
+      "fra": "noyau",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "ébaǹ",
+      "fra": "caillot",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "ébaǹ",
+      "fra": "fagot",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "abas",
+      "fra": "nageoire caudale",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "abe",
+      "fra": "mal",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "bebe",
+      "fra": "près de",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "bede",
+      "fra": "soulever",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bede",
+      "fra": "déposer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bende",
+      "fra": "recommander",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mbendan",
+      "fra": "fait d'annoncer",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "bèd",
+      "fra": "monter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bè",
+      "fra": "dépecer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "abè",
+      "fra": "sein",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "abè",
+      "fra": "cuisse",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "bëbë",
+      "fra": "regarder",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bëdan",
+      "fra": "supplanter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ébëdan",
+      "fra": "cadet",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "bëg",
+      "fra": "partitionner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bëgë",
+      "fra": "porter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bëgëlë",
+      "fra": "cafardage",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bëgëlë",
+      "fra": "attiser le feu",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mbëgë",
+      "fra": "charge",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "mbëbëla",
+      "fra": "vérité",
+      "pos": "n",
+      "par": "n_9/6_sg/pl"
+    },
+    {
+      "ewo": "bëlan",
+      "fra": "utiliser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bëlë",
+      "fra": "dire vrai",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bëm",
+      "fra": "enfoncer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ébëm",
+      "fra": "cagibi",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "bëme",
+      "fra": "prévenir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mbëmbë",
+      "fra": "convenable",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "biali",
+      "fra": "naître",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "abi",
+      "fra": "excrément",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "mbi",
+      "fra": "preneur",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "bifëfè",
+      "fra": "végétation anarchique",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "bie",
+      "fra": "donner naissance",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mbie",
+      "fra": "géniteur",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "big",
+      "fra": "dépister",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "big",
+      "fra": "s'enrichir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "abig",
+      "fra": "urticaire",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "abiali",
+      "fra": "naissance",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "mbil",
+      "fra": "course",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "bili",
+      "fra": "être contaminé",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bili",
+      "fra": "être saoule",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bim",
+      "fra": "enfler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "abin",
+      "fra": "pénis",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "bindi",
+      "fra": "dénicher",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bisi",
+      "fra": "photographier",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bisi",
+      "fra": "tenir compte de",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bit",
+      "fra": "entrelacer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ébob",
+      "fra": "grossier",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "abobo",
+      "fra": "araignée",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "boe",
+      "fra": "casser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bog",
+      "fra": "bûcher",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "abog",
+      "fra": "fête",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "bom",
+      "fra": "battre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "abom",
+      "fra": "tumulus",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "boman",
+      "fra": "entourer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mboman",
+      "fra": "rhume",
+      "pos": "n",
+      "par": "n_3/3_sg/sg"
+    },
+    {
+      "ewo": "mbomanë",
+      "fra": "contour",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "mbonde",
+      "fra": "fondateur",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "bonde",
+      "fra": "fonder",
+      "pos": "refl",
+      "par": ""
+    },
+    {
+      "ewo": "bòban",
+      "fra": "se faire",
+      "pos": "refl",
+      "par": ""
+    },
+    {
+      "ewo": "bò",
+      "fra": "faire",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mbò",
+      "fra": "artisan",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "bòd",
+      "fra": "se mouiller",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bòd",
+      "fra": "recadrer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "abòd",
+      "fra": "petitesse",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ébòd",
+      "fra": "cabine d'habillage",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "mbòd",
+      "fra": "accoutrement",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "bòdan",
+      "fra": "pétrir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ébòdan",
+      "fra": "bénédiction",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "bòòlò",
+      "fra": "attester",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mbòòlò",
+      "fra": "témoin",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "mbòg",
+      "fra": "un",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "abòm",
+      "fra": "morve",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ébonga",
+      "fra": "câblage",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "mbòn",
+      "fra": "huile",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "mbu",
+      "fra": "année",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "abu",
+      "fra": "touffe",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ébubua",
+      "fra": "calamité",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "budi",
+      "fra": "couvrir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bug",
+      "fra": "casser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bugëban",
+      "fra": "prospérer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "abugëban",
+      "fra": "prospérité",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "bugi",
+      "fra": "être cassé",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bum",
+      "fra": "braiser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ébuma",
+      "fra": "cabosse",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "bumulan",
+      "fra": "se précipiter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bwal",
+      "fra": "pourrir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bwali",
+      "fra": "faire pourrir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bwe",
+      "fra": "casser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "bye",
+      "fra": "enfanter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "daǹ",
+      "fra": "dépasser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "daǹdaǹ",
+      "fra": "surtout",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "dian",
+      "fra": "se manger mutuellement",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dib",
+      "fra": "fermer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "diban",
+      "fra": "se fermer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dibidi",
+      "fra": "dissimuler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "digi",
+      "fra": "calciner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "diiban",
+      "fra": "se ronger",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dim",
+      "fra": "effacer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ndim",
+      "fra": "cécité",
+      "pos": "n",
+      "par": "n_9/2_sg/pl"
+    },
+    {
+      "ewo": "dimi",
+      "fra": "camouffler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "édimiǹ",
+      "fra": "cachoterie",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "dò",
+      "fra": "surtout",
+      "pos": "cnjcoo",
+      "par": ""
+    },
+    {
+      "ewo": "ndòg",
+      "fra": "voracité",
+      "pos": "n",
+      "par": "n_3/3_sg/sg"
+    },
+    {
+      "ewo": "édòg",
+      "fra": "profondeur",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "ndòbëdò",
+      "fra": "hôpital",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "du",
+      "fra": "tremper",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dudu",
+      "fra": "attirer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dug",
+      "fra": "mentir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dulu",
+      "fra": "marche",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "duǹ",
+      "fra": "dépérir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dzëm",
+      "fra": "danser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dzëman",
+      "fra": "manquer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dzëmëlë",
+      "fra": "dribbler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dzëǹ",
+      "fra": "chercher",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dzib",
+      "fra": "voler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ndzin",
+      "fra": "un certain",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "dzo",
+      "fra": "dire",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "édzo",
+      "fra": "membre du corps",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "adzogodo",
+      "fra": "canton",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ndzoe",
+      "fra": "dirigeant",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "dzu",
+      "fra": "pardonner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dzug",
+      "fra": "se faire mal",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "dzugu",
+      "fra": "avoir l'habitude de",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mesanga",
+      "fra": "sa tante paternelle",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "mesia",
+      "fra": "son père",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "mesoa",
+      "fra": "ton père",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "evueziǹ",
+      "fra": "peut-être",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "edzidzin",
+      "fra": "dignité",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "ekob",
+      "fra": "peau",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "yëgan",
+      "fra": "s'etonner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "éyëgan",
+      "fra": "stupéfaction",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "yomëlo",
+      "fra": "examiner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "fag",
+      "fra": "creuser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "afan",
+      "fra": "forêt",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "mfas",
+      "fra": "analyse",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "fasëban",
+      "fra": "se faire examiner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "fë",
+      "fra": "autre",
+      "pos": "adjind",
+      "par": ""
+    },
+    {
+      "ewo": "fë",
+      "fra": "aussi",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "fëb",
+      "fra": "sonder",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "afëb",
+      "fra": "papier",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "mfëb",
+      "fra": "vapeur",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "fëg",
+      "fra": "sagesse",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "éfëfè",
+      "fra": "végétation hanarchique",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "éfël",
+      "fra": "cicatrice",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "fëm",
+      "fra": "détester",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mfia",
+      "fra": "avocat",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "fib",
+      "fra": "s'épaissir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "afib",
+      "fra": "épaisseur",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "fid",
+      "fra": "écraser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "fidi",
+      "fra": "compter sur",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mfila",
+      "fra": "oreiller",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "fog",
+      "fra": "être mobile",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "afola",
+      "fra": "place",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "mfòǹ",
+      "fra": "moelle",
+      "pos": "n",
+      "par": "n_9/10_sg/pl"
+    },
+    {
+      "ewo": "fòò",
+      "fra": "aussi",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "fub",
+      "fra": "être propre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "fubu",
+      "fra": "purifier",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "fulan",
+      "fra": "ressembler à",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "éfulan",
+      "fra": "ressemblance",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "mfulu",
+      "fra": "caractère",
+      "pos": "n",
+      "par": "n_9/6_sg/pl"
+    },
+    {
+      "ewo": "fwe",
+      "fra": "se multiplier",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mfwe",
+      "fra": "reproducteur",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "nguma",
+      "fra": "entier",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "nka",
+      "fra": "assistant",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "nkada",
+      "fra": "crabe",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "kad",
+      "fra": "dire",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kadë",
+      "fra": "souvent",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "kag",
+      "fra": "empiler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nkal",
+      "fra": "plaidoyer",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "kalan",
+      "fra": "transmettre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nkalasina",
+      "fra": "pétrole",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "kan",
+      "fra": "odeur de roussi",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "kandi",
+      "fra": "diminuer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ki",
+      "fra": "s'abstenir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "aki",
+      "fra": "oeuf",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ékie",
+      "fra": "fer",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "akie",
+      "fra": "feuille",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "kig",
+      "fra": "ne...pas",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "kil",
+      "fra": "refuser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "akil",
+      "fra": "serve",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "kilan",
+      "fra": "tourner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kili",
+      "fra": "interdire à",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "akim",
+      "fra": "fluidité",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "kele",
+      "fra": "suspendre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kele",
+      "fra": "circoncier",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "akele",
+      "fra": "circoncision",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "këlan",
+      "fra": "se rompre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kende",
+      "fra": "grignotter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kë",
+      "fra": "partir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ékël",
+      "fra": "abcès",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "akëǹ",
+      "fra": "intelligence",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "akëǹ",
+      "fra": "technique",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nkidi",
+      "fra": "matin",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "koan",
+      "fra": "entasser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kuan",
+      "fra": "vendre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ékoan",
+      "fra": "réunion",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "akoa",
+      "fra": "pierre",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nkob",
+      "fra": "puce",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "ékod",
+      "fra": "teigne",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "kodo",
+      "fra": "quitter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "akog",
+      "fra": "pierre",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "kom",
+      "fra": "fabriquer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nkomo",
+      "fra": "fabriquant",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "nkon",
+      "fra": "fantôme",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "kòbò",
+      "fra": "parler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kòd",
+      "fra": "tourner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "akol",
+      "fra": "pied",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "akoli",
+      "fra": "piéger",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "koge",
+      "fra": "mordre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kogo",
+      "fra": "ajouter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kogolo",
+      "fra": "ajouter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nkòbò",
+      "fra": "acceptation",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "kòm",
+      "fra": "longtemps",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "kòm",
+      "fra": "habitude",
+      "pos": "n",
+      "par": "n_5/5_sg/sg"
+    },
+    {
+      "ewo": "akòm",
+      "fra": "lourdeur",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ékòn",
+      "fra": "maladie",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "kòn",
+      "fra": "être malade",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kpëlë",
+      "fra": "tatouer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kpëlëban",
+      "fra": "se faire vacciner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kpëlëmve",
+      "fra": "cellulite",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "ku",
+      "fra": "tomber",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kue",
+      "fra": "tousser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ékue",
+      "fra": "toux",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "nkugu",
+      "fra": "cuisinier",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "nkukuma",
+      "fra": "chef",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "kulan",
+      "fra": "se détacher",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "kuliban",
+      "fra": "se faire détacher",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nkulu",
+      "fra": "tortue",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "nkulu",
+      "fra": "tornade",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "akun",
+      "fra": "poubelle",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "kus",
+      "fra": "acheter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nkus",
+      "fra": "achat",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "kus",
+      "fra": "veuvage",
+      "pos": "n",
+      "par": "n_5/5_sg/sg"
+    },
+    {
+      "ewo": "nkus",
+      "fra": "veuve",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "kwe",
+      "fra": "cueillir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "akwe",
+      "fra": "escargot",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "kwi",
+      "fra": "sortir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "akwi",
+      "fra": "sortie",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "akya",
+      "fra": "type",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "lëdë",
+      "fra": "montrer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "élëmbë",
+      "fra": "microscope",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "lëmbë",
+      "fra": "guetter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "élabi",
+      "fra": "cadeau",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "lad",
+      "fra": "coudre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "lada",
+      "fra": "être collé à",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "élamvomba",
+      "fra": "bourru",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "laǹ",
+      "fra": "lire",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "alen",
+      "fra": "palmier",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "lè",
+      "fra": "puiser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "lèd",
+      "fra": "durcir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nlèd",
+      "fra": "dureté",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "lèn",
+      "fra": "ruisseler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "alèna",
+      "fra": "infection due à une morsure d'araignée",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "li",
+      "fra": "défricher",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "lod",
+      "fra": "dépasser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "lob",
+      "fra": "mordre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "élob",
+      "fra": "seneçon",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "alog",
+      "fra": "pêche au barrage",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "log",
+      "fra": "faire la pêche au barrage",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "alò",
+      "fra": "oreille",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "élòbi",
+      "fra": "marécage",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "élòg",
+      "fra": "herbe",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "lòm",
+      "fra": "célébrer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nlo",
+      "fra": "tête",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "lum",
+      "fra": "piquer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "luman",
+      "fra": "injecter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "élunga",
+      "fra": "association",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "mma",
+      "fra": "mouleur",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "émag",
+      "fra": "tas",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "manë",
+      "fra": "terminer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mmba",
+      "fra": "tambour",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "meki",
+      "fra": "sang",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "amos",
+      "fra": "journée",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "émvum",
+      "fra": "particule",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "nal",
+      "fra": "mensonge",
+      "pos": "n",
+      "par": "n_4/4_pl/pl"
+    },
+    {
+      "ewo": "énam",
+      "fra": "membre supérieur du corps",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "namba",
+      "fra": "toucher",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "anda",
+      "fra": "maison",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "andi",
+      "fra": "espoir",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nndòǹ",
+      "fra": "rapport",
+      "pos": "n",
+      "par": "n_9/6_sg/pl"
+    },
+    {
+      "ewo": "ndim",
+      "fra": "eau",
+      "pos": "n",
+      "par": "n_6a/6a_pl/pl"
+    },
+    {
+      "ewo": "éngogòl",
+      "fra": "pitié",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "angomba",
+      "fra": "ngomba",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "angoǹ",
+      "fra": "cadenas",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ngan",
+      "fra": "se braquer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "éngan",
+      "fra": "obstiné",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "éngas",
+      "fra": "marais",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "ngëng",
+      "fra": "clair",
+      "pos": "adv",
+      "par": ""
+    },
+    {
+      "ewo": "angëngè",
+      "fra": "insecte",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ngoge",
+      "fra": "soir",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "angos",
+      "fra": "tas",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ngul",
+      "fra": "force",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "angula",
+      "fra": "cabane",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ngun",
+      "fra": "entasser",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ngunubu",
+      "fra": "accumuler",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nòǹ",
+      "fra": "prendre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "anyama",
+      "fra": "calamiteux",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nyiǹ",
+      "fra": "vivre",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ényiǹ",
+      "fra": "vie",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "anyu",
+      "fra": "bouche",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nyum",
+      "fra": "sentir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ényum",
+      "fra": "odeur",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "dzoap",
+      "fra": "nombril",
+      "pos": "n",
+      "par": "n_5b/6_sg/pl"
+    },
+    {
+      "ewo": "oe",
+      "fra": "rire",
+      "pos": "n",
+      "par": "n_5c/5c_sg/sg"
+    },
+    {
+      "ewo": "dzooga",
+      "fra": "articulation",
+      "pos": "n",
+      "par": "n_5a/6_sg/pl"
+    },
+    {
+      "ewo": "mòǹòn",
+      "fra": "rejeton",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "kòn",
+      "fra": "maladie",
+      "pos": "n",
+      "par": "n_11/5_sg/pl"
+    },
+    {
+      "ewo": "mmawòd",
+      "fra": "maçon",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "mmëtua",
+      "fra": "voiture",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "mmvigi",
+      "fra": "pratique médicale",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "mmvim",
+      "fra": "enflure",
+      "pos": "n",
+      "par": "n_9/6_sg/pl"
+    },
+    {
+      "ewo": "mmyëgë",
+      "fra": "digue",
+      "pos": "n",
+      "par": "n_9/2_sg/pl"
+    },
+    {
+      "ewo": "nnëǹ",
+      "fra": "hôte",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "nnom",
+      "fra": "male",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "nnyala",
+      "fra": "beau-frère",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "op",
+      "fra": "ciel",
+      "pos": "n",
+      "par": "n_5d/5d_sg/sg"
+    },
+    {
+      "ewo": "mòngò",
+      "fra": "enfant",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "òngò",
+      "fra": "calamité",
+      "pos": "n",
+      "par": "n_5/5_sg/sg"
+    },
+    {
+      "ewo": "ésalag",
+      "fra": "caniveau",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "sanga",
+      "fra": "tisane",
+      "pos": "n",
+      "par": "n_11/16_sg/pl"
+    },
+    {
+      "ewo": "ésëdëga",
+      "fra": "échantillon",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "nsëǹ",
+      "fra": "cour",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "nsëm",
+      "fra": "péché",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "nsi",
+      "fra": "terre",
+      "pos": "n",
+      "par": "n_9/6_sg/pl"
+    },
+    {
+      "ewo": "asie",
+      "fra": "cabinet",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nsis",
+      "fra": "nerf",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "nsili",
+      "fra": "question",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "sò",
+      "fra": "être venu",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "asò",
+      "fra": "cachette",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nsòbò",
+      "fra": "savon",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "sòbò",
+      "fra": "se cacher",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "asòbò",
+      "fra": "cache",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "asòlò",
+      "fra": "cachette",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "asoe",
+      "fra": "cachette",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nsoe",
+      "fra": "lézard",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "asoga",
+      "fra": "calao",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "sòs",
+      "fra": "medisance",
+      "pos": "n",
+      "par": "n_4/4_pl/pl"
+    },
+    {
+      "ewo": "susu",
+      "fra": "pluie diluvienne",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "ésusud",
+      "fra": "humidité",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "nsusug",
+      "fra": "pareusseux",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "étam",
+      "fra": "puits",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "ntada",
+      "fra": "père",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "ntela",
+      "fra": "tailleur",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "tè",
+      "fra": "être douloureux",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "atëg",
+      "fra": "faiblesse",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nti",
+      "fra": "seigneur",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "tin",
+      "fra": "souche",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "tinte",
+      "fra": "encre",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "tog",
+      "fra": "s'aggraver",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ntog",
+      "fra": "cuillère",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "atom",
+      "fra": "colis",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "étò",
+      "fra": "place",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "atòm",
+      "fra": "ulcère de Buruli",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "atolog",
+      "fra": "papule",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ntsaǹ",
+      "fra": "bouton",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "tug",
+      "fra": "frotter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ntug",
+      "fra": "action de frotter",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "ntug",
+      "fra": "désuétude",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "tugu",
+      "fra": "être en train de frotter",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ntugu\"n\"/>",
+      "fra": "frotteur",
+      "pos": "",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "tugulu",
+      "fra": "causer une lésion",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ntugulu",
+      "fra": "lésion",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "étun",
+      "fra": "partie",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "tye",
+      "fra": "taquinerie",
+      "pos": "n",
+      "par": "n_4/4_pl/pl"
+    },
+    {
+      "ewo": "avis",
+      "fra": "amas",
+      "pos": "n",
+      "par": "n_5a/6_sg/pl"
+    },
+    {
+      "ewo": "évè",
+      "fra": "soif",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "évès",
+      "fra": "os",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "vëbë",
+      "fra": "respirer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "mvëbë",
+      "fra": "respiration",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "évëga",
+      "fra": "exemple",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "avëǹ",
+      "fra": "plaie",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "avol",
+      "fra": "rapidité",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "avòǹ",
+      "fra": "graisse",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "vòg",
+      "fra": "autre",
+      "pos": "adjind",
+      "par": ""
+    },
+    {
+      "ewo": "weme",
+      "fra": "se muer",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "éwemënga",
+      "fra": "nécrose",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "nwundi",
+      "fra": "fenêtre",
+      "pos": "n",
+      "par": "n_1a/2_sg/pl"
+    },
+    {
+      "ewo": "gëban",
+      "fra": "scintiller",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "wò",
+      "fra": "main",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "nwulu",
+      "fra": "marcheur",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "ya",
+      "fra": "grandir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ayab",
+      "fra": "longueur",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "éyalga",
+      "fra": "enveloppe",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "ayaǹ",
+      "fra": "couleur",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ayaǹ",
+      "fra": "bulbe",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "aye",
+      "fra": "période",
+      "pos": "n",
+      "par": "n_5a/6_sg/pl"
+    },
+    {
+      "ewo": "nyëbë",
+      "fra": "acceptation",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "ayëgè",
+      "fra": "apprentissage",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "éyëm",
+      "fra": "handicape",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "yëm",
+      "fra": "savoir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "yè",
+      "fra": "croître",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "ayè",
+      "fra": "croissance",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "yëm",
+      "fra": "être coincé",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "yi",
+      "fra": "vouloir",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "éyia",
+      "fra": "ulcère phagédénique",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "ayie",
+      "fra": "difficulté",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "nyoa",
+      "fra": "ta mère",
+      "pos": "n",
+      "par": "n_1/2_sg/pl"
+    },
+    {
+      "ewo": "ayol",
+      "fra": "amertume",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ayom",
+      "fra": "vieillesse",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ayom",
+      "fra": "caducité",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "éyòǹ",
+      "fra": "temps",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "yomëlo",
+      "fra": "raviver",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "nyon",
+      "fra": "pleur",
+      "pos": "n",
+      "par": "n_3/4_sg/pl"
+    },
+    {
+      "ewo": "Zamba",
+      "fra": "Dieu",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "zam",
+      "fra": "lèpre",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "ézamëda",
+      "fra": "cafouillage",
+      "pos": "n",
+      "par": "n_7/8_sg/pl"
+    },
+    {
+      "ewo": "zie",
+      "fra": "faim",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "azimbi",
+      "fra": "soldats",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ziǹ",
+      "fra": "un tel",
+      "pos": "adjind",
+      "par": ""
+    },
+    {
+      "ewo": "vë",
+      "fra": "donner",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "veendëgële",
+      "fra": "déranger",
+      "pos": "vblex",
+      "par": ""
+    },
+    {
+      "ewo": "avoǹ",
+      "fra": "chaleur",
+      "pos": "n",
+      "par": "n_5/6_sg/pl"
+    },
+    {
+      "ewo": "ndëgëlë",
+      "fra": "ennui",
+      "pos": "n",
+      "par": ""
+    },
+    {
+      "ewo": "ama",
+      "fra": "mon",
+      "pos": "adj",
+      "par": "pos_GDND_Gender-1"
+    }
+  ]
+}

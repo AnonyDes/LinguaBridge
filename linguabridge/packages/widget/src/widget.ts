@@ -29,7 +29,7 @@ export class LinguaBridgeWidget {
       apiUrl: options.apiUrl || 'http://localhost:3001',
       position: options.position || 'bottom-right',
       defaultSourceLang: options.defaultSourceLang || 'fr',
-      defaultTargetLang: options.defaultTargetLang || 'en',
+      defaultTargetLang: options.defaultTargetLang || 'ewo-CM',
       theme: options.theme || 'auto',
       autoTranslate: options.autoTranslate || false,
       ...options,
@@ -188,9 +188,9 @@ export class LinguaBridgeWidget {
   private render(): void {
     if (!this.shadow) return;
 
-    const primaryColor = '#2563eb';
+    const primaryColor = '#16a34a';
     const bgColor = '#ffffff';
-    const textColor = '#1f2937';
+    const textColor = '#111827';
 
     this.shadow.innerHTML = `
       <style>
@@ -201,12 +201,12 @@ export class LinguaBridgeWidget {
         .widget-button {
           background: ${primaryColor};
           color: #ffffff;
-          border: none;
+          border: 1px solid #15803d;
           border-radius: 9999px;
           padding: 12px 18px;
           font-size: 14px;
           font-weight: 600;
-          box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -215,7 +215,7 @@ export class LinguaBridgeWidget {
         }
         .widget-button:hover {
           transform: scale(1.04);
-          background: #1d4ed8;
+          background: #15803d;
         }
         .widget-card {
           display: ${this.isOpen ? 'block' : 'none'};
@@ -226,8 +226,8 @@ export class LinguaBridgeWidget {
           background: ${bgColor};
           color: ${textColor};
           border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+          border-radius: 8px;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
           padding: 16px;
           font-size: 13px;
         }
@@ -236,7 +236,7 @@ export class LinguaBridgeWidget {
           justify-content: space-between;
           align-items: center;
           font-weight: 700;
-          font-size: 15px;
+          font-size: 14px;
           border-bottom: 1px solid #f3f4f6;
           padding-bottom: 8px;
           margin-bottom: 12px;
@@ -255,7 +255,7 @@ export class LinguaBridgeWidget {
           font-weight: 600;
           margin-bottom: 4px;
           display: block;
-          color: #4b5563;
+          color: #374151;
         }
         select, button.action-btn {
           width: 100%;
@@ -266,7 +266,7 @@ export class LinguaBridgeWidget {
           box-sizing: border-box;
         }
         button.action-btn {
-          background: #f3f4f6;
+          background: #f9fafb;
           color: #111827;
           border: 1px solid #d1d5db;
           cursor: pointer;
@@ -275,15 +275,15 @@ export class LinguaBridgeWidget {
           transition: background 0.1s ease;
         }
         button.action-btn:hover {
-          background: #e5e7eb;
+          background: #f3f4f6;
         }
         button.action-btn.primary {
-          background: #2563eb;
+          background: #16a34a;
           color: #ffffff;
-          border-color: #2563eb;
+          border-color: #16a34a;
         }
         button.action-btn.primary:hover {
-          background: #1d4ed8;
+          background: #15803d;
         }
         .badge {
           display: inline-flex;

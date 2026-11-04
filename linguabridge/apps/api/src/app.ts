@@ -55,15 +55,15 @@ const ewondoPack = {
   capabilities: {
     hasDictionary: true,
     hasParallelCorpus: true,
-    hasSpeech: false,
+    hasSpeech: true,
     hasPronunciation: true,
     hasGlossary: true,
   },
   supportedSourceLangs: ['fr', 'en'],
   supportedTargetLangs: ['ewo-CM', 'ewo'],
-  license: 'CC-BY-NC-4.0',
-  provenance: 'NACALCO / SIL Cameroon financial lexicon consensus',
-  attribution: 'Université de Yaoundé I & NACALCO Language Committee',
+  license: 'CC-BY-NC-4.0 & GPL-3.0',
+  provenance: 'NACALCO / SIL Cameroon financial consensus & Apertium ewo-fra Lexicon',
+  attribution: 'Université de Yaoundé I, NACALCO Language Committee & Apertium Community',
   qualityStatus: 'certified' as const,
 };
 

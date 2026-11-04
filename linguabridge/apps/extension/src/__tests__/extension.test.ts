@@ -104,7 +104,8 @@ describe('Chrome Extension Content Assistant', () => {
     expect(preview).not.toBeNull();
     expect(preview?.style.display).toBe('block');
     expect(preview?.innerHTML).toContain('Translated: 15000 FCFA');
-    expect(preview?.innerHTML).toContain('Financial Guard: Amount protected: 15000 FCFA');
+    expect(preview?.innerHTML).toContain('Garde financière :');
+    expect(preview?.innerHTML).toContain('Amount protected: 15000 FCFA');
   });
 
   it('handles context menu translation message from background worker', () => {
@@ -120,6 +121,39 @@ describe('Chrome Extension Content Assistant', () => {
     const host = document.getElementById('linguabridge-extension-root');
     const preview = host?.shadowRoot?.getElementById('selection-preview');
     expect(preview?.innerHTML).toContain('Translated: Solde du compte');
+  });
+
+  it('toggles touch-to-speak mode and enables audio player bar', () => {
+    assistant = new ExtensionAssistant();
+    const host = document.getElementById('linguabridge-extension-root');
+    expect(host).not.toBeNull();
+
+    assistant.toggleTouchSpeakMode();
+    const toggleBtn = host?.shadowRoot?.getElementById('btn-toggle-speak');
+    expect(toggleBtn?.textContent).toContain('Désactiver la lecture au toucher');
+
+    assistant.speakTextSection('Solde disponible');
+    const audioBar = host?.shadowRoot?.getElementById('audio-bar');
+    expect(audioBar?.style.display).toBe('flex');
+    const spokenText = host?.shadowRoot?.getElementById('audio-spoken-text');
+    expect(spokenText?.textContent).toBe('Móni mí ne wá é bẽng');
+  });
+
+  it('handles click and mobile touch interaction to speak aloud section in Ewondo', () => {
+    assistant = new ExtensionAssistant();
+    const host = document.getElementById('linguabridge-extension-root');
+    assistant.toggleTouchSpeakMode();
+
+    const p = document.getElementById('desc');
+    expect(p).not.toBeNull();
+
+    // Trigger click on element
+    p?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    const audioBar = host?.shadowRoot?.getElementById('audio-bar');
+    expect(audioBar?.style.display).toBe('flex');
+    const spokenText = host?.shadowRoot?.getElementById('audio-spoken-text');
+    expect(spokenText?.textContent).toContain('Móni mébembá mé nlóm');
   });
 
   it('destroys cleanly and unmounts DOM elements and listeners', () => {

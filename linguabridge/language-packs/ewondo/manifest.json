@@ -10,7 +10,7 @@
   "capabilities": {
     "hasDictionary": true,
     "hasParallelCorpus": true,
-    "hasSpeech": false,
+    "hasSpeech": true,
     "hasPronunciation": true,
     "hasGlossary": true
   },
@@ -22,10 +22,14 @@
     "ewo-CM",
     "ewo"
   ],
-  "license": "CC-BY-NC-4.0",
-  "provenance": "NACALCO / SIL Cameroon financial lexicon initiative for CEMAC inclusion",
-  "attribution": "Université de Yaoundé I & NACALCO Language Committee",
+  "license": "CC-BY-NC-4.0 & GPL-3.0",
+  "provenance": "NACALCO / SIL Cameroon financial consensus & Apertium ewo-fra Lexicon (Dr. Emmanuel Ngue-Um)",
+  "attribution": "Université de Yaoundé I, NACALCO & Apertium Community",
   "qualityStatus": "certified",
   "reviewedBy": "Dr. Onguene Essono (Linguistique Bantu, Yaoundé I)",
+  "dictionaries": [
+    "dictionaries/financial-glossary.json",
+    "dictionaries/apertium-lexicon.json"
+  ],
   "_note": "Production certified pack for digital financial services, mobile money and microfinance inclusion."
 }
