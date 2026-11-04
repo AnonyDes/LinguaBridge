@@ -526,6 +526,166 @@
       "ewo": "Asu dzé / nkat",
       "phonetic": "a-sú dzé / n-kat",
       "definition": "Explication de la finalité de la transaction"
+    },
+    {
+      "key": "orange_money",
+      "fr": "Orange Money",
+      "en": "Orange Money",
+      "ewo": "Orange Money",
+      "phonetic": "o-ranj mo-ní",
+      "definition": "Service de paiement et portefeuille mobile Orange Cameroun"
+    },
+    {
+      "key": "mtn_momo",
+      "fr": "MTN MoMo",
+      "en": "MTN MoMo",
+      "ewo": "MTN MoMo",
+      "phonetic": "em-ti-en mo-mo",
+      "definition": "Service de paiement et portefeuille mobile MTN Cameroun"
+    },
+    {
+      "key": "cash_in",
+      "fr": "Cash in / Dépôt espèces",
+      "en": "Cash in",
+      "ewo": "Wóglô móni",
+      "phonetic": "wó-gló mó-ní",
+      "definition": "Dépôt d'espèces sur un compte bancaire ou compte mobile money"
+    },
+    {
+      "key": "cash_out",
+      "fr": "Cash out / Retrait espèces",
+      "en": "Cash out",
+      "ewo": "Nòng móni",
+      "phonetic": "nòŋ mó-ní",
+      "definition": "Retrait d'espèces auprès d'un agent mobile money ou guichet"
+    },
+    {
+      "key": "airtime",
+      "fr": "Achat de crédit / Airtime",
+      "en": "Airtime",
+      "ewo": "Kùs fón",
+      "phonetic": "kùs fón",
+      "definition": "Recharge de temps de communication téléphonique"
+    },
+    {
+      "key": "data_bundle",
+      "fr": "Forfait internet",
+      "en": "Data bundle",
+      "ewo": "Kùs fón internet",
+      "phonetic": "kùs fón in-ter-net",
+      "definition": "Souscription à un volume de données internet"
+    },
+    {
+      "key": "card_cvv",
+      "fr": "Code CVV / Code de sécurité",
+      "en": "CVV / Security code",
+      "ewo": "Ndámbá mbaán kaladí",
+      "phonetic": "n-dám-bá m-ba-án kà-là-dí",
+      "definition": "Cryptogramme visuel à 3 chiffres au dos de la carte bancaire"
+    },
+    {
+      "key": "card_expiry",
+      "fr": "Date d'expiration",
+      "en": "Expiry date",
+      "ewo": "Mos yá manë kaladí",
+      "phonetic": "mos yá ma-në kà-là-dí",
+      "definition": "Date limite de validité d'une carte de paiement"
+    },
+    {
+      "key": "kiosk",
+      "fr": "Kiosque / Point de service",
+      "en": "Kiosk / Service point",
+      "ewo": "Tò nda móni",
+      "phonetic": "tò n-da mó-ní",
+      "definition": "Point de service ou agence de proximité"
+    },
+    {
+      "key": "authorized_agent",
+      "fr": "Agent agréé",
+      "en": "Authorized agent",
+      "ewo": "Émòt a kùs móni",
+      "phonetic": "é-mòt à kùs mó-ní",
+      "definition": "Distributeur ou représentant agréé de services financiers"
+    },
+    {
+      "key": "mfi",
+      "fr": "Établissement de microfinance / EMF",
+      "en": "Microfinance institution / MFI",
+      "ewo": "Nda móni tsɔ́",
+      "phonetic": "n-da mó-ní tsɔ́",
+      "definition": "Structure d'épargne et de crédit de microfinance"
+    },
+    {
+      "key": "rotating_savings",
+      "fr": "Épargne rotative",
+      "en": "Rotating savings",
+      "ewo": "Móni tsɔ́",
+      "phonetic": "mó-ní tsɔ́",
+      "definition": "Système tontinier d'épargne et d'entraide communautaire"
+    },
+    {
+      "key": "solidarity_fund",
+      "fr": "Caisse de solidarité",
+      "en": "Solidarity fund",
+      "ewo": "Nda ngul ayɔŋ",
+      "phonetic": "n-da ngul à-yɔŋ",
+      "definition": "Fonds mutuel de solidarité ou de secours d'une tontine"
+    },
+    {
+      "key": "proof_of_payment",
+      "fr": "Preuve de paiement",
+      "en": "Proof of payment",
+      "ewo": "Kaladí nláman",
+      "phonetic": "kà-là-dí n-lá-man",
+      "definition": "Justificatif ou attestation de transaction financière"
+    },
+    {
+      "key": "reference",
+      "fr": "Référence",
+      "en": "Reference",
+      "ewo": "Nkat",
+      "phonetic": "n-kat",
+      "definition": "Identifiant ou numéro de suivi de l'opération"
+    },
+    {
+      "key": "borrowing",
+      "fr": "Emprunt",
+      "en": "Borrowing",
+      "ewo": "Kálá móni",
+      "phonetic": "ká-lá mó-ní",
+      "definition": "Fonds contractés à titre de crédit ou de prêt"
+    },
+    {
+      "key": "guarantee",
+      "fr": "Garantie / Caution",
+      "en": "Guarantee / Collateral",
+      "ewo": "Mbaán kálá móni",
+      "phonetic": "m-ba-án ká-lá mó-ní",
+      "definition": "Sûreté apportée pour sécuriser un crédit bancaire"
+    },
+    {
+      "key": "recipient",
+      "fr": "Destinataire",
+      "en": "Recipient",
+      "ewo": "Nyí a nòng móni",
+      "phonetic": "nyí à nòŋ mó-ní",
+      "definition": "Personne recevant les fonds transférés"
+    },
+    {
+      "key": "payments",
+      "fr": "Paiements",
+      "en": "Payments",
+      "ewo": "Matóbó móni",
+      "phonetic": "ma-tó-bó mó-ní",
+      "definition": "Ensemble des règlements financiers effectués"
+    },
+    {
+      "key": "loans",
+      "fr": "Prêts / Crédits",
+      "en": "Loans",
+      "ewo": "Makálá mé móni",
+      "phonetic": "ma-ká-lá mé mó-ní",
+      "definition": "Ensemble des lignes de crédit accordées"
     }
   ]
 }
