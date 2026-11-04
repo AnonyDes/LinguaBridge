@@ -3157,6 +3157,126 @@ export const FINANCIAL_GLOSSARY_ENTRIES: LexiconEntry[] = [
     "fra": "Motif du paiement / Référence",
     "en": "Payment reason / reference",
     "phonetic": "a-sú dzé / n-kat"
+  },
+  {
+    "ewo": "Orange Money",
+    "fra": "Orange Money",
+    "en": "Orange Money",
+    "phonetic": "o-ranj mo-ní"
+  },
+  {
+    "ewo": "MTN MoMo",
+    "fra": "MTN MoMo",
+    "en": "MTN MoMo",
+    "phonetic": "em-ti-en mo-mo"
+  },
+  {
+    "ewo": "Wóglô móni",
+    "fra": "Cash-in / Dépôt espèces",
+    "en": "Cash in",
+    "phonetic": "wó-gló mó-ní"
+  },
+  {
+    "ewo": "Nòng móni",
+    "fra": "Cash-out / Retrait espèces",
+    "en": "Cash out",
+    "phonetic": "nòŋ mó-ní"
+  },
+  {
+    "ewo": "Kùs fón",
+    "fra": "Achat de crédit / Airtime",
+    "en": "Airtime",
+    "phonetic": "kùs fón"
+  },
+  {
+    "ewo": "Kùs fón internet",
+    "fra": "Forfait internet",
+    "en": "Data bundle",
+    "phonetic": "kùs fón in-ter-net"
+  },
+  {
+    "ewo": "Ndámbá mbaán kaladí",
+    "fra": "Code CVV / Code de sécurité",
+    "en": "CVV / Security code",
+    "phonetic": "n-dám-bá m-ba-án kà-là-dí"
+  },
+  {
+    "ewo": "Mos yá manë kaladí",
+    "fra": "Date d'expiration",
+    "en": "Expiry date",
+    "phonetic": "mos yá ma-në kà-là-dí"
+  },
+  {
+    "ewo": "Tò nda móni",
+    "fra": "Kiosque / Point de service",
+    "en": "Kiosk / Service point",
+    "phonetic": "tò n-da mó-ní"
+  },
+  {
+    "ewo": "Émòt a kùs móni",
+    "fra": "Agent agréé",
+    "en": "Authorized agent",
+    "phonetic": "é-mòt à kùs mó-ní"
+  },
+  {
+    "ewo": "Nda móni tsɔ́",
+    "fra": "Établissement de microfinance / EMF",
+    "en": "Microfinance institution / MFI",
+    "phonetic": "n-da mó-ní tsɔ́"
+  },
+  {
+    "ewo": "Móni tsɔ́",
+    "fra": "Épargne rotative",
+    "en": "Rotating savings",
+    "phonetic": "mó-ní tsɔ́"
+  },
+  {
+    "ewo": "Nda ngul ayɔŋ",
+    "fra": "Caisse de solidarité",
+    "en": "Solidarity fund",
+    "phonetic": "n-da ngul à-yɔŋ"
+  },
+  {
+    "ewo": "Kaladí nláman",
+    "fra": "Preuve de paiement",
+    "en": "Proof of payment",
+    "phonetic": "kà-là-dí n-lá-man"
+  },
+  {
+    "ewo": "Nkat",
+    "fra": "Référence",
+    "en": "Reference",
+    "phonetic": "n-kat"
+  },
+  {
+    "ewo": "Kálá móni",
+    "fra": "Emprunt",
+    "en": "Borrowing",
+    "phonetic": "ká-lá mó-ní"
+  },
+  {
+    "ewo": "Mbaán kálá móni",
+    "fra": "Garantie / Caution",
+    "en": "Guarantee / Collateral",
+    "phonetic": "m-ba-án ká-lá mó-ní"
+  },
+  {
+    "ewo": "Nyí a nòng móni",
+    "fra": "Destinataire",
+    "en": "Recipient",
+    "phonetic": "nyí à nòŋ mó-ní"
+  },
+  {
+    "ewo": "Matóbó móni",
+    "fra": "Paiements",
+    "en": "Payments",
+    "phonetic": "ma-tó-bó mó-ní"
+  },
+  {
+    "ewo": "Makálá mé móni",
+    "fra": "Prêts / Crédits",
+    "en": "Loans",
+    "phonetic": "ma-ká-lá mé mó-ní"
   }
 ];
 
