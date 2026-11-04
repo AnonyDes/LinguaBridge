@@ -3204,7 +3204,7 @@ export function translateSentenceToEwondo(text: string): string {
   if (!trimmed) return text;
 
   // 1. Direct multi-word / exact check
-  const exact = lookupEwondoWord(trimmed);
+  const exact = lookupEwondoWord(trimmed) || lookupEwondoFromEnglish(trimmed);
   if (exact) {
     if (trimmed === trimmed.toUpperCase() && trimmed.length > 1) {
       return exact.toUpperCase();
@@ -3291,8 +3291,8 @@ export function translateSentenceToEwondo(text: string): string {
       continue;
     }
 
-    // Direct word lookup
-    const match = lookupEwondoWord(token);
+    // Direct word lookup (French or English)
+    const match = lookupEwondoWord(token) || lookupEwondoFromEnglish(token);
     if (match) {
       let result = match;
       if (token === token.toUpperCase() && token.length > 1) {
