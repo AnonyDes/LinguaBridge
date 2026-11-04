@@ -3580,6 +3580,39 @@ const frToEwoMap = new Map<string, string>();
 const enToEwoMap = new Map<string, string>();
 const ewoPhoneticMap = new Map<string, string>();
 
+function registerBilingualTerm(
+  fraRaw: string,
+  enRaw: string | undefined,
+  ewo: string,
+  phonetic?: string
+) {
+  if (phonetic) {
+    ewoPhoneticMap.set(ewo.toLowerCase().trim(), phonetic);
+  }
+
+  // Register French terms & slash-separated synonyms
+  const fraParts = fraRaw.split(/[\/;]/).map((s) => s.toLowerCase().trim()).filter(Boolean);
+  for (const part of fraParts) {
+    frToEwoMap.set(part, ewo);
+  }
+  const fullFra = fraRaw.toLowerCase().trim();
+  if (!frToEwoMap.has(fullFra)) {
+    frToEwoMap.set(fullFra, ewo);
+  }
+
+  // Register English terms & slash-separated synonyms
+  if (enRaw) {
+    const enParts = enRaw.split(/[\/;]/).map((s) => s.toLowerCase().trim()).filter(Boolean);
+    for (const part of enParts) {
+      enToEwoMap.set(part, ewo);
+    }
+    const fullEn = enRaw.toLowerCase().trim();
+    if (!enToEwoMap.has(fullEn)) {
+      enToEwoMap.set(fullEn, ewo);
+    }
+  }
+}
+
 // 1. Ingest Apertium entries
 for (const entry of APERTIUM_EWONDO_ENTRIES) {
   const normFra = entry.fra.toLowerCase().trim();
@@ -3590,28 +3623,14 @@ for (const entry of APERTIUM_EWONDO_ENTRIES) {
   }
 }
 
-// 2. Ingest Financial Glossary
+// 2. Ingest Financial Glossary (overrides Apertium with certified financial translations)
 for (const term of FINANCIAL_GLOSSARY_ENTRIES) {
-  const normFra = term.fra.toLowerCase().trim();
-  frToEwoMap.set(normFra, term.ewo);
-  if (term.en) {
-    enToEwoMap.set(term.en.toLowerCase().trim(), term.ewo);
-  }
-  if (term.phonetic) {
-    ewoPhoneticMap.set(term.ewo.toLowerCase().trim(), term.phonetic);
-  }
+  registerBilingualTerm(term.fra, term.en, term.ewo, term.phonetic);
 }
 
 // 3. Ingest Extended Banking & UI
 for (const [key, val] of Object.entries(EXTENDED_BANKING_UI_LEXICON)) {
-  const norm = key.toLowerCase().trim();
-  frToEwoMap.set(norm, val.ewo);
-  if ((val as any).en) {
-    enToEwoMap.set((val as any).en.toLowerCase().trim(), val.ewo);
-  }
-  if (val.phonetic) {
-    ewoPhoneticMap.set(val.ewo.toLowerCase().trim(), val.phonetic);
-  }
+  registerBilingualTerm(key, (val as any).en, val.ewo, val.phonetic);
 }
 
 // 4. Common English Conversational, Web & Landing Page Vocabulary
@@ -3997,7 +4016,6 @@ export function getEwondoPhonetic(ewondoText: string): string {
       .replace(/ə̀/g, 'è')
       .replace(/ə/g, 'e')
       .replace(/ë/g, 'e')
-      .replace(/ŋ/g, 'ng')
       .replace(/kp/g, 'kp')
       .replace(/gb/g, 'gb')
       .replace(/[\u0300-\u036f]/g, '');
