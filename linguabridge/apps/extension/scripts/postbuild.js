@@ -18,8 +18,7 @@ if (fs.existsSync(rootManifestPath)) {
   
   // Adjust paths to be relative to dist/
   manifest.background = {
-    service_worker: 'background.js',
-    type: 'module'
+    service_worker: 'background.js'
   };
   manifest.content_scripts = [
     {
@@ -48,7 +47,7 @@ const rootPopupPath = path.resolve(extensionRoot, 'popup.html');
 if (fs.existsSync(rootPopupPath)) {
   let popupHtml = fs.readFileSync(rootPopupPath, 'utf8');
   // In dist/, popup.js is at root, not dist/popup.js
-  popupHtml = popupHtml.replace('src="dist/popup.js"', 'src="popup.js"');
+  popupHtml = popupHtml.replace('src="dist/popup.js"', 'src="popup.js"').replace('type="module"', '');
   fs.writeFileSync(path.resolve(distDir, 'popup.html'), popupHtml, 'utf8');
   console.log('[postbuild] Created dist/popup.html');
 }

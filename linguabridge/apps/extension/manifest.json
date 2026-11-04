@@ -5,6 +5,7 @@
   "description": "Multilingual accessibility and financial inclusion assistant for Cameroon web applications",
   "permissions": [
     "activeTab",
+    "scripting",
     "storage",
     "contextMenus"
   ],

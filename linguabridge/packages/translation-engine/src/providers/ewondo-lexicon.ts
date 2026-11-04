@@ -3161,9 +3161,43 @@ for (const term of FINANCIAL_GLOSSARY_ENTRIES) {
 for (const [key, val] of Object.entries(EXTENDED_BANKING_UI_LEXICON)) {
   const norm = key.toLowerCase().trim();
   frToEwoMap.set(norm, val.ewo);
+  if ((val as any).en) {
+    enToEwoMap.set((val as any).en.toLowerCase().trim(), val.ewo);
+  }
   if (val.phonetic) {
     ewoPhoneticMap.set(val.ewo.toLowerCase().trim(), val.phonetic);
   }
+}
+
+// 4. Common English Conversational and Contact Words
+const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
+  'say hello': 'Kóbɔ́ Mbólo',
+  'hello': 'Mbólo',
+  'hi': 'Mbólo',
+  'say': 'kóbɔ́',
+  'send': 'lóm',
+  'send enquiry': 'lóm nsílí',
+  'enquiry': 'nsílí',
+  'contact': 'kóbɔ́ aí bía',
+  'welcome': 'Mbólo',
+  'choose': 'tobô',
+  'route': 'nzɛn',
+  'team': 'nkôla',
+  'message': 'nkóbó',
+  'phone': 'fón',
+  'name': 'dzóé',
+  'account': 'ékóbló',
+  'balance': 'móni mí ne',
+  'money': 'móni',
+  'transfer': 'lóm móni',
+  'save': 'bóm móni',
+  'bank': 'nda móni',
+  'submit': 'lóm',
+  'click': 'fidi',
+  'touch': 'támbí',
+};
+for (const [enWord, ewoWord] of Object.entries(ENGLISH_COMMON_ENTRIES)) {
+  enToEwoMap.set(enWord.toLowerCase().trim(), ewoWord);
 }
 
 export function lookupEwondoWord(frenchWord: string): string | null {
@@ -3234,7 +3268,10 @@ export function translateSentenceToEwondo(text: string): string {
 
   // 4. Multi-word phrases with Unicode boundary matching (sorted by descending length)
   let workingText = trimmed;
-  const multiWordKeys = Array.from(frToEwoMap.keys())
+  const multiWordKeys = [
+    ...Array.from(frToEwoMap.keys()),
+    ...Array.from(enToEwoMap.keys()),
+  ]
     .filter((k) => k.includes(' ') || k.includes("'"))
     .sort((a, b) => b.length - a.length);
 
@@ -3242,7 +3279,7 @@ export function translateSentenceToEwondo(text: string): string {
     const escaped = escapeRegExp(phrase);
     const regex = new RegExp(`(?:^|([^\\p{L}\\p{N}]))${escaped}(?=[^\\p{L}\\p{N}]|$)`, 'giu');
     if (regex.test(workingText)) {
-      const repl = frToEwoMap.get(phrase)!;
+      const repl = frToEwoMap.get(phrase) || enToEwoMap.get(phrase)!;
       workingText = workingText.replace(regex, (_m, p1 = '') => {
         return p1 + repl;
       });

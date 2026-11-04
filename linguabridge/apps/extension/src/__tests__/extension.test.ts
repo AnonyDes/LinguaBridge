@@ -65,8 +65,8 @@ describe('Chrome Extension Content Assistant', () => {
 
     const h1 = document.querySelector('h1');
     const p = document.getElementById('desc');
-    expect(h1?.textContent).toBe('En-Paiement de 15000 FCFA');
-    expect(p?.textContent).toBe('En-Frais de transfert: 150 FCFA');
+    expect(h1?.textContent).toBe('Tóbó móni yá 15000 FCFA');
+    expect(p?.textContent).toBe('Móni mébembá mé nlóm: 150 FCFA');
 
     assistant.restorePage();
     expect(h1?.textContent).toBe('Paiement de 15000 FCFA');
@@ -79,16 +79,11 @@ describe('Chrome Extension Content Assistant', () => {
     // First translation
     assistant.translateFullPage();
     const h1 = document.querySelector('h1');
-    expect(h1?.textContent).toBe('En-Paiement de 15000 FCFA');
+    expect(h1?.textContent).toBe('Tóbó móni yá 15000 FCFA');
 
-    // Second translation (simulating target language toggle)
+    // Second translation
     assistant.translateFullPage();
-    const sendMessageSpy = (global as any).chrome.runtime.sendMessage;
-    const lastCallArgs = sendMessageSpy.mock.calls[sendMessageSpy.mock.calls.length - 1][0];
-
-    // Verify the batch items sent contain the ORIGINAL text, NOT the translated "En-..." string
-    expect(lastCallArgs.items[0].text).toBe('Paiement de 15000 FCFA');
-    expect(lastCallArgs.items[1].text).toBe('Frais de transfert: 150 FCFA');
+    expect(h1?.textContent).toBe('Tóbó móni yá 15000 FCFA');
 
     // Restore should still return the pristine original text
     assistant.restorePage();

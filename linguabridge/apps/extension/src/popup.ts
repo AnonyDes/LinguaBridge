@@ -29,25 +29,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Trigger page translation in active tab
-  triggerPageBtn?.addEventListener('click', async () => {
-    if (typeof chrome !== 'undefined' && chrome.tabs?.query) {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { type: 'POPUP_TRANSLATE_PAGE', targetLang: 'ewo-CM' });
+  // Robust tab messenger with dynamic script injection fallback
+  async function sendMessageToActiveTab(message: any) {
+    if (typeof chrome === 'undefined' || !chrome.tabs?.query) return;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) return;
+
+    try {
+      await chrome.tabs.sendMessage(tab.id, message);
+      window.close();
+    } catch {
+      // Content script may not be injected yet (e.g. tab opened before extension load)
+      if ((chrome as any).scripting) {
+        try {
+          await (chrome as any).scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['content.js'],
+          });
+          setTimeout(async () => {
+            try {
+              await chrome.tabs.sendMessage(tab.id!, message);
+            } catch (_) {}
+            window.close();
+          }, 150);
+        } catch (_) {
+          window.close();
+        }
+      } else {
         window.close();
       }
     }
+  }
+
+  // Trigger page translation in active tab
+  triggerPageBtn?.addEventListener('click', () => {
+    sendMessageToActiveTab({ type: 'POPUP_TRANSLATE_PAGE', targetLang: 'ewo-CM' });
   });
 
   // Toggle touch-to-listen mode in active tab
-  triggerSpeakBtn?.addEventListener('click', async () => {
-    if (typeof chrome !== 'undefined' && chrome.tabs?.query) {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { type: 'POPUP_TOGGLE_TOUCH_SPEAK' });
-        window.close();
-      }
-    }
+  triggerSpeakBtn?.addEventListener('click', () => {
+    sendMessageToActiveTab({ type: 'POPUP_TOGGLE_TOUCH_SPEAK' });
   });
 });
