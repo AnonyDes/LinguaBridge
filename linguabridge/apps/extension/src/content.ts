@@ -17,14 +17,17 @@ class EwondoSpeechPlayer {
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(spokenText);
       // Pacing for tone clarity and Bantu phonetic articulation
-      utterance.rate = 0.88;
+      utterance.rate = 0.82;
       utterance.pitch = 1.0;
+      utterance.lang = 'fr-FR'; // Pure continental vowels matching Bantu phonology
 
       // Prefer French or multilingual acoustic voice for phonetic vowels
       const voices = window.speechSynthesis.getVoices();
-      const voice = voices.find((v) => v.lang.startsWith('fr')) || voices[0];
-      if (voice) {
-        utterance.voice = voice;
+      if (voices.length > 0) {
+        const voice = voices.find((v) => v.lang.startsWith('fr') || v.lang.startsWith('es') || v.lang.startsWith('it'));
+        if (voice) {
+          utterance.voice = voice;
+        }
       }
 
       utterance.onstart = () => {
@@ -261,10 +264,8 @@ class ExtensionAssistant {
   }
 
   public speakTextSection(rawText: string, targetEl?: HTMLElement): void {
-    let ewondoText = rawText;
-    if (this.currentTargetLang.includes('ewo')) {
-      ewondoText = translateSentenceToEwondo(rawText);
-    }
+    // ALWAYS translate to maternal language (Ewondo) for voice reading
+    const ewondoText = translateSentenceToEwondo(rawText);
     const phonetic = getEwondoPhonetic(ewondoText);
 
     // Visual highlight on speaking section
@@ -602,11 +603,9 @@ class ExtensionAssistant {
         </div>
 
         <div style="margin-bottom: 8px;">
-          <label style="font-weight: 600; font-size: 12px; color: #4b5563;">Langue cible :</label>
+          <label style="font-weight: 600; font-size: 12px; color: #4b5563;">Langue maternelle :</label>
           <select id="target-lang" style="width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #d1d5db; margin-top: 4px; font-size: 13px; font-weight: 600; background: #ffffff;">
-            <option value="ewo-CM" ${this.currentTargetLang === 'ewo-CM' ? 'selected' : ''}>🇨🇲 Kóbɔ́ Ewondo (Langue Maternelle)</option>
-            <option value="fr" ${this.currentTargetLang === 'fr' ? 'selected' : ''}>🇫🇷 Français</option>
-            <option value="en" ${this.currentTargetLang === 'en' ? 'selected' : ''}>🇬🇧 English</option>
+            <option value="ewo-CM" selected>🇨🇲 Kóbɔ́ Ewondo (Langue Maternelle)</option>
           </select>
         </div>
 
