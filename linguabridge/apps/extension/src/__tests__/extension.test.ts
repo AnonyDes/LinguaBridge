@@ -253,4 +253,213 @@ describe('Chrome Extension Content Assistant', () => {
     const phoneticSub = host?.shadowRoot?.getElementById('audio-phonetic');
     expect(phoneticSub?.textContent).toContain('mó-ní mí né wá é bèŋ');
   });
+
+  it('triggers hover-to-speak debounced once per section, does not repeat in place, and switches sections cleanly', async () => {
+    assistant = new ExtensionAssistant();
+    const host = document.getElementById('linguabridge-extension-root');
+    // Enable hover-to-speak mode
+    assistant.toggleTouchSpeakMode();
+
+    const section1 = document.createElement('p');
+    section1.id = 'sec-1';
+    section1.textContent = 'Solde disponible';
+    document.body.appendChild(section1);
+
+    const section2 = document.createElement('p');
+    section2.id = 'sec-2';
+    section2.textContent = 'Confirmer le transfert';
+    document.body.appendChild(section2);
+
+    // 1. Hover on section1
+    section1.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, cancelable: true }));
+
+    // Before dwell timeout (<220ms), audio bar is not yet visible
+    const audioBar = host?.shadowRoot?.getElementById('audio-bar');
+    expect(audioBar?.style.display).toBeFalsy();
+
+    // Fast mouse passage (<220ms dwell): if user leaves before 220ms, no speech triggers
+    const fastPassageEl = document.createElement('span');
+    fastPassageEl.textContent = 'Menu rapide';
+    document.body.appendChild(fastPassageEl);
+    fastPassageEl.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, cancelable: true }));
+    fastPassageEl.dispatchEvent(new MouseEvent('mouseout', { bubbles: true, cancelable: true }));
+
+    // Wait past dwell delay
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
+    // 2. Now hover properly on section1 with dwell
+    section1.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, cancelable: true }));
+    await new Promise((resolve) => setTimeout(resolve, 260));
+
+    expect(audioBar?.style.display).toBe('flex');
+    const spokenText = host?.shadowRoot?.getElementById('audio-spoken-text');
+    expect(spokenText?.textContent).toBe('Móni mí ne wá é bẽng');
+
+    // 3. Repeated mouseover events inside section1 do NOT trigger re-speech ("une fois")
+    const initialText = spokenText?.textContent;
+    section1.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, cancelable: true }));
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    expect(spokenText?.textContent).toBe(initialText);
+
+    // 4. Moving to section2 speaks section2 once and CLEARS section1 outline
+    section2.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, cancelable: true }));
+    await new Promise((resolve) => setTimeout(resolve, 260));
+    expect(spokenText?.textContent).toBe('Tíbíli tóbó nlóm');
+    // Ensure section1 outline was cleanly cleared and not visually leaked
+    expect(section1.style.outline).toBe('');
+
+    // 5. Stopping speech via audio-stop button clears section2 outline
+    const stopBtn = host?.shadowRoot?.getElementById('audio-stop');
+    stopBtn?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(section2.style.outline).toBe('');
+  });
+
+  it('triggers hover-to-speak via pointerover / pointerout events seamlessly', async () => {
+    assistant = new ExtensionAssistant();
+    const host = document.getElementById('linguabridge-extension-root');
+    assistant.toggleTouchSpeakMode();
+
+    const secPointer = document.createElement('div');
+    secPointer.id = 'sec-pointer';
+    secPointer.setAttribute('role', 'button');
+    secPointer.textContent = 'Solde disponible';
+    document.body.appendChild(secPointer);
+
+    // Dispatch pointerover
+    secPointer.dispatchEvent(new Event('pointerover', { bubbles: true, cancelable: true }));
+    await new Promise((resolve) => setTimeout(resolve, 260));
+
+    const audioBar = host?.shadowRoot?.getElementById('audio-bar');
+    expect(audioBar?.style.display).toBe('flex');
+    const spokenText = host?.shadowRoot?.getElementById('audio-spoken-text');
+    expect(spokenText?.textContent).toBe('Móni mí ne wá é bẽng');
+
+    // Pointer out clears outline
+    secPointer.dispatchEvent(new Event('pointerout', { bubbles: true, cancelable: true }));
+    expect(secPointer.style.outline).toBe('');
+  });
+
+  it('verifies full-page translation comprehensively covers headings, paragraphs, buttons, tables, spans, links, input placeholders, titles, aria-labels, alt text, and restores them intact', () => {
+    document.body.innerHTML = `
+      <div id="full-banking-portal">
+        <h1 title="Bienvenue sur votre espace bancaire">Bienvenue sur votre espace bancaire</h1>
+        <p class="subtitle">Votre argent est en sécurité</p>
+        <img id="bank-logo" src="logo.png" alt="Logo de la banque" />
+        <form id="transfer-form">
+          <label for="acc-num">Numéro de compte</label>
+          <input id="acc-num" type="text" placeholder="Entrez le numéro de compte" aria-label="Numéro de compte" value="" />
+          
+          <label for="amount">Montant du transfert</label>
+          <input id="amount" type="text" placeholder="Montant en FCFA" value="50000 FCFA" />
+          
+          <label for="memo">Motif</label>
+          <textarea id="memo" placeholder="Motif du virement"></textarea>
+
+          <input id="btn-submit" type="submit" value="Confirmer le transfert" title="Confirmer le transfert" />
+          <button id="btn-cancel" type="button" aria-label="Annuler">Annuler</button>
+        </form>
+
+        <table id="recent-txns">
+          <thead>
+            <tr>
+              <th>Opération</th>
+              <th>Frais de transfert</th>
+              <th>Bénéficiaire</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span>Transfert d'argent</span></td>
+              <td>150 FCFA</td>
+              <td><a href="#dest" title="Destinataire">Destinataire: +237 699 001 122</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    assistant = new ExtensionAssistant();
+    assistant.translateFullPage();
+
+    // 1. Verify Headings, paragraphs, spans, titles
+    const h1 = document.querySelector('h1');
+    expect(h1?.textContent).toContain('Mbólo é mvôk nda móni wên');
+    expect(h1?.getAttribute('title')).toContain('Mbólo é mvôk nda móni wên');
+    expect(document.querySelector('.subtitle')?.textContent).toContain('Móni wên é ne mbaán');
+    expect(document.querySelector('td span')?.textContent).toContain('Lóm móni');
+
+    // 2. Verify Labels
+    const labels = Array.from(document.querySelectorAll('label')).map((l) => l.textContent);
+    expect(labels.some((l) => l?.includes('Nlambá ékóbló'))).toBe(true);
+    expect(labels.some((l) => l?.includes('Abui móni yá nlóm'))).toBe(true);
+
+    // 3. Verify Input placeholders & Submit button values, title, aria-labels
+    const accInput = document.getElementById('acc-num') as HTMLInputElement;
+    const amountInput = document.getElementById('amount') as HTMLInputElement;
+    const memoTextarea = document.getElementById('memo') as HTMLTextAreaElement;
+    const submitBtn = document.getElementById('btn-submit') as HTMLInputElement;
+    const cancelBtn = document.getElementById('btn-cancel') as HTMLButtonElement;
+    const logoImg = document.getElementById('bank-logo') as HTMLImageElement;
+
+    expect(accInput.placeholder).toContain('Nlambá ékóbló');
+    expect(accInput.getAttribute('aria-label')).toContain('Nlambá ékóbló');
+    expect(amountInput.placeholder).toContain('FCFA');
+    expect(amountInput.value).toBe('50000 FCFA'); // financial amount preserved
+    expect(memoTextarea.placeholder).toContain('Lóm móni');
+    expect(submitBtn.value).toContain('Tíbíli tóbó nlóm');
+    expect(submitBtn.getAttribute('title')).toContain('Tíbíli tóbó nlóm');
+    expect(cancelBtn.textContent).toContain('Dzágbá');
+    expect(cancelBtn.getAttribute('aria-label')).toContain('Dzágbá');
+
+    // 4. Verify Table headers and cells
+    const ths = Array.from(document.querySelectorAll('th')).map((t) => t.textContent);
+    expect(ths.some((t) => t?.includes('Nlóm móni'))).toBe(true);
+    expect(ths.some((t) => t?.includes('Móni mébembá mé nlóm'))).toBe(true);
+    expect(ths.some((t) => t?.includes('Nyí a nòng móni'))).toBe(true);
+
+    // 5. Verify Links & Financial entities
+    const link = document.querySelector('a');
+    expect(link?.textContent).toContain('Nyí a nòng móni');
+    expect(link?.textContent).toContain('+237 699 001 122'); // Phone preserved
+    expect(link?.getAttribute('title')).toContain('Nyí a nòng móni');
+
+    // 6. Verify Restore Page cleanly restores ALL text nodes AND input placeholders / button values / titles / aria-labels
+    assistant.restorePage();
+
+    expect(document.querySelector('h1')?.textContent).toBe('Bienvenue sur votre espace bancaire');
+    expect(document.querySelector('h1')?.getAttribute('title')).toBe('Bienvenue sur votre espace bancaire');
+    expect(document.querySelector('.subtitle')?.textContent).toBe('Votre argent est en sécurité');
+    expect(accInput.placeholder).toBe('Entrez le numéro de compte');
+    expect(accInput.getAttribute('aria-label')).toBe('Numéro de compte');
+    expect(memoTextarea.placeholder).toBe('Motif du virement');
+    expect(submitBtn.value).toBe('Confirmer le transfert');
+    expect(submitBtn.getAttribute('title')).toBe('Confirmer le transfert');
+    expect(cancelBtn.textContent).toBe('Annuler');
+    expect(cancelBtn.getAttribute('aria-label')).toBe('Annuler');
+    expect(link?.textContent).toBe('Destinataire: +237 699 001 122');
+    expect(link?.getAttribute('title')).toBe('Destinataire');
+  });
+
+  it('translates nested content inside custom Web Component shadow DOM roots', () => {
+    const customHost = document.createElement('div');
+    customHost.id = 'wc-card';
+    const wcShadow = customHost.attachShadow({ mode: 'open' });
+    wcShadow.innerHTML = `
+      <div class="wc-content">
+        <h3>Solde disponible</h3>
+        <button id="wc-btn">Confirmer le transfert</button>
+      </div>
+    `;
+    document.body.appendChild(customHost);
+
+    assistant = new ExtensionAssistant();
+    assistant.translateFullPage();
+
+    expect(wcShadow.querySelector('h3')?.textContent).toBe('Móni mí ne wá é bẽng');
+    expect(wcShadow.querySelector('button')?.textContent).toBe('Tíbíli tóbó nlóm');
+
+    assistant.restorePage();
+    expect(wcShadow.querySelector('h3')?.textContent).toBe('Solde disponible');
+    expect(wcShadow.querySelector('button')?.textContent).toBe('Confirmer le transfert');
+  });
 });

@@ -7,23 +7,48 @@ class EwondoSpeechPlayer {
   private onEndCallback: (() => void) | null = null;
   private cachedVoice: SpeechSynthesisVoice | null = null;
   private voicesLoaded = false;
+  private currentUtteranceId = 0;
+  private activeUtterance: SpeechSynthesisUtterance | null = null;
 
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       this.initVoice();
-      if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
-        window.speechSynthesis.onvoiceschanged = () => this.initVoice();
+      try {
+        if (typeof window.speechSynthesis.addEventListener === 'function') {
+          window.speechSynthesis.addEventListener('voiceschanged', () => this.initVoice());
+        } else if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+          window.speechSynthesis.onvoiceschanged = () => this.initVoice();
+        }
+      } catch {
+        // Ignored
       }
+    }
+  }
+
+  public prewarm(): void {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      this.initVoice();
+      // Resume wakes up Chromium's paused/asleep speech synthesis pipeline with zero latency
+      window.speechSynthesis.resume();
+    } catch {
+      // Ignored
     }
   }
 
   private initVoice(): void {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      this.cachedVoice =
-        voices.find((v) => v.lang.startsWith('fr') || v.lang.startsWith('es') || v.lang.startsWith('it')) || voices[0];
-      this.voicesLoaded = true;
+    try {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        // Bantu / Ewondo tone articulation: Continental Romance vowels (French, Spanish, Italian) best preserve Ewondo phonemes
+        this.cachedVoice =
+          voices.find((v) => v.lang.startsWith('fr') || v.lang.startsWith('es') || v.lang.startsWith('it')) ||
+          voices[0];
+        this.voicesLoaded = true;
+      }
+    } catch {
+      // Ignored
     }
   }
 
@@ -31,49 +56,85 @@ class EwondoSpeechPlayer {
     if (typeof window === 'undefined') return;
 
     this.stop();
+    this.currentUtteranceId++;
+    const thisId = this.currentUtteranceId;
     this.onEndCallback = onEnd || null;
 
-    const spokenText = phonetic || getEwondoPhonetic(text) || text;
+    const spokenRaw = phonetic || getEwondoPhonetic(text) || text;
+    // Strip hyphens between syllables for acoustic TTS engine to eliminate awkward pauses and "trait d'union" stutter
+    const spokenText = spokenRaw.replace(/-/g, '');
 
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(spokenText);
-      // Pacing for crystal-clear tone clarity and Bantu phonetic articulation
-      utterance.rate = 0.82;
-      utterance.pitch = 1.0;
-      utterance.lang = 'fr-FR'; // Pure continental vowels matching Bantu phonology
+      try {
+        // Ensure speech synthesis is awake and unpaused
+        window.speechSynthesis.resume();
 
-      if (!this.cachedVoice && !this.voicesLoaded) {
-        this.initVoice();
-      }
-      if (this.cachedVoice) {
-        utterance.voice = this.cachedVoice;
-      }
+        const utterance = new SpeechSynthesisUtterance(spokenText);
+        // Retain reference on instance to prevent Chromium V8 GC issue 679437
+        this.activeUtterance = utterance;
 
-      utterance.onstart = () => {
-        this.isPlaying = true;
-      };
-      utterance.onend = () => {
-        this.isPlaying = false;
-        if (this.onEndCallback) {
-          this.onEndCallback();
-          this.onEndCallback = null;
+        // Pacing for crystal-clear tone clarity and Bantu phonetic articulation
+        utterance.rate = 0.88;
+        utterance.pitch = 1.0;
+        utterance.lang = 'fr-FR'; // Pure continental vowels matching Bantu phonology
+
+        if (!this.cachedVoice && !this.voicesLoaded) {
+          this.initVoice();
         }
-      };
-      utterance.onerror = () => {
-        this.isPlaying = false;
-        if (this.onEndCallback) {
-          this.onEndCallback();
-          this.onEndCallback = null;
+        if (this.cachedVoice) {
+          utterance.voice = this.cachedVoice;
         }
-      };
 
-      window.speechSynthesis.speak(utterance);
+        utterance.onstart = () => {
+          if (this.currentUtteranceId === thisId) {
+            this.isPlaying = true;
+          }
+        };
+
+        const finish = () => {
+          if (this.currentUtteranceId === thisId) {
+            this.isPlaying = false;
+            this.activeUtterance = null;
+            if (this.onEndCallback) {
+              const cb = this.onEndCallback;
+              this.onEndCallback = null;
+              cb();
+            }
+          }
+        };
+
+        utterance.onend = finish;
+        utterance.onerror = (e) => {
+          // If canceled or interrupted by another utterance, do not invoke error handler
+          if ((e as any)?.error === 'interrupted' || (e as any)?.error === 'canceled') {
+            return;
+          }
+          finish();
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        this.playAcousticChime();
+        if (this.onEndCallback) {
+          setTimeout(() => {
+            if (this.currentUtteranceId === thisId && this.onEndCallback) {
+              const cb = this.onEndCallback;
+              this.onEndCallback = null;
+              cb();
+            }
+          }, 350);
+        }
+      }
     } else {
       this.playAcousticChime();
       if (this.onEndCallback) {
         setTimeout(() => {
-          if (this.onEndCallback) this.onEndCallback();
-        }, 400);
+          if (this.currentUtteranceId === thisId && this.onEndCallback) {
+            const cb = this.onEndCallback;
+            this.onEndCallback = null;
+            cb();
+          }
+        }, 350);
       }
     }
   }
@@ -91,14 +152,18 @@ class EwondoSpeechPlayer {
   }
 
   public stop(): void {
+    this.currentUtteranceId++;
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+      try {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.resume();
+      } catch {
+        // Ignored
+      }
     }
+    this.activeUtterance = null;
     this.isPlaying = false;
-    if (this.onEndCallback) {
-      this.onEndCallback();
-      this.onEndCallback = null;
-    }
+    this.onEndCallback = null;
   }
 
   private playAcousticChime(): void {
@@ -125,12 +190,25 @@ class ExtensionAssistant {
   private container: HTMLElement | null = null;
   private shadow: ShadowRoot | null = null;
   private originalTextMap = new Map<Node, string>();
+  private originalAttrMap = new Map<
+    Element,
+    { placeholder?: string; value?: string; title?: string; ariaLabel?: string; alt?: string }
+  >();
   private isPageTranslated = false;
   private currentTargetLang = 'ewo-CM';
   private currentSourceLang = 'fr';
   private isOpen = false;
   private isTouchSpeakEnabled = false;
   private speechPlayer = new EwondoSpeechPlayer();
+
+  // Instant speech & phonetic cache to eliminate voice latency
+  private translationSpeechCache = new Map<string, { ewondo: string; phonetic: string }>();
+
+  // Hover-to-speak tracking & debouncing ("survoler une section ça parle seul, une fois")
+  private hoverDwellTimeout: any = null;
+  private currentHoveredEl: HTMLElement | null = null;
+  private currentSpokenEl: HTMLElement | null = null;
+  private lastSpokenEl: HTMLElement | null = null;
 
   // Lightweight debounced MutationObserver for dynamic SPA banking portals (Afriland, BICEC, Ecobank, UBA, Orange Money)
   private mutationObserver: MutationObserver | null = null;
@@ -144,11 +222,26 @@ class ExtensionAssistant {
   private onMouseOutHandler: ((e: MouseEvent) => void) | null = null;
   private onClickElementHandler: ((e: MouseEvent) => void) | null = null;
   private onTouchEndHandler: ((e: TouchEvent) => void) | null = null;
-  private currentHoveredEl: HTMLElement | null = null;
-  private currentSpokenEl: HTMLElement | null = null;
+  private onFirstInteractionHandler: (() => void) | null = null;
 
   constructor() {
     this.init();
+  }
+
+  public isVoiceEnabled(): boolean {
+    return this.isTouchSpeakEnabled || this.isPageTranslated;
+  }
+
+  public stopSpeech(): void {
+    this.speechPlayer.stop();
+    if (this.currentSpokenEl) {
+      this.currentSpokenEl.style.outline = '';
+      this.currentSpokenEl.style.cursor = '';
+      if (this.currentHoveredEl === this.currentSpokenEl) {
+        this.currentHoveredEl = null;
+      }
+      this.currentSpokenEl = null;
+    }
   }
 
   private init() {
@@ -181,7 +274,93 @@ class ExtensionAssistant {
     }
   }
 
+  private clearHoverState(): void {
+    if (this.hoverDwellTimeout) {
+      clearTimeout(this.hoverDwellTimeout);
+      this.hoverDwellTimeout = null;
+    }
+    if (this.currentHoveredEl) {
+      this.currentHoveredEl.style.outline = '';
+      this.currentHoveredEl.style.cursor = '';
+      this.currentHoveredEl = null;
+    }
+    this.stopSpeech();
+    this.lastSpokenEl = null;
+  }
+
+  private findMeaningfulSection(target: HTMLElement): HTMLElement | null {
+    if (!target) return null;
+    if (this.isExtensionNode(target)) return null;
+
+    const tag = target.tagName ? target.tagName.toLowerCase() : '';
+    if (['script', 'style', 'code', 'pre', 'noscript', 'svg', 'path', 'iframe'].includes(tag)) {
+      return null;
+    }
+
+    // 1. Look for closest semantic text or interactive element
+    const semanticBlock = target.closest(
+      'h1, h2, h3, h4, h5, h6, p, button, a, li, td, th, label, dt, dd, summary, blockquote, figcaption, input, textarea, [role="button"], [role="link"], [role="heading"], [role="tab"], [role="menuitem"], [role="alert"]'
+    ) as HTMLElement | null;
+
+    if (semanticBlock && !this.isExtensionNode(semanticBlock)) {
+      const sTag = (semanticBlock.tagName || '').toLowerCase();
+      const isInput = sTag === 'input' || sTag === 'textarea';
+      const text = isInput
+        ? (semanticBlock as any).value?.trim() ||
+          (semanticBlock as any).placeholder?.trim() ||
+          semanticBlock.getAttribute('aria-label')?.trim() ||
+          semanticBlock.getAttribute('title')?.trim()
+        : semanticBlock.innerText?.trim() ||
+          semanticBlock.textContent?.trim() ||
+          semanticBlock.getAttribute('aria-label')?.trim() ||
+          semanticBlock.getAttribute('title')?.trim();
+      if (text && text.length >= 2) {
+        return semanticBlock;
+      }
+    }
+
+    // 2. Reject macro containers (body, html)
+    if (target === document.body || target === document.documentElement) {
+      return null;
+    }
+
+    // 3. If target has multiple block children, let the cursor hover the specific child
+    if (target.querySelectorAll && target.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, td, th, button, dt, dd').length > 0) {
+      return null;
+    }
+
+    // 4. Fallback to leaf or target text
+    const tTag = (target.tagName || '').toLowerCase();
+    const isTargetInput = tTag === 'input' || tTag === 'textarea';
+    const text = isTargetInput
+      ? (target as any).value?.trim() ||
+        (target as any).placeholder?.trim() ||
+        target.getAttribute('aria-label')?.trim() ||
+        target.getAttribute('title')?.trim()
+      : target.innerText?.trim() ||
+        target.textContent?.trim() ||
+        target.getAttribute('aria-label')?.trim() ||
+        target.getAttribute('title')?.trim();
+    if (text && text.length >= 2) {
+      return target;
+    }
+
+    return null;
+  }
+
   private setupListeners() {
+    // Zero-latency prewarm on first user interaction in page
+    this.onFirstInteractionHandler = () => {
+      this.speechPlayer.prewarm();
+      if (this.onFirstInteractionHandler) {
+        window.removeEventListener('pointerdown', this.onFirstInteractionHandler);
+        window.removeEventListener('keydown', this.onFirstInteractionHandler);
+        this.onFirstInteractionHandler = null;
+      }
+    };
+    window.addEventListener('pointerdown', this.onFirstInteractionHandler, { once: true });
+    window.addEventListener('keydown', this.onFirstInteractionHandler, { once: true });
+
     // Listen for text selection
     this.onMouseUpHandler = () => {
       const selection = window.getSelection();
@@ -202,86 +381,182 @@ class ExtensionAssistant {
         } else if (msg.type === 'POPUP_TRANSLATE_PAGE') {
           if (msg.targetLang) this.currentTargetLang = msg.targetLang;
           this.translateFullPage();
-        } else if (msg.type === 'POPUP_TOGGLE_TOUCH_SPEAK') {
+        } else if (msg.type === 'POPUP_TOGGLE_TOUCH_SPEAK' || msg.type === 'POPUP_TOGGLE_HOVER_SPEAK') {
           this.toggleTouchSpeakMode();
         }
       };
       chrome.runtime.onMessage.addListener(this.onRuntimeMessageHandler);
     }
 
-    // Touch / Click-to-Listen in-page interaction
+    // Hover-to-speak: Automatically triggers speech in Kóbɔ́ Ewondo once upon dwelling on a section
     this.onMouseOverHandler = (e: MouseEvent) => {
-      if (!this.isTouchSpeakEnabled) return;
+      if (!this.isVoiceEnabled()) return;
       const target = e.target as HTMLElement;
-      if (!target || target.closest('#linguabridge-extension-root')) return;
-      if (['script', 'style', 'code', 'pre', 'noscript'].includes(target.tagName.toLowerCase())) return;
+      if (!target || this.isExtensionNode(target)) return;
 
-      if (this.currentHoveredEl && this.currentHoveredEl !== target && this.currentHoveredEl !== this.currentSpokenEl) {
-        this.currentHoveredEl.style.outline = '';
+      const section = this.findMeaningfulSection(target);
+      if (!section) return;
+
+      // Moving within the currently hovered section: no-op
+      if (this.currentHoveredEl === section) return;
+
+      // Cancel previous pending hover dwell
+      if (this.hoverDwellTimeout) {
+        clearTimeout(this.hoverDwellTimeout);
+        this.hoverDwellTimeout = null;
       }
-      this.currentHoveredEl = target;
-      target.style.outline = '2px solid #16a34a';
-      target.style.outlineOffset = '2px';
-      target.style.cursor = 'pointer';
+
+      // Clear outline on previous hovered element
+      if (this.currentHoveredEl && this.currentHoveredEl !== section) {
+        this.currentHoveredEl.style.outline = '';
+        this.currentHoveredEl.style.cursor = '';
+      }
+
+      // If switching sections, stop previous speech and clear previous spoken element outline immediately
+      if (this.currentSpokenEl && this.currentSpokenEl !== section) {
+        this.stopSpeech();
+      }
+
+      this.currentHoveredEl = section;
+      section.style.outline = '2px solid #16a34a';
+      section.style.outlineOffset = '2px';
+      section.style.cursor = 'pointer';
+
+      // "parle seul , une fois": If this section was already spoken in this hover, do not re-speak
+      if (this.lastSpokenEl === section) return;
+
+      // Prewarm voice synthesis on hover for zero-latency speech start
+      this.speechPlayer.prewarm();
+
+      // Debounce dwell delay (220ms) to avoid triggering on fast mouse passage
+      this.hoverDwellTimeout = setTimeout(() => {
+        if (this.currentHoveredEl === section && this.lastSpokenEl !== section) {
+          this.lastSpokenEl = section;
+          const secTag = (section.tagName || '').toLowerCase();
+          const isSecInput = secTag === 'input' || secTag === 'textarea';
+          const text = isSecInput
+            ? (section as any).value?.trim() ||
+              (section as any).placeholder?.trim() ||
+              section.getAttribute('aria-label')?.trim() ||
+              section.getAttribute('title')?.trim()
+            : section.innerText?.trim() ||
+              section.textContent?.trim() ||
+              section.getAttribute('aria-label')?.trim() ||
+              section.getAttribute('title')?.trim();
+          if (text && text.length >= 2) {
+            this.speakTextSection(text, section);
+          }
+        }
+      }, 220);
     };
 
     this.onMouseOutHandler = (e: MouseEvent) => {
-      if (!this.isTouchSpeakEnabled) return;
+      if (!this.isVoiceEnabled()) return;
       const target = e.target as HTMLElement;
-      if (target && target === this.currentHoveredEl && target !== this.currentSpokenEl) {
-        target.style.outline = '';
-        target.style.cursor = '';
+      if (!target || this.isExtensionNode(target)) return;
+
+      const section = this.findMeaningfulSection(target);
+      if (!section) return;
+
+      // Check if mouse actually moved into a child element of the section
+      const related = e.relatedTarget as Node | null;
+      if (related && section.contains(related)) {
+        return;
+      }
+
+      // Mouse genuinely left this section
+      if (this.currentHoveredEl === section) {
+        if (this.hoverDwellTimeout) {
+          clearTimeout(this.hoverDwellTimeout);
+          this.hoverDwellTimeout = null;
+        }
+        section.style.outline = '';
+        section.style.cursor = '';
         this.currentHoveredEl = null;
+      }
+
+      // Reset lastSpokenEl when cursor leaves section, so hovering it again later speaks again
+      if (this.lastSpokenEl === section) {
+        this.lastSpokenEl = null;
       }
     };
 
+    // Click-to-speak (instant, 0ms dwell)
     this.onClickElementHandler = (e: MouseEvent) => {
-      if (!this.isTouchSpeakEnabled) return;
+      if (!this.isVoiceEnabled()) return;
       const target = e.target as HTMLElement;
-      if (!target || target.closest('#linguabridge-extension-root')) return;
+      if (!target || this.isExtensionNode(target)) return;
 
-      const text = target.innerText?.trim() || target.textContent?.trim();
-      if (!text) return;
+      const section = this.findMeaningfulSection(target);
+      if (!section) return;
+
+      if (this.hoverDwellTimeout) {
+        clearTimeout(this.hoverDwellTimeout);
+        this.hoverDwellTimeout = null;
+      }
+
+      const secTag = (section.tagName || '').toLowerCase();
+      const isSecInput = secTag === 'input' || secTag === 'textarea';
+      const text = isSecInput
+        ? (section as any).value?.trim() ||
+          (section as any).placeholder?.trim() ||
+          section.getAttribute('aria-label')?.trim() ||
+          section.getAttribute('title')?.trim()
+        : section.innerText?.trim() ||
+          section.textContent?.trim() ||
+          section.getAttribute('aria-label')?.trim() ||
+          section.getAttribute('title')?.trim();
+      if (!text || text.length < 2) return;
 
       e.preventDefault();
       e.stopPropagation();
 
-      this.speakTextSection(text, target);
+      this.lastSpokenEl = section;
+      this.speakTextSection(text, section);
     };
 
     // Mobile touch support
     this.onTouchEndHandler = (e: TouchEvent) => {
-      if (!this.isTouchSpeakEnabled) return;
+      if (!this.isVoiceEnabled()) return;
       const touch = e.changedTouches[0];
       if (!touch) return;
       const target = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement;
-      if (!target || target.closest('#linguabridge-extension-root')) return;
+      if (!target || this.isExtensionNode(target)) return;
 
-      const text = target.innerText?.trim() || target.textContent?.trim();
-      if (!text) return;
+      const section = this.findMeaningfulSection(target);
+      if (!section) return;
+
+      const secTag = (section.tagName || '').toLowerCase();
+      const isSecInput = secTag === 'input' || secTag === 'textarea';
+      const text = isSecInput
+        ? (section as any).value?.trim() ||
+          (section as any).placeholder?.trim() ||
+          section.getAttribute('aria-label')?.trim() ||
+          section.getAttribute('title')?.trim()
+        : section.innerText?.trim() ||
+          section.textContent?.trim() ||
+          section.getAttribute('aria-label')?.trim() ||
+          section.getAttribute('title')?.trim();
+      if (!text || text.length < 2) return;
 
       e.preventDefault();
-      this.speakTextSection(text, target);
+      this.lastSpokenEl = section;
+      this.speakTextSection(text, section);
     };
 
     document.addEventListener('mouseover', this.onMouseOverHandler, true);
     document.addEventListener('mouseout', this.onMouseOutHandler, true);
+    document.addEventListener('pointerover', this.onMouseOverHandler as any, true);
+    document.addEventListener('pointerout', this.onMouseOutHandler as any, true);
     document.addEventListener('click', this.onClickElementHandler, true);
     document.addEventListener('touchend', this.onTouchEndHandler, { capture: true, passive: false });
   }
 
   public toggleTouchSpeakMode(): void {
     this.isTouchSpeakEnabled = !this.isTouchSpeakEnabled;
-    if (!this.isTouchSpeakEnabled) {
-      if (this.currentHoveredEl) {
-        this.currentHoveredEl.style.outline = '';
-        this.currentHoveredEl.style.cursor = '';
-        this.currentHoveredEl = null;
-      }
-      if (this.currentSpokenEl) {
-        this.currentSpokenEl.style.outline = '';
-        this.currentSpokenEl = null;
-      }
+    this.speechPlayer.prewarm();
+    if (!this.isVoiceEnabled()) {
+      this.clearHoverState();
       this.speechPlayer.stop();
       const bar = this.shadow?.getElementById('audio-bar');
       if (bar) bar.style.display = 'none';
@@ -290,13 +565,26 @@ class ExtensionAssistant {
   }
 
   public speakTextSection(rawText: string, targetEl?: HTMLElement): void {
-    // ALWAYS translate to maternal language (Ewondo) for voice reading
-    const ewondoText = translateSentenceToEwondo(rawText);
-    const phonetic = getEwondoPhonetic(ewondoText);
+    if (!rawText || !rawText.trim()) return;
+
+    // Fast synchronous cache lookup / translation (0ms latency boost)
+    let ewondoText: string;
+    let phonetic: string;
+
+    const cached = this.translationSpeechCache.get(rawText);
+    if (cached) {
+      ewondoText = cached.ewondo;
+      phonetic = cached.phonetic;
+    } else {
+      ewondoText = translateSentenceToEwondo(rawText);
+      phonetic = getEwondoPhonetic(ewondoText);
+      this.translationSpeechCache.set(rawText, { ewondo: ewondoText, phonetic });
+    }
 
     // Visual highlight on speaking section
     if (this.currentSpokenEl && this.currentSpokenEl !== targetEl) {
       this.currentSpokenEl.style.outline = '';
+      this.currentSpokenEl.style.cursor = '';
     }
     if (targetEl) {
       this.currentSpokenEl = targetEl;
@@ -304,14 +592,19 @@ class ExtensionAssistant {
       targetEl.style.outlineOffset = '2px';
     }
 
+    // Show floating phonetic subtitle bar immediately
+    this.showAudioFloatingBar(ewondoText, phonetic);
+
+    // Speak immediately with local browser Web Speech API
     this.speechPlayer.speak(ewondoText, phonetic, () => {
-      if (this.currentSpokenEl) {
-        this.currentSpokenEl.style.outline = '';
+      if (this.currentSpokenEl === targetEl) {
+        if (targetEl && targetEl !== this.currentHoveredEl) {
+          targetEl.style.outline = '';
+          targetEl.style.cursor = '';
+        }
         this.currentSpokenEl = null;
       }
     });
-
-    this.showAudioFloatingBar(ewondoText, phonetic);
   }
 
   private showAudioFloatingBar(text: string, phonetic: string): void {
@@ -330,13 +623,15 @@ class ExtensionAssistant {
     if (!box) return;
 
     box.style.display = 'block';
-    box.innerHTML = `<div style="color: #4b5563; font-size: 11px;">Traduction en cours...</div>`;
 
-    const handleSuccess = (res: TranslationResult) => {
-      const phonetic = res.phonetic || getEwondoPhonetic(res.translatedText);
+    // Synchronously compute local translation immediately for 0ms latency boost
+    const localTrans = translateSentenceToEwondo(text);
+    const localPhonetic = getEwondoPhonetic(localTrans);
+
+    const renderPreview = (translatedText: string, phonetic: string, warnings: string[]) => {
       box.innerHTML = `
         <div style="font-weight: 600; margin-bottom: 2px; color: #111827;">Sélectionné : "${text}"</div>
-        <div style="color: #15803d; font-weight: 700; font-size: 14px;">"${res.translatedText}"</div>
+        <div style="color: #15803d; font-weight: 700; font-size: 14px;">"${translatedText}"</div>
         ${phonetic ? `<div style="color: #4b5563; font-size: 11px; margin-top: 2px; font-style: italic;">Prononciation : [${phonetic}]</div>` : ''}
         <div style="margin-top: 6px; display: flex; gap: 8px;">
           <button id="btn-speak-selection" style="background: #16a34a; color: #ffffff; border: 1px solid #15803d; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer;">
@@ -344,19 +639,23 @@ class ExtensionAssistant {
           </button>
         </div>
         ${
-          res.warnings.length > 0
+          warnings.length > 0
             ? `<div style="margin-top: 6px; padding: 6px 8px; background: #f9fafb; border: 1px solid #d1d5db; border-radius: 4px; color: #111827; font-size: 11px;">
-                🛡️ <strong>Garde financière :</strong> ${res.warnings.join(', ')}
+                🛡️ <strong>Garde financière :</strong> ${warnings.join(', ')}
               </div>`
             : ''
         }
       `;
 
       this.shadow?.getElementById('btn-speak-selection')?.addEventListener('click', () => {
-        this.speechPlayer.speak(res.translatedText, phonetic);
+        this.speechPlayer.speak(translatedText, phonetic);
       });
     };
 
+    // Show instant local translation with zero network latency
+    renderPreview(localTrans, localPhonetic, []);
+
+    // Also query background/API if available to enrich guards
     if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
       chrome.runtime.sendMessage(
         {
@@ -368,44 +667,11 @@ class ExtensionAssistant {
         },
         (response) => {
           if (response?.success && response.result) {
-            handleSuccess(response.result);
-          } else {
-            // Autonomous fallback
-            const localTrans = translateSentenceToEwondo(text);
-            handleSuccess({
-              id: 'local-selection',
-              originalText: text,
-              translatedText: localTrans,
-              sourceLang: this.currentSourceLang,
-              targetLang: this.currentTargetLang,
-              provider: 'apertium-national-lexicon',
-              status: 'success',
-              cacheStatus: 'miss',
-              warnings: [],
-              latencyMs: 1,
-              speechAvailable: true,
-              phonetic: getEwondoPhonetic(localTrans),
-            });
+            const phon = response.result.phonetic || getEwondoPhonetic(response.result.translatedText);
+            renderPreview(response.result.translatedText, phon, response.result.warnings || []);
           }
         }
       );
-    } else {
-      // Local execution fallback for tests
-      const localTrans = translateSentenceToEwondo(text);
-      handleSuccess({
-        id: 'local-test',
-        originalText: text,
-        translatedText: localTrans,
-        sourceLang: this.currentSourceLang,
-        targetLang: this.currentTargetLang,
-        provider: 'apertium-national-lexicon',
-        status: 'success',
-        cacheStatus: 'miss',
-        warnings: [],
-        latencyMs: 1,
-        speechAvailable: true,
-        phonetic: getEwondoPhonetic(localTrans),
-      });
     }
   }
 
@@ -492,6 +758,109 @@ class ExtensionAssistant {
     }
   }
 
+  private translateElementAttributes(el: HTMLElement): void {
+    if (!el || typeof (el as any).getAttribute !== 'function' || this.isExtensionNode(el)) return;
+    const tag = (el.tagName || '').toLowerCase();
+
+    // 1. Placeholder translation on inputs and textareas
+    if (tag === 'input' || tag === 'textarea') {
+      const inputEl = el as any;
+      const ph = inputEl.placeholder;
+      if (ph && ph.trim()) {
+        const orig = this.originalAttrMap.get(el);
+        if (!orig || orig.placeholder === undefined) {
+          this.originalAttrMap.set(el, { ...orig, placeholder: ph });
+        }
+        const sourcePh = (this.originalAttrMap.get(el)?.placeholder ?? ph).trim();
+        const translatedPh = translateSentenceToEwondo(sourcePh);
+        if (translatedPh && translatedPh !== sourcePh) {
+          inputEl.placeholder = translatedPh;
+          this.translationSpeechCache.set(translatedPh, {
+            ewondo: translatedPh,
+            phonetic: getEwondoPhonetic(translatedPh),
+          });
+        }
+      }
+    }
+
+    // 2. Button value translation on input[type="button" | "submit" | "reset"]
+    if (tag === 'input') {
+      const inputEl = el as any;
+      const type = (inputEl.type || '').toLowerCase();
+      if (['button', 'submit', 'reset'].includes(type) && inputEl.value && inputEl.value.trim()) {
+        const orig = this.originalAttrMap.get(el);
+        if (!orig || orig.value === undefined) {
+          this.originalAttrMap.set(el, { ...orig, value: inputEl.value });
+        }
+        const sourceVal = (this.originalAttrMap.get(el)?.value ?? inputEl.value).trim();
+        const translatedVal = translateSentenceToEwondo(sourceVal);
+        if (translatedVal && translatedVal !== sourceVal) {
+          inputEl.value = translatedVal;
+          this.translationSpeechCache.set(translatedVal, {
+            ewondo: translatedVal,
+            phonetic: getEwondoPhonetic(translatedVal),
+          });
+        }
+      }
+    }
+
+    // 3. title attribute
+    const title = el.getAttribute('title');
+    if (title && title.trim()) {
+      const orig = this.originalAttrMap.get(el);
+      if (!orig || orig.title === undefined) {
+        this.originalAttrMap.set(el, { ...orig, title });
+      }
+      const sourceTitle = (this.originalAttrMap.get(el)?.title ?? title).trim();
+      const translatedTitle = translateSentenceToEwondo(sourceTitle);
+      if (translatedTitle && translatedTitle !== sourceTitle) {
+        el.setAttribute('title', translatedTitle);
+        this.translationSpeechCache.set(translatedTitle, {
+          ewondo: translatedTitle,
+          phonetic: getEwondoPhonetic(translatedTitle),
+        });
+      }
+    }
+
+    // 4. aria-label attribute
+    const ariaLabel = el.getAttribute('aria-label');
+    if (ariaLabel && ariaLabel.trim()) {
+      const orig = this.originalAttrMap.get(el);
+      if (!orig || orig.ariaLabel === undefined) {
+        this.originalAttrMap.set(el, { ...orig, ariaLabel });
+      }
+      const sourceAria = (this.originalAttrMap.get(el)?.ariaLabel ?? ariaLabel).trim();
+      const translatedAria = translateSentenceToEwondo(sourceAria);
+      if (translatedAria && translatedAria !== sourceAria) {
+        el.setAttribute('aria-label', translatedAria);
+        this.translationSpeechCache.set(translatedAria, {
+          ewondo: translatedAria,
+          phonetic: getEwondoPhonetic(translatedAria),
+        });
+      }
+    }
+
+    // 5. alt attribute on images
+    if (tag === 'img') {
+      const alt = el.getAttribute('alt');
+      if (alt && alt.trim()) {
+        const orig = this.originalAttrMap.get(el);
+        if (!orig || orig.alt === undefined) {
+          this.originalAttrMap.set(el, { ...orig, alt });
+        }
+        const sourceAlt = (this.originalAttrMap.get(el)?.alt ?? alt).trim();
+        const translatedAlt = translateSentenceToEwondo(sourceAlt);
+        if (translatedAlt && translatedAlt !== sourceAlt) {
+          el.setAttribute('alt', translatedAlt);
+          this.translationSpeechCache.set(translatedAlt, {
+            ewondo: translatedAlt,
+            phonetic: getEwondoPhonetic(translatedAlt),
+          });
+        }
+      }
+    }
+  }
+
   private translateNodeSubtree(rootNode: Node): void {
     if (!rootNode || !rootNode.isConnected) return;
     if (this.isExtensionNode(rootNode)) return;
@@ -501,11 +870,39 @@ class ExtensionAssistant {
       return;
     }
 
-    if (rootNode.nodeType === 1) { // Node.ELEMENT_NODE
+    if (rootNode.nodeType === 1 || rootNode.nodeType === 11) { // Node.ELEMENT_NODE or DOCUMENT_FRAGMENT_NODE (ShadowRoot)
       const el = rootNode as HTMLElement;
       const tag = el.tagName?.toLowerCase();
       if (['script', 'style', 'code', 'pre', 'noscript'].includes(tag)) return;
 
+      // Translate attributes on el itself (placeholders, button values, title, aria-label, alt)
+      if (rootNode.nodeType === 1) {
+        this.translateElementAttributes(el);
+      }
+
+      // Translate attributes on all inputs, textareas, elements with aria-label, title, or alt
+      if (el.querySelectorAll) {
+        const attrElements = el.querySelectorAll<HTMLElement>('input, textarea, [title], [aria-label], img[alt]');
+        for (let i = 0; i < attrElements.length; i++) {
+          this.translateElementAttributes(attrElements[i]);
+        }
+      }
+
+      // Support Shadow DOM trees in custom Web Components (e.g., custom banking widgets)
+      if ((el as any).shadowRoot && !this.isExtensionNode((el as any).shadowRoot)) {
+        this.translateNodeSubtree((el as any).shadowRoot);
+      }
+      if (el.querySelectorAll) {
+        const customElements = el.querySelectorAll<HTMLElement>('*');
+        for (let i = 0; i < customElements.length; i++) {
+          const shadow = (customElements[i] as any).shadowRoot;
+          if (shadow && !this.isExtensionNode(shadow)) {
+            this.translateNodeSubtree(shadow);
+          }
+        }
+      }
+
+      // Walk all text nodes comprehensively across headings, paragraphs, buttons, table cells, spans, links, labels, modals
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
         acceptNode: (node) => {
           if (!node.textContent || !node.textContent.trim()) return NodeFilter.FILTER_REJECT;
@@ -541,6 +938,13 @@ class ExtensionAssistant {
       const translated = translateSentenceToEwondo(trimmed);
       if (translated && translated !== trimmed) {
         node.textContent = leading + translated + trailing;
+        // Warm up speech cache for instant hover reading without delay
+        if (!this.translationSpeechCache.has(translated)) {
+          this.translationSpeechCache.set(translated, {
+            ewondo: translated,
+            phonetic: getEwondoPhonetic(translated),
+          });
+        }
       }
     }
   }
@@ -548,6 +952,7 @@ class ExtensionAssistant {
   public translateFullPage(): void {
     this.isTranslating = true;
     try {
+      this.speechPlayer.prewarm();
       this.translateNodeSubtree(document.body);
       this.isPageTranslated = true;
       this.render();
@@ -559,12 +964,39 @@ class ExtensionAssistant {
   public restorePage(): void {
     this.isTranslating = true;
     try {
+      // 1. Restore text nodes
       for (const [node, original] of this.originalTextMap.entries()) {
         if (node.isConnected) {
           node.textContent = original;
         }
       }
+
+      // 2. Restore input/textarea placeholders, button values, title, aria-label, alt
+      for (const [el, orig] of this.originalAttrMap.entries()) {
+        if (el.isConnected) {
+          const inputEl = el as any;
+          const tag = (el.tagName || '').toLowerCase();
+          if (orig.placeholder !== undefined && (tag === 'input' || tag === 'textarea')) {
+            inputEl.placeholder = orig.placeholder;
+          }
+          if (orig.value !== undefined && tag === 'input') {
+            inputEl.value = orig.value;
+          }
+          if (orig.title !== undefined) {
+            el.setAttribute('title', orig.title);
+          }
+          if (orig.ariaLabel !== undefined) {
+            el.setAttribute('aria-label', orig.ariaLabel);
+          }
+          if (orig.alt !== undefined && tag === 'img') {
+            el.setAttribute('alt', orig.alt);
+          }
+        }
+      }
+
       this.isPageTranslated = false;
+      this.clearHoverState();
+      this.speechPlayer.stop();
       this.render();
     } finally {
       this.isTranslating = false;
@@ -754,11 +1186,11 @@ class ExtensionAssistant {
 
         <button class="btn-action speak-toggle" id="btn-toggle-speak">
           <span>🔊</span>
-          <span>${this.isTouchSpeakEnabled ? 'Désactiver la lecture au toucher' : 'Activer la lecture au toucher'}</span>
+          <span>${this.isTouchSpeakEnabled ? 'Désactiver la lecture au toucher & survol' : 'Activer la lecture au toucher & survol'}</span>
         </button>
 
         <div class="speak-hint">
-          👉 <strong>Mode vocal actif :</strong> Touchez ou cliquez sur n'importe quel élément pour l'écouter en langue maternelle.
+          👉 <strong>Mode vocal actif :</strong> Survolez, touchez ou cliquez sur n'importe quelle section pour l'écouter en langue maternelle.
         </div>
 
         <div id="selection-preview" class="preview-box"></div>
@@ -819,30 +1251,22 @@ class ExtensionAssistant {
     });
 
     this.shadow.getElementById('audio-stop')?.addEventListener('click', () => {
-      this.speechPlayer.stop();
+      this.stopSpeech();
     });
 
     this.shadow.getElementById('audio-close')?.addEventListener('click', () => {
-      this.speechPlayer.stop();
+      this.stopSpeech();
       const bar = this.shadow?.getElementById('audio-bar');
       if (bar) bar.style.display = 'none';
     });
   }
 
   public destroy(): void {
-    this.speechPlayer.stop();
+    this.stopSpeech();
     if (this.isPageTranslated) {
       this.restorePage();
     }
-    if (this.currentHoveredEl) {
-      this.currentHoveredEl.style.outline = '';
-      this.currentHoveredEl.style.cursor = '';
-      this.currentHoveredEl = null;
-    }
-    if (this.currentSpokenEl) {
-      this.currentSpokenEl.style.outline = '';
-      this.currentSpokenEl = null;
-    }
+    this.clearHoverState();
     if (this.container && this.container.parentNode) {
       this.container.parentNode.removeChild(this.container);
       this.container = null;
@@ -858,15 +1282,26 @@ class ExtensionAssistant {
     }
     if (this.onMouseOverHandler) {
       document.removeEventListener('mouseover', this.onMouseOverHandler, true);
+      document.removeEventListener('pointerover', this.onMouseOverHandler as any, true);
       this.onMouseOverHandler = null;
     }
     if (this.onMouseOutHandler) {
       document.removeEventListener('mouseout', this.onMouseOutHandler, true);
+      document.removeEventListener('pointerout', this.onMouseOutHandler as any, true);
       this.onMouseOutHandler = null;
     }
     if (this.onClickElementHandler) {
       document.removeEventListener('click', this.onClickElementHandler, true);
       this.onClickElementHandler = null;
+    }
+    if (this.onTouchEndHandler) {
+      document.removeEventListener('touchend', this.onTouchEndHandler, true);
+      this.onTouchEndHandler = null;
+    }
+    if (this.onFirstInteractionHandler) {
+      window.removeEventListener('pointerdown', this.onFirstInteractionHandler);
+      window.removeEventListener('keydown', this.onFirstInteractionHandler);
+      this.onFirstInteractionHandler = null;
     }
     if (this.mutationObserver) {
       this.mutationObserver.disconnect();
@@ -877,10 +1312,9 @@ class ExtensionAssistant {
       this.mutationDebounceTimeout = null;
     }
     this.pendingMutations.clear();
-    if (this.onTouchEndHandler) {
-      document.removeEventListener('touchend', this.onTouchEndHandler, true);
-      this.onTouchEndHandler = null;
-    }
+    this.originalTextMap.clear();
+    this.originalAttrMap.clear();
+    this.translationSpeechCache.clear();
   }
 }
 

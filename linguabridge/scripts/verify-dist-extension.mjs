@@ -24,9 +24,11 @@ const document = window.document;
 
 document.body.innerHTML = `
   <div id="content">
-    <h1 id="welcome">Bienvenue sur votre espace bancaire</h1>
+    <h1 id="welcome" title="Bienvenue sur votre espace bancaire">Bienvenue sur votre espace bancaire</h1>
     <p id="balance">Solde de votre compte: 25000 FCFA</p>
-    <button id="transfer">Effectuer un virement sécurisé</button>
+    <button id="transfer" aria-label="Effectuer un virement sécurisé">Effectuer un virement sécurisé</button>
+    <input id="acc" type="text" placeholder="Numéro de compte" />
+    <input id="btn-submit" type="submit" value="Confirmer le transfert" />
     <div id="nayokan">
       <h2>Say hello. Or send a serious enquiry.</h2>
       <p>Choose the route that matches your enquiry</p>
@@ -102,16 +104,97 @@ messageListener({ type: 'POPUP_TRANSLATE_PAGE', targetLang: 'ewo-CM' });
 const h1Text = window.document.getElementById('welcome').textContent;
 const balanceText = window.document.getElementById('balance').textContent;
 const btnText = window.document.getElementById('transfer').textContent;
+const accInput = window.document.getElementById('acc');
+const submitBtn = window.document.getElementById('btn-submit');
 
-console.log('✓ Translated H1:', h1Text);
+const welcomeEl = window.document.getElementById('welcome');
+const transferEl = window.document.getElementById('transfer');
+
+console.log('✓ Translated H1 text:', h1Text);
+console.log('✓ Translated H1 title attribute:', welcomeEl.getAttribute('title'));
 console.log('✓ Translated Balance (FCFA preserved):', balanceText);
-console.log('✓ Translated Button:', btnText);
+console.log('✓ Translated Button text:', btnText);
+console.log('✓ Translated Button aria-label attribute:', transferEl.getAttribute('aria-label'));
+console.log('✓ Translated Input Placeholder:', accInput.placeholder);
+console.log('✓ Translated Submit Button Value:', submitBtn.value);
 console.log('✓ Translated Nayokan section:', window.document.getElementById('nayokan').textContent.trim());
 
-if (h1Text.includes('Mbólo') && balanceText.includes('25000 FCFA')) {
-  console.log('🎉 ALL LIVE IN-PAGE TRANSLATION CHECKS PASSED PERFECTLY!');
-  process.exit(0);
-} else {
+if (!h1Text.includes('Mbólo') || !balanceText.includes('25000 FCFA')) {
   console.error('✗ Unexpected translation output:', { h1Text, balanceText, btnText });
   process.exit(1);
 }
+
+if (!welcomeEl.getAttribute('title')?.includes('Mbólo')) {
+  console.error('✗ H1 title attribute not translated:', welcomeEl.getAttribute('title'));
+  process.exit(1);
+}
+
+if (!transferEl.getAttribute('aria-label')?.includes('Lóm móni')) {
+  console.error('✗ Button aria-label not translated:', transferEl.getAttribute('aria-label'));
+  process.exit(1);
+}
+
+if (!accInput.placeholder.includes('Nlambá ékóbló')) {
+  console.error('✗ Input placeholder not translated:', accInput.placeholder);
+  process.exit(1);
+}
+
+if (!submitBtn.value.includes('Tíbíli tóbó nlóm')) {
+  console.error('✗ Submit button value not translated:', submitBtn.value);
+  process.exit(1);
+}
+
+// 8. Test Hover-to-Speak ("survoler une section ça parle seul, une fois")
+const balanceEl = window.document.getElementById('balance');
+const audioBar = shadow.getElementById('audio-bar');
+const spokenTextEl = shadow.getElementById('audio-spoken-text');
+const phoneticEl = shadow.getElementById('audio-phonetic');
+
+// Dispatch mouseover to trigger hover dwell
+balanceEl.dispatchEvent(new window.MouseEvent('mouseover', { bubbles: true, cancelable: true }));
+
+// Wait for 250ms past dwell timeout (220ms)
+setTimeout(() => {
+  if (audioBar.style.display !== 'flex') {
+    console.error('✗ Audio bar not displayed upon hovering section');
+    process.exit(1);
+  }
+  console.log('✓ Hover-to-speak triggered audio bar:', spokenTextEl.textContent);
+  console.log('✓ Phonetic subtitle bar displayed:', phoneticEl.textContent);
+
+  if (!spokenTextEl.textContent.includes('25000 FCFA')) {
+    console.error('✗ Spoken text did not preserve financial balance:', spokenTextEl.textContent);
+    process.exit(1);
+  }
+
+  // Switch to transfer button section
+  const transferBtn = window.document.getElementById('transfer');
+  transferBtn.dispatchEvent(new window.MouseEvent('mouseover', { bubbles: true, cancelable: true }));
+
+  setTimeout(() => {
+    console.log('✓ Switched section hover spoke new section:', spokenTextEl.textContent);
+    if (!spokenTextEl.textContent.includes('Lóm móni')) {
+      console.error('✗ New section not spoken correctly:', spokenTextEl.textContent);
+      process.exit(1);
+    }
+
+    // Verify balanceEl outline was cleanly cleared upon switching
+    if (balanceEl.style.outline !== '') {
+      console.error('✗ Previous section outline was leaked after section switch:', balanceEl.style.outline);
+      process.exit(1);
+    }
+    console.log('✓ Previous section outline was cleanly removed without leak');
+
+    // Verify stop button clears transfer button outline
+    const stopBtn = shadow.getElementById('audio-stop');
+    stopBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    if (transferBtn.style.outline !== '') {
+      console.error('✗ Spoken section outline was not cleared upon stop:', transferBtn.style.outline);
+      process.exit(1);
+    }
+    console.log('✓ Stopping audio cleanly removed active speech outline');
+
+    console.log('🎉 ALL LIVE IN-PAGE TRANSLATION & HOVER-TO-SPEAK CHECKS PASSED PERFECTLY!');
+    process.exit(0);
+  }, 260);
+}, 260);
