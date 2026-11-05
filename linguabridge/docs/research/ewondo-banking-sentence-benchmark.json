@@ -1,0 +1,339 @@
+{
+  "purpose": "French banking UI source sentences for Ewondo human translation and QA; these are newly authored prompts, NOT bilingual corpus and NOT verified translations",
+  "license": "CC0-1.0 dedication by LinguaBridge contributors for this original prompt list, subject to repository contribution policy",
+  "language_source": "fr",
+  "language_target": "ewo",
+  "status": "awaiting_human_translation",
+  "sentences": [
+    {
+      "id": "BANK-EWO-001",
+      "source": "Consulter mon solde",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-002",
+      "source": "Solde disponible",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-003",
+      "source": "Solde insuffisant",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-004",
+      "source": "Effectuer un virement",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-005",
+      "source": "Envoyer de l'argent",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-006",
+      "source": "Recevoir de l'argent",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-007",
+      "source": "Retirer de l'argent",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-008",
+      "source": "Déposer de l'argent",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-009",
+      "source": "Confirmer le transfert",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-010",
+      "source": "Annuler la transaction",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-011",
+      "source": "Paiement réussi",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-012",
+      "source": "Paiement refusé",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-013",
+      "source": "Transaction en attente",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-014",
+      "source": "Votre transaction a échoué",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-015",
+      "source": "Entrez votre code PIN",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-016",
+      "source": "Ne partagez jamais votre code PIN",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-017",
+      "source": "Saisissez le code de vérification",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-018",
+      "source": "Code de vérification expiré",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-019",
+      "source": "Mot de passe incorrect",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-020",
+      "source": "Réinitialiser le mot de passe",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-021",
+      "source": "Compte bloqué",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-022",
+      "source": "Débloquer ma carte",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-023",
+      "source": "Carte expirée",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-024",
+      "source": "Télécharger le reçu",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-025",
+      "source": "Afficher l'historique",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-026",
+      "source": "Numéro de compte",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-027",
+      "source": "Nom du bénéficiaire",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-028",
+      "source": "Ajouter un bénéficiaire",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-029",
+      "source": "Montant à transférer",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-030",
+      "source": "Frais de transfert",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-031",
+      "source": "Montant total",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-032",
+      "source": "Taux d'intérêt",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-033",
+      "source": "Rembourser un prêt",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-034",
+      "source": "Date d'échéance",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-035",
+      "source": "Payer une facture",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-036",
+      "source": "Recharger mon téléphone",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-037",
+      "source": "Consulter le relevé bancaire",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-038",
+      "source": "Modifier mon numéro de téléphone",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-039",
+      "source": "Votre session a expiré",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-040",
+      "source": "Connexion sécurisée",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-041",
+      "source": "Vérifier les détails du paiement",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-042",
+      "source": "Votre paiement est en cours",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-043",
+      "source": "Le bénéficiaire est introuvable",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-044",
+      "source": "Le montant dépasse votre plafond",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-045",
+      "source": "Vous avez atteint votre limite quotidienne",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-046",
+      "source": "Une erreur est survenue",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-047",
+      "source": "Veuillez réessayer plus tard",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-048",
+      "source": "Contacter l'assistance",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-049",
+      "source": "Cette opération est irréversible",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-050",
+      "source": "Vérifiez le numéro avant de confirmer",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-051",
+      "source": "Votre solde est de 25 000 FCFA",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-052",
+      "source": "Envoyer 10 000 FCFA au 690123456",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-053",
+      "source": "Vous avez reçu 5 000 FCFA",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-054",
+      "source": "Frais de transaction : 150 FCFA",
+      "target": null,
+      "review_status": "untranslated"
+    },
+    {
+      "id": "BANK-EWO-055",
+      "source": "Référence : TXN12345678",
+      "target": null,
+      "review_status": "untranslated"
+    }
+  ]
+}
