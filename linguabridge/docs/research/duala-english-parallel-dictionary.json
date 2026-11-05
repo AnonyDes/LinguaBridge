@@ -1,12 +1,434 @@
 {
   "source": "https://huggingface.co/datasets/michsethowusu/english-duala_sentence-pairs_mt560",
-  "original_corpus": "OPUS MT560",
-  "declared_license": "CC-BY-4.0",
+  "source_revision": "c5a085157341904ace10bddbadeae4e3e1e68fc3",
+  "source_file": "data/train-00000-of-00001.parquet",
+  "source_row_count": 15351,
+  "source_columns": [
+    "eng",
+    "dua"
+  ],
+  "original_corpus": "OPUS MT560 (attribution and upstream rights require verification)",
+  "declared_license": "CC-BY-4.0 (dataset card declaration; upstream rights not verified)",
   "attribution_required": true,
   "status": "unverified_research_dictionary_not_production",
   "row_count": 15347,
-  "banking_candidate_count": 0,
+  "banking_candidate_count": 69,
+  "banking_ui_verified_count": 0,
   "entries": [
+    {
+      "en": "A brother in India who has a coconut farm contributed a large number of coconuts to the Malayalam remote translation office , reasoning that since the office needs to buy coconuts , his supplying them directly will help his contribution to go further than it would if he gave cash .",
+      "dua": "Munasango mō ̱ o India nu ta nu be ̱ ne ̱ eyid 'a mbanga ma pongo a wan dongo dinde ̱ ne ̱ la mbanga ka lao jabea o o ̱ fis a betukwedi o Malayalam , na nin njo ̱ m ná nika o ̱ fis a betukwedi e be ̱ nno ̱ ńo ̱ ng 'a mbanga , wanea la babo ̱ mo ̱ ka lao dongo di wusa be ̱ muse ̱ ṅ buka na mo ̱ ni .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "A Christian brother regularly gave us money to make up for the shortfall .",
+      "dua": "Munasango mō ̱ a ta be ̱ a bola biso ̱ mo ̱ ni ponda na ponda te ̱ ke ̱ di tiki .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "A pioneer sister in Colorado , U.S.A . , found part - time employment at a bank .",
+      "dua": "Munańango mō ̱ ńe paonia o Kolorado o Bekombo be Lati ba Amerika , a kusi ebol 'a epas 'a ponda o bank .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "A young girl in India kept a small money box and gradually added coins , even giving up toys to do so .",
+      "dua": "24 : 14 ) Eso ̱ mb 'a muna muto ewo ̱ o India e ta e banga janda belongisan ba loko , nde e benga nde kombe ̱ mu mo ̱ ni o ekwe ̱ m .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "After stating that many would be lovers of themselves and of money , Paul wrote that people would also be boastful , haughty , and puffed up with pride , traits that often reflect a feeling of superiority because of one 's abilities , appearance , wealth , or rank .",
+      "dua": "Ombusa mo ̱ kwala ná jita la bato di me ̱ nde ̱ nde be ̱ bato ̱ nde ̱ babo ̱ me ̱ ne ̱ na bato ̱ nde ̱ mo ̱ ni , Paulo a tili ná bato ba me ̱ nde ̱ pe ̱ be ̱ jasese ̱ , kumba , na lombitane ̱ , bede ̱ mo bena be yo ̱ ki bole ̱ ná moto e ̱ ne ̱ mo ̱ me ̱ ne ̱ bonde ̱ ne ̱ buka bane ̱ ońolana a do ̱ li byombwedi , e m 'bwaṅ , a be ̱ n dibie ̱ , n 'epolo yasame ̱ .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "As in the apostle Paul 's day , many today \" set something aside , \" or budget an amount of money , and place it in the congregation contribution box labeled \" Worldwide Work . \"",
+      "dua": "Ka o mińa ma Paulo , jita o nin we ̱ nge ̱ ba ' mane ̱ nge ̱ ' son ekotedi , to ̱ so ̱ te ̱ se ̱ mwaninga ma mbolo ba mawe ̱ le ̱ no ̱ o elimb 'a mabea ma wonja ya mwemba we ̱ ni e tilabe ̱ no ̱ ná \" ebol 'a dikalo o wase ńe ̱ se ̱ . \"",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "At my workplace in the bank , I now have much contact with lawyers .",
+      "dua": "E . Mo ̱ ná : \" Na me ̱ ne ̱ jita la malo ̱ ya o wum 'am y 'ebolo .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "At times , this resulted in more money going out than coming in for a period of time .",
+      "dua": "Oteten a pambo a ponda po ̱ , e po ̱ i ponda iwo ̱ ná mo ̱ ni mu busisabe ̱ jita buka na nje e ta yingea .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Bank Accounts : Bank accounts may be made payable on death to an entity used by Jehovah 's Witnesses in accord with local bank requirements .",
+      "dua": "Ekotedi o bank : We ná o ne ̱ nge ̱ ekotedi o bank nde o bola dia la tila ná o wedi te ̱ , mu mo ̱ ni mu bolabe ̱ bebokedi ba Mboṅ a Yehova bupisane ̱ bete ̱ sedi ba ni bank .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Bank and economic collapses that have occurred in these last days are insignificant when compared with what will happen on a world scale in the near future .",
+      "dua": "( Lukas 16 : 9 ) O min mińa misukan , jita la bank di kwedi , bekombo jita pe ̱ be bo ̱ lo ̱ ne ̱ diwo ̱ ngi labu l 'ekombo . Nde o mińa mi maye ̱ mambo ma me ̱ nde ̱ nde bata be ̱ bobe .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Brother Russell devoted his time , energy , and money unsparingly to share these truths with others .",
+      "dua": "( Lukas 21 : 24 ) Munasango Rusel a si we ̱ nge ̱ le ̱ pond 'ao , ngud 'ao , to ̱ mo ̱ ni mao o langwea bape ̱ pe ̱ yin mbale ̱ .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Consider the law given to Israel regarding the seizing of a man 's garment as security for a loan .",
+      "dua": "Jombweye te ̱ mbenda a tano ̱ a bola Israel . Moto a bale ̱ te ̱ nupe ̱ pe ̱ mo ̱ ni a ta wonja o no ̱ ngo ̱ mbo ̱ t 'a mubale ̱ mo ̱ ni tunge natē ̱ a timbise ̱ le ̱ mu mo ̱ ni .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Daniel and Miriam thought that by using their savings , they could stay in Panama for about eight months .",
+      "dua": "Daniel na Miriam bo ̱ nge ̱ le ̱ ná ekoted 'abu ya mo ̱ ni e wusa jongwane ̱ babo ̱ ja o Panama lambo ka myo ̱ di lo ̱ mbi .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Does making money come first in my life ?",
+      "dua": "Mo ̱ wasa la mo ̱ ni nde le mba lambo laboso o longe ̱ lam e ?",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Donations of cash , jewelry , or other valuable personal property . Include a letter indicating that the cash or the item is an outright donation .",
+      "dua": "Yete ̱ na jabea lo ̱ ngo ̱ le nde mo ̱ ni , misanga , ngo ̱ ko ̱ bi , lo ̱ ndo ̱ , bebasi , na mambo mo ̱ ngo ̱ mape ̱ pe ̱ ma tiki ; tila leta di makike ̱ ná mu mo ̱ ni to ̱ so ̱ ma mambo ma tiki me nde jabea .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Donations of cash with the condition that it can be returned if needed by the donor .",
+      "dua": "We ná o bola mo ̱ ni mu matimbisabe ̱ le ̱ wa o ponda o be ̱ nno ̱ ńo ̱ ng 'ao .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Donations via electronic bank transfer , debit card , or credit card .",
+      "dua": "We ná o po ̱ so ̱ ná mabea mo ̱ ngo ̱ ma sumwabe ̱ o ekoted 'ango ̱ o bank , kart 'ango ̱ ńa bank ńa jandane ̱ lambo .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "During the time of King Jehoash , the priests used money that was collected to repair the house of Jehovah .",
+      "dua": "29 : 5 - 9 ) O mińa ma janea la Kiṅe ̱ Yoas , prisi i bolane ̱ mo ̱ ni mu ta mu sangabe ̱ o bwam ba po ̱ ngise ̱ ndabo a Yehova .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "For example , this system often teaches people that the best way to be happy is to pursue money and gather many possessions .",
+      "dua": "K 'eyembilan , yen ebe ̱ yed 'a mambo e mokwe ̱ le ̱ bato ná mo ̱ ni na sango nde ba mawane ̱ bonam . ( Min .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "FOR many people today , money is the big issue .",
+      "dua": "MO ̱ NI nde mwe lambo la mweńa ońola jita la bato we ̱ nge ̱ .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Friends will assist us for sheer satisfaction , not for money .",
+      "dua": "Mako ̱ m ma me ̱ nde ̱ jongwane ̱ biso ̱ na muńe ̱ nge ̱ , seto ̱ ońola mo ̱ ni .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Giving refugees practical help requires , not a lot of money , but mainly our time and concern .",
+      "dua": "Jongwane ̱ la bawase ̱ diwutamea , di si mabaise ̱ mo ̱ ni jita , nde bwambwam ponda na muyao masu .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "God 's gift enabled her to pay off her debts and after that to have enough money for her and her sons to live on .",
+      "dua": "Di jabea la Loba longwane ̱ mo ̱ o sawa beto ̱ m bao , a petane ̱ pe ̱ mo ̱ ni mu ta mu dongame ̱ n o bongwa mo ̱ me ̱ ne ̱ na mun 'ao . ( 2 Ki .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "He never made much money , but he kept a roof over our heads , clothes on our backs , and food in our stomachs - and he was always there for us .",
+      "dua": "A si ta a be ̱ ne ̱ bekusedi ndongo , nde a sombwedi biso ̱ muńua , mbo ̱ ti , na da - a ta pe ̱ wa ońol 'asu ponda ye ̱ se ̱ .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "How can we avoid becoming lovers of money ?",
+      "dua": "Ne ̱ ni jeno ̱ ná jeka biso ̱ me ̱ ne ̱ ná di si be ̱ bato ̱ nde ̱ mo ̱ ni ?",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "How does the organization use the money that is donated today ?",
+      "dua": "Ne ̱ ni bebokedi be mabolane ̱ no ̱ mabea ma mo ̱ ni ma mabolabe ̱ nin we ̱ nge ̱ e ?",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "How might we analyze our view of money ?",
+      "dua": "Ne ̱ ni jeno ̱ ná jombwea mbad 'asu ńa je ̱ ne ̱ mo ̱ ni e ?",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "I don 't try to cash in on my talents or attempt to climb the corporate ladder . Instead , I 'm investing time and energy in spiritual goals .",
+      "dua": "O mulopo ma we ̱ na ngińa o be ̱ ne ̱ epolo na dina o nin wase , na mabolane ̱ nde pond 'am na ngud 'am o bolea Yehova . \"",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "I had no money to travel to New York .",
+      "dua": "Na si ta na be ̱ ne ̱ mo ̱ ni o wala o Ńu York .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "In addition to gifts of money and valuable personal property , there are other ways to benefit Kingdom service worldwide .",
+      "dua": "O sumo te ̱ mabea ma mo ̱ ni na ma mambo ma tiki ma moto mo ̱ me ̱ ne ̱ , mbadi ipe ̱ pe ̱ ye ya sue ̱ le ̱ ebol 'a Janea o wase ńe ̱ se ̱ .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "In David 's day , Ahithophel proved that his friendship with the king was a fraud .",
+      "dua": "3 : 4 , 5 ) O mińa ma David , Ahitofe ̱ l a lee ̱ le ̱ ná diko ̱ m lao na kiṅe ̱ di ta nde la mawo ̱ ndo ̱ n .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "In the first century , some Christians sold items that they owned , such as fields or houses , and brought the money to the apostles .",
+      "dua": "3 : 21 , 22 ; 35 : 22 - 24 ) O ńo ̱ ṅo ̱ n a boso , Kriste ̱ n iwo ̱ i ta yandise ̱ bema babu , ka milongi to ̱ mińangadu , na babo ̱ ba bola bamuloloma mu mo ̱ ni .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "It was a sum of money large enough for him to travel back to the Antandroy area and to start a small business selling yogurt .",
+      "dua": "Mu mo ̱ ni mu ta na mu buka nje e ta e pula mo ̱ ná a timbe o Antandroy , a boteye pe ̱ ńung 'a miliki ma m 'bo ̱ ndo ̱ .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "It was full of money .",
+      "dua": "Mu ta mu londa na mo ̱ ni .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Just as there is nothing wrong with a healthy , reasonable view of self and money , there is nothing wrong with a balanced view of pleasures .",
+      "dua": "Ka nje te ̱ bobe to ̱ bō ̱ bo titino ̱ ná moto a be ̱ ne ̱ ne ̱ mo ̱ me ̱ ne ̱ dime ̱ ne ̱ la ndolo langame ̱ n , na mo ̱ ni , name ̱ ne ̱ pe ̱ nde bobe to ̱ bō ̱ bo titino ̱ o to ̱ ndo ̱ muńe ̱ nge ̱ ma ńolo .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "On the west bank of the Indus River , in what is now Pakistan , is the ancient city of Sukkur . That is where I entered the world on November 9 , 1929 .",
+      "dua": "Na yabe ̱ nde mińa 9 ma mo ̱ di ma Tinini 1929 o saw 'a mbe ̱ nge ̱ ńa mo ̱ pi ma Indus , wuma i mabelabe ̱ nin we ̱ nge ̱ na Pakistan , mundi ma kwaṅ ma Sukkur .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Others set aside money and gave regular donations to support the work .",
+      "dua": "( Bebolo 4 : 34 , 35 ) Bape ̱ pe ̱ pe ̱ ba ta ba ne ̱ nge ̱ mo ̱ ni o mbasan , ná ba bole mabea ponda te ̱ o sue ̱ le ̱ bebolo ba jowe ̱ la Yehova . ( 1 Kor .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Paul wrote that people would be \" lovers of money . \"",
+      "dua": "Paulo a tili ná bato ba me ̱ nde ̱ be ̱ \" bato ̱ nde ̱ mo ̱ ni . \"",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Peasants were given regular food supplies , but cash wages were paid only once a year .",
+      "dua": "Base ̱ - myonda ba ta ba bolabe ̱ da ponda ye ̱ se ̱ , nde ba ta nde ba kusa musawedi mabu ngedi po ̱ ońola mbu .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Poverty : According to the World Bank , the number of those suffering extreme poverty in Africa alone has grown from 280 million in 1990 to 330 million in 2012 .",
+      "dua": "Tue : Bupisane ̱ Bank ninde ̱ ne ̱ ńa wase ńe ̱ se ̱ , muso ̱ ngi ma bato be oteten a tue dinde ̱ ne ̱ o Afrika buka te ̱ mu bati ńaka , masumwe ̱ o 280 ba lodun o mbu 1990 mu po ̱ 330 ba lodun o mbu 2012 .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "See the article \" Anxiety About Money \" in the July 1 , 2015 , issue of The Watchtower .",
+      "dua": "Ombwa jokwa \" L 'inquiétude pour l 'argent \" o Njongo a Betatedi ńa 1 Madibe ̱ dibe ̱ 2015 .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "She and several of her young children had been getting up very early in the morning to go out in the fields and chop cotton - removing the weeds growing between the rows - in order to earn enough money so that I could take the trip to New York .",
+      "dua": "Bā na bana bao basadi ba ta be ̱ ba pomane ̱ te ̱ me ̱ idiba o wala ke ̱ ko ̱ tin o eyidi , ba sumwa pe ̱ bewudu ba bobe , ná ba kuse eyek 'a mo ̱ ni ná nale o Ńu york .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "She could have accepted a scholarship to study law at a university , but she chose instead to work in a bank .",
+      "dua": "A wusa jemea jongwane ̱ la go ̱ bina ná ale jokwa ebol 'a lo ̱ ya o Unive ̱ rsite , nde a po ̱ si nde ebol 'a bank .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "She states : \" Satan 's world promotes higher education , fame , money , and having a lot of material things as good goals .",
+      "dua": "Mo ̱ ná : \" Was 'a Satan e mapulise ̱ nde besukulu bende ̱ ne ̱ , busa la dina , mo ̱ ni , na be ̱ ne ̱ la miam .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Should I get involved in this money - making proposal ?",
+      "dua": "Mo ̱ nangame ̱ n jemea bola yen ebolo e ?",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Stocks and Bonds : Stocks and bonds donated to an entity used by Jehovah 's Witnesses as an outright gift or by means of a written agreement to transfer on death .",
+      "dua": "Dongo di makweleye ̱ wa : K 'eyembilan , o be ̱ n te ̱ dongo di makweleye ̱ wa o dio l 'ebolo diwo ̱ , we ná o bola Mboṅ a Yehova muse ̱ ṅ ma di dongo ka jabea tongwea na bank .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Such people will always want more money , and striving to amass it , they will bring on themselves \" many pains . \" - 1 Tim .",
+      "dua": "( Mul . 5 : 10 ) I ńai a bato i me ̱ nde ̱ te ̱ nde be ̱ ne ̱ ńo ̱ ng 'a bata be ̱ ne ̱ mo ̱ ni , i bola pe ̱ me ̱ se ̱ o ko ̱ te ̱ le ̱ mo ̱ , na nika e wanea babo ̱ \" jita la sese . \" - 1 Tim .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "The apostle Paul wrote : \" In the last days . . . , men will be lovers of themselves , lovers of money , . . . lovers of pleasures rather than lovers of God . \"",
+      "dua": "Ńamuloloma Paulo a tili ná : \" O mińa misukan . . . bato ba me ̱ nde ̱ be ̱ bato ̱ nde ̱ babo ̱ mo ̱ me ̱ ne ̱ , bato ̱ nde ̱ mo ̱ ni , . . . ba to ̱ ndi muńe ̱ nge ̱ ma ńolo buka Loba . \"",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "The earth is filled with those who have an inordinate love of self , money , and pleasures .",
+      "dua": "Wase e londi na bato bena ba to ̱ ndi babo ̱ me ̱ ne ̱ buka dime ̱ ne ̱ , mo ̱ ni , na muńe ̱ nge ̱ ma ńolo .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "The man took out his wallet , removed some paper money , held it up , and proudly said , \" This is my god ! \"",
+      "dua": "Na nu mome a busise ̱ po ̱ s 'ao , a to ̱ to ̱ mo ̱ ni oten , a le ̱ ke ̱ mo ̱ omo ̱ ń na kumba ńe ̱ se ̱ , a kwala ná , \" loba lam din ! \"",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Those who love money cannot please God .",
+      "dua": "Bato ̱ nde ̱ mo ̱ ni ba titi ná ba do ̱ lisan Loba .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Those years of traveling between Tokmok and Balykchy cost a lot of money .",
+      "dua": "Mi mimbu ma muyo ̱ mbo ̱ oteten a mindi ma Tokmok na Balykchy mi no ̱ ngo ̱ ne ̱ biso ̱ mo ̱ ni eyeka .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Though not many would be so open about the matter , the world is full of people who love money and the things it can buy .",
+      "dua": "Bato jita ba si memea o jemba ná wase e londi na bato ba to ̱ ndi mo ̱ ni na nje ye ̱ se ̱ mo ̱ ni mweno ̱ ná mwanda .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "To analyze our view of money , we might honestly consider how we would answer these questions : ' Do I really believe and live in harmony with what the Bible says about money ?",
+      "dua": "Ná di duteye o mbad 'asu ńa je ̱ ne ̱ mo ̱ ni , jangame ̱ n be ̱ mbale ̱ na biso ̱ me ̱ ne ̱ ke ̱ di malabe ̱ min myuedi : ' Mo ̱ na dube ̱ na mbale ̱ nje Bibe ̱ l e makwalano ̱ jombwea mo ̱ ni , na madie ̱ le ̱ pe ̱ longe ̱ lam mulatako na nika e ?",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "We all need money , of course .",
+      "dua": "Ye mbale ̱ ná biso ̱ be ̱ se ̱ di be ̱ n ńo ̱ ng 'a mo ̱ ni .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "We could feel like a man who has worked all his life for a pile of money , only to learn that it is counterfeit .",
+      "dua": "Di me ̱ nde ̱ nde senga ka moto ńena nu boli ebolo longe ̱ lao le ̱ se ̱ o bwam ba ko ̱ te ̱ le ̱ mo ̱ ni , nde e bīsabe ̱ mo ̱ ná mu mo ̱ ni mwe nde ma bobe . ( Min .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "We proudly bear and use his name , knowing that loving him is far more rewarding than loving money or things . - Isa .",
+      "dua": "Je kumba o bambe ̱ dina la Loba na bolane ̱ pe ̱ mo ̱ , ońolana di bi ná ndolo di be ̱ ne ̱ nno ̱ mo ̱ e petane ̱ ńa mo ̱ ni na sango muse ̱ ṅ . - Yes .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "What counsel did Jesus give about money ?",
+      "dua": "Njika malea Yesu a bolino ̱ jombwea mo ̱ ni e ?",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "When the box was full , she handed the money over to be used for the preaching work .",
+      "dua": "Ponda y 'ekwe ̱ m e londino ̱ , e lom nde mu mo ̱ ni o bwam ná mu sue ̱ le ̱ ebol 'a dikalo .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "When their savings ran out , however , the couple 's joy turned to sorrow .",
+      "dua": "Ponda ekoted 'abu e bo ̱ ino ̱ , ba si ta pe ̱ muńe ̱ nge ̱ .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "While I was away , Mary witnessed in a Portuguese commercial district , where making money was the only subject of interest .",
+      "dua": "Niponda na si tano ̱ wa , Maria a ta ala te ̱ dikalo o don dinde ̱ ne ̱ diwo ̱ la Potoki , owe ̱ ni ekwal 'a mo ̱ ni buka te ̱ nde e ta tem 'ekwali ńa bato .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Why are lovers of money not truly happy ?",
+      "dua": "Ońola nje bato ̱ nde ̱ mo ̱ ni ba titino ̱ bonam na mbale ̱ e ?",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Why does a love of money not bring happiness ?",
+      "dua": "Ońola nje to ̱ ndo ̱ la mo ̱ ni di si mawanano ̱ bonam e ?",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Wills and Trusts : Property or money may be bequeathed to an entity used by Jehovah 's Witnesses by means of a legally executed will or by specifying the entity as the beneficiary of a trust agreement .",
+      "dua": "Byala o madiano ̱ : We ná o tila byala be bamsabe ̱ na go ̱ bina , oboso ba mboṅ , ná ombusa kwed 'ango ̱ m 'bwaṅ mo ̱ ngo ̱ to ̱ sango lo ̱ ngo ̱ di bolabe ̱ bebokedi ba Mboṅ a Yehova .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "With a university degree in law , I could have earned a lot of money , but I would have had little chance of finding part - time work . \"",
+      "dua": "Dipapa la lo ̱ ya di wusa wanea mba mo ̱ ni jita , nde na si wusa kusa ebol 'a epas 'a ponda . \"",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "With Jehovah 's blessing and careful management , we used vacation time to earn some money picking fruit , so we were able to continue pioneering .",
+      "dua": "Na jongwane ̱ la Yehova , name ̱ ne ̱ pe ̱ na miso ̱ ngi ma bwam , pond 'a mawumse ̱ di ta di pata bepuma o kusa son a mo ̱ ni ; na nika , di ta ńai di malane ̱ no ̱ ebol 'asu ya paonia oboso .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "With Jehovah 's support , Jesus miraculously provided food and even money when needed . - Matt .",
+      "dua": "4 : 1 - 7 ) Na jongwane ̱ la Yehova , Yesu a boli da na mo ̱ ni o mbad 'a betańsedi ponda e pulino ̱ nika . - Mat .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Zacchaeus , the chief tax collector in Jericho , had become rich by extorting money from the people .",
+      "dua": "Sakeo , mwaned 'a bako ̱ tedi o Yeriko , a timbi be ̱ m 'bwaṅ ońolana a ta be ̱ a no ̱ ngo ̱ ne ̱ bato mo ̱ ni na mińakisan .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
+    {
+      "en": "Zacchaeus was a chief tax collector who had become rich by extorting money .",
+      "dua": "Sakeo a ta nde mwaned 'a bako ̱ tedi nu timbi ko ̱ m 'bwaṅ ońola ndumban .",
+      "domain": "banking_candidate",
+      "reviewed": false
+    },
     {
       "en": "\" After just one year serving in my new assignment , \" she relates , \" Doratine , a young mother with whom I studied the Bible , got baptized at our circuit assembly . \"",
       "dua": "Mo ̱ ná : \" Ombusa mba bolea mbu mō ̱ o epol 'am ya peńa , Doratine , eso ̱ mb 'a ńango a muna iwo ̱ na tombise ̱ no ̱ jokwa la Bibe ̱ l e dubisabe ̱ o jako ̱ to ̱ ne ̱ lasu dinde ̱ ne ̱ . \"",
@@ -7808,12 +8230,6 @@
       "reviewed": false
     },
     {
-      "en": "A brother in India who has a coconut farm contributed a large number of coconuts to the Malayalam remote translation office , reasoning that since the office needs to buy coconuts , his supplying them directly will help his contribution to go further than it would if he gave cash .",
-      "dua": "Munasango mō ̱ o India nu ta nu be ̱ ne ̱ eyid 'a mbanga ma pongo a wan dongo dinde ̱ ne ̱ la mbanga ka lao jabea o o ̱ fis a betukwedi o Malayalam , na nin njo ̱ m ná nika o ̱ fis a betukwedi e be ̱ nno ̱ ńo ̱ ng 'a mbanga , wanea la babo ̱ mo ̱ ka lao dongo di wusa be ̱ muse ̱ ṅ buka na mo ̱ ni .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "A brother in South Korea fondly remembers that he provided accommodations for students attending theocratic schools .",
       "dua": "Munasango mō ̱ o Korea ńa mikondo a dia a mo ̱ nge ̱ le ̱ ponda a jese ̱ no ̱ bautu ba besukulu ba bebokedi .",
       "domain": "general",
@@ -7912,12 +8328,6 @@
     {
       "en": "A Christian brother in Tokmok invited us to a wedding .",
       "dua": "Munasango mō ̱ ńa Tokmok a bele ̱ biso ̱ o diba .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "A Christian brother regularly gave us money to make up for the shortfall .",
-      "dua": "Munasango mō ̱ a ta be ̱ a bola biso ̱ mo ̱ ni ponda na ponda te ̱ ke ̱ di tiki .",
       "domain": "general",
       "reviewed": false
     },
@@ -8396,12 +8806,6 @@
       "reviewed": false
     },
     {
-      "en": "A pioneer sister in Colorado , U.S.A . , found part - time employment at a bank .",
-      "dua": "Munańango mō ̱ ńe paonia o Kolorado o Bekombo be Lati ba Amerika , a kusi ebol 'a epas 'a ponda o bank .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "A pioneer sister who hosted students attending various theocratic schools admitted : \" Initially I was concerned because my accommodations are very modest , and I have secondhand furniture .",
       "dua": "Munańango mō ̱ ńe paonia nu ta nu jese ̱ bautu ba ńai na ńai a besukulu ba bebokedi mo ̱ ná : \" O bebotedi na taki son o mulema ońolana bolongi bam bo titi tobotobo , na be ̱ n pe ̱ nde bedun ba konda .",
       "domain": "general",
@@ -8794,12 +9198,6 @@
     {
       "en": "A year or so earlier , the district overseer , James A .",
       "dua": "Mbu mō ̱ oboso ba ponda to ̱ buka nika , muboled 'a bebondo , James A .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "A young girl in India kept a small money box and gradually added coins , even giving up toys to do so .",
-      "dua": "24 : 14 ) Eso ̱ mb 'a muna muto ewo ̱ o India e ta e banga janda belongisan ba loko , nde e benga nde kombe ̱ mu mo ̱ ni o ekwe ̱ m .",
       "domain": "general",
       "reviewed": false
     },
@@ -10108,12 +10506,6 @@
     {
       "en": "After spending a night fishing , what experience did Peter have ?",
       "dua": "Ombusa tombise ̱ bulu bwe ̱ se ̱ o musombo , nje e po ̱ yedi Petro e ?",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "After stating that many would be lovers of themselves and of money , Paul wrote that people would also be boastful , haughty , and puffed up with pride , traits that often reflect a feeling of superiority because of one 's abilities , appearance , wealth , or rank .",
-      "dua": "Ombusa mo ̱ kwala ná jita la bato di me ̱ nde ̱ nde be ̱ bato ̱ nde ̱ babo ̱ me ̱ ne ̱ na bato ̱ nde ̱ mo ̱ ni , Paulo a tili ná bato ba me ̱ nde ̱ pe ̱ be ̱ jasese ̱ , kumba , na lombitane ̱ , bede ̱ mo bena be yo ̱ ki bole ̱ ná moto e ̱ ne ̱ mo ̱ me ̱ ne ̱ bonde ̱ ne ̱ buka bane ̱ ońolana a do ̱ li byombwedi , e m 'bwaṅ , a be ̱ n dibie ̱ , n 'epolo yasame ̱ .",
       "domain": "general",
       "reviewed": false
     },
@@ -13808,12 +14200,6 @@
       "reviewed": false
     },
     {
-      "en": "As in the apostle Paul 's day , many today \" set something aside , \" or budget an amount of money , and place it in the congregation contribution box labeled \" Worldwide Work . \"",
-      "dua": "Ka o mińa ma Paulo , jita o nin we ̱ nge ̱ ba ' mane ̱ nge ̱ ' son ekotedi , to ̱ so ̱ te ̱ se ̱ mwaninga ma mbolo ba mawe ̱ le ̱ no ̱ o elimb 'a mabea ma wonja ya mwemba we ̱ ni e tilabe ̱ no ̱ ná \" ebol 'a dikalo o wase ńe ̱ se ̱ . \"",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "As in the case of Paul and Silas in Philippi , we may be surprised by what Jehovah does for us personally .",
       "dua": "Ka nje te ̱ ye ̱ ne ̱ nno ̱ ońola Paulo na Silas o Filipi , le ná di be ̱ mańaka ońola nje Yehova a maboleano ̱ biso ̱ me ̱ ne ̱ .",
       "domain": "general",
@@ -15134,12 +15520,6 @@
       "reviewed": false
     },
     {
-      "en": "At my workplace in the bank , I now have much contact with lawyers .",
-      "dua": "E . Mo ̱ ná : \" Na me ̱ ne ̱ jita la malo ̱ ya o wum 'am y 'ebolo .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "At noon , they slowly walk home .",
       "dua": "Ko ̱ si e po ̱ i te ̱ , ba mano ̱ mo ̱ na yō ̱ , ba timba omboa .",
       "domain": "general",
@@ -15494,12 +15874,6 @@
       "reviewed": false
     },
     {
-      "en": "At times , this resulted in more money going out than coming in for a period of time .",
-      "dua": "Oteten a pambo a ponda po ̱ , e po ̱ i ponda iwo ̱ ná mo ̱ ni mu busisabe ̱ jita buka na nje e ta yingea .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "At times , though , discipline may involve more than counsel or oral correction .",
       "dua": "Nde ponda iwo ̱ , mbe ̱ t 'a dibongo e titi buka te ̱ malea to ̱ jome ̱ le ̱ .",
       "domain": "general",
@@ -15664,18 +16038,6 @@
     {
       "en": "Balance is needed in determining what kind of honor should be rendered to other humans and to what extent .",
       "dua": "E mapula be ̱ la skwe ̱ o bia njika ńai edube yangame ̱ n bolabe ̱ bane ̱ bato ba benama , na nate ̱ na njik 'etum pe ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Bank Accounts : Bank accounts may be made payable on death to an entity used by Jehovah 's Witnesses in accord with local bank requirements .",
-      "dua": "Ekotedi o bank : We ná o ne ̱ nge ̱ ekotedi o bank nde o bola dia la tila ná o wedi te ̱ , mu mo ̱ ni mu bolabe ̱ bebokedi ba Mboṅ a Yehova bupisane ̱ bete ̱ sedi ba ni bank .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Bank and economic collapses that have occurred in these last days are insignificant when compared with what will happen on a world scale in the near future .",
-      "dua": "( Lukas 16 : 9 ) O min mińa misukan , jita la bank di kwedi , bekombo jita pe ̱ be bo ̱ lo ̱ ne ̱ diwo ̱ ngi labu l 'ekombo . Nde o mińa mi maye ̱ mambo ma me ̱ nde ̱ nde bata be ̱ bobe .",
       "domain": "general",
       "reviewed": false
     },
@@ -16996,12 +17358,6 @@
     {
       "en": "Brother Russell 's public talk in Belfast drew 450 locals , about 100 of whom had to stand because of a lack of room .",
       "dua": "Bekwali ba munasango Rusel be ko ̱ te ̱ le ̱ 450 ba bato , nde lambo ka 100 bato e ta e te ̱ me ̱ omo ̱ ń ońol 'a pas 'a bejedi .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Brother Russell devoted his time , energy , and money unsparingly to share these truths with others .",
-      "dua": "( Lukas 21 : 24 ) Munasango Rusel a si we ̱ nge ̱ le ̱ pond 'ao , ngud 'ao , to ̱ mo ̱ ni mao o langwea bape ̱ pe ̱ yin mbale ̱ .",
       "domain": "general",
       "reviewed": false
     },
@@ -20438,12 +20794,6 @@
       "reviewed": false
     },
     {
-      "en": "Consider the law given to Israel regarding the seizing of a man 's garment as security for a loan .",
-      "dua": "Jombweye te ̱ mbenda a tano ̱ a bola Israel . Moto a bale ̱ te ̱ nupe ̱ pe ̱ mo ̱ ni a ta wonja o no ̱ ngo ̱ mbo ̱ t 'a mubale ̱ mo ̱ ni tunge natē ̱ a timbise ̱ le ̱ mu mo ̱ ni .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "Consider the message he gave to the prophet Ezekiel regarding the joining together of two sticks , the stick \" for Judah \" and the stick \" for Joseph . \"",
       "dua": "Jombweye te ̱ mwe ̱ ndi a bolino ̱ muto ̱ ped 'a mudī Hesekiel jombwea besungu ba bebongo beba be me ̱ nde ̱ late ̱ , esungu ebongo \" a Yuda \" na esungu ebongo \" a Yose ̱ f . \"",
       "domain": "general",
@@ -21004,12 +21354,6 @@
     {
       "en": "DANIEL AND MIRIAM married in September 2000 and settled down in the city of Barcelona , Spain .",
       "dua": "MIRIAM NA DANIEL ba bane ̱ nde o mo ̱ di má Ńe ̱ te ̱ ki 2000 na babo ̱ ba ja o mundi ma Barselona o Pańa .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Daniel and Miriam thought that by using their savings , they could stay in Panama for about eight months .",
-      "dua": "Daniel na Miriam bo ̱ nge ̱ le ̱ ná ekoted 'abu ya mo ̱ ni e wusa jongwane ̱ babo ̱ ja o Panama lambo ka myo ̱ di lo ̱ mbi .",
       "domain": "general",
       "reviewed": false
     },
@@ -22316,12 +22660,6 @@
       "reviewed": false
     },
     {
-      "en": "Does making money come first in my life ?",
-      "dua": "Mo ̱ wasa la mo ̱ ni nde le mba lambo laboso o longe ̱ lam e ?",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "Does most of my joy come from engaging in mundane activities or in spiritual activities ? '",
       "dua": "Mo ̱ muńe ̱ nge ̱ mam munde ̱ ne ̱ mu mawa nde o pulise ̱ la mambo ma wase nga ma mudī e ? '",
       "domain": "general",
@@ -22538,24 +22876,6 @@
       "reviewed": false
     },
     {
-      "en": "Donations of cash , jewelry , or other valuable personal property . Include a letter indicating that the cash or the item is an outright donation .",
-      "dua": "Yete ̱ na jabea lo ̱ ngo ̱ le nde mo ̱ ni , misanga , ngo ̱ ko ̱ bi , lo ̱ ndo ̱ , bebasi , na mambo mo ̱ ngo ̱ mape ̱ pe ̱ ma tiki ; tila leta di makike ̱ ná mu mo ̱ ni to ̱ so ̱ ma mambo ma tiki me nde jabea .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Donations of cash with the condition that it can be returned if needed by the donor .",
-      "dua": "We ná o bola mo ̱ ni mu matimbisabe ̱ le ̱ wa o ponda o be ̱ nno ̱ ńo ̱ ng 'ao .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Donations via electronic bank transfer , debit card , or credit card .",
-      "dua": "We ná o po ̱ so ̱ ná mabea mo ̱ ngo ̱ ma sumwabe ̱ o ekoted 'ango ̱ o bank , kart 'ango ̱ ńa bank ńa jandane ̱ lambo .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "Dorothy soon became a pioneer too .",
       "dua": "Ja to ̱ son , Doroti pe ̱ a timba paonia .",
       "domain": "general",
@@ -22744,12 +23064,6 @@
     {
       "en": "During the Thousand Year Reign , Jesus and his 144,000 associate kings and priests will bring faithful humans to perfection .",
       "dua": "O ponda Janea la Ikol 'a Mbu , Yesu na 144 000 la kiṅe ̱ na prisi ba me ̱ nde ̱ po ̱ le ̱ mbel 'a moto ńe jemea o ke ̱ nge ̱ nge ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "During the time of King Jehoash , the priests used money that was collected to repair the house of Jehovah .",
-      "dua": "29 : 5 - 9 ) O mińa ma janea la Kiṅe ̱ Yoas , prisi i bolane ̱ mo ̱ ni mu ta mu sangabe ̱ o bwam ba po ̱ ngise ̱ ndabo a Yehova .",
       "domain": "general",
       "reviewed": false
     },
@@ -25316,12 +25630,6 @@
       "reviewed": false
     },
     {
-      "en": "For example , this system often teaches people that the best way to be happy is to pursue money and gather many possessions .",
-      "dua": "K 'eyembilan , yen ebe ̱ yed 'a mambo e mokwe ̱ le ̱ bato ná mo ̱ ni na sango nde ba mawane ̱ bonam . ( Min .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "For example , true worshippers find delight and derive much encouragement from meeting together to worship Jehovah .",
       "dua": "K 'eyembilan bowe ̱ Loba ba mbale ̱ be muńe ̱ nge ̱ ke ̱ ba mukea o mako ̱ to ̱ ne ̱ o jowe ̱ Yehova mwemba , nika e membe ̱ pe ̱ babo ̱ . ( Mye .",
       "domain": "general",
@@ -25684,12 +25992,6 @@
     {
       "en": "For many , staying free from pornography is an ongoing battle .",
       "dua": "Jese ̱ le ̱ la bedinge ̱ dinge ̱ ba maye ̱ le nde bato bō ̱ bwemba ba buńa te ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "FOR many people today , money is the big issue .",
-      "dua": "MO ̱ NI nde mwe lambo la mweńa ońola jita la bato we ̱ nge ̱ .",
       "domain": "general",
       "reviewed": false
     },
@@ -26092,12 +26394,6 @@
     {
       "en": "Frequent meditation on Jehovah 's goodness can strengthen our conviction that his rulership is best .",
       "dua": "Dutea ponda ye ̱ se ̱ omo ̱ ń a bwam ba Yehova le ná di bamse ̱ mbaki di be ̱ nno ̱ ná byanedi bao nde be bwam buka be ̱ se ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Friends will assist us for sheer satisfaction , not for money .",
-      "dua": "Mako ̱ m ma me ̱ nde ̱ jongwane ̱ biso ̱ na muńe ̱ nge ̱ , seto ̱ ońola mo ̱ ni .",
       "domain": "general",
       "reviewed": false
     },
@@ -26672,12 +26968,6 @@
       "reviewed": false
     },
     {
-      "en": "Giving refugees practical help requires , not a lot of money , but mainly our time and concern .",
-      "dua": "Jongwane ̱ la bawase ̱ diwutamea , di si mabaise ̱ mo ̱ ni jita , nde bwambwam ponda na muyao masu .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "Giving such ones the opportunity to get to know Jehovah gives me tremendous satisfaction . \"",
       "dua": "Jongwane ̱ i ńai a bato o bia Yehova di mabwese ̱ mba muńe ̱ nge ̱ mu peti . \"",
       "domain": "general",
@@ -26752,12 +27042,6 @@
     {
       "en": "God 's compassion was appropriate in the Bible examples mentioned above .",
       "dua": "Nded 'a Loba e ta e te ̱ nge ̱ ne ̱ o byembilan ba Bibe ̱ l di kwaledino ̱ omo ̱ ń .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "God 's gift enabled her to pay off her debts and after that to have enough money for her and her sons to live on .",
-      "dua": "Di jabea la Loba longwane ̱ mo ̱ o sawa beto ̱ m bao , a petane ̱ pe ̱ mo ̱ ni mu ta mu dongame ̱ n o bongwa mo ̱ me ̱ ne ̱ na mun 'ao . ( 2 Ki .",
       "domain": "general",
       "reviewed": false
     },
@@ -29068,12 +29352,6 @@
     {
       "en": "He never gives up trying to undermine your confidence in the leadership that Jehovah has provided .",
       "dua": "A si me ̱ nde ̱ wo ̱ lo ̱ to ̱ buńa o keka o bo ̱ bise ̱ lakisane ̱ lo ̱ ngo ̱ o be ̱ ne ̱ ne ̱ no ̱ badiedi bena Yehova a po ̱ sino ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "He never made much money , but he kept a roof over our heads , clothes on our backs , and food in our stomachs - and he was always there for us .",
-      "dua": "A si ta a be ̱ ne ̱ bekusedi ndongo , nde a sombwedi biso ̱ muńua , mbo ̱ ti , na da - a ta pe ̱ wa ońol 'asu ponda ye ̱ se ̱ .",
       "domain": "general",
       "reviewed": false
     },
@@ -31742,12 +32020,6 @@
       "reviewed": false
     },
     {
-      "en": "How can we avoid becoming lovers of money ?",
-      "dua": "Ne ̱ ni jeno ̱ ná jeka biso ̱ me ̱ ne ̱ ná di si be ̱ bato ̱ nde ̱ mo ̱ ni ?",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "How can we avoid becoming lovers of ourselves ?",
       "dua": "Ne ̱ ni jeno ̱ ná jeka biso ̱ me ̱ ne ̱ ná di si be ̱ bato ̱ nde ̱ biso ̱ me ̱ ne ̱ ?",
       "domain": "general",
@@ -33860,12 +34132,6 @@
       "reviewed": false
     },
     {
-      "en": "How does the organization use the money that is donated today ?",
-      "dua": "Ne ̱ ni bebokedi be mabolane ̱ no ̱ mabea ma mo ̱ ni ma mabolabe ̱ nin we ̱ nge ̱ e ?",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "How does the parable of the talents provide encouragement ?",
       "dua": "Ne ̱ ni munia ma talent mu membe ̱ no ̱ e ?",
       "domain": "general",
@@ -34402,12 +34668,6 @@
     {
       "en": "How might we analyze how much we love pleasures ?",
       "dua": "Ne ̱ ni jeno ̱ ná di me ̱ ne ̱ nate ̱ na o njika dikala di to ̱ ndino ̱ muńe ̱ nge ̱ ma ńolo e ?",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "How might we analyze our view of money ?",
-      "dua": "Ne ̱ ni jeno ̱ ná jombwea mbad 'asu ńa je ̱ ne ̱ mo ̱ ni e ?",
       "domain": "general",
       "reviewed": false
     },
@@ -36452,12 +36712,6 @@
       "reviewed": false
     },
     {
-      "en": "I don 't try to cash in on my talents or attempt to climb the corporate ladder . Instead , I 'm investing time and energy in spiritual goals .",
-      "dua": "O mulopo ma we ̱ na ngińa o be ̱ ne ̱ epolo na dina o nin wase , na mabolane ̱ nde pond 'am na ngud 'am o bolea Yehova . \"",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "I eagerly listened in .",
       "dua": "Na ta be ̱ na lambe ̱ toi .",
       "domain": "general",
@@ -36682,12 +36936,6 @@
     {
       "en": "I had no idea why . \" - JANET .",
       "dua": "Esibe ̱ mba bia nje e be ̱ n njo ̱ m . \" - JANET .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "I had no money to travel to New York .",
-      "dua": "Na si ta na be ̱ ne ̱ mo ̱ ni o wala o Ńu York .",
       "domain": "general",
       "reviewed": false
     },
@@ -39746,12 +39994,6 @@
       "reviewed": false
     },
     {
-      "en": "In addition to gifts of money and valuable personal property , there are other ways to benefit Kingdom service worldwide .",
-      "dua": "O sumo te ̱ mabea ma mo ̱ ni na ma mambo ma tiki ma moto mo ̱ me ̱ ne ̱ , mbadi ipe ̱ pe ̱ ye ya sue ̱ le ̱ ebol 'a Janea o wase ńe ̱ se ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "In addition to offering bait , Satan tries to bully us into compromising our loyalty to Jehovah .",
       "dua": "Satan a si mabolane ̱ buka te ̱ edesan , a mabolane ̱ pe ̱ mabandan o bola ná di to ̱ be Yehova .",
       "domain": "general",
@@ -40060,12 +40302,6 @@
     {
       "en": "In contrast with the people who show the widespread lack of love today , those who worship Jehovah have genuine love for their fellow man .",
       "dua": "O diwengisan na bato ba malee ̱ le ̱ ka ni si be ̱ n ndolo ni lań we ̱ nge ̱ , ba bena ba mowe ̱ Yehova ba be ̱ ne ̱ ne ̱ bane ̱ ndol 'a mbale ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "In David 's day , Ahithophel proved that his friendship with the king was a fraud .",
-      "dua": "3 : 4 , 5 ) O mińa ma David , Ahitofe ̱ l a lee ̱ le ̱ ná diko ̱ m lao na kiṅe ̱ di ta nde la mawo ̱ ndo ̱ n .",
       "domain": "general",
       "reviewed": false
     },
@@ -41440,12 +41676,6 @@
     {
       "en": "In the first century , perhaps the apostle who did the most to encourage his brothers was the apostle Paul .",
       "dua": "O ńo ̱ ṅo ̱ n a boso , ńamuloloma ńena pondapo ̱ ńembe ̱ bonasango buka be ̱ se ̱ e nde Paulo .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "In the first century , some Christians sold items that they owned , such as fields or houses , and brought the money to the apostles .",
-      "dua": "3 : 21 , 22 ; 35 : 22 - 24 ) O ńo ̱ ṅo ̱ n a boso , Kriste ̱ n iwo ̱ i ta yandise ̱ bema babu , ka milongi to ̱ mińangadu , na babo ̱ ba bola bamuloloma mu mo ̱ ni .",
       "domain": "general",
       "reviewed": false
     },
@@ -44738,12 +44968,6 @@
       "reviewed": false
     },
     {
-      "en": "It was a sum of money large enough for him to travel back to the Antandroy area and to start a small business selling yogurt .",
-      "dua": "Mu mo ̱ ni mu ta na mu buka nje e ta e pula mo ̱ ná a timbe o Antandroy , a boteye pe ̱ ńung 'a miliki ma m 'bo ̱ ndo ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "It was a very good meal .",
       "dua": "Di da di ta di ńe ̱ nge ̱ ńe ̱ .",
       "domain": "general",
@@ -44824,12 +45048,6 @@
     {
       "en": "It was evident that Gaius had already done this for his previous guests , since they had brought John a report of their host 's love and faith . - 3 John 3 , 6 .",
       "dua": "E me ̱ ne ̱ ne ̱ ná nika nde Gayo a tano ̱ a bola , kana ban ba bolino ̱ Yohane mboṅ a ndolo na jemea a lee ̱ le ̱ no ̱ . - 3 Yohane 3 , 6 .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "It was full of money .",
-      "dua": "Mu ta mu londa na mo ̱ ni .",
       "domain": "general",
       "reviewed": false
     },
@@ -47944,12 +48162,6 @@
     {
       "en": "Just as the fine soil in Jesus ' illustration retained the seed , we accepted the message and held on to it .",
       "dua": "Ka nje te ̱ mińangadu ma bwam ma munia ma Yesu mi kasino ̱ mbolako , biso ̱ pe ̱ di kasi mwe ̱ ndi , jalea pe ̱ mo ̱ na kaṅ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Just as there is nothing wrong with a healthy , reasonable view of self and money , there is nothing wrong with a balanced view of pleasures .",
-      "dua": "Ka nje te ̱ bobe to ̱ bō ̱ bo titino ̱ ná moto a be ̱ ne ̱ ne ̱ mo ̱ me ̱ ne ̱ dime ̱ ne ̱ la ndolo langame ̱ n , na mo ̱ ni , name ̱ ne ̱ pe ̱ nde bobe to ̱ bō ̱ bo titino ̱ o to ̱ ndo ̱ muńe ̱ nge ̱ ma ńolo .",
       "domain": "general",
       "reviewed": false
     },
@@ -54644,12 +54856,6 @@
       "reviewed": false
     },
     {
-      "en": "On the west bank of the Indus River , in what is now Pakistan , is the ancient city of Sukkur . That is where I entered the world on November 9 , 1929 .",
-      "dua": "Na yabe ̱ nde mińa 9 ma mo ̱ di ma Tinini 1929 o saw 'a mbe ̱ nge ̱ ńa mo ̱ pi ma Indus , wuma i mabelabe ̱ nin we ̱ nge ̱ na Pakistan , mundi ma kwaṅ ma Sukkur .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "On their preaching expedition in the Australian outback , Arthur Willis and Bill Newlands , mentioned in the introduction , once labored for two weeks to travel 20 miles ( 32 km ) because heavy rains had turned the desert into a sea of mud .",
       "dua": "O lo ̱ ndo ̱ labu la dikalo o betika ba Ostralia , Artur Wilis na Bil Ńuland ba tubabe ̱ mina o bebotedi ba min myango , ngedi me ̱ ne ̱ ba taki woki iba ná ba dangwe 32 km ońolana mbua ninde ̱ ne ̱ e ta e timbise ̱ le ̱ eyaṅ munja ma dibo .",
       "domain": "general",
@@ -55846,12 +56052,6 @@
     {
       "en": "Others point out , however , that it was not a simple thing to kindle a fire in ancient times .",
       "dua": "Nde bape ̱ pe ̱ bā ná jońse ̱ la wea o mi mińa di si ta bu .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Others set aside money and gave regular donations to support the work .",
-      "dua": "( Bebolo 4 : 34 , 35 ) Bape ̱ pe ̱ pe ̱ ba ta ba ne ̱ nge ̱ mo ̱ ni o mbasan , ná ba bole mabea ponda te ̱ o sue ̱ le ̱ bebolo ba jowe ̱ la Yehova . ( 1 Kor .",
       "domain": "general",
       "reviewed": false
     },
@@ -57068,12 +57268,6 @@
       "reviewed": false
     },
     {
-      "en": "Paul wrote that people would be \" lovers of money . \"",
-      "dua": "Paulo a tili ná bato ba me ̱ nde ̱ be ̱ \" bato ̱ nde ̱ mo ̱ ni . \"",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "Paul wrote to Timothy : \" You have closely followed my teaching , my course of life , my purpose , my faith , my patience , my love , my endurance . \"",
       "dua": "Paulo a tiledi Timoteo ná : \" Wa o ta o bupe ̱ belēdi bam , bedangwedi bam , jo ̱ nge ̱ le ̱ lam , jemea lam , we ̱ lisane ̱ lam , ndol 'am , titimb 'am . \" ( 2 Tim .",
       "domain": "general",
@@ -57112,12 +57306,6 @@
     {
       "en": "Peace is especially vital in a marriage .",
       "dua": "Musango mwe mweńa tobotobo o diba .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Peasants were given regular food supplies , but cash wages were paid only once a year .",
-      "dua": "Base ̱ - myonda ba ta ba bolabe ̱ da ponda ye ̱ se ̱ , nde ba ta nde ba kusa musawedi mabu ngedi po ̱ ońola mbu .",
       "domain": "general",
       "reviewed": false
     },
@@ -57694,12 +57882,6 @@
     {
       "en": "Potiphar 's wife set her eyes on Joseph , who was \" well - built and handsome , \" and she tried to seduce him .",
       "dua": "Munj 'a Potifar a soke ̱ miso ̱ mao omo ̱ ń a Yose ̱ f , nu ta \" nu be ̱ ne ̱ ńol 'a bwam , a do ̱ lo ̱ pe ̱ boso , \" nde a keka o lo ̱ ndo ̱ mo ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Poverty : According to the World Bank , the number of those suffering extreme poverty in Africa alone has grown from 280 million in 1990 to 330 million in 2012 .",
-      "dua": "Tue : Bupisane ̱ Bank ninde ̱ ne ̱ ńa wase ńe ̱ se ̱ , muso ̱ ngi ma bato be oteten a tue dinde ̱ ne ̱ o Afrika buka te ̱ mu bati ńaka , masumwe ̱ o 280 ba lodun o mbu 1990 mu po ̱ 330 ba lodun o mbu 2012 .",
       "domain": "general",
       "reviewed": false
     },
@@ -60056,12 +60238,6 @@
       "reviewed": false
     },
     {
-      "en": "See the article \" Anxiety About Money \" in the July 1 , 2015 , issue of The Watchtower .",
-      "dua": "Ombwa jokwa \" L 'inquiétude pour l 'argent \" o Njongo a Betatedi ńa 1 Madibe ̱ dibe ̱ 2015 .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "See the article \" Do Not Forget Kindness to Strangers \" in The Watchtower of October 2016 , pp .",
       "dua": "Ombwa jokwa \" N 'oublie pas la bonté envers les étrangers ( O si dimbea kasa be ̱ n ) \" o Njongo a Betatedi ńa Fre ̱ nsi ńa Maye ̱ se ̱ 2016 , map .",
       "domain": "general",
@@ -60434,12 +60610,6 @@
       "reviewed": false
     },
     {
-      "en": "She and several of her young children had been getting up very early in the morning to go out in the fields and chop cotton - removing the weeds growing between the rows - in order to earn enough money so that I could take the trip to New York .",
-      "dua": "Bā na bana bao basadi ba ta be ̱ ba pomane ̱ te ̱ me ̱ idiba o wala ke ̱ ko ̱ tin o eyidi , ba sumwa pe ̱ bewudu ba bobe , ná ba kuse eyek 'a mo ̱ ni ná nale o Ńu york .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "She answers , \" Prayerful reliance on Jehovah . \"",
       "dua": "A malabe ̱ ná , \" Na kane ̱ Yehova ná na kusane ̱ mo ̱ jongwane ̱ . \"",
       "domain": "general",
@@ -60478,12 +60648,6 @@
     {
       "en": "She could hardly do anything about the corrupt practices being carried on at the temple .",
       "dua": "A si wusa bola to ̱ lambo jombwea beboledi ba bobe be ta be bolane ̱ o tempe ̱ l . ( Mat .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "She could have accepted a scholarship to study law at a university , but she chose instead to work in a bank .",
-      "dua": "A wusa jemea jongwane ̱ la go ̱ bina ná ale jokwa ebol 'a lo ̱ ya o Unive ̱ rsite , nde a po ̱ si nde ebol 'a bank .",
       "domain": "general",
       "reviewed": false
     },
@@ -60830,12 +60994,6 @@
       "reviewed": false
     },
     {
-      "en": "She states : \" Satan 's world promotes higher education , fame , money , and having a lot of material things as good goals .",
-      "dua": "Mo ̱ ná : \" Was 'a Satan e mapulise ̱ nde besukulu bende ̱ ne ̱ , busa la dina , mo ̱ ni , na be ̱ ne ̱ la miam .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "She telephoned the official , who came out to meet me and greeted me in the local language .",
       "dua": "Na mo ̱ a bele ̱ nu mudomedi o telefon , a busa o po ̱ dongame ̱ ne ̱ mba , a soma mba na y 'eyem 'a bwambo .",
       "domain": "general",
@@ -61066,12 +61224,6 @@
     {
       "en": "Should I accept a certain job offer ? '",
       "dua": "Mo ̱ nangame ̱ n o jemea to ̱ njik 'ebolo e ? '",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Should I get involved in this money - making proposal ?",
-      "dua": "Mo ̱ nangame ̱ n jemea bola yen ebolo e ?",
       "domain": "general",
       "reviewed": false
     },
@@ -64148,12 +64300,6 @@
       "reviewed": false
     },
     {
-      "en": "Stocks and Bonds : Stocks and bonds donated to an entity used by Jehovah 's Witnesses as an outright gift or by means of a written agreement to transfer on death .",
-      "dua": "Dongo di makweleye ̱ wa : K 'eyembilan , o be ̱ n te ̱ dongo di makweleye ̱ wa o dio l 'ebolo diwo ̱ , we ná o bola Mboṅ a Yehova muse ̱ ṅ ma di dongo ka jabea tongwea na bank .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "Strangely , though , in the midst of Deborah and Barak 's victory song praising Jehovah for a miraculous conquest , they sang : \" ' Curse Meroz , ' said the angel of Jehovah , ' yes , curse its inhabitants , for they did not come to the assistance of Jehovah , to the assistance of Jehovah with the mighty ones . ' \" - Judg .",
       "dua": "Bińo ̱ loa baje ̱ o mu mundi ! Ebanja ba si po ̱ i bale ̱ Yehova dia , o jongwane ̱ Yehova mwemba na bangum . \" - Bak .",
       "domain": "general",
@@ -64420,12 +64566,6 @@
     {
       "en": "Such people can never be truly happy .",
       "dua": "I ńai a bato i titi ná i be ̱ bonam na mbale ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Such people will always want more money , and striving to amass it , they will bring on themselves \" many pains . \" - 1 Tim .",
-      "dua": "( Mul . 5 : 10 ) I ńai a bato i me ̱ nde ̱ te ̱ nde be ̱ ne ̱ ńo ̱ ng 'a bata be ̱ ne ̱ mo ̱ ni , i bola pe ̱ me ̱ se ̱ o ko ̱ te ̱ le ̱ mo ̱ , na nika e wanea babo ̱ \" jita la sese . \" - 1 Tim .",
       "domain": "general",
       "reviewed": false
     },
@@ -66416,12 +66556,6 @@
       "reviewed": false
     },
     {
-      "en": "The apostle Paul wrote : \" In the last days . . . , men will be lovers of themselves , lovers of money , . . . lovers of pleasures rather than lovers of God . \"",
-      "dua": "Ńamuloloma Paulo a tili ná : \" O mińa misukan . . . bato ba me ̱ nde ̱ be ̱ bato ̱ nde ̱ babo ̱ mo ̱ me ̱ ne ̱ , bato ̱ nde ̱ mo ̱ ni , . . . ba to ̱ ndi muńe ̱ nge ̱ ma ńolo buka Loba . \"",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "THE apostle Paul wrote his letter to Christians in Colossae evidently at the end of his first confinement in Rome , or about 60 - 61 C.E .",
       "dua": "ŃAMULOLOMA Paulo a tiledi nde Kriste ̱ n a Kolose leta yen ebe o su la beboa bao baboso o Roma , to ̱ so ̱ lambo ka 60 - 61 P.A .",
       "domain": "general",
@@ -67456,12 +67590,6 @@
     {
       "en": "The early sections of his journal were dark and gloomy , but his more recent entries were different .",
       "dua": "Mapapa mao maboso ma si wusa langabe ̱ , nde ma mabupe ̱ ma ta diwengisan .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "The earth is filled with those who have an inordinate love of self , money , and pleasures .",
-      "dua": "Wase e londi na bato bena ba to ̱ ndi babo ̱ me ̱ ne ̱ buka dime ̱ ne ̱ , mo ̱ ni , na muńe ̱ nge ̱ ma ńolo .",
       "domain": "general",
       "reviewed": false
     },
@@ -68596,12 +68724,6 @@
     {
       "en": "The man seems relatively healthy ; no physical problem is about to rob him of his life .",
       "dua": "Nu moto e longe ̱ , a me ̱ ne ̱ ne ̱ pe ̱ ná a be ̱ n ja la bwam .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "The man took out his wallet , removed some paper money , held it up , and proudly said , \" This is my god ! \"",
-      "dua": "Na nu mome a busise ̱ po ̱ s 'ao , a to ̱ to ̱ mo ̱ ni oten , a le ̱ ke ̱ mo ̱ omo ̱ ń na kumba ńe ̱ se ̱ , a kwala ná , \" loba lam din ! \"",
       "domain": "general",
       "reviewed": false
     },
@@ -75086,12 +75208,6 @@
       "reviewed": false
     },
     {
-      "en": "Those who love money cannot please God .",
-      "dua": "Bato ̱ nde ̱ mo ̱ ni ba titi ná ba do ̱ lisan Loba .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "Those who preach to refugees need to be \" cautious \" and even \" shrewd . \"",
       "dua": "Ba bena ba mate ̱ ye ̱ bawase ̱ diwutamea dikalo bangame ̱ n o be ̱ \" jangwa \" na mo ̱ me ̱ ne ̱ \" bwanganga . \" ( Mat . 10 : 16 ; Min .",
       "domain": "general",
@@ -75130,12 +75246,6 @@
     {
       "en": "Those words strengthened her .",
       "dua": "Ben byala bembe ̱ mo ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Those years of traveling between Tokmok and Balykchy cost a lot of money .",
-      "dua": "Mi mimbu ma muyo ̱ mbo ̱ oteten a mindi ma Tokmok na Balykchy mi no ̱ ngo ̱ ne ̱ biso ̱ mo ̱ ni eyeka .",
       "domain": "general",
       "reviewed": false
     },
@@ -75184,12 +75294,6 @@
     {
       "en": "Though learning the language was a struggle for Tiffany , her life has been enriched .",
       "dua": "To ̱ ná jokwa la y 'eyeme ̱ di tano ̱ Tifania ndutu , a tombwan jita .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Though not many would be so open about the matter , the world is full of people who love money and the things it can buy .",
-      "dua": "Bato jita ba si memea o jemba ná wase e londi na bato ba to ̱ ndi mo ̱ ni na nje ye ̱ se ̱ mo ̱ ni mweno ̱ ná mwanda .",
       "domain": "general",
       "reviewed": false
     },
@@ -75856,12 +75960,6 @@
     {
       "en": "To analyze how well we are doing in showing love for others , we might ask ourselves : ' Am I reaching out to help others in my family , in my congregation , and in my ministry ?",
       "dua": "Ná di wase ̱ le ̱ biso ̱ me ̱ ne ̱ o bia nga di malee ̱ le ̱ bape ̱ pe ̱ ndolo , di baise ̱ na biso ̱ me ̱ ne ̱ ná : ' Mo ̱ na mawe ̱ na ngińa o jongwane ̱ bape ̱ pe ̱ o mbia mam e , o mwemba mam e , na o dikalo e ?",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "To analyze our view of money , we might honestly consider how we would answer these questions : ' Do I really believe and live in harmony with what the Bible says about money ?",
-      "dua": "Ná di duteye o mbad 'asu ńa je ̱ ne ̱ mo ̱ ni , jangame ̱ n be ̱ mbale ̱ na biso ̱ me ̱ ne ̱ ke ̱ di malabe ̱ min myuedi : ' Mo ̱ na dube ̱ na mbale ̱ nje Bibe ̱ l e makwalano ̱ jombwea mo ̱ ni , na madie ̱ le ̱ pe ̱ longe ̱ lam mulatako na nika e ?",
       "domain": "general",
       "reviewed": false
     },
@@ -77930,12 +78028,6 @@
       "reviewed": false
     },
     {
-      "en": "We all need money , of course .",
-      "dua": "Ye mbale ̱ ná biso ̱ be ̱ se ̱ di be ̱ n ńo ̱ ng 'a mo ̱ ni .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "We all suffer from inherited sin , and when our actions do not reflect our keen desire to please Jehovah , we may feel miserable .",
       "dua": "Kana biso ̱ be ̱ se ̱ di sangono ̱ bobe di mataka ; di mabwa pe ̱ ndutu ke ̱ beboledi basu be titi mulatako na ńo ̱ ngi ninde ̱ ne ̱ di be ̱ nno ̱ o do ̱ lisane ̱ Yehova .",
       "domain": "general",
@@ -78778,12 +78870,6 @@
     {
       "en": "We could easily be enticed by promises of a lucrative career , dreams of a lavish lifestyle , or the desire for a showy display of material riches .",
       "dua": "Kakane ̱ la ebol 'a musawedi ma bwam , ndo ̱ t 'a longe ̱ la m 'bwe ̱ njē ̱ , to ̱ so ̱ bepuledi ba kumb 'a longe ̱ be ná be damea biso ̱ m 'boa .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "We could feel like a man who has worked all his life for a pile of money , only to learn that it is counterfeit .",
-      "dua": "Di me ̱ nde ̱ nde senga ka moto ńena nu boli ebolo longe ̱ lao le ̱ se ̱ o bwam ba ko ̱ te ̱ le ̱ mo ̱ ni , nde e bīsabe ̱ mo ̱ ná mu mo ̱ ni mwe nde ma bobe . ( Min .",
       "domain": "general",
       "reviewed": false
     },
@@ -79858,12 +79944,6 @@
     {
       "en": "We protect and preserve our precious unity when we forgive others as Jesus taught us to do .",
       "dua": "Di matata na kombe ̱ jalatane ̱ lasu la tiki ke ̱ di malakise ̱ bane ̱ ka nje te ̱ Yesu okwe ̱ le ̱ no ̱ biso ̱ o bola .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "We proudly bear and use his name , knowing that loving him is far more rewarding than loving money or things . - Isa .",
-      "dua": "Je kumba o bambe ̱ dina la Loba na bolane ̱ pe ̱ mo ̱ , ońolana di bi ná ndolo di be ̱ ne ̱ nno ̱ mo ̱ e petane ̱ ńa mo ̱ ni na sango muse ̱ ṅ . - Yes .",
       "domain": "general",
       "reviewed": false
     },
@@ -82060,12 +82140,6 @@
     {
       "en": "What could Solomon learn about courage from his father ?",
       "dua": "Nje Salomo a wusano ̱ jokwa jombwea ngiń 'a mulema ńa sango e ?",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "What counsel did Jesus give about money ?",
-      "dua": "Njika malea Yesu a bolino ̱ jombwea mo ̱ ni e ?",
       "domain": "general",
       "reviewed": false
     },
@@ -86318,12 +86392,6 @@
       "reviewed": false
     },
     {
-      "en": "When the box was full , she handed the money over to be used for the preaching work .",
-      "dua": "Ponda y 'ekwe ̱ m e londino ̱ , e lom nde mu mo ̱ ni o bwam ná mu sue ̱ le ̱ ebol 'a dikalo .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "When the boy is older , the father explains what he is doing .",
       "dua": "A koki te ̱ , sango a matele ̱ ye ̱ mo ̱ nje eno ̱ o bola .",
       "domain": "general",
@@ -86422,12 +86490,6 @@
     {
       "en": "When the wife does not become pregnant , she may feel much emotional distress .",
       "dua": "Ni ponda muto a titino ̱ no ̱ ngo ̱ deme ̱ , e ná a be ̱ oteten a ndut 'a mulema ninde ̱ ne ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "When their savings ran out , however , the couple 's joy turned to sorrow .",
-      "dua": "Ponda ekoted 'abu e bo ̱ ino ̱ , ba si ta pe ̱ muńe ̱ nge ̱ .",
       "domain": "general",
       "reviewed": false
     },
@@ -87206,12 +87268,6 @@
       "reviewed": false
     },
     {
-      "en": "While I was away , Mary witnessed in a Portuguese commercial district , where making money was the only subject of interest .",
-      "dua": "Niponda na si tano ̱ wa , Maria a ta ala te ̱ dikalo o don dinde ̱ ne ̱ diwo ̱ la Potoki , owe ̱ ni ekwal 'a mo ̱ ni buka te ̱ nde e ta tem 'ekwali ńa bato .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "While I was in high school , I had a friend who was a prizefighter , and he convinced me to try boxing .",
       "dua": "Niponda na tano ̱ o esukulu ende ̱ ne ̱ , na ta na be ̱ ne ̱ diko ̱ m di ta nde mwane ̱ bo ̱ x nunde ̱ ne ̱ , di tute ̱ le ̱ mba o bo ̱ x .",
       "domain": "general",
@@ -87712,12 +87768,6 @@
     {
       "en": "Why are Jehovah 's promises a source of great comfort ?",
       "dua": "Ońola nje makaki ma Yehova meno ̱ nde tongo a belo ̱ ko ̱ medi bende ̱ ne ̱ e ?",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Why are lovers of money not truly happy ?",
-      "dua": "Ońola nje bato ̱ nde ̱ mo ̱ ni ba titino ̱ bonam na mbale ̱ e ?",
       "domain": "general",
       "reviewed": false
     },
@@ -88234,12 +88284,6 @@
     {
       "en": "Why do you want to take refuge in Jehovah ?",
       "dua": "Ońola nje wangame ̱ nno ̱ pulise ̱ diwutamea omboa Yehova e ?",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Why does a love of money not bring happiness ?",
-      "dua": "Ońola nje to ̱ ndo ̱ la mo ̱ ni di si mawanano ̱ bonam e ?",
       "domain": "general",
       "reviewed": false
     },
@@ -89276,12 +89320,6 @@
       "reviewed": false
     },
     {
-      "en": "Wills and Trusts : Property or money may be bequeathed to an entity used by Jehovah 's Witnesses by means of a legally executed will or by specifying the entity as the beneficiary of a trust agreement .",
-      "dua": "Byala o madiano ̱ : We ná o tila byala be bamsabe ̱ na go ̱ bina , oboso ba mboṅ , ná ombusa kwed 'ango ̱ m 'bwaṅ mo ̱ ngo ̱ to ̱ sango lo ̱ ngo ̱ di bolabe ̱ bebokedi ba Mboṅ a Yehova .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "Winning the Battle for Your Mind , July",
       "dua": "Buka bwemba ba mo ̱ nge ̱ le ̱ mo ̱ ngo ̱ , Madi .",
       "domain": "general",
@@ -89314,12 +89352,6 @@
     {
       "en": "With a group of deaf people at a convention in Cleveland , Ohio , in 1946",
       "dua": "Ne na dibo ̱ to ̱ la bane ̱ bato bando ̱ ki o jako ̱ to ̱ ne ̱ o Kleveland , Ohio , o 1946",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "With a university degree in law , I could have earned a lot of money , but I would have had little chance of finding part - time work . \"",
-      "dua": "Dipapa la lo ̱ ya di wusa wanea mba mo ̱ ni jita , nde na si wusa kusa ebol 'a epas 'a ponda . \"",
       "domain": "general",
       "reviewed": false
     },
@@ -89432,12 +89464,6 @@
       "reviewed": false
     },
     {
-      "en": "With Jehovah 's blessing and careful management , we used vacation time to earn some money picking fruit , so we were able to continue pioneering .",
-      "dua": "Na jongwane ̱ la Yehova , name ̱ ne ̱ pe ̱ na miso ̱ ngi ma bwam , pond 'a mawumse ̱ di ta di pata bepuma o kusa son a mo ̱ ni ; na nika , di ta ńai di malane ̱ no ̱ ebol 'asu ya paonia oboso .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
       "en": "With Jehovah 's help , I now have an overriding sense of peace and calm , whereas before I was a time bomb of bitterness and rage , ready to explode at the slightest annoyance . \"",
       "dua": "Na jongwane ̱ la Yehova , tatan na be ̱ n musango na pī , nde ke ̱ o ponda ni tombi na ta nde etungu e londi na njongi na pidi , e le ̱ le ̱ m o tubea o to ̱ njika son a malinga . \"",
       "domain": "general",
@@ -89452,12 +89478,6 @@
     {
       "en": "With Jehovah 's help , we can stand firm against him !",
       "dua": "Na jongwane ̱ la Yehova , je ná di te ̱ nge ̱ ne ̱ mo ̱ !",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "With Jehovah 's support , Jesus miraculously provided food and even money when needed . - Matt .",
-      "dua": "4 : 1 - 7 ) Na jongwane ̱ la Yehova , Yesu a boli da na mo ̱ ni o mbad 'a betańsedi ponda e pulino ̱ nika . - Mat .",
       "domain": "general",
       "reviewed": false
     },
@@ -91990,18 +92010,6 @@
     {
       "en": "Youths in the Christian congregation are precious in the eyes of Jehovah , who loves them dearly and gives them his protection , guidance , and blessing .",
       "dua": "( Min . 3 : 5 , 6 ) Beso ̱ mbe ̱ be o mwemba ma Kriste ̱ n be tiki o miso ̱ ma Yehova , a to ̱ ndi babo ̱ jita , a matata , die ̱ le ̱ , na namse ̱ pe ̱ babo ̱ .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Zacchaeus , the chief tax collector in Jericho , had become rich by extorting money from the people .",
-      "dua": "Sakeo , mwaned 'a bako ̱ tedi o Yeriko , a timbi be ̱ m 'bwaṅ ońolana a ta be ̱ a no ̱ ngo ̱ ne ̱ bato mo ̱ ni na mińakisan .",
-      "domain": "general",
-      "reviewed": false
-    },
-    {
-      "en": "Zacchaeus was a chief tax collector who had become rich by extorting money .",
-      "dua": "Sakeo a ta nde mwaned 'a bako ̱ tedi nu timbi ko ̱ m 'bwaṅ ońola ndumban .",
       "domain": "general",
       "reviewed": false
     },
