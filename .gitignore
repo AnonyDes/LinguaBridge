@@ -12,3 +12,6 @@ pgdata/
 coverage/
 playwright-report/
 test-results/
+models/
+linguabridge/models/
+logs/
