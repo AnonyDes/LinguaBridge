@@ -90,6 +90,17 @@ describe('Chrome Extension Content Assistant', () => {
     expect(h1?.textContent).toBe('Paiement de 15000 FCFA');
   });
 
+  it('switches to Duala research sentences without changing French banking text', () => {
+    document.body.innerHTML = '<p id="sample">A vine supports the branches .</p><p id="money">Solde disponible : 15 000 FCFA</p>';
+    assistant = new ExtensionAssistant();
+    const selector = document.getElementById('linguabridge-extension-root')?.shadowRoot?.getElementById('target-lang') as HTMLSelectElement;
+    selector.value = 'dua-CM';
+    selector.dispatchEvent(new Event('change'));
+    assistant.translateFullPage();
+    expect(document.getElementById('sample')?.textContent).toBe('Bwele nde bo bambe ̱ mikanjo .');
+    expect(document.getElementById('money')?.textContent).toBe('Solde disponible : 15 000 FCFA');
+  });
+
   it('translates selected text and displays financial guard alerts', async () => {
     assistant = new ExtensionAssistant();
     await assistant.translateSelectedText('15000 FCFA');

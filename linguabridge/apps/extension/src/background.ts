@@ -1,5 +1,5 @@
 import { LinguaBridgeClient } from '@linguabridge/sdk-js';
-import { translateSentenceToEwondo, getEwondoPhonetic } from '@linguabridge/translation-engine';
+import { translateLocalText, getEwondoPhonetic } from '@linguabridge/translation-engine';
 
 const client = new LinguaBridgeClient({
   baseUrl: 'http://localhost:3001',
@@ -28,7 +28,19 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
 // Background message dispatcher
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    const isEwondo = (message.targetLang || 'ewo-CM').includes('ewo');
+    const targetLang = message.targetLang || 'ewo-CM';
+    const isEwondo = targetLang.includes('ewo');
+    const local = (text: string, sourceLang?: string) => translateLocalText(text, sourceLang || (isEwondo ? 'fr' : 'en'), targetLang);
+
+    if (message.type === 'TRANSLATE_TEXT' && !isEwondo) {
+      const result = local(message.text, message.sourceLang);
+      sendResponse({ success: true, result: { ...result, originalText: message.text, sourceLang: message.sourceLang || 'en', targetLang, provider: 'duala-research-exact', speechAvailable: false } });
+      return false;
+    }
+    if (message.type === 'TRANSLATE_BATCH' && !isEwondo) {
+      sendResponse({ success: true, results: message.items.map((item: any) => ({ ...local(item.text, item.sourceLang), originalText: item.text, sourceLang: item.sourceLang || 'en', targetLang, provider: 'duala-research-exact', speechAvailable: false })) });
+      return false;
+    }
 
     if (message.type === 'TRANSLATE_TEXT') {
       client
@@ -40,13 +52,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         })
         .then((result) => {
           if ((!result.translatedText || result.translatedText === message.text) && isEwondo) {
-            const localTrans = translateSentenceToEwondo(message.text);
+            const localTrans = local(message.text, message.sourceLang).translatedText;
             sendResponse({
               success: true,
               result: {
                 ...result,
                 translatedText: localTrans,
-                status: 'success',
+                status: local(message.text, message.sourceLang).status,
                 phonetic: getEwondoPhonetic(localTrans),
               },
             });
@@ -62,7 +74,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         })
         .catch(() => {
           // Autonomous offline / fallback execution
-          const trans = isEwondo ? translateSentenceToEwondo(message.text) : message.text;
+          const trans = isEwondo ? local(message.text, message.sourceLang).translatedText : message.text;
           sendResponse({
             success: true,
             result: {
@@ -71,10 +83,10 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               translatedText: trans,
               sourceLang: message.sourceLang || 'fr',
               targetLang: message.targetLang || 'ewo-CM',
-              provider: 'apertium-national-lexicon',
-              status: 'success',
+              provider: isEwondo ? 'ewondo-lexicon' : 'duala-research-exact',
+              status: isEwondo && trans !== message.text ? 'success' : 'unverified',
               cacheStatus: 'miss',
-              warnings: [],
+              warnings: local(message.text, message.sourceLang).warnings,
               latencyMs: 1,
               speechAvailable: true,
               phonetic: isEwondo ? getEwondoPhonetic(trans) : undefined,
@@ -90,11 +102,11 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         .then((results) => {
           const processed = results.map((r, idx) => {
             if ((!r.translatedText || r.translatedText === message.items[idx]?.text) && isEwondo) {
-              const trans = translateSentenceToEwondo(message.items[idx]?.text || '');
+              const trans = local(message.items[idx]?.text || '', message.items[idx]?.sourceLang).translatedText;
               return {
                 ...r,
                 translatedText: trans,
-                status: 'success',
+                status: local(message.items[idx]?.text || '', message.items[idx]?.sourceLang).status,
                 phonetic: getEwondoPhonetic(trans),
               };
             }
@@ -108,17 +120,17 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         .catch(() => {
           // Autonomous offline / fallback execution for batch
           const results = message.items.map((item: any, idx: number) => {
-            const trans = isEwondo ? translateSentenceToEwondo(item.text) : item.text;
+            const trans = isEwondo ? local(item.text, item.sourceLang).translatedText : item.text;
             return {
               id: `local-batch-${idx}`,
               originalText: item.text,
               translatedText: trans,
               sourceLang: item.sourceLang || 'fr',
               targetLang: item.targetLang || 'ewo-CM',
-              provider: 'apertium-national-lexicon',
-              status: 'success',
+              provider: isEwondo ? 'ewondo-lexicon' : 'duala-research-exact',
+              status: isEwondo && trans !== item.text ? 'success' : 'unverified',
               cacheStatus: 'miss',
-              warnings: [],
+              warnings: local(item.text, item.sourceLang).warnings,
               latencyMs: 1,
               speechAvailable: true,
               phonetic: isEwondo ? getEwondoPhonetic(trans) : undefined,
@@ -138,6 +150,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             success: true,
             languages: [
               { code: 'ewo-CM', name: 'Ewondo (Langue Maternelle)', nativeName: 'Kóbɔ́ Ewondo', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
+              { code: 'dua-CM', name: 'Duala (recherche expérimentale)', nativeName: 'Duala', speechAvailable: false, packStatus: 'unverified', isAvailable: false },
               { code: 'fr', name: 'Français', nativeName: 'Français', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
               { code: 'en', name: 'English', nativeName: 'English', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
             ],

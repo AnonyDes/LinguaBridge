@@ -48,6 +48,7 @@ export class ProviderExecutorStage implements PipelineStage {
       ctx.result.translatedText = result.translatedText;
       ctx.result.provider = result.provider;
       ctx.result.status = result.status;
+      ctx.result.warnings = [...(ctx.result.warnings || []), ...(result.warnings || [])];
       ctx.selectedProvider = provider.id;
     } catch (err) {
       ctx.result.status = 'failed';

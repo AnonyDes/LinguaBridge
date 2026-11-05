@@ -1,5 +1,5 @@
 import type { TranslationResult } from '@linguabridge/shared-types';
-import { translateSentenceToEwondo, getEwondoPhonetic } from '@linguabridge/translation-engine';
+import { translateLocalText, getEwondoPhonetic } from '@linguabridge/translation-engine';
 
 class EwondoSpeechPlayer {
   private isPlaying = false;
@@ -196,6 +196,11 @@ class ExtensionAssistant {
   >();
   private isPageTranslated = false;
   private currentTargetLang = 'ewo-CM';
+
+  private translateLocal(text: string): string {
+    return translateLocalText(text, this.currentSourceLang, this.currentTargetLang).translatedText;
+  }
+
   private currentSourceLang = 'fr';
   private isOpen = false;
   private isTouchSpeakEnabled = false;
@@ -379,7 +384,10 @@ class ExtensionAssistant {
           this.render();
           this.translateSelectedText(msg.text);
         } else if (msg.type === 'POPUP_TRANSLATE_PAGE') {
-          if (msg.targetLang) this.currentTargetLang = msg.targetLang;
+          if (msg.targetLang) {
+            this.currentTargetLang = msg.targetLang;
+            this.currentSourceLang = msg.targetLang.startsWith('dua') ? 'en' : 'fr';
+          }
           this.translateFullPage();
         } else if (msg.type === 'POPUP_TOGGLE_TOUCH_SPEAK' || msg.type === 'POPUP_TOGGLE_HOVER_SPEAK') {
           this.toggleTouchSpeakMode();
@@ -576,8 +584,8 @@ class ExtensionAssistant {
       ewondoText = cached.ewondo;
       phonetic = cached.phonetic;
     } else {
-      ewondoText = translateSentenceToEwondo(rawText);
-      phonetic = getEwondoPhonetic(ewondoText);
+      ewondoText = this.translateLocal(rawText);
+      phonetic = this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(ewondoText) : '';
       this.translationSpeechCache.set(rawText, { ewondo: ewondoText, phonetic });
     }
 
@@ -625,8 +633,8 @@ class ExtensionAssistant {
     box.style.display = 'block';
 
     // Synchronously compute local translation immediately for 0ms latency boost
-    const localTrans = translateSentenceToEwondo(text);
-    const localPhonetic = getEwondoPhonetic(localTrans);
+    const localTrans = this.translateLocal(text);
+    const localPhonetic = this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(localTrans) : '';
 
     const renderPreview = (translatedText: string, phonetic: string, warnings: string[]) => {
       box.innerHTML = `
@@ -653,7 +661,7 @@ class ExtensionAssistant {
     };
 
     // Show instant local translation with zero network latency
-    renderPreview(localTrans, localPhonetic, []);
+    renderPreview(localTrans, localPhonetic, translateLocalText(text, this.currentSourceLang, this.currentTargetLang).warnings);
 
     // Also query background/API if available to enrich guards
     if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
@@ -667,7 +675,7 @@ class ExtensionAssistant {
         },
         (response) => {
           if (response?.success && response.result) {
-            const phon = response.result.phonetic || getEwondoPhonetic(response.result.translatedText);
+            const phon = this.currentTargetLang.startsWith('ewo') ? (response.result.phonetic || getEwondoPhonetic(response.result.translatedText)) : '';
             renderPreview(response.result.translatedText, phon, response.result.warnings || []);
           }
         }
@@ -772,7 +780,7 @@ class ExtensionAssistant {
           this.originalAttrMap.set(el, { ...orig, placeholder: ph });
         }
         const sourcePh = (this.originalAttrMap.get(el)?.placeholder ?? ph).trim();
-        const translatedPh = translateSentenceToEwondo(sourcePh);
+        const translatedPh = this.translateLocal(sourcePh);
         if (translatedPh && translatedPh !== sourcePh) {
           inputEl.placeholder = translatedPh;
           this.translationSpeechCache.set(translatedPh, {
@@ -793,7 +801,7 @@ class ExtensionAssistant {
           this.originalAttrMap.set(el, { ...orig, value: inputEl.value });
         }
         const sourceVal = (this.originalAttrMap.get(el)?.value ?? inputEl.value).trim();
-        const translatedVal = translateSentenceToEwondo(sourceVal);
+        const translatedVal = this.translateLocal(sourceVal);
         if (translatedVal && translatedVal !== sourceVal) {
           inputEl.value = translatedVal;
           this.translationSpeechCache.set(translatedVal, {
@@ -812,7 +820,7 @@ class ExtensionAssistant {
         this.originalAttrMap.set(el, { ...orig, title });
       }
       const sourceTitle = (this.originalAttrMap.get(el)?.title ?? title).trim();
-      const translatedTitle = translateSentenceToEwondo(sourceTitle);
+      const translatedTitle = this.translateLocal(sourceTitle);
       if (translatedTitle && translatedTitle !== sourceTitle) {
         el.setAttribute('title', translatedTitle);
         this.translationSpeechCache.set(translatedTitle, {
@@ -830,7 +838,7 @@ class ExtensionAssistant {
         this.originalAttrMap.set(el, { ...orig, ariaLabel });
       }
       const sourceAria = (this.originalAttrMap.get(el)?.ariaLabel ?? ariaLabel).trim();
-      const translatedAria = translateSentenceToEwondo(sourceAria);
+      const translatedAria = this.translateLocal(sourceAria);
       if (translatedAria && translatedAria !== sourceAria) {
         el.setAttribute('aria-label', translatedAria);
         this.translationSpeechCache.set(translatedAria, {
@@ -849,7 +857,7 @@ class ExtensionAssistant {
           this.originalAttrMap.set(el, { ...orig, alt });
         }
         const sourceAlt = (this.originalAttrMap.get(el)?.alt ?? alt).trim();
-        const translatedAlt = translateSentenceToEwondo(sourceAlt);
+        const translatedAlt = this.translateLocal(sourceAlt);
         if (translatedAlt && translatedAlt !== sourceAlt) {
           el.setAttribute('alt', translatedAlt);
           this.translationSpeechCache.set(translatedAlt, {
@@ -935,14 +943,14 @@ class ExtensionAssistant {
       const match = sourceText.match(/^(\s*)([\s\S]*?)(\s*)$/);
       const leading = match ? match[1] : '';
       const trailing = match ? match[3] : '';
-      const translated = translateSentenceToEwondo(trimmed);
+      const translated = this.translateLocal(trimmed);
       if (translated && translated !== trimmed) {
         node.textContent = leading + translated + trailing;
         // Warm up speech cache for instant hover reading without delay
         if (!this.translationSpeechCache.has(translated)) {
           this.translationSpeechCache.set(translated, {
             ewondo: translated,
-            phonetic: getEwondoPhonetic(translated),
+            phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translated) : '',
           });
         }
       }
@@ -1172,7 +1180,8 @@ class ExtensionAssistant {
         <div style="margin-bottom: 8px;">
           <label style="font-weight: 600; font-size: 12px; color: #4b5563;">Langue maternelle :</label>
           <select id="target-lang" style="width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #d1d5db; margin-top: 4px; font-size: 13px; font-weight: 600; background: #ffffff;">
-            <option value="ewo-CM" selected>🇨🇲 Kóbɔ́ Ewondo (Langue Maternelle)</option>
+            <option value="ewo-CM" ${this.currentTargetLang === 'ewo-CM' ? 'selected' : ''}>🇨🇲 Ewondo</option>
+            <option value="dua-CM" ${this.currentTargetLang === 'dua-CM' ? 'selected' : ''}>🇨🇲 Duala (corpus expérimental, anglais uniquement)</option>
           </select>
         </div>
 
@@ -1238,6 +1247,7 @@ class ExtensionAssistant {
 
     this.shadow.getElementById('target-lang')?.addEventListener('change', (e) => {
       this.currentTargetLang = (e.target as HTMLSelectElement).value;
+      this.currentSourceLang = this.currentTargetLang === 'dua-CM' ? 'en' : 'fr';
       if (this.isPageTranslated) {
         this.translateFullPage();
       }

@@ -10,3 +10,4 @@ export { FixtureProvider } from './providers/fixture.provider';
 export { LibreTranslateProvider, type LibreTranslateConfig } from './providers/libretranslate.provider';
 export { OpenRouterProvider, type OpenRouterConfig } from './providers/openrouter.provider';
 export * from './providers/ewondo-lexicon';
+export { lookupDualaResearchSentence, translateLocalText } from './providers/duala-research';

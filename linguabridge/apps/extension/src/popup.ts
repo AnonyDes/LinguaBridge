@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const languages = await client.getLanguages();
     if (langCountEl) {
-      langCountEl.textContent = `${languages.length} langues certifiées (Kóbɔ́ Ewondo, FR, EN)`;
+      langCountEl.textContent = `Ewondo actif · Duala expérimental (anglais)`;
     }
   } catch {
     // Graceful offline fallback — autonomous local mode with embedded dictionary
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       statusEl.style.color = '#15803d';
     }
     if (langCountEl) {
-      langCountEl.textContent = '470+ termes (Apertium & NACALCO embarqués)';
+      langCountEl.textContent = 'Ewondo actif · Duala corpus expérimental';
     }
   }
 
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Trigger page translation in active tab
   triggerPageBtn?.addEventListener('click', () => {
-    sendMessageToActiveTab({ type: 'POPUP_TRANSLATE_PAGE', targetLang: 'ewo-CM' });
+    sendMessageToActiveTab({ type: 'POPUP_TRANSLATE_PAGE', targetLang: (document.getElementById('popup-target-lang') as HTMLSelectElement)?.value || 'ewo-CM' });
   });
 
   // Toggle touch-to-listen mode in active tab

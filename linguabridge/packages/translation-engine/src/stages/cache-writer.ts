@@ -18,6 +18,7 @@ export class CacheWriterStage implements PipelineStage {
       ctx.memoryHit ||
       ctx.result.status === 'failed' ||
       ctx.result.status === 'unsafe' ||
+      ctx.result.status === 'unverified' ||
       ctx.request.contentType === 'financial_confirmation' ||
       !ctx.result.translatedText
     );
