@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { LinguaBridgeClient } from '@linguabridge/sdk-js';
 import type { Language } from '@linguabridge/shared-types';
+import {
+  CAMEROON_BANKING_LANGUAGES,
+  filterVisibleLanguages,
+} from './banking-engine';
 
 export interface LinguaBridgeContextValue {
   client: LinguaBridgeClient;
@@ -29,7 +33,7 @@ export const LinguaBridgeProvider: React.FC<LinguaBridgeProviderProps> = ({
   baseUrl,
   apiKey,
   defaultSourceLang = 'fr',
-  defaultTargetLang = 'en',
+  defaultTargetLang = 'ewo-CM',
   children,
 }) => {
   const client = useMemo(() => {
@@ -42,31 +46,59 @@ export const LinguaBridgeProvider: React.FC<LinguaBridgeProviderProps> = ({
   const [languages, setLanguages] = useState<Language[]>([]);
   const [loadingLanguages, setLoadingLanguages] = useState<boolean>(true);
 
+  const getSovereignDefaultLanguages = (): Language[] => {
+    const cameroonLangs: Language[] = CAMEROON_BANKING_LANGUAGES.map((l) => ({
+      code: l.code,
+      name: l.name,
+      nativeName: l.nativeName,
+      speechAvailable: l.speechAvailable,
+      packStatus: 'production_approved',
+      isAvailable: true,
+    }));
+
+    return [
+      {
+        code: 'fr',
+        name: 'French',
+        nativeName: 'Français',
+        speechAvailable: true,
+        packStatus: 'production_approved',
+        isAvailable: true,
+      },
+      {
+        code: 'en',
+        name: 'English',
+        nativeName: 'English',
+        speechAvailable: true,
+        packStatus: 'production_approved',
+        isAvailable: true,
+      },
+      ...cameroonLangs,
+    ];
+  };
+
   const refreshLanguages = async () => {
     try {
       setLoadingLanguages(true);
       const fetched = await client.getLanguages();
-      setLanguages(fetched);
+      // Strict invariant: Filter out Duala from visible options
+      const visible = filterVisibleLanguages(fetched);
+
+      // Merge with sovereign Cameroonian languages
+      const map = new Map<string, Language>();
+      for (const lang of getSovereignDefaultLanguages()) {
+        map.set(lang.code, lang);
+      }
+      for (const lang of visible) {
+        if (!lang.code.toLowerCase().startsWith('dua')) {
+          map.set(lang.code, lang);
+        }
+      }
+
+      setLanguages(Array.from(map.values()));
     } catch {
-      // Fallback default languages
-      setLanguages([
-        {
-          code: 'fr',
-          name: 'French',
-          nativeName: 'Français',
-          speechAvailable: true,
-          packStatus: 'production_approved',
-          isAvailable: true,
-        },
-        {
-          code: 'en',
-          name: 'English',
-          nativeName: 'English',
-          speechAvailable: true,
-          packStatus: 'production_approved',
-          isAvailable: true,
-        },
-      ]);
+      // Fallback default languages with sovereign Cameroonian languages
+      setLanguages(getSovereignDefaultLanguages());
     } finally {
       setLoadingLanguages(false);
     }

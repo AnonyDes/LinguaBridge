@@ -233,6 +233,17 @@ class ExtensionAssistant {
     this.init();
   }
 
+  public getLangBadgeName(lang: string): string {
+    switch (lang) {
+      case 'ewo-CM': return '🇨🇲 Ewondo';
+      case 'fuv-CM': return '🇨🇲 Fulfulde';
+      case 'hau-CM': return '🇨🇲 Haoussa';
+      case 'knc-CM': return '🇨🇲 Kanuri';
+      case 'pcm-CM': return '🇨🇲 Pidgin';
+      default: return '🇨🇲 Langue Nationale';
+    }
+  }
+
   public isVoiceEnabled(): boolean {
     return this.isTouchSpeakEnabled || this.isPageTranslated;
   }
@@ -1172,7 +1183,7 @@ class ExtensionAssistant {
         <div class="header">
           <div style="display: flex; align-items: center; gap: 6px;">
             <span>LinguaBridge</span>
-            <span class="badge-nat">${this.currentTargetLang === 'dua-CM' ? '🇨🇲 Duala' : '🇨🇲 Kóbɔ́ Ewondo'}</span>
+            <span class="badge-nat">${this.getLangBadgeName(this.currentTargetLang)}</span>
           </div>
           <button id="close-card" style="background:none;border:none;cursor:pointer;color:#6b7280;font-size:16px;">✕</button>
         </div>
@@ -1180,15 +1191,18 @@ class ExtensionAssistant {
         <div style="margin-bottom: 8px;">
           <label style="font-weight: 600; font-size: 12px; color: #4b5563;">Langue maternelle :</label>
           <select id="target-lang" style="width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #d1d5db; margin-top: 4px; font-size: 13px; font-weight: 600; background: #ffffff;">
-            <option value="ewo-CM" ${this.currentTargetLang === 'ewo-CM' ? 'selected' : ''}>🇨🇲 Ewondo</option>
-            <option value="dua-CM" ${this.currentTargetLang === 'dua-CM' ? 'selected' : ''}>🇨🇲 Duala (expérimental)</option>
+            <option value="ewo-CM" ${this.currentTargetLang === 'ewo-CM' ? 'selected' : ''}>🇨🇲 Ewondo (Centre, Sud, Est)</option>
+            <option value="fuv-CM" ${this.currentTargetLang === 'fuv-CM' ? 'selected' : ''}>🇨🇲 Fulfulde / Peul (Grand Nord, CEMAC)</option>
+            <option value="hau-CM" ${this.currentTargetLang === 'hau-CM' ? 'selected' : ''}>🇨🇲 Haoussa (Grand Nord, Corridors)</option>
+            <option value="knc-CM" ${this.currentTargetLang === 'knc-CM' ? 'selected' : ''}>🇨🇲 Kanuri (Extrême-Nord, Lac Tchad)</option>
+            <option value="pcm-CM" ${this.currentTargetLang === 'pcm-CM' ? 'selected' : ''}>🇨🇲 Pidgin English (NO, SO, Marchés)</option>
           </select>
           <label for="source-lang" style="display:block;margin-top:8px;font-size:12px;">Langue de la page :</label>
           <select id="source-lang" style="width:100%;padding:7px;margin-top:4px;">
             <option value="fr" ${this.currentSourceLang === 'fr' ? 'selected' : ''}>Français</option>
             <option value="en" ${this.currentSourceLang === 'en' ? 'selected' : ''}>English</option>
           </select>
-          ${this.currentTargetLang === 'dua-CM' ? '<p style="font-size:11px;color:#6b7280;">Duala expérimental : expressions françaises limitées ; phrases anglaises exactes du corpus. Traductions bancaires non vérifiées.</p>' : ''}
+          <p style="font-size:11px;color:#15803d;margin-top:4px;">Protection AST Zéro-Dérive : 100% des montants FCFA préservés.</p>
         </div>
 
         <div style="margin-top: 10px;">

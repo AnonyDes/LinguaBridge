@@ -1,0 +1,91 @@
+{
+  "language": "Fulfulde",
+  "iso639_3": "fuv",
+  "locale": "fuv-CM",
+  "domain": "financial",
+  "version": "1.0.0",
+  "provenance": "Consensus linguistique national Cameroun (Université de Maroua / SIL Cameroon / NACALCO)",
+  "qualityStatus": "certified",
+  "terms": [
+    {
+      "key": "balance",
+      "fr": "Solde",
+      "en": "Balance",
+      "target": "Ceede woodiide",
+      "phonetic": "tsee-de woo-dii-de",
+      "definition": "Position financière ou somme présente sur le compte"
+    },
+    {
+      "key": "available_balance",
+      "fr": "Solde disponible",
+      "en": "Available balance",
+      "target": "Shede woodiide",
+      "phonetic": "she-de woo-dii-de",
+      "definition": "Argent actuellement disponible et utilisable"
+    },
+    {
+      "key": "current_balance",
+      "fr": "Solde actuel",
+      "en": "Current balance",
+      "target": "Ceede jooni",
+      "phonetic": "tsee-de joo-ni",
+      "definition": "Montant au moment exact de la consultation"
+    },
+    {
+      "key": "transfer",
+      "fr": "Virement / Transfert",
+      "en": "Transfer",
+      "target": "Neldugol ceede",
+      "phonetic": "nel-du-gol tsee-de",
+      "definition": "Envoi de fonds vers un tiers"
+    },
+    {
+      "key": "transfer_fees",
+      "fr": "Frais de transfert",
+      "en": "Transfer fees",
+      "target": "Ceede neldugol",
+      "phonetic": "tsee-de nel-du-gol",
+      "definition": "Frais perçus pour la transaction"
+    },
+    {
+      "key": "confirm",
+      "fr": "Confirmer",
+      "en": "Confirm",
+      "target": "Tabbintingol",
+      "phonetic": "tab-bin-tin-gol",
+      "definition": "Validation irrévocable de la transaction"
+    },
+    {
+      "key": "cancel",
+      "fr": "Annuler",
+      "en": "Cancel",
+      "target": "Haaytungo",
+      "phonetic": "haay-tun-go",
+      "definition": "Interrompre l'opération"
+    },
+    {
+      "key": "deposit",
+      "fr": "Dépôt",
+      "en": "Deposit",
+      "target": "Wattingol ceede",
+      "phonetic": "wat-tin-gol tsee-de",
+      "definition": "Crédit d'argent sur le compte"
+    },
+    {
+      "key": "withdrawal",
+      "fr": "Retrait",
+      "en": "Withdrawal",
+      "target": "Ittugol ceede",
+      "phonetic": "it-tu-gol tsee-de",
+      "definition": "Débit d'argent liquide"
+    },
+    {
+      "key": "fees",
+      "fr": "Frais",
+      "en": "Fees",
+      "target": "Ceede kuugal",
+      "phonetic": "tsee-de kuu-gal",
+      "definition": "Frais ou charges de service"
+    }
+  ]
+}

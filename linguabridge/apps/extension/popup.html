@@ -5,7 +5,7 @@
   <title>LinguaBridge Assistant</title>
   <style>
     body {
-      width: 320px;
+      width: 330px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       padding: 16px;
       margin: 0;
@@ -120,6 +120,15 @@
       color: #6b7280;
       text-align: center;
     }
+    select {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      margin-bottom: 8px;
+      background-color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -134,10 +143,10 @@
   <div class="lang-card">
     <div class="lang-title">
       <span>🇨🇲</span>
-      <span>Langue cible : Ewondo ou Duala</span>
+      <span>5 Langues Souveraines Camerounaises</span>
     </div>
     <p class="lang-desc">
-      Ewondo : lexique bancaire local. Duala : quelques expressions françaises et phrases anglaises du corpus, non vérifiées pour les opérations bancaires.
+      Ewondo (NACALCO), Fulfulde, Haoussa, Kanuri & Pidgin English connectés au moteur hybride unifié NLLB-200 avec garde financière AST Zéro-Dérive.
     </p>
   </div>
 
@@ -146,8 +155,8 @@
     <span class="value green" id="api-status">En ligne (Prêt)</span>
   </div>
   <div class="metric">
-    <span class="label">Dictionnaire :</span>
-    <span class="value" id="lang-count">470+ termes (Apertium/NACALCO)</span>
+    <span class="label">Moteur Unifié :</span>
+    <span class="value" id="lang-count">5 Langues Nationales Actives</span>
   </div>
   <div class="metric">
     <span class="label">Synthèse vocale :</span>
@@ -159,9 +168,18 @@
   </div>
 
   <label for="popup-target-lang">Langue à tester</label>
-  <select id="popup-target-lang"><option value="ewo-CM">Ewondo</option><option value="dua-CM">Duala (expérimental)</option></select>
+  <select id="popup-target-lang">
+    <option value="ewo-CM">🇨🇲 Ewondo (Centre, Sud, Est)</option>
+    <option value="fuv-CM">🇨🇲 Fulfulde / Peul (Grand Nord, CEMAC)</option>
+    <option value="hau-CM">🇨🇲 Haoussa (Grand Nord, Corridors)</option>
+    <option value="knc-CM">🇨🇲 Kanuri (Extrême-Nord, Lac Tchad)</option>
+    <option value="pcm-CM">🇨🇲 Pidgin English (NO, SO, Marchés)</option>
+  </select>
   <label for="popup-source-lang">Langue de la page</label>
-  <select id="popup-source-lang"><option value="fr">Français</option><option value="en">English</option></select>
+  <select id="popup-source-lang">
+    <option value="fr">Français</option>
+    <option value="en">English</option>
+  </select>
   <button class="btn btn-primary" id="btn-trigger-page">
     <span>🌐</span>
     <span>Traduire l'onglet actuel</span>

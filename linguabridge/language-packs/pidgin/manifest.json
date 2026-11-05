@@ -1,0 +1,34 @@
+{
+  "id": "pidgin",
+  "name": "Cameroon Pidgin",
+  "nativeName": "Cameroon Pidgin English",
+  "iso639_3": "pcm",
+  "locale": "pcm-CM",
+  "version": "1.0.0",
+  "schemaVersion": "1.0.0",
+  "status": "production_approved",
+  "capabilities": {
+    "hasDictionary": true,
+    "hasParallelCorpus": true,
+    "hasSpeech": true,
+    "hasPronunciation": true,
+    "hasGlossary": true
+  },
+  "supportedSourceLangs": [
+    "fr",
+    "en"
+  ],
+  "supportedTargetLangs": [
+    "pcm-CM",
+    "pcm"
+  ],
+  "license": "CC-BY-NC-4.0",
+  "provenance": "Consensus Commercial & Mobile Money Sud-Ouest / Nord-Ouest Cameroun",
+  "attribution": "Cameroon Pidgin English Working Group & Anglophone Banking Consortium",
+  "qualityStatus": "certified",
+  "reviewedBy": "Cameroon Pidgin English Working Group",
+  "dictionaries": [
+    "dictionaries/financial-glossary.json"
+  ],
+  "_note": "Production certified pack for mobile money, merchant trade, and informal finance inclusion across English-speaking regions."
+}

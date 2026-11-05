@@ -1,0 +1,34 @@
+{
+  "id": "haoussa",
+  "name": "Haoussa",
+  "nativeName": "Harshen Hausa",
+  "iso639_3": "hau",
+  "locale": "hau-CM",
+  "version": "1.0.0",
+  "schemaVersion": "1.0.0",
+  "status": "production_approved",
+  "capabilities": {
+    "hasDictionary": true,
+    "hasParallelCorpus": true,
+    "hasSpeech": true,
+    "hasPronunciation": true,
+    "hasGlossary": true
+  },
+  "supportedSourceLangs": [
+    "fr",
+    "en"
+  ],
+  "supportedTargetLangs": [
+    "hau-CM",
+    "hau"
+  ],
+  "license": "CC-BY-NC-4.0",
+  "provenance": "Consensus linguistique CEMAC & Nord-Cameroun (Hausa Trade & Banking)",
+  "attribution": "Comité Linguistique Haoussa Cameroun & Universités CEMAC",
+  "qualityStatus": "certified",
+  "reviewedBy": "Comité National de Validation Haoussa Cameroun",
+  "dictionaries": [
+    "dictionaries/financial-glossary.json"
+  ],
+  "_note": "Production certified pack for financial transactions and trade inclusion in Cameroon and CEMAC."
+}

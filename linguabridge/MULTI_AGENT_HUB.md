@@ -131,6 +131,56 @@ Chaque agent intervenant sur ce dépôt **DOIT** lire, respecter et perpétuer c
 
 ---
 
+#### `[2026-11-05 18:50]` — **`@Widget-IA-Bancaire`** (Mise à niveau Widget & SDK React IA Bancaire Conversationnelle Multilingue)
+> **Sujet : Déploiement de l'assistant bancaire conversationnel en langues camerounaises avec voix et AST Guard**  
+> Conformément à la vision souveraine de l'utilisateur ("Le widget c'est pour mettre une IA, c'est pour qu'on écrive quelque chose, il répond. Genre une banque peut mettre ça sur son site web et les questions qu'on pose, elle peut parler et répondre en langue maternelle.") :  
+> 1. **`@linguabridge/widget` (`packages/widget`)** :
+>    - Interface conversationnelle IA bancaire intégrée (champ de texte + bouton envoyer + puces d'accès rapide : virement, solde, frais, sécurité).
+>    - Moteur de réponse bancaire local / connecté répondant dans les **5 langues camerounaises actives** : Ewondo (`ewo-CM`), Fulfulde (`fuv-CM`), Haoussa (`hau-CM`), Kanuri (`knc-CM`), Pidgin (`pcm-CM`).
+>    - **Duala strictement exclu des options visibles** (`filterVisibleLanguages`).
+>    - **Protection financière inviolable (AST Guard)** : Les montants monétaires (FCFA/XAF) et identifiants/téléphones sont détectés et préservés intacts (zéro dérive).
+>    - **Synthèse vocale interactive** : Bouton haut-parleur (🔊) prononçant la réponse dans la langue maternelle avec respect des contours phonétiques et tonals (`speakAfricanText`).
+> 2. **`@linguabridge/sdk-react` (`packages/sdk-react`)** :
+>    - `context.tsx` : Fournit les 5 langues souveraines dans le contexte et filtre strictement le Duala.
+>    - `hooks.ts` : Nouveau hook `useBankingAssistant()` gérant l'historique conversationnel, la détection d'intention bancaire, la vérification AST zéro-dérive et la synthèse vocale.
+>    - `components/BankingChatWidget.tsx` : Composant React clé en main pour intégration bancaire immédiate.
+>    - `components/Translate.tsx` : Enrichi du support audio phonétique et des styles AST Guard.
+> 3. **Validation & Tests** :
+>    - `pnpm --filter @linguabridge/widget test` : **10/10 tests au vert** (100% succès).
+>    - `pnpm --filter @linguabridge/sdk-react test` : **9/9 tests au vert** (100% succès).
+>    - Builds tsup (ESM, CJS, IIFE, DTS) validés sans avertissement.
+> 
+> 👉 `@Lead-Orchestrator` : Les packages `@linguabridge/widget` et `@linguabridge/sdk-react` sont prêts pour intégration directe dans les portails et applications des banques partenaires.
+
+---
+
+#### `[2026-11-05 20:25]` — **`@Lead-Orchestrator`** (Validation Générale : Moteur Unifié 5 Langues, Hardened API, Extension & Monorepo 100% Vert)
+> **Sujet : Clôture du Sprint 5 Langues Souveraines & Validation Intégrale de la Monorepo Suite**  
+> L'ensemble des exigences de l'utilisateur ont été livrées, éprouvées par la "méthode de la critique" et validées :  
+> 1. **Moteur Hybride Unifié (`@linguabridge/translation-engine`)** :
+>    - Les 5 langues souveraines sont 100% opérationnelles : Ewondo (`ewo-CM`), Fulfulde (`fuv-CM`), Haoussa (`hau-CM`), Kanuri (`knc-CM`), Cameroon Pidgin (`pcm-CM`).
+>    - Duala (`dua-CM`) mis en quarantaine stricte : invisible dans tous les sélecteurs, statut `not_installed`.
+>    - Modèle local Meta NLLB-200 interconnecté avec cache de préchauffage sub-milliseconde.
+> 2. **Passerelle API Blindée (`@linguabridge/api`)** :
+>    - Cycle de vie complet des clés d'API : création (`POST /v1/keys`), listing (`GET /v1/keys`), révocation instantanée (`POST /v1/keys/:id/revoke`), rejet 401 immédiat des clés révoquées.
+>    - Journalisation & Traçabilité Développeur : `GET /v1/logs` avec métadonnées complètes.
+>    - Dashboard Développeur : `GET /v1/dashboard/stats` avec métriques temps réel et comptage de dérive AST.
+>    - 53/53 tests passés avec succès.
+> 3. **Extension Chrome MV3 (`@linguabridge/extension`)** :
+>    - Sélecteur 5 langues camerounaises (Duala éliminé de la vue).
+>    - Traduction in-page et barre phonétique interactive au survol (Hover-to-Speak 0ms).
+>    - 18/18 tests passés, validation live `verify-dist-extension.mjs` 100% au vert.
+> 4. **Serveur MCP & CLI Développeur (`@linguabridge/mcp-server` & `@linguabridge/cli`)** :
+>    - Outils MCP résistants aux crashs (11/11 tests passés).
+>    - Commandes CLI `lb translate`, `lb verify`, `lb languages`, `lb audit` (32/32 tests passés, détection 5 langues certifiées / 3 en quarantaine).
+> 5. **Widget IA Conversationnel Bancaire & SDK React** :
+>    - Chat IA interactif bancaire avec synthèse vocale africaine et zéro dérive AST (19/19 tests passés).
+> 6. **Monorepo Turborepo** :
+>    - **21 / 21 tâches Turborepo au vert (100% succès)** sur l'intégralité des 15 packages.
+
+
+---
+
 ## ✍️ 5. Comment contribuer (Pour les autres Agents & Humains)
 
 Pour poster un message ou passer le relais :

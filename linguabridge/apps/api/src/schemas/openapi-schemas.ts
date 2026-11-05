@@ -604,3 +604,189 @@ export const CURL_PATCH_PACK_STATUS = `curl -X PATCH https://api.linguabridge.or
   }'`;
 
 export const CURL_GET_HEALTH = `curl -X GET https://api.linguabridge.org/health`;
+
+// -------------------------------------------------------------
+// API Keys Management Schemas
+// -------------------------------------------------------------
+
+export const CreateKeyRequestSchema = {
+  type: 'object',
+  required: ['name'],
+  properties: {
+    name: {
+      type: 'string',
+      description: 'Human-readable descriptor or application name for this API key',
+      example: 'CameroPay Mobile Banking Gateway',
+    },
+    permissions: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'List of permitted scopes',
+      example: ['translate:read', 'translate:batch'],
+    },
+    quota: {
+      type: 'object',
+      properties: {
+        requestsPerMinute: { type: 'number', example: 120 },
+        requestsPerDay: { type: 'number', example: 10000 },
+      },
+    },
+    tenantId: {
+      type: 'string',
+      description: 'Optional tenant identifier for fintech isolation',
+      example: 'tenant_cm_cameropay',
+    },
+  },
+} as const;
+
+export const ApiKeyItemSchema = {
+  type: 'object',
+  properties: {
+    id: { type: 'string', format: 'uuid', example: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d' },
+    name: { type: 'string', example: 'CameroPay Mobile Banking Gateway' },
+    key: { type: 'string', description: 'Plaintext secret key (returned ONLY upon provisioning)', example: 'lb_live_a1b2c3d4e5f67890' },
+    prefix: { type: 'string', example: 'lb_live_a1b2' },
+    permissions: { type: 'array', items: { type: 'string' }, example: ['translate:read'] },
+    quota: {
+      type: 'object',
+      properties: {
+        requestsPerMinute: { type: 'number', example: 60 },
+        requestsPerDay: { type: 'number', example: 5000 },
+      },
+    },
+    isActive: { type: 'boolean', example: true },
+    createdAt: { type: 'string', format: 'date-time', example: '2026-11-05T12:00:00.000Z' },
+    revokedAt: { type: 'string', format: 'date-time', nullable: true, example: null },
+    lastUsedAt: { type: 'string', format: 'date-time', nullable: true, example: '2026-11-05T12:15:00.000Z' },
+    tenantId: { type: 'string', nullable: true, example: 'tenant_cm_cameropay' },
+  },
+  required: ['id', 'name', 'prefix', 'permissions', 'quota', 'isActive', 'createdAt'],
+} as const;
+
+export const ApiKeysListResponseSchema = {
+  type: 'object',
+  properties: {
+    keys: {
+      type: 'array',
+      items: ApiKeyItemSchema,
+    },
+    count: { type: 'number', example: 2 },
+  },
+  required: ['keys', 'count'],
+} as const;
+
+export const RevokeKeyResponseSchema = {
+  type: 'object',
+  properties: {
+    success: { type: 'boolean', example: true },
+    id: { type: 'string', format: 'uuid', example: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d' },
+    message: { type: 'string', example: 'API key revoked successfully' },
+    status: { type: 'string', example: 'revoked' },
+    key: ApiKeyItemSchema,
+  },
+  required: ['success', 'id', 'message', 'status'],
+} as const;
+
+// -------------------------------------------------------------
+// Audit Logs & Developer Traceability Schemas
+// -------------------------------------------------------------
+
+export const AuditLogEntrySchema = {
+  type: 'object',
+  properties: {
+    id: { type: 'string', format: 'uuid', example: 'ea3f60ca-9f0e-33f2-c987-22c2e13g8dh8' },
+    timestamp: { type: 'string', format: 'date-time', example: '2026-11-05T12:15:30.000Z' },
+    apiKey: { type: 'string', example: 'lb_live_a1b2' },
+    keyId: { type: 'string', example: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d' },
+    method: { type: 'string', example: 'POST' },
+    route: { type: 'string', example: '/v1/translate' },
+    statusCode: { type: 'number', example: 200 },
+    latencyMs: { type: 'number', example: 12 },
+    sourceLang: { type: 'string', example: 'fr' },
+    targetLang: { type: 'string', example: 'ewo-CM' },
+    protectedEntities: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', example: 'amount' },
+          normalized: { type: 'string', example: '25000_FCFA' },
+        },
+      },
+    },
+    driftDetected: { type: 'boolean', example: false },
+    ip: { type: 'string', example: '127.0.0.1' },
+  },
+  required: ['id', 'timestamp', 'method', 'route', 'statusCode', 'latencyMs', 'driftDetected'],
+} as const;
+
+export const AuditLogsResponseSchema = {
+  type: 'object',
+  properties: {
+    logs: {
+      type: 'array',
+      items: AuditLogEntrySchema,
+    },
+    total: { type: 'number', example: 150 },
+    count: { type: 'number', example: 50 },
+    limit: { type: 'number', example: 50 },
+    offset: { type: 'number', example: 0 },
+  },
+  required: ['logs', 'total', 'count', 'limit', 'offset'],
+} as const;
+
+// -------------------------------------------------------------
+// Developer Control Dashboard Stats Schema
+// -------------------------------------------------------------
+
+export const DashboardStatsResponseSchema = {
+  type: 'object',
+  properties: {
+    totalRequests: { type: 'number', example: 1250 },
+    languageDistribution: {
+      type: 'object',
+      properties: {
+        'ewo-CM': { type: 'number', example: 450 },
+        'fuv-CM': { type: 'number', example: 280 },
+        'hau-CM': { type: 'number', example: 190 },
+        'knc-CM': { type: 'number', example: 110 },
+        'pcm-CM': { type: 'number', example: 220 },
+      },
+      additionalProperties: { type: 'number' },
+    },
+    activeKeys: { type: 'number', example: 5 },
+    revokedKeys: { type: 'number', example: 1 },
+    averageLatencyMs: { type: 'number', example: 4.8 },
+    driftAlerts: { type: 'number', example: 0 },
+    uptimeSeconds: { type: 'number', example: 86400 },
+    systemStatus: { type: 'string', example: 'healthy' },
+    timestamp: { type: 'string', format: 'date-time', example: '2026-11-05T12:30:00.000Z' },
+  },
+  required: [
+    'totalRequests',
+    'languageDistribution',
+    'activeKeys',
+    'revokedKeys',
+    'averageLatencyMs',
+    'driftAlerts',
+    'uptimeSeconds',
+    'systemStatus',
+    'timestamp',
+  ],
+} as const;
+
+export const CURL_POST_KEYS = `curl -X POST https://api.linguabridge.org/api/v1/keys \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name": "Production Mobile Money Gateway",
+    "permissions": ["translate:read", "translate:batch"]
+  }'`;
+
+export const CURL_GET_KEYS = `curl -X GET https://api.linguabridge.org/api/v1/keys`;
+
+export const CURL_REVOKE_KEY = `curl -X POST https://api.linguabridge.org/api/v1/keys/{id}/revoke`;
+
+export const CURL_GET_LOGS = `curl -X GET "https://api.linguabridge.org/api/v1/logs?limit=50&driftOnly=false"`;
+
+export const CURL_GET_DASHBOARD_STATS = `curl -X GET https://api.linguabridge.org/api/v1/dashboard/stats`;
+

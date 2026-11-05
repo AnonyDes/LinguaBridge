@@ -52,7 +52,7 @@ describe('lb translate command', () => {
         target: '',
         exit: false,
       })
-    ).rejects.toThrow('Target language is required.');
+    ).rejects.toThrow(/Target language is required/);
   });
 
   it('throws an error when text is empty', async () => {

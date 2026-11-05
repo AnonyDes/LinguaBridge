@@ -1,4 +1,4 @@
-import type { FinancialEntity, LanguagePackManifest, LanguagePackStatus } from '@linguabridge/shared-types';
+import type { FinancialEntity, LanguagePackStatus } from '@linguabridge/shared-types';
 
 export interface TranslateToolInput {
   text: string;
@@ -36,6 +36,7 @@ export interface VerifyToolOutput {
   violations: string[];
   sourceEntities: FinancialEntity[];
   translatedEntities: FinancialEntity[];
+  error?: string;
 }
 
 export interface GlossaryToolInput {
@@ -47,7 +48,12 @@ export interface GlossaryTermEntry {
   key: string;
   fr: string;
   en: string;
-  ewo: string;
+  ewo?: string;
+  fuv?: string;
+  hau?: string;
+  knc?: string;
+  pcm?: string;
+  target?: string;
   phonetic?: string;
   definition?: string;
   provenance?: string;
@@ -58,6 +64,7 @@ export interface GlossaryToolOutput {
   lang: string;
   matches: GlossaryTermEntry[];
   total: number;
+  error?: string;
 }
 
 export interface LanguagesToolInput {
@@ -87,6 +94,7 @@ export interface LanguagesToolOutput {
   total: number;
   approvedCount: number;
   quarantinedCount: number;
+  error?: string;
 }
 
 export interface McpServerConfig {

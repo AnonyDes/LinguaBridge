@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import type { TranslationPipeline } from '@linguabridge/translation-engine';
 import type { TranslationRequest } from '@linguabridge/shared-types';
+import { apiKeyService as defaultApiKeyService, type ApiKeyService } from '../services/api-key-service';
 import {
   TranslateRequestSchema,
   TranslationResultSchema,
@@ -22,6 +23,7 @@ import { webhookDispatcher } from '../webhooks/webhook-dispatcher';
 
 export interface TranslateRouteOptions {
   pipeline: TranslationPipeline;
+  apiKeyService?: ApiKeyService;
 }
 
 const TranslateBodyZodSchema = z.object({
@@ -49,33 +51,39 @@ const TranslateBodyZodSchema = z.object({
   metadata: z.record(z.unknown()).optional(),
 });
 
-function isAuthorized(apiKeyHeader: string | string[] | undefined): boolean {
-  if (!apiKeyHeader) {
-    if (process.env.REQUIRE_API_KEY === 'true') {
-      return false;
-    }
-    return true;
-  }
-  const key = Array.isArray(apiKeyHeader) ? apiKeyHeader[0] : apiKeyHeader;
-  const validKeys = [
-    'lb_demo_key_2026',
-    process.env.API_KEY,
-    process.env.NEXT_PUBLIC_LB_WIDGET_KEY,
-  ].filter(Boolean) as string[];
-
-  return validKeys.includes(key.trim());
-}
-
-async function authPreValidation(request: FastifyRequest, reply: FastifyReply) {
-  if (!isAuthorized(request.headers['x-api-key'])) {
-    return reply.status(401).send({
-      error: 'Unauthorized',
-      message: 'Invalid or missing API key. Provide a valid key via the x-api-key header.',
-    });
-  }
-}
-
 export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async (fastify, opts) => {
+  const apiKeyService = opts.apiKeyService || defaultApiKeyService;
+
+  const authPreValidation = async (request: FastifyRequest, reply: FastifyReply) => {
+    const rawHeader = request.headers['x-api-key'] || request.headers['authorization'];
+    if (!rawHeader) {
+      if (process.env.REQUIRE_API_KEY === 'true') {
+        return reply.status(401).send({
+          error: 'Unauthorized',
+          message: 'API key revoked or invalid',
+        });
+      }
+      return;
+    }
+
+    let token = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
+    if (token.startsWith('Bearer ')) {
+      token = token.slice(7).trim();
+    } else {
+      token = token.trim();
+    }
+
+    const validation = apiKeyService.validateKey(token);
+    if (!validation.valid) {
+      return reply.status(401).send({
+        error: 'Unauthorized',
+        message: 'API key revoked or invalid',
+      });
+    }
+
+    (request as any).apiKey = validation.key;
+  };
+
   const singleTranslateSchema = {
     tags: ['Translation'],
     summary: 'Translate text with financial zero-drift AST protection',
@@ -161,6 +169,14 @@ export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async 
 
       // Financial Drift Alert Webhook Trigger:
       // If AST Financial Guard flagged the translation as 'unsafe', trigger webhook notification
+      const hasDrift = result.status === 'unsafe' || (result.warnings || []).some((w) => w.includes('FINANCIAL_ENTITY_MISMATCH'));
+      (request as any).auditMetadata = {
+        sourceLang: result.sourceLang,
+        targetLang: result.targetLang,
+        protectedEntities: (result as any).extractedEntities || [],
+        driftDetected: hasDrift,
+      };
+
       if (result.status === 'unsafe') {
         const auditWebhookUrl =
           (request.headers['x-audit-webhook-url'] as string) ||

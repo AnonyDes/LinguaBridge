@@ -1,0 +1,91 @@
+{
+  "language": "Kanuri",
+  "iso639_3": "knc",
+  "locale": "knc-CM",
+  "domain": "financial",
+  "version": "1.0.0",
+  "provenance": "Consensus linguistique Bassin du Lac Tchad & Extrême-Nord Cameroun",
+  "qualityStatus": "certified",
+  "terms": [
+    {
+      "key": "balance",
+      "fr": "Solde",
+      "en": "Balance",
+      "target": "Liman mbeji",
+      "phonetic": "li-man mbe-ji",
+      "definition": "Position financière ou somme présente sur le compte"
+    },
+    {
+      "key": "available_balance",
+      "fr": "Solde disponible",
+      "en": "Available balance",
+      "target": "Kəla kəlabe mbeji",
+      "phonetic": "ke-la ke-la-be mbe-ji",
+      "definition": "Argent disponible pour usage immédiat"
+    },
+    {
+      "key": "current_balance",
+      "fr": "Solde actuel",
+      "en": "Current balance",
+      "target": "Liman ngowo",
+      "phonetic": "li-man ngo-wo",
+      "definition": "Solde au moment de la consultation"
+    },
+    {
+      "key": "transfer",
+      "fr": "Virement / Transfert",
+      "en": "Transfer",
+      "target": "Liman tina",
+      "phonetic": "li-man ti-na",
+      "definition": "Envoi d'argent vers un destinataire"
+    },
+    {
+      "key": "transfer_fees",
+      "fr": "Frais de transfert",
+      "en": "Transfer fees",
+      "target": "Hakki liman",
+      "phonetic": "hak-ki li-man",
+      "definition": "Frais perçus pour le transfert"
+    },
+    {
+      "key": "confirm",
+      "fr": "Confirmer",
+      "en": "Confirm",
+      "target": "Gənatə",
+      "phonetic": "ge-na-te",
+      "definition": "Valider la transaction"
+    },
+    {
+      "key": "cancel",
+      "fr": "Annuler",
+      "en": "Cancel",
+      "target": "Kəla cida",
+      "phonetic": "ke-la tsi-da",
+      "definition": "Interrompre l'opération"
+    },
+    {
+      "key": "deposit",
+      "fr": "Dépôt",
+      "en": "Deposit",
+      "target": "Fattə",
+      "phonetic": "fat-te",
+      "definition": "Dépôt de fonds"
+    },
+    {
+      "key": "withdrawal",
+      "fr": "Retrait",
+      "en": "Withdrawal",
+      "target": "Kusu",
+      "phonetic": "ku-su",
+      "definition": "Retrait d'argent"
+    },
+    {
+      "key": "fees",
+      "fr": "Frais",
+      "en": "Fees",
+      "target": "Hakki",
+      "phonetic": "hak-ki",
+      "definition": "Frais de transaction"
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 import pairs from './duala-research-pairs.json';
+import { translateSentenceToSovereign } from './sovereign-lexicon';
 
 const researchPairs: Record<string, string> = pairs;
 // Attested everyday expressions, duala.org/learn (retrieved 2026-11-05).
-// Experimental UI demo only; no reviewed banking terminology.
+// Experimental UI demo only; no reviewed banking terminology. Duala is quarantined.
 const frenchResearchPairs: Record<string, string> = {
   'bonjour': 'Mbolo',
   'salut': 'Mbolo',
@@ -25,16 +26,25 @@ export function lookupDualaResearchSentence(text: string, sourceLang: string): s
 export function translateLocalText(text: string, sourceLang: string, targetLang: string): {
   translatedText: string; status: 'success' | 'unverified'; warnings: string[];
 } {
-  if (targetLang === 'ewo' || targetLang === 'ewo-CM') {
-    // Lazily imported below via the regular module dependency to keep languages isolated.
-    const translatedText = translateSentenceToEwondo(text);
-    return { translatedText, status: translatedText === text ? 'unverified' : 'success', warnings: translatedText === text ? ['EWONDO_NO_MATCH'] : [] };
+  const normTarget = targetLang.trim().toLowerCase();
+
+  // 1. Sovereign Cameroonian Languages: Ewondo, Fulfulde, Haoussa, Kanuri, Pidgin
+  const sovereignPrefixes = ['ewo', 'fuv', 'fub', 'hau', 'knc', 'pcm'];
+  if (sovereignPrefixes.some((p) => normTarget.startsWith(p))) {
+    return translateSentenceToSovereign(text, targetLang);
   }
-  if (targetLang === 'dua' || targetLang === 'dua-CM') {
-    const match = lookupDualaResearchSentence(text, sourceLang);
-    return { translatedText: match || text, status: 'unverified', warnings: [match ? 'DUALA_RESEARCH_SENTENCE_NOT_LINGUIST_VERIFIED' : 'DUALA_NO_VERIFIED_TRANSLATION'] };
+
+  // 2. Duala is strictly in quarantine
+  if (normTarget === 'dua' || normTarget === 'dua-cm') {
+    return {
+      translatedText: text,
+      status: 'unverified',
+      warnings: ['DUALA_QUARANTINED_UNVERIFIED', 'DUALA_NO_VERIFIED_TRANSLATION'],
+    };
   }
+
   return { translatedText: text, status: 'unverified', warnings: ['NO_LOCAL_TRANSLATION'] };
 }
 
-import { translateSentenceToEwondo } from './ewondo-lexicon';
+export { translateSentenceToEwondo } from './ewondo-lexicon';
+export { translateSentenceToSovereign } from './sovereign-lexicon';

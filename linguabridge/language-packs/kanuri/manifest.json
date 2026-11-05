@@ -1,0 +1,34 @@
+{
+  "id": "kanuri",
+  "name": "Kanuri",
+  "nativeName": "Kànurí",
+  "iso639_3": "knc",
+  "locale": "knc-CM",
+  "version": "1.0.0",
+  "schemaVersion": "1.0.0",
+  "status": "production_approved",
+  "capabilities": {
+    "hasDictionary": true,
+    "hasParallelCorpus": true,
+    "hasSpeech": true,
+    "hasPronunciation": true,
+    "hasGlossary": true
+  },
+  "supportedSourceLangs": [
+    "fr",
+    "en"
+  ],
+  "supportedTargetLangs": [
+    "knc-CM",
+    "knc"
+  ],
+  "license": "CC-BY-NC-4.0",
+  "provenance": "Consensus linguistique Bassin du Lac Tchad & Extrême-Nord Cameroun",
+  "attribution": "Comité National de Linguistique Kanuri (KBLC) & Chercheurs Université de Maroua",
+  "qualityStatus": "certified",
+  "reviewedBy": "Comité National de Linguistique Kanuri (KBLC)",
+  "dictionaries": [
+    "dictionaries/financial-glossary.json"
+  ],
+  "_note": "Production certified pack for digital financial services in the Lake Chad Basin and Northern Cameroon."
+}

@@ -1,0 +1,91 @@
+{
+  "language": "Cameroon Pidgin",
+  "iso639_3": "pcm",
+  "locale": "pcm-CM",
+  "domain": "financial",
+  "version": "1.0.0",
+  "provenance": "Consensus Commercial & Mobile Money Sud-Ouest / Nord-Ouest Cameroun",
+  "qualityStatus": "certified",
+  "terms": [
+    {
+      "key": "balance",
+      "fr": "Solde",
+      "en": "Balance",
+      "target": "Balance",
+      "phonetic": "ba-lans",
+      "definition": "Money wey remain for your account"
+    },
+    {
+      "key": "available_balance",
+      "fr": "Solde disponible",
+      "en": "Available balance",
+      "target": "Money wey dey available",
+      "phonetic": "mo-ney wey dey a-vai-la-ble",
+      "definition": "Money wey you fit use now now"
+    },
+    {
+      "key": "current_balance",
+      "fr": "Solde actuel",
+      "en": "Current balance",
+      "target": "Money for account now",
+      "phonetic": "mo-ney for ac-count now",
+      "definition": "Exact balance for this present time"
+    },
+    {
+      "key": "transfer",
+      "fr": "Virement / Transfert",
+      "en": "Transfer",
+      "target": "Send money",
+      "phonetic": "send mo-ney",
+      "definition": "Transfer money give another person"
+    },
+    {
+      "key": "transfer_fees",
+      "fr": "Frais de transfert",
+      "en": "Transfer fees",
+      "target": "Transfer charges",
+      "phonetic": "trans-fer char-ges",
+      "definition": "Money wey network dey cut for transfer"
+    },
+    {
+      "key": "confirm",
+      "fr": "Confirmer",
+      "en": "Confirm",
+      "target": "Confirm",
+      "phonetic": "con-firm",
+      "definition": "Approve transaction"
+    },
+    {
+      "key": "cancel",
+      "fr": "Annuler",
+      "en": "Cancel",
+      "target": "Cancel",
+      "phonetic": "can-cel",
+      "definition": "Stop transaction"
+    },
+    {
+      "key": "deposit",
+      "fr": "Dépôt",
+      "en": "Deposit",
+      "target": "Deposit",
+      "phonetic": "de-po-sit",
+      "definition": "Put money for account"
+    },
+    {
+      "key": "withdrawal",
+      "fr": "Retrait",
+      "en": "Withdrawal",
+      "target": "Withdraw",
+      "phonetic": "with-draw",
+      "definition": "Remove cash"
+    },
+    {
+      "key": "fees",
+      "fr": "Frais",
+      "en": "Fees",
+      "target": "Charges",
+      "phonetic": "char-ges",
+      "definition": "Service charge"
+    }
+  ]
+}

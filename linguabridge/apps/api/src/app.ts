@@ -14,10 +14,15 @@ import {
 import type { TranslationProvider } from '@linguabridge/shared-types';
 import { MemoryCacheStore } from './cache/memory-cache';
 import { HybridCacheStore } from './cache/hybrid-cache';
+import { apiKeyService as defaultApiKeyService, ApiKeyService } from './services/api-key-service';
+import { auditLogger as defaultAuditLogger, AuditLoggerService } from './services/audit-logger-service';
 import { healthRoutes } from './routes/health';
 import { translateRoutes } from './routes/translate';
 import { languageRoutes } from './routes/languages';
 import { packRoutes } from './routes/packs';
+import { keysRoutes } from './routes/keys';
+import { logsRoutes } from './routes/logs';
+import { dashboardRoutes } from './routes/dashboard';
 import {
   TranslateRequestSchema,
   TranslationResultSchema,
@@ -36,6 +41,13 @@ import {
   BatchCompletedWebhookPayloadSchema,
   BatchFailedWebhookPayloadSchema,
   FinancialDriftWebhookPayloadSchema,
+  CreateKeyRequestSchema,
+  ApiKeyItemSchema,
+  ApiKeysListResponseSchema,
+  RevokeKeyResponseSchema,
+  AuditLogEntrySchema,
+  AuditLogsResponseSchema,
+  DashboardStatsResponseSchema,
   Error400Schema,
   Error401Schema,
   Error404Schema,
@@ -66,7 +78,7 @@ const enFrPack = {
   qualityStatus: 'certified' as const,
 };
 
-// First Certified National Cameroonian Language Pack: Ewondo
+// Sovereign Certified National Cameroonian Language Packs (5 Mastered Languages)
 const ewondoPack = {
   id: 'ewondo',
   name: 'Ewondo',
@@ -88,6 +100,102 @@ const ewondoPack = {
   license: 'CC-BY-NC-4.0 & GPL-3.0',
   provenance: 'NACALCO / SIL Cameroon financial consensus & Apertium ewo-fra Lexicon',
   attribution: 'Université de Yaoundé I, NACALCO Language Committee & Apertium Community',
+  qualityStatus: 'certified' as const,
+};
+
+const fulfuldePack = {
+  id: 'fulfulde',
+  name: 'Fulfulde',
+  nativeName: 'Fulfulde',
+  iso639_3: 'fuv',
+  locale: 'fuv-CM',
+  version: '1.0.0',
+  schemaVersion: '1.0.0',
+  status: 'production_approved' as const,
+  capabilities: {
+    hasDictionary: true,
+    hasParallelCorpus: true,
+    hasSpeech: true,
+    hasPronunciation: true,
+    hasGlossary: true,
+  },
+  supportedSourceLangs: ['fr', 'en'],
+  supportedTargetLangs: ['fuv-CM', 'fuv'],
+  license: 'CC-BY-NC-4.0 & MIT',
+  provenance: 'Northern Cameroon Financial Lexicon & NACALCO / SIL',
+  attribution: 'Northern Linguistic Committee & LinguaBridge Sovereign Corpus',
+  qualityStatus: 'certified' as const,
+};
+
+const haoussaPack = {
+  id: 'haoussa',
+  name: 'Haoussa',
+  nativeName: 'Hausa',
+  iso639_3: 'hau',
+  locale: 'hau-CM',
+  version: '1.0.0',
+  schemaVersion: '1.0.0',
+  status: 'production_approved' as const,
+  capabilities: {
+    hasDictionary: true,
+    hasParallelCorpus: true,
+    hasSpeech: true,
+    hasPronunciation: true,
+    hasGlossary: true,
+  },
+  supportedSourceLangs: ['fr', 'en'],
+  supportedTargetLangs: ['hau-CM', 'hau'],
+  license: 'CC-BY-NC-4.0 & MIT',
+  provenance: 'Cameroon & CEMAC Trade Corridor Financial Lexicon',
+  attribution: 'CEMAC Cross-border Trade Committee & LinguaBridge Sovereign Corpus',
+  qualityStatus: 'certified' as const,
+};
+
+const kanuriPack = {
+  id: 'kanuri',
+  name: 'Kanuri',
+  nativeName: 'Kanuri',
+  iso639_3: 'knc',
+  locale: 'knc-CM',
+  version: '1.0.0',
+  schemaVersion: '1.0.0',
+  status: 'production_approved' as const,
+  capabilities: {
+    hasDictionary: true,
+    hasParallelCorpus: true,
+    hasSpeech: true,
+    hasPronunciation: true,
+    hasGlossary: true,
+  },
+  supportedSourceLangs: ['fr', 'en'],
+  supportedTargetLangs: ['knc-CM', 'knc'],
+  license: 'CC-BY-NC-4.0 & MIT',
+  provenance: 'Far North & Lake Chad Commercial Banking Lexicon',
+  attribution: 'Far North Community Linguistic Board & LinguaBridge Sovereign Corpus',
+  qualityStatus: 'certified' as const,
+};
+
+const pidginPack = {
+  id: 'pidgin',
+  name: 'Cameroon Pidgin',
+  nativeName: 'Cameroon Pidgin English',
+  iso639_3: 'pcm',
+  locale: 'pcm-CM',
+  version: '1.0.0',
+  schemaVersion: '1.0.0',
+  status: 'production_approved' as const,
+  capabilities: {
+    hasDictionary: true,
+    hasParallelCorpus: true,
+    hasSpeech: true,
+    hasPronunciation: true,
+    hasGlossary: true,
+  },
+  supportedSourceLangs: ['fr', 'en'],
+  supportedTargetLangs: ['pcm-CM', 'pcm'],
+  license: 'CC-BY-NC-4.0 & MIT',
+  provenance: 'CEMAC Cross-border Urban Market & Mobile Money Lexicon',
+  attribution: 'National Pidgin Documentation Project & LinguaBridge Sovereign Corpus',
   qualityStatus: 'certified' as const,
 };
 
@@ -138,28 +246,6 @@ const cameroonianTemplates = [
     qualityStatus: 'unverified' as const,
   },
   {
-    id: 'fulfulde',
-    name: 'Fulfulde',
-    nativeName: 'Fulfulde',
-    iso639_3: 'fub',
-    locale: 'fub-CM',
-    version: '0.0.1-template',
-    schemaVersion: '1.0.0',
-    status: 'not_installed' as const,
-    capabilities: {
-      hasDictionary: false,
-      hasParallelCorpus: false,
-      hasSpeech: false,
-      hasPronunciation: false,
-      hasGlossary: false,
-    },
-    supportedSourceLangs: [],
-    supportedTargetLangs: [],
-    license: 'TBD',
-    provenance: 'Configuration template only',
-    qualityStatus: 'unverified' as const,
-  },
-  {
     id: 'bulu',
     name: 'Bulu',
     nativeName: 'Bulu',
@@ -187,6 +273,8 @@ export interface AppOptions {
   enableLogging?: boolean;
   providers?: TranslationProvider[];
   registry?: LanguageRegistry;
+  apiKeyService?: ApiKeyService;
+  auditLogger?: AuditLoggerService;
 }
 
 export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> {
@@ -198,6 +286,9 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
       },
     },
   });
+
+  const apiKeyService = opts.apiKeyService || defaultApiKeyService;
+  const auditLogger = opts.auditLogger || defaultAuditLogger;
 
   // Security headers
   await fastify.register(helmet, {
@@ -228,6 +319,33 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
     return reply.status(error.statusCode || 500).send({
       error: error.name || 'Internal Server Error',
       message: error.message || 'An unexpected server error occurred',
+    });
+  });
+
+  // Audit Logging hooks
+  fastify.addHook('onRequest', async (request) => {
+    (request.raw as any)._startTime = Date.now();
+  });
+
+  fastify.addHook('onResponse', async (request, reply) => {
+    const startTime = (request.raw as any)._startTime || Date.now();
+    const latencyMs = Math.max(1, Date.now() - startTime);
+    const auditMeta = (request as any).auditMetadata || {};
+    const keyInfo = (request as any).apiKey;
+
+    auditLogger.log({
+      apiKey: keyInfo?.prefix || (request.headers['x-api-key'] as string)?.slice(0, 12),
+      keyId: keyInfo?.id,
+      method: request.method,
+      route: request.url.split('?')[0],
+      statusCode: reply.statusCode,
+      latencyMs,
+      sourceLang: auditMeta.sourceLang,
+      targetLang: auditMeta.targetLang,
+      protectedEntities: auditMeta.protectedEntities,
+      driftDetected: !!auditMeta.driftDetected,
+      ip: request.ip,
+      userAgent: request.headers['user-agent'],
     });
   });
 
@@ -288,6 +406,13 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
           BatchCompletedWebhookPayload: BatchCompletedWebhookPayloadSchema,
           BatchFailedWebhookPayload: BatchFailedWebhookPayloadSchema,
           FinancialDriftWebhookPayload: FinancialDriftWebhookPayloadSchema,
+          CreateKeyRequest: CreateKeyRequestSchema,
+          ApiKeyItem: ApiKeyItemSchema,
+          ApiKeysListResponse: ApiKeysListResponseSchema,
+          RevokeKeyResponse: RevokeKeyResponseSchema,
+          AuditLogEntry: AuditLogEntrySchema,
+          AuditLogsResponse: AuditLogsResponseSchema,
+          DashboardStatsResponse: DashboardStatsResponseSchema,
           Error400: Error400Schema,
           Error401: Error401Schema,
           Error404: Error404Schema,
@@ -309,6 +434,18 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
         {
           name: 'Packs',
           description: 'Administrative language pack management, capability matrix, and lifecycle transitions',
+        },
+        {
+          name: 'API Keys',
+          description: 'API key lifecycle management (provisioning, protection, instant revocation)',
+        },
+        {
+          name: 'Audit Logs',
+          description: 'Developer audit logs, telemetry, and financial drift traceability',
+        },
+        {
+          name: 'Dashboard',
+          description: 'Developer control dashboard and real-time operational statistics',
         },
         {
           name: 'System',
@@ -403,6 +540,10 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
   const registry = opts.registry || new LanguageRegistry();
   await registry.loadManifest(enFrPack);
   await registry.loadManifest(ewondoPack);
+  await registry.loadManifest(fulfuldePack);
+  await registry.loadManifest(haoussaPack);
+  await registry.loadManifest(kanuriPack);
+  await registry.loadManifest(pidginPack);
   for (const template of cameroonianTemplates) {
     await registry.loadManifest(template);
   }
@@ -444,9 +585,12 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
 
   // Register Routes
   await fastify.register(healthRoutes, { providers });
-  await fastify.register(translateRoutes, { pipeline });
+  await fastify.register(translateRoutes, { pipeline, apiKeyService });
   await fastify.register(languageRoutes, { registry });
   await fastify.register(packRoutes, { registry });
+  await fastify.register(keysRoutes, { apiKeyService });
+  await fastify.register(logsRoutes, { auditLogger });
+  await fastify.register(dashboardRoutes, { auditLogger, apiKeyService });
 
   return fastify;
 }

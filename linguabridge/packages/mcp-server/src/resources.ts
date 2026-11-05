@@ -67,17 +67,48 @@ export function registerResources(server: McpServer, config?: McpServerConfig): 
       },
     }),
     {
-      description: 'Access to certified financial terminology dictionary for a specific language code (e.g. ewo-CM)',
+      description: 'Access to certified financial terminology dictionary for a specific language code (e.g. ewo-CM, fuv-CM, hau-CM, knc-CM, pcm-CM)',
       mimeType: 'application/json',
     },
     async (uri, variables) => {
       try {
-        const lang = String(variables.lang || 'ewo-CM');
-        const { terms, provenance } = loadGlossaryForLang(lang, config?.packsDir);
+        const rawLang = String(variables.lang || 'ewo-CM').trim();
+
+        // Security check: validate code format to prevent path traversal
+        if (!/^[a-zA-Z0-9_-]{2,15}$/.test(rawLang)) {
+          return {
+            contents: [
+              {
+                uri: uri.href,
+                text: JSON.stringify({ error: 'Invalid language code format', terms: [] }, null, 2),
+                mimeType: 'application/json',
+              },
+            ],
+          };
+        }
+
+        const normLang = rawLang.toLowerCase().replace(/_/g, '-');
+        if (normLang === 'dua-cm' || normLang === 'dua' || normLang === 'duala') {
+          return {
+            contents: [
+              {
+                uri: uri.href,
+                text: JSON.stringify({
+                  error: 'Duala is currently in quarantine (unverified for financial transactions)',
+                  terms: [],
+                  quarantined: true,
+                }, null, 2),
+                mimeType: 'application/json',
+              },
+            ],
+          };
+        }
+
+        const { terms, provenance } = loadGlossaryForLang(rawLang, config?.packsDir);
 
         const payload = {
           uri: uri.href,
-          language: lang,
+          language: rawLang,
           provenance: provenance || 'Certified national terminology consensus',
           termCount: terms.length,
           terms,

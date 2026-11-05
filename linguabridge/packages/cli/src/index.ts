@@ -4,12 +4,14 @@ import { runVerify, type VerifyOptions } from './commands/verify';
 import { runPackLint, type PackLintOptions } from './commands/pack';
 import { runServe, type ServeOptions } from './commands/serve';
 import { runAudit, type AuditOptions } from './commands/audit';
+import { runLanguages, type LanguagesOptions } from './commands/languages';
 
 export { runTranslate, type TranslateOptions, type CliTranslateResult } from './commands/translate';
 export { runVerify, type VerifyOptions, type VerifyResult } from './commands/verify';
 export { runPackLint, type PackLintOptions, type PackLintResult } from './commands/pack';
 export { runServe, type ServeOptions } from './commands/serve';
 export { runAudit, type AuditOptions, type AuditReport } from './commands/audit';
+export { runLanguages, type LanguagesOptions, type LanguagesReport, type LanguageInfo } from './commands/languages';
 export { createMockServer, startMockServer, type MockServerInstance } from './server';
 
 export interface CliProgramOptions {
@@ -28,17 +30,23 @@ export function createCliProgram(options: CliProgramOptions = {}): Command {
     program.exitOverride();
   }
 
-  // 1. lb translate <text> --target <lang>
+  // 1. lb translate <text> --target <lang> / --to <lang>
   program
     .command('translate [text]')
     .description('Interactive and non-interactive translation with live financial entity detection')
-    .requiredOption('-t, --target <lang>', 'Target language code (e.g. ewo-CM, en, fr)')
+    .option('-t, --target <lang>', 'Target language code (e.g. ewo-CM, fuv-CM, hau-CM, knc-CM, pcm-CM)')
+    .option('--to <lang>', 'Target language code alias')
     .option('-s, --source <lang>', 'Source language code (default: fr)', 'fr')
+    .option('--from <lang>', 'Source language code alias')
     .option('-d, --domain <domain>', 'Translation domain (financial, healthcare, etc.)', 'financial')
     .option('--json', 'Output translation result and entity AST in JSON format')
     .action(async (text: string | undefined, cmdOptions: TranslateOptions) => {
+      const effectiveTarget = cmdOptions.target || cmdOptions.to;
+      const effectiveSource = cmdOptions.source || cmdOptions.from || 'fr';
       await runTranslate(text, {
         ...cmdOptions,
+        target: effectiveTarget,
+        source: effectiveSource,
         exit: !options.exitOverride,
       });
     });
@@ -56,7 +64,21 @@ export function createCliProgram(options: CliProgramOptions = {}): Command {
       });
     });
 
-  // 3. lb pack lint <path>
+  // 3. lb languages
+  program
+    .command('languages')
+    .alias('langs')
+    .description('Enumerate active sovereign Cameroonian languages with Duala quarantine protection')
+    .option('-a, --all', 'Include quarantined languages (e.g. Duala, Basaa, Bulu)')
+    .option('--json', 'Output language report in JSON format')
+    .action(async (cmdOptions: LanguagesOptions) => {
+      await runLanguages({
+        ...cmdOptions,
+        exit: !options.exitOverride,
+      });
+    });
+
+  // 4. lb pack lint <path>
   const packCommand = program
     .command('pack')
     .description('National language pack management and quality validation');
@@ -73,7 +95,7 @@ export function createCliProgram(options: CliProgramOptions = {}): Command {
       });
     });
 
-  // 4. lb serve --port <port>
+  // 5. lb serve --port <port>
   program
     .command('serve')
     .description('Lightweight local mock translation server for offline developer testing without external services')
@@ -86,7 +108,7 @@ export function createCliProgram(options: CliProgramOptions = {}): Command {
       });
     });
 
-  // 5. lb audit
+  // 6. lb audit
   program
     .command('audit')
     .description('Local sanity check reporting environment keys, certified language packs, and engine readiness')

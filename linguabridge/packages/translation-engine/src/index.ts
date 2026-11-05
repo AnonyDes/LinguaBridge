@@ -7,6 +7,7 @@ export { CacheLookupStage, type CacheStore } from './stages/cache-lookup';
 export { CacheWriterStage } from './stages/cache-writer';
 export { ProviderExecutorStage } from './stages/provider-executor';
 export { FixtureProvider } from './providers/fixture.provider';
+export { NllbLocalProvider } from './providers/nllb-local.provider';
 export { LibreTranslateProvider, type LibreTranslateConfig } from './providers/libretranslate.provider';
 export { OpenRouterProvider, type OpenRouterConfig } from './providers/openrouter.provider';
 export * from './providers/ewondo-lexicon';

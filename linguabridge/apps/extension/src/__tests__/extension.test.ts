@@ -90,29 +90,56 @@ describe('Chrome Extension Content Assistant', () => {
     expect(h1?.textContent).toBe('Paiement de 15000 FCFA');
   });
 
-  it('offers attested French Duala expressions in the extension', () => {
-    document.body.innerHTML = '<p id="greeting">Bonjour</p><p id="money">Solde disponible : 15 000 FCFA</p>';
+  it('strictly quarantines Duala and exposes only the 5 Sovereign Cameroonian Languages', () => {
+    document.body.innerHTML = '<p id="balance">Solde disponible</p><p id="money">50 000 FCFA</p>';
     assistant = new ExtensionAssistant();
     const selector = document.getElementById('linguabridge-extension-root')?.shadowRoot?.getElementById('target-lang') as HTMLSelectElement;
-    selector.value = 'dua-CM';
-    selector.dispatchEvent(new Event('change'));
-    assistant.translateFullPage();
-    expect(document.getElementById('greeting')?.textContent).toBe('Mbolo');
-    expect(document.getElementById('money')?.textContent).toBe('Solde disponible : 15 000 FCFA');
+    expect(selector).not.toBeNull();
+    const optionValues = Array.from(selector.options).map((o) => o.value);
+    
+    // Duala must be completely quarantined and absent from visible options
+    expect(optionValues.some((v) => v.includes('dua'))).toBe(false);
+
+    // All 5 Sovereign Languages must be present
+    expect(optionValues).toContain('ewo-CM');
+    expect(optionValues).toContain('fuv-CM');
+    expect(optionValues).toContain('hau-CM');
+    expect(optionValues).toContain('knc-CM');
+    expect(optionValues).toContain('pcm-CM');
   });
 
-  it('switches to Duala research sentences without changing French banking text', () => {
-    document.body.innerHTML = '<p id="sample">A vine supports the branches .</p><p id="money">Solde disponible : 15 000 FCFA</p>';
+  it('translates seamlessly across Fulfulde, Haoussa, Kanuri and Pidgin with Zero Drift', () => {
+    document.body.innerHTML = '<p id="balance">Solde disponible</p><p id="amount">15 000 FCFA</p>';
     assistant = new ExtensionAssistant();
     const selector = document.getElementById('linguabridge-extension-root')?.shadowRoot?.getElementById('target-lang') as HTMLSelectElement;
-    selector.value = 'dua-CM';
+
+    // 1. Fulfulde
+    selector.value = 'fuv-CM';
     selector.dispatchEvent(new Event('change'));
-    const source = document.getElementById('linguabridge-extension-root')?.shadowRoot?.getElementById('source-lang') as HTMLSelectElement;
-    source.value = 'en';
-    source.dispatchEvent(new Event('change'));
     assistant.translateFullPage();
-    expect(document.getElementById('sample')?.textContent).toBe('Bwele nde bo bambe ̱ mikanjo .');
-    expect(document.getElementById('money')?.textContent).toBe('Solde disponible : 15 000 FCFA');
+    expect(document.getElementById('balance')?.textContent).toContain('Shede woodiide');
+    expect(document.getElementById('amount')?.textContent).toBe('15 000 FCFA');
+
+    // 2. Haoussa
+    selector.value = 'hau-CM';
+    selector.dispatchEvent(new Event('change'));
+    assistant.translateFullPage();
+    expect(document.getElementById('balance')?.textContent).toContain('Ragowar kuɗi');
+    expect(document.getElementById('amount')?.textContent).toBe('15 000 FCFA');
+
+    // 3. Kanuri
+    selector.value = 'knc-CM';
+    selector.dispatchEvent(new Event('change'));
+    assistant.translateFullPage();
+    expect(document.getElementById('balance')?.textContent).toContain('Kəla kəlabe mbeji');
+    expect(document.getElementById('amount')?.textContent).toBe('15 000 FCFA');
+
+    // 4. Pidgin English
+    selector.value = 'pcm-CM';
+    selector.dispatchEvent(new Event('change'));
+    assistant.translateFullPage();
+    expect(document.getElementById('balance')?.textContent).toContain('Money wey dey available');
+    expect(document.getElementById('amount')?.textContent).toBe('15 000 FCFA');
   });
 
   it('translates selected text and displays financial guard alerts', async () => {

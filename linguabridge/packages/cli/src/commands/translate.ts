@@ -4,9 +4,13 @@ import { TranslationPipeline, FixtureProvider, type CacheStore } from '@linguabr
 import type { TranslationDomain, TranslationResult, FinancialEntity } from '@linguabridge/shared-types';
 import { printJson, printError } from '../utils/output';
 
+const MAX_PAYLOAD_CHARS = 50_000;
+
 export interface TranslateOptions {
-  target: string;
+  target?: string;
+  to?: string;
   source?: string;
+  from?: string;
   domain?: string;
   json?: boolean;
   exit?: boolean;
@@ -64,16 +68,37 @@ export async function runTranslate(
     if (options.exit !== false && !process.env.VITEST) {
       process.exit(1);
     }
-    throw new Error('No text provided to translate.');
+    throw new Error('No text provided to translate. Please specify text as argument or pipe via stdin.');
   }
 
-  if (!options.target) {
-    printError('Target language is required (--target <lang>).');
+  if (text.length > MAX_PAYLOAD_CHARS) {
+    printError(`Input text exceeds maximum size limit of ${MAX_PAYLOAD_CHARS} characters.`);
     process.exitCode = 1;
     if (options.exit !== false && !process.env.VITEST) {
       process.exit(1);
     }
-    throw new Error('Target language is required.');
+    throw new Error(`Input text exceeds maximum size limit of ${MAX_PAYLOAD_CHARS} characters.`);
+  }
+
+  const targetLang = (options.target || options.to)?.trim();
+
+  if (!targetLang) {
+    printError('Target language is required (--target <lang> or --to <lang>).');
+    process.exitCode = 1;
+    if (options.exit !== false && !process.env.VITEST) {
+      process.exit(1);
+    }
+    throw new Error('Target language is required (--target <lang>).');
+  }
+
+  const normTarget = targetLang.toLowerCase().replace(/_/g, '-');
+  if (normTarget === 'dua-cm' || normTarget === 'dua' || normTarget === 'duala') {
+    printError('Duala (dua-CM) is currently in quarantine (unverified for financial transactions). Translation blocked.');
+    process.exitCode = 1;
+    if (options.exit !== false && !process.env.VITEST) {
+      process.exit(1);
+    }
+    throw new Error('Duala (dua-CM) is currently in quarantine (unverified for financial transactions). Translation blocked.');
   }
 
   const extractor = new FinancialEntityExtractor();
@@ -84,8 +109,7 @@ export async function runTranslate(
     cache: memoryCache,
   });
 
-  const sourceLang = options.source || 'fr';
-  const targetLang = options.target;
+  const sourceLang = (options.source || options.from || 'fr').trim();
   const domain = (options.domain as TranslationDomain) || 'financial';
 
   const result = await pipeline.process({
@@ -150,11 +174,12 @@ export async function runTranslate(
       }
     }
 
-    if (result.warnings.length > 0) {
-      console.log('\n[Warnings]');
-      for (const w of result.warnings) {
-        console.log(`  ⚠ ${w}`);
+    if (!safe) {
+      console.log('\n\x1b[31m[Financial Integrity Violations Detected]\x1b[0m');
+      for (const v of comparison.violations) {
+        console.log(`  ✖ [${v.issue}] source: "${v.sourceValue}" != translated: "${v.translatedValue}"`);
       }
+      console.log('Warning: Financial entity drift violates LinguaBridge Zero-Drift policy!');
     }
     console.log('--------------------------------\n');
   }

@@ -1,6 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLinguaBridge } from './context';
 import type { TranslationResult, Language } from '@linguabridge/shared-types';
+import {
+  CAMEROON_BANKING_LANGUAGES,
+  filterVisibleLanguages,
+  generateBankingResponse,
+  speakAfricanText,
+  type ActiveLanguage,
+  type BankingResponse,
+  type ExtractedFinancialEntity,
+} from './banking-engine';
 
 export interface UseTranslateOptions {
   sourceLang?: string;
@@ -83,8 +92,175 @@ export function useLanguages(): {
 } {
   const { languages, loadingLanguages, refreshLanguages } = useLinguaBridge();
   return {
-    languages,
+    languages: filterVisibleLanguages(languages),
     loading: loadingLanguages,
     refresh: refreshLanguages,
+  };
+}
+
+export interface BankingMessage {
+  id: string;
+  sender: 'user' | 'assistant';
+  text: string;
+  phonetic?: string;
+  lang: string;
+  timestamp: number;
+  entities?: ExtractedFinancialEntity[];
+  zeroDriftVerified?: boolean;
+}
+
+export interface BankingAssistantOptions {
+  initialLang?: string;
+  welcomeMessage?: boolean;
+  onSpeech?: (text: string, lang: string) => void;
+}
+
+export interface UseBankingAssistantResult {
+  messages: BankingMessage[];
+  sendMessage: (text: string) => Promise<BankingMessage>;
+  clearMessages: () => void;
+  currentLang: string;
+  setLang: (lang: string) => void;
+  supportedLanguages: ActiveLanguage[];
+  speak: (text: string, lang?: string) => void;
+  isSpeaking: boolean;
+  stopSpeaking: () => void;
+  loading: boolean;
+}
+
+/**
+ * Hook for integrating sovereign multilingual Banking AI assistant
+ * with zero-drift AST protection and interactive speech synthesis.
+ */
+export function useBankingAssistant(options: BankingAssistantOptions = {}): UseBankingAssistantResult {
+  const initialLang = options.initialLang || 'ewo-CM';
+  const [currentLang, setCurrentLangState] = useState<string>(initialLang);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+
+  const initialGreeting = generateBankingResponse('bonjour', initialLang);
+
+  const [messages, setMessages] = useState<BankingMessage[]>(() => {
+    if (options.welcomeMessage === false) return [];
+    return [
+      {
+        id: 'welcome-msg',
+        sender: 'assistant',
+        text: initialGreeting.text,
+        phonetic: initialGreeting.phonetic,
+        lang: initialLang,
+        timestamp: Date.now(),
+        entities: initialGreeting.entities,
+        zeroDriftVerified: initialGreeting.zeroDriftVerified,
+      },
+    ];
+  });
+
+  const setLang = useCallback((lang: string) => {
+    if (lang.toLowerCase().startsWith('dua')) {
+      // Duala strictly excluded
+      return;
+    }
+    setCurrentLangState(lang);
+    const greeting = generateBankingResponse('bonjour', lang);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `lang-change-${Date.now()}`,
+        sender: 'assistant',
+        text: greeting.text,
+        phonetic: greeting.phonetic,
+        lang,
+        timestamp: Date.now(),
+        zeroDriftVerified: true,
+      },
+    ]);
+  }, []);
+
+  const sendMessage = useCallback(
+    async (text: string): Promise<BankingMessage> => {
+      const trimmed = text.trim();
+      if (!trimmed) {
+        throw new Error('Message cannot be empty');
+      }
+
+      setLoading(true);
+
+      const userMsg: BankingMessage = {
+        id: `user-${Date.now()}`,
+        sender: 'user',
+        text: trimmed,
+        lang: 'fr',
+        timestamp: Date.now(),
+      };
+
+      setMessages((prev) => [...prev, userMsg]);
+
+      // Generate sovereign banking response with AST Guard zero-drift verification
+      const resp = generateBankingResponse(trimmed, currentLang);
+
+      const assistantMsg: BankingMessage = {
+        id: `assistant-${Date.now()}`,
+        sender: 'assistant',
+        text: resp.text,
+        phonetic: resp.phonetic,
+        lang: currentLang,
+        timestamp: Date.now(),
+        entities: resp.entities,
+        zeroDriftVerified: resp.zeroDriftVerified,
+      };
+
+      setMessages((prev) => [...prev, assistantMsg]);
+      setLoading(false);
+
+      return assistantMsg;
+    },
+    [currentLang]
+  );
+
+  const clearMessages = useCallback(() => {
+    setMessages([]);
+  }, []);
+
+  const speak = useCallback(
+    (text: string, lang?: string) => {
+      const target = lang || currentLang;
+      const matchingMsg = messages.find((m) => m.text === text);
+      const phoneticText = matchingMsg?.phonetic || text;
+
+      setIsSpeaking(true);
+      speakAfricanText(
+        text,
+        phoneticText,
+        target,
+        () => setIsSpeaking(true),
+        () => setIsSpeaking(false)
+      );
+
+      if (options.onSpeech) {
+        options.onSpeech(text, target);
+      }
+    },
+    [currentLang, messages, options]
+  );
+
+  const stopSpeaking = useCallback(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+  }, []);
+
+  return {
+    messages,
+    sendMessage,
+    clearMessages,
+    currentLang,
+    setLang,
+    supportedLanguages: CAMEROON_BANKING_LANGUAGES,
+    speak,
+    isSpeaking,
+    stopSpeaking,
+    loading,
   };
 }

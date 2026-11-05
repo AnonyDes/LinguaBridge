@@ -1,0 +1,91 @@
+{
+  "language": "Haoussa",
+  "iso639_3": "hau",
+  "locale": "hau-CM",
+  "domain": "financial",
+  "version": "1.0.0",
+  "provenance": "Consensus linguistique CEMAC & Nord-Cameroun (Hausa Trade & Banking)",
+  "qualityStatus": "certified",
+  "terms": [
+    {
+      "key": "balance",
+      "fr": "Solde",
+      "en": "Balance",
+      "target": "Kuɗin asusu",
+      "phonetic": "ku-din a-su-su",
+      "definition": "Position financière ou somme présente sur le compte"
+    },
+    {
+      "key": "available_balance",
+      "fr": "Solde disponible",
+      "en": "Available balance",
+      "target": "Ragowar kuɗi",
+      "phonetic": "ra-go-war ku-di",
+      "definition": "Argent disponible pour usage immédiat"
+    },
+    {
+      "key": "current_balance",
+      "fr": "Solde actuel",
+      "en": "Current balance",
+      "target": "Kuɗin da ke ciki yanzu",
+      "phonetic": "ku-din da ke tsi-ki yan-zu",
+      "definition": "Solde à l'instant présent"
+    },
+    {
+      "key": "transfer",
+      "fr": "Virement / Transfert",
+      "en": "Transfer",
+      "target": "Tura kuɗi",
+      "phonetic": "tu-ra ku-di",
+      "definition": "Envoi de fonds vers un tiers"
+    },
+    {
+      "key": "transfer_fees",
+      "fr": "Frais de transfert",
+      "en": "Transfer fees",
+      "target": "Kuɗin aiki",
+      "phonetic": "ku-din ai-ki",
+      "definition": "Frais perçus pour le transfert"
+    },
+    {
+      "key": "confirm",
+      "fr": "Confirmer",
+      "en": "Confirm",
+      "target": "Tabbatar",
+      "phonetic": "tab-ba-tar",
+      "definition": "Valider la transaction"
+    },
+    {
+      "key": "cancel",
+      "fr": "Annuler",
+      "en": "Cancel",
+      "target": "Soke",
+      "phonetic": "so-ke",
+      "definition": "Annuler l'opération"
+    },
+    {
+      "key": "deposit",
+      "fr": "Dépôt",
+      "en": "Deposit",
+      "target": "Ajiye kuɗi",
+      "phonetic": "a-ji-ye ku-di",
+      "definition": "Dépôt d'argent sur le compte"
+    },
+    {
+      "key": "withdrawal",
+      "fr": "Retrait",
+      "en": "Withdrawal",
+      "target": "Cire kuɗi",
+      "phonetic": "tsi-re ku-di",
+      "definition": "Retrait d'espèces"
+    },
+    {
+      "key": "fees",
+      "fr": "Frais",
+      "en": "Fees",
+      "target": "Kuɗin aiki",
+      "phonetic": "ku-din ai-ki",
+      "definition": "Charges ou commissions bancaires"
+    }
+  ]
+}

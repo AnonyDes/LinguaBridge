@@ -187,4 +187,67 @@ describe('TranslationPipeline', () => {
     expect(results[0].translatedText).toBe('Hello');
     expect(results[1].translatedText).toBe('Balance');
   });
+
+  it('translates seamlessly into the 5 Sovereign Cameroonian Languages', async () => {
+    const pipeline = new TranslationPipeline({
+      providers: [new FixtureProvider()],
+      cache: new MockCache(),
+    });
+
+    // 1. Ewondo (ewo-CM)
+    const resEwo = await pipeline.process({
+      id: 'req-ewo',
+      sourceText: 'Solde disponible',
+      sourceLang: 'fr',
+      targetLang: 'ewo-CM',
+    });
+    expect(resEwo.status).toBe('success');
+    expect(resEwo.translatedText).toBe('Móni mí ne wá é bẽng');
+
+    // 2. Fulfulde (fuv-CM)
+    const resFuv = await pipeline.process({
+      id: 'req-fuv',
+      sourceText: 'Solde disponible',
+      sourceLang: 'fr',
+      targetLang: 'fuv-CM',
+    });
+    expect(resFuv.status).toBe('success');
+    expect(resFuv.translatedText).toBe('Ngalu heɓotoongu');
+
+    // 3. Haoussa (hau-CM)
+    const resHau = await pipeline.process({
+      id: 'req-hau',
+      sourceText: 'Solde disponible',
+      sourceLang: 'fr',
+      targetLang: 'hau-CM',
+    });
+    expect(resHau.status).toBe('success');
+    expect(resHau.translatedText).toBe('Kuɗin da za a iya amfani da su');
+
+    // 4. Kanuri (knc-CM)
+    const resKnc = await pipeline.process({
+      id: 'req-knc',
+      sourceText: 'Solde disponible',
+      sourceLang: 'fr',
+      targetLang: 'knc-CM',
+    });
+    expect(resKnc.status).toBe('success');
+    expect(resKnc.translatedText).toBe('Liman sawawa');
+
+    // 5. Cameroon Pidgin English (pcm-CM)
+    const resPcm = await pipeline.process({
+      id: 'req-pcm',
+      sourceText: 'Solde disponible',
+      sourceLang: 'fr',
+      targetLang: 'pcm-CM',
+    });
+    expect(resPcm.status).toBe('success');
+    expect(resPcm.translatedText).toBe('Moni wey yu fit yuz');
+  });
+
+  it('strictly quarantines Duala from production providers', () => {
+    const fixtureProvider = new FixtureProvider();
+    expect(fixtureProvider.supports('fr', 'dua-CM')).toBe(false);
+    expect(fixtureProvider.supports('en', 'dua-CM')).toBe(false);
+  });
 });

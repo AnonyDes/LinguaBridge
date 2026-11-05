@@ -1,5 +1,7 @@
 import { FinancialEntityExtractor } from '@linguabridge/financial-domain';
-import { printJson } from '../utils/output';
+import { printJson, printError } from '../utils/output';
+
+const MAX_PAYLOAD_CHARS = 50_000;
 
 export interface VerifyOptions {
   json?: boolean;
@@ -26,9 +28,29 @@ export async function runVerify(
   translation: string,
   options: VerifyOptions = {}
 ): Promise<VerifyResult> {
+  const safeText = typeof text === 'string' ? text : '';
+  const safeTranslation = typeof translation === 'string' ? translation : '';
+
+  if (safeText.length > MAX_PAYLOAD_CHARS || safeTranslation.length > MAX_PAYLOAD_CHARS) {
+    printError(`Payload exceeds maximum allowed size of ${MAX_PAYLOAD_CHARS} characters.`);
+    process.exitCode = 1;
+    if (options.exit !== false && !process.env.VITEST) {
+      process.exit(1);
+    }
+    return {
+      safe: false,
+      exitCode: 1,
+      sourceFingerprint: '0000000000000000000000000000000000000000000000000000000000000000',
+      translatedFingerprint: '0000000000000000000000000000000000000000000000000000000000000000',
+      sourceEntities: [],
+      translatedEntities: [],
+      violations: [{ issue: 'PAYLOAD_TOO_LARGE', sourceValue: `length: ${safeText.length}` }],
+    };
+  }
+
   const extractor = new FinancialEntityExtractor();
-  const sourceEntities = extractor.extract(text);
-  const translatedEntities = extractor.extract(translation);
+  const sourceEntities = extractor.extract(safeText);
+  const translatedEntities = extractor.extract(safeTranslation);
   const comparison = extractor.compare(sourceEntities, translatedEntities);
 
   const safe = comparison.safe;
@@ -52,8 +74,8 @@ export async function runVerify(
     printJson(result);
   } else {
     console.log('\n--- LinguaBridge Zero-Drift AST Verification ---');
-    console.log(`Source text:       "${text}"`);
-    console.log(`Translation:       "${translation}"`);
+    console.log(`Source text:       "${safeText}"`);
+    console.log(`Translation:       "${safeTranslation}"`);
     console.log(`Status:            ${safe ? '\x1b[32mSAFE (Zero Drift Verified)\x1b[0m' : '\x1b[31mUNSAFE (Financial Drift Detected!)\x1b[0m'}`);
     console.log(`Source Hash:       ${comparison.sourceFingerprint}`);
     console.log(`Target Hash:       ${comparison.translatedFingerprint}`);
