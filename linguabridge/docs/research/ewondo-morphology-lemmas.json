@@ -1,0 +1,1566 @@
+{
+  "source": "https://github.com/Ngue-Um/apertium-ewo/blob/main/apertium-ewo.ewo.lexc",
+  "license": "GPL-3.0",
+  "type": "ewondo_morphological_lemmas_not_bilingual_translations",
+  "note": "Not safe to insert into translation pairs without a verified French gloss; forms may require morphophonological processing.",
+  "rawCount": 545,
+  "uniqueCount": 389,
+  "entries": [
+    {
+      "lexicon": "Stems",
+      "lemma": "abui"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ama"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "afi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ai"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "am"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "anë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "al"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "aǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "aǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "anyaǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "as"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "asu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "baala"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ba"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "badë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "badëlòg"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bag"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bal"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bam"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ban"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "baǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "baǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "banda"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bas"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëm"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "biali"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "big"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bili"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "be"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bè"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bebe"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bede"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bende"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëbë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëbëla"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëd"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëde"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëg"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëgë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëgëlë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëlan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëlë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëdan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëmba"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëmbë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëme"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëǹa"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bie"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bil"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bilamvomba"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bilëmbë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bim"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bin"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bindi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bisi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bit"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "boe"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bog"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bonga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bom"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "boman"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bob"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bòd"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bòdan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "budi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fòg"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bòlò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bobo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bëbòlò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bòn"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bomanë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bonde"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bòm"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bud"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bug"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bugëban"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bul"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bum"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bumulan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bwal"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bwe"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "byan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "bye"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "daǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "daǹdaǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "di"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dib"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "diban"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "diiban"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dibidi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "digi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dil"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dim"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dimiǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dòg"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "du"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dudu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dud"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dudug"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dulu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "duǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dug"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzëm"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzëman"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzëǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzib"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzidzin"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzin"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzogodo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzoe"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzòǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzugu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzug"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dzum"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "dòbëdò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "esia"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "evuesiǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fag"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "faga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fai"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fas"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fasban"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fëb"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fëfè"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fëg"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fël"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fëm"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fia"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fila"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fiaǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fib"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fid"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fidi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fog"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fola"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fub"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fulu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fulan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fwe"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "gal"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "gëb"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "gëban"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ininga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ka"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kad"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kada"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kadë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kag"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kal"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "Kal"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kalan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kalasina"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kaman"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kandi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kaǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kas"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "këǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fim"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "fimi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kele"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kende"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ki"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kídí"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kidi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kie"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kig"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kil"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kim"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "koa"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "koan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kob"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kòbò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kod"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kodo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "koe"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kog"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "koge"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kogolo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kol"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "koli"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kom"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kon"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kòbo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kòd"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kòg"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kòm"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kòn"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kòs"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kpali"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kpëlëmve"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kpë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kpëlë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kpëlëban"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ku"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kuan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kue"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kug"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kugu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kui"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kuli"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kulu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kukuma"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kun"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kus"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kwe"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kwi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "kya"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "labi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lad"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lal"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lamvomba"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "laǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "laǹan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "las"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "len"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lèd"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lèna"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lëdë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lëmbë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lè"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lèn"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lig"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "liñ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lob"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lod"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "log"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lom"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lòbi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lòg"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lòm"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lòǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lum"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "luman"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "lunga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ma"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mag"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mala"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mam"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "manë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mawòd"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mba"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mëtua"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mos"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mvele"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mvim"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mvigi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mvom"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "mvum"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "myëgë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nal"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nam"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "namba"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nda"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ndalga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ndam"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ndegele"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ndi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ndim"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ndiǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ndòng"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ndòǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ndzog"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nëǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngas"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngëǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngëngè"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngëngëmë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngoge"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngomba"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngoǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngos"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngondo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngongòl"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngul"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngula"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ngun"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "guma"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nom"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nòǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nòǹòb"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nyala"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nyama"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nyiǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nyu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nyum"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nyuǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nyuǹëlu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "nyuǹëlan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "oap"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "oe"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ooga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ongo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "òn"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "òngò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "op"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ot"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "odo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "salag"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sanga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sëm"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sedëga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sëǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "si"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sie"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sili"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sis"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "soanga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sòbò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "soe"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "soga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sòlò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "sos"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "susud"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "susug"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tam"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tada"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tela"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tè"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tëg"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ti"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tie"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tin"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tinte"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tog"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tol"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tolog"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tom"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tòm"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tsaǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tug"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tye"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tum"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "tun"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "vë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "vëbë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "vëǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "vè"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "vès"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "vëga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "vis"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "vòǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "vus"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "way"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "weme"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "wemëga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "wò"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "wulu"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "wundi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ya"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yab"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yalga"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "ye"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yëbë"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yëgan"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yëgè"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yëm"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yia"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yie"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yaǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yè"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yol"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yom"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yomëlo"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yon"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yoǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yòg"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "yòǹ"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "Zamba"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "zam"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "zamanda"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "zie"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "zimbi"
+    },
+    {
+      "lexicon": "Stems",
+      "lemma": "zue"
+    }
+  ]
+}
