@@ -1,0 +1,31 @@
+name: Build Duala exploratory vocabulary
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'linguabridge/scripts/build_duala_vocabulary.py'
+      - 'linguabridge/docs/research/duala-english-parallel-dictionary.json'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s linguabridge/scripts -p 'test_build_duala_vocabulary.py'
+      - run: python linguabridge/scripts/build_duala_vocabulary.py
+      - name: Commit generated index
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add linguabridge/docs/research/duala-vocabulary-research.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: build Duala exploratory vocabulary index'
+            git push
+          fi
