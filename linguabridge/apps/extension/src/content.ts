@@ -386,7 +386,7 @@ class ExtensionAssistant {
         } else if (msg.type === 'POPUP_TRANSLATE_PAGE') {
           if (msg.targetLang) {
             this.currentTargetLang = msg.targetLang;
-            this.currentSourceLang = msg.targetLang.startsWith('dua') ? 'en' : 'fr';
+            this.currentSourceLang = msg.sourceLang || 'fr';
           }
           this.translateFullPage();
         } else if (msg.type === 'POPUP_TOGGLE_TOUCH_SPEAK' || msg.type === 'POPUP_TOGGLE_HOVER_SPEAK') {
@@ -1181,8 +1181,14 @@ class ExtensionAssistant {
           <label style="font-weight: 600; font-size: 12px; color: #4b5563;">Langue maternelle :</label>
           <select id="target-lang" style="width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #d1d5db; margin-top: 4px; font-size: 13px; font-weight: 600; background: #ffffff;">
             <option value="ewo-CM" ${this.currentTargetLang === 'ewo-CM' ? 'selected' : ''}>🇨🇲 Ewondo</option>
-            <option value="dua-CM" ${this.currentTargetLang === 'dua-CM' ? 'selected' : ''}>🇨🇲 Duala (corpus expérimental, anglais uniquement)</option>
+            <option value="dua-CM" ${this.currentTargetLang === 'dua-CM' ? 'selected' : ''}>🇨🇲 Duala (expérimental)</option>
           </select>
+          <label for="source-lang" style="display:block;margin-top:8px;font-size:12px;">Langue de la page :</label>
+          <select id="source-lang" style="width:100%;padding:7px;margin-top:4px;">
+            <option value="fr" ${this.currentSourceLang === 'fr' ? 'selected' : ''}>Français</option>
+            <option value="en" ${this.currentSourceLang === 'en' ? 'selected' : ''}>English</option>
+          </select>
+          ${this.currentTargetLang === 'dua-CM' ? '<p style="font-size:11px;color:#6b7280;">Duala expérimental : expressions françaises limitées ; phrases anglaises exactes du corpus. Traductions bancaires non vérifiées.</p>' : ''}
         </div>
 
         <div style="margin-top: 10px;">
@@ -1245,9 +1251,13 @@ class ExtensionAssistant {
       this.toggleTouchSpeakMode();
     });
 
+    this.shadow.getElementById('source-lang')?.addEventListener('change', (e) => {
+      this.currentSourceLang = (e.target as HTMLSelectElement).value;
+      if (this.isPageTranslated) this.translateFullPage();
+    });
+
     this.shadow.getElementById('target-lang')?.addEventListener('change', (e) => {
       this.currentTargetLang = (e.target as HTMLSelectElement).value;
-      this.currentSourceLang = this.currentTargetLang === 'dua-CM' ? 'en' : 'fr';
       if (this.isPageTranslated) {
         this.translateFullPage();
       }
