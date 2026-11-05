@@ -9,7 +9,12 @@ describe('Duala research mode', () => {
     expect(lookupDualaResearchSentence(example, 'en')).toBe('Bwele nde bo bambe ̱ mikanjo .');
     expect(lookupDualaResearchSentence(example, 'fr')).toBeNull();
   });
-  it('never invents a French banking translation', async () => {
+  it('translates only attested French everyday expressions in research mode', () => {
+    expect(lookupDualaResearchSentence('Bonjour', 'fr')).toBe('Mbolo');
+    expect(lookupDualaResearchSentence('Merci', 'fr')).toBe('Asè');
+    expect(lookupDualaResearchSentence('Solde', 'fr')).toBeNull();
+  });
+  it('never invents a French banking translation' , async () => {
     const result = await new FixtureProvider().translate({ id: 'dua-1', sourceText: 'Solde disponible : 15 000 FCFA', sourceLang: 'fr', targetLang: 'dua-CM', domain: 'financial' });
     expect(result.translatedText).toBe('Solde disponible : 15 000 FCFA');
     expect(result.status).toBe('unverified');
