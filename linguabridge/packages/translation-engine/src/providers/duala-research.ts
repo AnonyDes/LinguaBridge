@@ -1,12 +1,25 @@
 import pairs from './duala-research-pairs.json';
 
 const researchPairs: Record<string, string> = pairs;
+// Attested everyday expressions, duala.org/learn (retrieved 2026-11-05).
+// Experimental UI demo only; no reviewed banking terminology.
+const frenchResearchPairs: Record<string, string> = {
+  'bonjour': 'Mbolo',
+  'salut': 'Mbolo',
+  'bonjour (matin)': 'Mbolo mosso',
+  'au revoir': 'Ná wèndi',
+  'merci': 'Asè',
+  'oui': 'Ewe',
+  'non': 'Dè',
+  'comment vas-tu ?': 'Wé̩sé̩ ?',
+};
 const normalize = (text: string) => text.trim().replace(/\s+/g, ' ').toLocaleLowerCase('en');
 
 /** Experimental exact-sentence lookup. No inferred word translations or French pivot. */
 export function lookupDualaResearchSentence(text: string, sourceLang: string): string | null {
-  if (sourceLang !== 'en') return null;
-  return researchPairs[normalize(text)] || null;
+  if (sourceLang === 'fr') return frenchResearchPairs[normalize(text)] || null;
+  if (sourceLang === 'en') return researchPairs[normalize(text)] || null;
+  return null;
 }
 
 export function translateLocalText(text: string, sourceLang: string, targetLang: string): {
