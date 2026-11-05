@@ -1,0 +1,32 @@
+name: Import Duala bilingual research dictionary
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-duala-dictionary.yml'
+      - 'linguabridge/scripts/import_duala_mt560.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'huggingface_hub>=0.25,<2' 'pyarrow>=17,<25'
+      - name: Download, deduplicate and classify Duala sentence pairs
+        run: python linguabridge/scripts/import_duala_mt560.py
+      - name: Commit research dictionary to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add linguabridge/docs/research/duala-english-parallel-dictionary.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: import CC-BY-4.0 Duala parallel sentence research dictionary"
+            git push
+          fi
