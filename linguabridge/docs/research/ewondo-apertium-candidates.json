@@ -1,0 +1,1157 @@
+{
+  "source": "https://github.com/Ngue-Um/apertium-ewo-fra/blob/main/apertium-ewo-fra.ewo-fra.dix",
+  "license": "GPL-3.0",
+  "status": "unverified candidates, NOT production translations",
+  "stats": {
+    "xmlEntries": 531,
+    "rawPairs": 475,
+    "uniquePairs": 450,
+    "existingCompared": 543,
+    "exactOverlaps": 222,
+    "candidatePairs": 228,
+    "paradigmDependentCandidates": 227
+  },
+  "warning": "Apertium lemmas may require paradigms to produce actual Ewondo surface forms. Never auto-merge or claim validated translation quality.",
+  "candidates": [
+    {
+      "ewo": "ot",
+      "fra": "personne",
+      "paradigm": true
+    },
+    {
+      "ewo": "ot",
+      "fra": "homme",
+      "paradigm": true
+    },
+    {
+      "ewo": "odo",
+      "fra": "humanité",
+      "paradigm": true
+    },
+    {
+      "ewo": "ininga",
+      "fra": "femme",
+      "paradigm": true
+    },
+    {
+      "ewo": "al",
+      "fra": "village",
+      "paradigm": true
+    },
+    {
+      "ewo": "aǹ",
+      "fra": "mer",
+      "paradigm": true
+    },
+    {
+      "ewo": "ba",
+      "fra": "tambour",
+      "paradigm": true
+    },
+    {
+      "ewo": "bè",
+      "fra": "porte",
+      "paradigm": true
+    },
+    {
+      "ewo": "as",
+      "fra": "don",
+      "paradigm": true
+    },
+    {
+      "ewo": "badëlòg",
+      "fra": "malchance",
+      "paradigm": true
+    },
+    {
+      "ewo": "banda",
+      "fra": "invitation",
+      "paradigm": true
+    },
+    {
+      "ewo": "baǹ",
+      "fra": "noyau",
+      "paradigm": true
+    },
+    {
+      "ewo": "baǹ",
+      "fra": "caillot",
+      "paradigm": true
+    },
+    {
+      "ewo": "baǹ",
+      "fra": "fagot",
+      "paradigm": true
+    },
+    {
+      "ewo": "bas",
+      "fra": "nageoire caudale",
+      "paradigm": true
+    },
+    {
+      "ewo": "be",
+      "fra": "mal",
+      "paradigm": true
+    },
+    {
+      "ewo": "bendan",
+      "fra": "fait d'annoncer",
+      "paradigm": true
+    },
+    {
+      "ewo": "bè",
+      "fra": "sein",
+      "paradigm": true
+    },
+    {
+      "ewo": "bè",
+      "fra": "cuisse",
+      "paradigm": true
+    },
+    {
+      "ewo": "bëdan",
+      "fra": "cadet",
+      "paradigm": true
+    },
+    {
+      "ewo": "bëgë",
+      "fra": "charge",
+      "paradigm": true
+    },
+    {
+      "ewo": "bëbëla",
+      "fra": "vérité",
+      "paradigm": true
+    },
+    {
+      "ewo": "bëm",
+      "fra": "cagibi",
+      "paradigm": true
+    },
+    {
+      "ewo": "bëmbë",
+      "fra": "convenable",
+      "paradigm": true
+    },
+    {
+      "ewo": "bi",
+      "fra": "excrément",
+      "paradigm": true
+    },
+    {
+      "ewo": "bi",
+      "fra": "preneur",
+      "paradigm": true
+    },
+    {
+      "ewo": "bie",
+      "fra": "géniteur",
+      "paradigm": true
+    },
+    {
+      "ewo": "big",
+      "fra": "urticaire",
+      "paradigm": true
+    },
+    {
+      "ewo": "biali",
+      "fra": "naissance",
+      "paradigm": true
+    },
+    {
+      "ewo": "bil",
+      "fra": "course",
+      "paradigm": true
+    },
+    {
+      "ewo": "bin",
+      "fra": "pénis",
+      "paradigm": true
+    },
+    {
+      "ewo": "bob",
+      "fra": "grossier",
+      "paradigm": true
+    },
+    {
+      "ewo": "bobo",
+      "fra": "araignée",
+      "paradigm": true
+    },
+    {
+      "ewo": "bog",
+      "fra": "fête",
+      "paradigm": true
+    },
+    {
+      "ewo": "bom",
+      "fra": "tumulus",
+      "paradigm": true
+    },
+    {
+      "ewo": "boman",
+      "fra": "rhume",
+      "paradigm": true
+    },
+    {
+      "ewo": "bomanë",
+      "fra": "contour",
+      "paradigm": true
+    },
+    {
+      "ewo": "bonde",
+      "fra": "fondateur",
+      "paradigm": true
+    },
+    {
+      "ewo": "bò",
+      "fra": "artisan",
+      "paradigm": true
+    },
+    {
+      "ewo": "bòd",
+      "fra": "petitesse",
+      "paradigm": true
+    },
+    {
+      "ewo": "bòd",
+      "fra": "cabine d'habillage",
+      "paradigm": true
+    },
+    {
+      "ewo": "bòd",
+      "fra": "accoutrement",
+      "paradigm": true
+    },
+    {
+      "ewo": "bòdan",
+      "fra": "bénédiction",
+      "paradigm": true
+    },
+    {
+      "ewo": "bòòlò",
+      "fra": "témoin",
+      "paradigm": true
+    },
+    {
+      "ewo": "bòg",
+      "fra": "un",
+      "paradigm": true
+    },
+    {
+      "ewo": "bòm",
+      "fra": "morve",
+      "paradigm": true
+    },
+    {
+      "ewo": "bonga",
+      "fra": "câblage",
+      "paradigm": true
+    },
+    {
+      "ewo": "bòn",
+      "fra": "huile",
+      "paradigm": true
+    },
+    {
+      "ewo": "bu",
+      "fra": "année",
+      "paradigm": true
+    },
+    {
+      "ewo": "bu",
+      "fra": "touffe",
+      "paradigm": true
+    },
+    {
+      "ewo": "bubua",
+      "fra": "calamité",
+      "paradigm": true
+    },
+    {
+      "ewo": "bugëban",
+      "fra": "prospérité",
+      "paradigm": true
+    },
+    {
+      "ewo": "buma",
+      "fra": "cabosse",
+      "paradigm": true
+    },
+    {
+      "ewo": "dim",
+      "fra": "cécité",
+      "paradigm": true
+    },
+    {
+      "ewo": "dimiǹ",
+      "fra": "cachoterie",
+      "paradigm": true
+    },
+    {
+      "ewo": "dòg",
+      "fra": "voracité",
+      "paradigm": true
+    },
+    {
+      "ewo": "dòg",
+      "fra": "profondeur",
+      "paradigm": true
+    },
+    {
+      "ewo": "dòbëdò",
+      "fra": "hôpital",
+      "paradigm": true
+    },
+    {
+      "ewo": "dzin",
+      "fra": "un certain",
+      "paradigm": true
+    },
+    {
+      "ewo": "dzo",
+      "fra": "membre du corps",
+      "paradigm": true
+    },
+    {
+      "ewo": "dzogodo",
+      "fra": "canton",
+      "paradigm": true
+    },
+    {
+      "ewo": "dzoe",
+      "fra": "dirigeant",
+      "paradigm": true
+    },
+    {
+      "ewo": "esanga",
+      "fra": "sa tante paternelle",
+      "paradigm": true
+    },
+    {
+      "ewo": "esia",
+      "fra": "son père",
+      "paradigm": true
+    },
+    {
+      "ewo": "esoa",
+      "fra": "ton père",
+      "paradigm": true
+    },
+    {
+      "ewo": "yëgan",
+      "fra": "stupéfaction",
+      "paradigm": true
+    },
+    {
+      "ewo": "fan",
+      "fra": "forêt",
+      "paradigm": true
+    },
+    {
+      "ewo": "fas",
+      "fra": "analyse",
+      "paradigm": true
+    },
+    {
+      "ewo": "fëb",
+      "fra": "papier",
+      "paradigm": true
+    },
+    {
+      "ewo": "fëb",
+      "fra": "vapeur",
+      "paradigm": true
+    },
+    {
+      "ewo": "fëfè",
+      "fra": "végétation hanarchique",
+      "paradigm": true
+    },
+    {
+      "ewo": "fël",
+      "fra": "cicatrice",
+      "paradigm": true
+    },
+    {
+      "ewo": "fia",
+      "fra": "avocat",
+      "paradigm": true
+    },
+    {
+      "ewo": "fib",
+      "fra": "épaisseur",
+      "paradigm": true
+    },
+    {
+      "ewo": "fila",
+      "fra": "oreiller",
+      "paradigm": true
+    },
+    {
+      "ewo": "fola",
+      "fra": "place",
+      "paradigm": true
+    },
+    {
+      "ewo": "fòǹ",
+      "fra": "moelle",
+      "paradigm": true
+    },
+    {
+      "ewo": "fulan",
+      "fra": "ressemblance",
+      "paradigm": true
+    },
+    {
+      "ewo": "fulu",
+      "fra": "caractère",
+      "paradigm": true
+    },
+    {
+      "ewo": "fwe",
+      "fra": "reproducteur",
+      "paradigm": true
+    },
+    {
+      "ewo": "guma",
+      "fra": "entier",
+      "paradigm": true
+    },
+    {
+      "ewo": "ka",
+      "fra": "assistant",
+      "paradigm": true
+    },
+    {
+      "ewo": "kada",
+      "fra": "crabe",
+      "paradigm": true
+    },
+    {
+      "ewo": "kal",
+      "fra": "plaidoyer",
+      "paradigm": true
+    },
+    {
+      "ewo": "kalasina",
+      "fra": "pétrole",
+      "paradigm": true
+    },
+    {
+      "ewo": "ki",
+      "fra": "oeuf",
+      "paradigm": true
+    },
+    {
+      "ewo": "kie",
+      "fra": "fer",
+      "paradigm": true
+    },
+    {
+      "ewo": "kie",
+      "fra": "feuille",
+      "paradigm": true
+    },
+    {
+      "ewo": "kil",
+      "fra": "serve",
+      "paradigm": true
+    },
+    {
+      "ewo": "kim",
+      "fra": "fluidité",
+      "paradigm": true
+    },
+    {
+      "ewo": "kele",
+      "fra": "circoncision",
+      "paradigm": true
+    },
+    {
+      "ewo": "kël",
+      "fra": "abcès",
+      "paradigm": true
+    },
+    {
+      "ewo": "këǹ",
+      "fra": "intelligence",
+      "paradigm": true
+    },
+    {
+      "ewo": "këǹ",
+      "fra": "technique",
+      "paradigm": true
+    },
+    {
+      "ewo": "kidi",
+      "fra": "matin",
+      "paradigm": true
+    },
+    {
+      "ewo": "koan",
+      "fra": "réunion",
+      "paradigm": true
+    },
+    {
+      "ewo": "koa",
+      "fra": "pierre",
+      "paradigm": true
+    },
+    {
+      "ewo": "kob",
+      "fra": "puce",
+      "paradigm": true
+    },
+    {
+      "ewo": "kod",
+      "fra": "teigne",
+      "paradigm": true
+    },
+    {
+      "ewo": "kog",
+      "fra": "pierre",
+      "paradigm": true
+    },
+    {
+      "ewo": "komo",
+      "fra": "fabriquant",
+      "paradigm": true
+    },
+    {
+      "ewo": "kon",
+      "fra": "fantôme",
+      "paradigm": true
+    },
+    {
+      "ewo": "kol",
+      "fra": "pied",
+      "paradigm": true
+    },
+    {
+      "ewo": "koli",
+      "fra": "piéger",
+      "paradigm": true
+    },
+    {
+      "ewo": "kòbò",
+      "fra": "acceptation",
+      "paradigm": true
+    },
+    {
+      "ewo": "kòm",
+      "fra": "lourdeur",
+      "paradigm": true
+    },
+    {
+      "ewo": "kue",
+      "fra": "toux",
+      "paradigm": true
+    },
+    {
+      "ewo": "kugu",
+      "fra": "cuisinier",
+      "paradigm": true
+    },
+    {
+      "ewo": "kukuma",
+      "fra": "chef",
+      "paradigm": true
+    },
+    {
+      "ewo": "kulu",
+      "fra": "tortue",
+      "paradigm": true
+    },
+    {
+      "ewo": "kulu",
+      "fra": "tornade",
+      "paradigm": true
+    },
+    {
+      "ewo": "kun",
+      "fra": "poubelle",
+      "paradigm": true
+    },
+    {
+      "ewo": "kus",
+      "fra": "achat",
+      "paradigm": true
+    },
+    {
+      "ewo": "kus",
+      "fra": "veuve",
+      "paradigm": true
+    },
+    {
+      "ewo": "kwe",
+      "fra": "escargot",
+      "paradigm": true
+    },
+    {
+      "ewo": "kwi",
+      "fra": "sortie",
+      "paradigm": true
+    },
+    {
+      "ewo": "kya",
+      "fra": "type",
+      "paradigm": true
+    },
+    {
+      "ewo": "lëmbë",
+      "fra": "microscope",
+      "paradigm": true
+    },
+    {
+      "ewo": "labi",
+      "fra": "cadeau",
+      "paradigm": true
+    },
+    {
+      "ewo": "lamvomba",
+      "fra": "bourru",
+      "paradigm": true
+    },
+    {
+      "ewo": "len",
+      "fra": "palmier",
+      "paradigm": true
+    },
+    {
+      "ewo": "lèd",
+      "fra": "dureté",
+      "paradigm": true
+    },
+    {
+      "ewo": "lèna",
+      "fra": "infection due à une morsure d'araignée",
+      "paradigm": true
+    },
+    {
+      "ewo": "lob",
+      "fra": "seneçon",
+      "paradigm": true
+    },
+    {
+      "ewo": "log",
+      "fra": "pêche au barrage",
+      "paradigm": true
+    },
+    {
+      "ewo": "lò",
+      "fra": "oreille",
+      "paradigm": true
+    },
+    {
+      "ewo": "lòbi",
+      "fra": "marécage",
+      "paradigm": true
+    },
+    {
+      "ewo": "lòg",
+      "fra": "herbe",
+      "paradigm": true
+    },
+    {
+      "ewo": "lo",
+      "fra": "tête",
+      "paradigm": true
+    },
+    {
+      "ewo": "lunga",
+      "fra": "association",
+      "paradigm": true
+    },
+    {
+      "ewo": "ma",
+      "fra": "mouleur",
+      "paradigm": true
+    },
+    {
+      "ewo": "mag",
+      "fra": "tas",
+      "paradigm": true
+    },
+    {
+      "ewo": "mos",
+      "fra": "journée",
+      "paradigm": true
+    },
+    {
+      "ewo": "mvum",
+      "fra": "particule",
+      "paradigm": true
+    },
+    {
+      "ewo": "nam",
+      "fra": "membre supérieur du corps",
+      "paradigm": true
+    },
+    {
+      "ewo": "nda",
+      "fra": "maison",
+      "paradigm": true
+    },
+    {
+      "ewo": "ndi",
+      "fra": "espoir",
+      "paradigm": true
+    },
+    {
+      "ewo": "ndòǹ",
+      "fra": "rapport",
+      "paradigm": true
+    },
+    {
+      "ewo": "ngogòl",
+      "fra": "pitié",
+      "paradigm": true
+    },
+    {
+      "ewo": "ngomba",
+      "fra": "ngomba",
+      "paradigm": true
+    },
+    {
+      "ewo": "ngoǹ",
+      "fra": "cadenas",
+      "paradigm": true
+    },
+    {
+      "ewo": "ngan",
+      "fra": "obstiné",
+      "paradigm": true
+    },
+    {
+      "ewo": "ngas",
+      "fra": "marais",
+      "paradigm": true
+    },
+    {
+      "ewo": "ngëngè",
+      "fra": "insecte",
+      "paradigm": true
+    },
+    {
+      "ewo": "ngos",
+      "fra": "tas",
+      "paradigm": true
+    },
+    {
+      "ewo": "ngula",
+      "fra": "cabane",
+      "paradigm": true
+    },
+    {
+      "ewo": "nyama",
+      "fra": "calamiteux",
+      "paradigm": true
+    },
+    {
+      "ewo": "nyiǹ",
+      "fra": "vie",
+      "paradigm": true
+    },
+    {
+      "ewo": "nyu",
+      "fra": "bouche",
+      "paradigm": true
+    },
+    {
+      "ewo": "nyum",
+      "fra": "odeur",
+      "paradigm": true
+    },
+    {
+      "ewo": "oap",
+      "fra": "nombril",
+      "paradigm": true
+    },
+    {
+      "ewo": "ooga",
+      "fra": "articulation",
+      "paradigm": true
+    },
+    {
+      "ewo": "òǹòn",
+      "fra": "rejeton",
+      "paradigm": true
+    },
+    {
+      "ewo": "mawòd",
+      "fra": "maçon",
+      "paradigm": true
+    },
+    {
+      "ewo": "mëtua",
+      "fra": "voiture",
+      "paradigm": true
+    },
+    {
+      "ewo": "mvigi",
+      "fra": "pratique médicale",
+      "paradigm": true
+    },
+    {
+      "ewo": "mvim",
+      "fra": "enflure",
+      "paradigm": true
+    },
+    {
+      "ewo": "myëgë",
+      "fra": "digue",
+      "paradigm": true
+    },
+    {
+      "ewo": "nëǹ",
+      "fra": "hôte",
+      "paradigm": true
+    },
+    {
+      "ewo": "nom",
+      "fra": "male",
+      "paradigm": true
+    },
+    {
+      "ewo": "nyala",
+      "fra": "beau-frère",
+      "paradigm": true
+    },
+    {
+      "ewo": "òngò",
+      "fra": "enfant",
+      "paradigm": true
+    },
+    {
+      "ewo": "salag",
+      "fra": "caniveau",
+      "paradigm": true
+    },
+    {
+      "ewo": "sëdëga",
+      "fra": "échantillon",
+      "paradigm": true
+    },
+    {
+      "ewo": "sëǹ",
+      "fra": "cour",
+      "paradigm": true
+    },
+    {
+      "ewo": "sëm",
+      "fra": "péché",
+      "paradigm": true
+    },
+    {
+      "ewo": "si",
+      "fra": "terre",
+      "paradigm": true
+    },
+    {
+      "ewo": "sie",
+      "fra": "cabinet",
+      "paradigm": true
+    },
+    {
+      "ewo": "sis",
+      "fra": "nerf",
+      "paradigm": true
+    },
+    {
+      "ewo": "sili",
+      "fra": "question",
+      "paradigm": true
+    },
+    {
+      "ewo": "sò",
+      "fra": "cachette",
+      "paradigm": true
+    },
+    {
+      "ewo": "sòbò",
+      "fra": "savon",
+      "paradigm": true
+    },
+    {
+      "ewo": "sòbò",
+      "fra": "cache",
+      "paradigm": true
+    },
+    {
+      "ewo": "sòlò",
+      "fra": "cachette",
+      "paradigm": true
+    },
+    {
+      "ewo": "soe",
+      "fra": "cachette",
+      "paradigm": true
+    },
+    {
+      "ewo": "soe",
+      "fra": "lézard",
+      "paradigm": true
+    },
+    {
+      "ewo": "soga",
+      "fra": "calao",
+      "paradigm": true
+    },
+    {
+      "ewo": "susud",
+      "fra": "humidité",
+      "paradigm": true
+    },
+    {
+      "ewo": "susug",
+      "fra": "pareusseux",
+      "paradigm": true
+    },
+    {
+      "ewo": "tam",
+      "fra": "puits",
+      "paradigm": true
+    },
+    {
+      "ewo": "tada",
+      "fra": "père",
+      "paradigm": true
+    },
+    {
+      "ewo": "tela",
+      "fra": "tailleur",
+      "paradigm": true
+    },
+    {
+      "ewo": "tëg",
+      "fra": "faiblesse",
+      "paradigm": true
+    },
+    {
+      "ewo": "ti",
+      "fra": "seigneur",
+      "paradigm": true
+    },
+    {
+      "ewo": "tog",
+      "fra": "cuillère",
+      "paradigm": true
+    },
+    {
+      "ewo": "tom",
+      "fra": "colis",
+      "paradigm": true
+    },
+    {
+      "ewo": "tò",
+      "fra": "place",
+      "paradigm": true
+    },
+    {
+      "ewo": "tòm",
+      "fra": "ulcère de Buruli",
+      "paradigm": true
+    },
+    {
+      "ewo": "tolog",
+      "fra": "papule",
+      "paradigm": true
+    },
+    {
+      "ewo": "tsaǹ",
+      "fra": "bouton",
+      "paradigm": true
+    },
+    {
+      "ewo": "tug",
+      "fra": "action de frotter",
+      "paradigm": true
+    },
+    {
+      "ewo": "tug",
+      "fra": "désuétude",
+      "paradigm": true
+    },
+    {
+      "ewo": "tugu\"n\"/>",
+      "fra": "frotteur",
+      "paradigm": true
+    },
+    {
+      "ewo": "tugulu",
+      "fra": "lésion",
+      "paradigm": true
+    },
+    {
+      "ewo": "tun",
+      "fra": "partie",
+      "paradigm": true
+    },
+    {
+      "ewo": "vis",
+      "fra": "amas",
+      "paradigm": true
+    },
+    {
+      "ewo": "vè",
+      "fra": "soif",
+      "paradigm": true
+    },
+    {
+      "ewo": "vès",
+      "fra": "os",
+      "paradigm": true
+    },
+    {
+      "ewo": "vëbë",
+      "fra": "respiration",
+      "paradigm": true
+    },
+    {
+      "ewo": "vëga",
+      "fra": "exemple",
+      "paradigm": true
+    },
+    {
+      "ewo": "vëǹ",
+      "fra": "plaie",
+      "paradigm": true
+    },
+    {
+      "ewo": "vol",
+      "fra": "rapidité",
+      "paradigm": true
+    },
+    {
+      "ewo": "vòǹ",
+      "fra": "graisse",
+      "paradigm": true
+    },
+    {
+      "ewo": "wemënga",
+      "fra": "nécrose",
+      "paradigm": true
+    },
+    {
+      "ewo": "wundi",
+      "fra": "fenêtre",
+      "paradigm": true
+    },
+    {
+      "ewo": "wulu",
+      "fra": "marcheur",
+      "paradigm": true
+    },
+    {
+      "ewo": "yab",
+      "fra": "longueur",
+      "paradigm": true
+    },
+    {
+      "ewo": "yalga",
+      "fra": "enveloppe",
+      "paradigm": true
+    },
+    {
+      "ewo": "yaǹ",
+      "fra": "couleur",
+      "paradigm": true
+    },
+    {
+      "ewo": "yaǹ",
+      "fra": "bulbe",
+      "paradigm": true
+    },
+    {
+      "ewo": "ye",
+      "fra": "période",
+      "paradigm": true
+    },
+    {
+      "ewo": "yëbë",
+      "fra": "acceptation",
+      "paradigm": true
+    },
+    {
+      "ewo": "yëgè",
+      "fra": "apprentissage",
+      "paradigm": true
+    },
+    {
+      "ewo": "yëm",
+      "fra": "handicape",
+      "paradigm": true
+    },
+    {
+      "ewo": "yè",
+      "fra": "croissance",
+      "paradigm": true
+    },
+    {
+      "ewo": "yia",
+      "fra": "ulcère phagédénique",
+      "paradigm": true
+    },
+    {
+      "ewo": "yie",
+      "fra": "difficulté",
+      "paradigm": true
+    },
+    {
+      "ewo": "yoa",
+      "fra": "ta mère",
+      "paradigm": true
+    },
+    {
+      "ewo": "yol",
+      "fra": "amertume",
+      "paradigm": true
+    },
+    {
+      "ewo": "yom",
+      "fra": "vieillesse",
+      "paradigm": true
+    },
+    {
+      "ewo": "yom",
+      "fra": "caducité",
+      "paradigm": true
+    },
+    {
+      "ewo": "yòǹ",
+      "fra": "temps",
+      "paradigm": true
+    },
+    {
+      "ewo": "yon",
+      "fra": "pleur",
+      "paradigm": true
+    },
+    {
+      "ewo": "yoǹ",
+      "fra": "chaleur",
+      "paradigm": true
+    },
+    {
+      "ewo": "zamëda",
+      "fra": "cafouillage",
+      "paradigm": true
+    },
+    {
+      "ewo": "zimbi",
+      "fra": "soldats",
+      "paradigm": true
+    },
+    {
+      "ewo": "ve endëgële",
+      "fra": "déranger",
+      "paradigm": false
+    },
+    {
+      "ewo": "voǹ",
+      "fra": "chaleur",
+      "paradigm": true
+    }
+  ]
+}
