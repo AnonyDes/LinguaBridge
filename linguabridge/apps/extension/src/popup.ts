@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const languages = await client.getLanguages();
     if (langCountEl) {
-      langCountEl.textContent = `Ewondo actif · Duala expérimental (anglais)`;
+      langCountEl.textContent = `Ewondo actif · Duala expérimental (FR/EN)`;
     }
   } catch {
     // Graceful offline fallback — autonomous local mode with embedded dictionary
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Trigger page translation in active tab
   triggerPageBtn?.addEventListener('click', () => {
-    sendMessageToActiveTab({ type: 'POPUP_TRANSLATE_PAGE', targetLang: (document.getElementById('popup-target-lang') as HTMLSelectElement)?.value || 'ewo-CM' });
+    sendMessageToActiveTab({ type: 'POPUP_TRANSLATE_PAGE', targetLang: (document.getElementById('popup-target-lang') as HTMLSelectElement)?.value || 'ewo-CM', sourceLang: (document.getElementById('popup-source-lang') as HTMLSelectElement)?.value || 'fr' });
   });
 
   // Toggle touch-to-listen mode in active tab
