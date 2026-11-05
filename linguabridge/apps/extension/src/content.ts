@@ -52,7 +52,7 @@ class EwondoSpeechPlayer {
     }
   }
 
-  public speak(text: string, phonetic?: string, onEnd?: () => void): void {
+  public speak(text: string, phonetic?: string, onEnd?: () => void, targetLang = 'ewo-CM'): void {
     if (typeof window === 'undefined') return;
 
     this.stop();
@@ -60,7 +60,11 @@ class EwondoSpeechPlayer {
     const thisId = this.currentUtteranceId;
     this.onEndCallback = onEnd || null;
 
-    const spokenRaw = phonetic || getEwondoPhonetic(text) || text;
+    const isEwondo = targetLang.startsWith('ewo');
+    const isPidgin = targetLang.startsWith('pcm');
+    const isHausa = targetLang.startsWith('hau');
+
+    const spokenRaw = phonetic || (isEwondo ? getEwondoPhonetic(text) : text) || text;
     // Strip hyphens between syllables for acoustic TTS engine to eliminate awkward pauses and "trait d'union" stutter
     const spokenText = spokenRaw.replace(/-/g, '');
 
@@ -73,16 +77,32 @@ class EwondoSpeechPlayer {
         // Retain reference on instance to prevent Chromium V8 GC issue 679437
         this.activeUtterance = utterance;
 
-        // Pacing for crystal-clear tone clarity and Bantu phonetic articulation
-        utterance.rate = 0.88;
+        // Pacing for crystal-clear tone clarity and African phonetic articulation
+        utterance.rate = isPidgin ? 0.95 : 0.88;
         utterance.pitch = 1.0;
-        utterance.lang = 'fr-FR'; // Pure continental vowels matching Bantu phonology
 
-        if (!this.cachedVoice && !this.voicesLoaded) {
-          this.initVoice();
-        }
-        if (this.cachedVoice) {
-          utterance.voice = this.cachedVoice;
+        const voices = window.speechSynthesis.getVoices() || [];
+        if (isPidgin) {
+          utterance.lang = 'en-GB';
+          const enVoice = voices.find((v) => v.lang.startsWith('en-NG') || v.lang.startsWith('en-GB') || v.lang.startsWith('en'));
+          if (enVoice) utterance.voice = enVoice;
+        } else if (isHausa) {
+          const hausaVoice = voices.find((v) => v.lang.startsWith('ha'));
+          if (hausaVoice) {
+            utterance.lang = 'ha-NG';
+            utterance.voice = hausaVoice;
+          } else {
+            utterance.lang = 'fr-FR';
+            if (this.cachedVoice) utterance.voice = this.cachedVoice;
+          }
+        } else {
+          utterance.lang = 'fr-FR'; // Pure continental vowels matching Bantu & Sudanic phonology
+          if (!this.cachedVoice && !this.voicesLoaded) {
+            this.initVoice();
+          }
+          if (this.cachedVoice) {
+            utterance.voice = this.cachedVoice;
+          }
         }
 
         utterance.onstart = () => {
@@ -623,7 +643,7 @@ class ExtensionAssistant {
         }
         this.currentSpokenEl = null;
       }
-    });
+    }, this.currentTargetLang);
   }
 
   private showAudioFloatingBar(text: string, phonetic: string): void {
@@ -667,7 +687,7 @@ class ExtensionAssistant {
       `;
 
       this.shadow?.getElementById('btn-speak-selection')?.addEventListener('click', () => {
-        this.speechPlayer.speak(translatedText, phonetic);
+        this.speechPlayer.speak(translatedText, phonetic, undefined, this.currentTargetLang);
       });
     };
 
@@ -796,8 +816,10 @@ class ExtensionAssistant {
           inputEl.placeholder = translatedPh;
           this.translationSpeechCache.set(translatedPh, {
             ewondo: translatedPh,
-            phonetic: getEwondoPhonetic(translatedPh),
+            phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedPh) : '',
           });
+        } else {
+          inputEl.placeholder = this.originalAttrMap.get(el)?.placeholder ?? ph;
         }
       }
     }
@@ -817,8 +839,10 @@ class ExtensionAssistant {
           inputEl.value = translatedVal;
           this.translationSpeechCache.set(translatedVal, {
             ewondo: translatedVal,
-            phonetic: getEwondoPhonetic(translatedVal),
+            phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedVal) : '',
           });
+        } else {
+          inputEl.value = this.originalAttrMap.get(el)?.value ?? inputEl.value;
         }
       }
     }
@@ -836,8 +860,11 @@ class ExtensionAssistant {
         el.setAttribute('title', translatedTitle);
         this.translationSpeechCache.set(translatedTitle, {
           ewondo: translatedTitle,
-          phonetic: getEwondoPhonetic(translatedTitle),
+          phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedTitle) : '',
         });
+      } else {
+        const origTitle = this.originalAttrMap.get(el)?.title;
+        if (origTitle !== undefined) el.setAttribute('title', origTitle);
       }
     }
 
@@ -854,8 +881,11 @@ class ExtensionAssistant {
         el.setAttribute('aria-label', translatedAria);
         this.translationSpeechCache.set(translatedAria, {
           ewondo: translatedAria,
-          phonetic: getEwondoPhonetic(translatedAria),
+          phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedAria) : '',
         });
+      } else {
+        const origAria = this.originalAttrMap.get(el)?.ariaLabel;
+        if (origAria !== undefined) el.setAttribute('aria-label', origAria);
       }
     }
 
@@ -873,8 +903,11 @@ class ExtensionAssistant {
           el.setAttribute('alt', translatedAlt);
           this.translationSpeechCache.set(translatedAlt, {
             ewondo: translatedAlt,
-            phonetic: getEwondoPhonetic(translatedAlt),
+            phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedAlt) : '',
           });
+        } else {
+          const origAlt = this.originalAttrMap.get(el)?.alt;
+          if (origAlt !== undefined) el.setAttribute('alt', origAlt);
         }
       }
     }
@@ -964,6 +997,9 @@ class ExtensionAssistant {
             phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translated) : '',
           });
         }
+      } else {
+        // Reset to original sourceText if no translation for this language
+        node.textContent = sourceText;
       }
     }
   }
@@ -1283,7 +1319,7 @@ class ExtensionAssistant {
     this.shadow.getElementById('audio-replay')?.addEventListener('click', () => {
       const text = this.shadow?.getElementById('audio-spoken-text')?.textContent || '';
       const phonetic = this.shadow?.getElementById('audio-phonetic')?.textContent?.replace(/[\[\]]/g, '') || '';
-      this.speechPlayer.speak(text, phonetic);
+      this.speechPlayer.speak(text, phonetic, undefined, this.currentTargetLang);
     });
 
     this.shadow.getElementById('audio-stop')?.addEventListener('click', () => {

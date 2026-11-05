@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const languages = await client.getLanguages();
     if (langCountEl) {
-      langCountEl.textContent = `Ewondo actif · Duala expérimental (FR/EN)`;
+      langCountEl.textContent = `5 Langues Souveraines Actives (FR/EN)`;
     }
   } catch {
     // Graceful offline fallback — autonomous local mode with embedded dictionary
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       statusEl.style.color = '#15803d';
     }
     if (langCountEl) {
-      langCountEl.textContent = 'Ewondo actif · Duala corpus expérimental';
+      langCountEl.textContent = '5 Langues Souveraines Actives (FR/EN)';
     }
   }
 

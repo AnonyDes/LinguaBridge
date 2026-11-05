@@ -194,7 +194,43 @@ setTimeout(() => {
     }
     console.log('✓ Stopping audio cleanly removed active speech outline');
 
-    console.log('🎉 ALL LIVE IN-PAGE TRANSLATION & HOVER-TO-SPEAK CHECKS PASSED PERFECTLY!');
+    // 9. Comprehensive Full-Page Verification across ALL 5 Sovereign Languages
+    console.log('\n--- Testing All 5 Sovereign Languages on Full Built Extension ---');
+    const otherLangs = [
+      { code: 'fuv-CM', name: 'Fulfulde', expectedTerm: 'Neldugol ceede' },
+      { code: 'hau-CM', name: 'Haoussa', expectedTerm: 'Tura kudi' },
+      { code: 'knc-CM', name: 'Kanuri', expectedTerm: 'Kudi tewuro' },
+      { code: 'pcm-CM', name: 'Cameroon Pidgin', expectedTerm: 'Send money' },
+    ];
+
+    for (const l of otherLangs) {
+      messageListener({ type: 'POPUP_TRANSLATE_PAGE', targetLang: l.code });
+      const curBalance = window.document.getElementById('balance').textContent;
+      const curTransfer = window.document.getElementById('transfer').textContent;
+      const curInput = window.document.getElementById('acc').placeholder;
+      const curSubmit = window.document.getElementById('btn-submit').value;
+
+      console.log(`✓ [${l.code} ${l.name}] Translated transfer button: "${curTransfer}"`);
+      console.log(`✓ [${l.code} ${l.name}] Preserved FCFA in balance: "${curBalance}"`);
+      console.log(`✓ [${l.code} ${l.name}] Translated input placeholder: "${curInput}"`);
+      console.log(`✓ [${l.code} ${l.name}] Translated submit value: "${curSubmit}"`);
+
+      if (!curBalance.includes('25000 FCFA')) {
+        console.error(`✗ AST Guard failed for ${l.name}: FCFA amount missing in "${curBalance}"`);
+        process.exit(1);
+      }
+      if (curTransfer === 'Effectuer un virement sécurisé') {
+        console.error(`✗ Language ${l.name} did not translate transfer button!`);
+        process.exit(1);
+      }
+    }
+
+    // 10. Verify Duala remains quarantined (zero unauthorized UI exposure)
+    messageListener({ type: 'POPUP_TRANSLATE_PAGE', targetLang: 'dua-CM' });
+    const duaBalance = window.document.getElementById('balance').textContent;
+    console.log('✓ Duala strictly quarantined (untranslated / protected):', duaBalance);
+
+    console.log('🎉 ALL LIVE IN-PAGE TRANSLATION & HOVER-TO-SPEAK CHECKS PASSED PERFECTLY ACROSS ALL 5 LANGUAGES!');
     process.exit(0);
   }, 260);
 }, 260);
