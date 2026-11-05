@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { TranslationProvider, TranslationRequest, TranslationResult, ProviderHealth } from '@linguabridge/shared-types';
 import { translateSentenceToEwondo, getEwondoPhonetic } from './ewondo-lexicon';
+import { translateLocalText } from './duala-research';
 
 const FIXTURES: Record<string, string> = {
   // FR -> EN
@@ -117,23 +118,10 @@ export class FixtureProvider implements TranslationProvider {
       if (matchKey) found = FIXTURES[matchKey];
     }
 
-    // Dynamic phrase templating for financial sentences like:
-    // "Transfert de 15 000 FCFA vers le +237 699 123 456"
-    // 3. Apertium & Extended Ewondo Morphological sentence translator
-    if (!found && (request.targetLang === 'ewo-CM' || request.targetLang === 'ewo')) {
-      const ewoSentence = translateSentenceToEwondo(normSource);
-      if (ewoSentence && ewoSentence !== normSource) {
-        found = ewoSentence;
-      }
-    }
-
-    const translatedText = found ?? (
-      (request.targetLang === 'ewo-CM' || request.targetLang === 'ewo')
-        ? translateSentenceToEwondo(request.sourceText)
-        : `[FIXTURE:${request.targetLang.toUpperCase()}] ${request.sourceText}`
-    );
-
-    const isRecognized = !!found || (request.targetLang === 'ewo-CM' || request.targetLang === 'ewo');
+    const local = translateLocalText(request.sourceText, request.sourceLang, request.targetLang);
+    const translatedText = found ?? local.translatedText;
+    const isRecognized = !!found || (local.status === 'success');
+    const isDuala = request.targetLang === 'dua' || request.targetLang === 'dua-CM';
 
     return Promise.resolve({
       id: request.id || randomUUID(),
@@ -142,9 +130,9 @@ export class FixtureProvider implements TranslationProvider {
       sourceLang: request.sourceLang,
       targetLang: request.targetLang,
       provider: this.id,
-      status: isRecognized ? 'success' : 'unverified',
+      status: isDuala ? 'unverified' : (isRecognized ? 'success' : 'unverified'),
       cacheStatus: 'miss',
-      warnings: isRecognized ? [] : ['DEMO_FIXTURE_TRANSLATION — Term not in certified lexicon'],
+      warnings: isDuala ? local.warnings : (isRecognized ? [] : local.warnings),
       latencyMs: 1,
       speechAvailable: true,
       phonetic: (request.targetLang === 'ewo-CM' || request.targetLang === 'ewo') ? getEwondoPhonetic(translatedText) : undefined,
@@ -160,7 +148,7 @@ export class FixtureProvider implements TranslationProvider {
       healthy: true,
       latencyMs: 0,
       message: 'Fixture & National Lexicon Provider operational',
-      supportedPairs: ['fr→en', 'en→fr', 'fr→ewo-CM', 'en→ewo-CM', 'fr→ewo', 'en→ewo'],
+      supportedPairs: ['fr→en', 'en→fr', 'fr→ewo-CM', 'en→ewo-CM', 'fr→ewo', 'en→ewo', 'en→dua-CM', 'en→dua'],
     });
   }
 
@@ -172,6 +160,7 @@ export class FixtureProvider implements TranslationProvider {
       'fr→ewo', 'en→ewo',
       'ewo-CM→fr', 'ewo-CM→en',
       'ewo→fr', 'ewo→en',
+      'en→dua-CM', 'en→dua', 'fr→dua-CM', 'fr→dua',
     ];
     return validPairs.includes(pair);
   }
