@@ -201,7 +201,7 @@ class ExtensionAssistant {
     return translateLocalText(text, this.currentSourceLang, this.currentTargetLang).translatedText;
   }
 
-  private currentSourceLang = 'fr';
+  private currentSourceLang = typeof document !== 'undefined' && document.documentElement?.lang?.toLowerCase().startsWith('en') ? 'en' : 'fr';
   private isOpen = false;
   private isTouchSpeakEnabled = false;
   private speechPlayer = new EwondoSpeechPlayer();
@@ -1172,7 +1172,7 @@ class ExtensionAssistant {
         <div class="header">
           <div style="display: flex; align-items: center; gap: 6px;">
             <span>LinguaBridge</span>
-            <span class="badge-nat">🇨🇲 Kóbɔ́ Ewondo</span>
+            <span class="badge-nat">${this.currentTargetLang === 'dua-CM' ? '🇨🇲 Duala' : '🇨🇲 Kóbɔ́ Ewondo'}</span>
           </div>
           <button id="close-card" style="background:none;border:none;cursor:pointer;color:#6b7280;font-size:16px;">✕</button>
         </div>
@@ -1260,6 +1260,8 @@ class ExtensionAssistant {
       this.currentTargetLang = (e.target as HTMLSelectElement).value;
       if (this.isPageTranslated) {
         this.translateFullPage();
+      } else {
+        this.render();
       }
     });
 
