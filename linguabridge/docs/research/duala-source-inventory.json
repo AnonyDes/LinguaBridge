@@ -1,0 +1,61 @@
+{
+  "language": "dua",
+  "purpose": "Duala translation research, prioritize genuine parallel sentences and banking terms",
+  "updated": "2026-11-05",
+  "status": "source discovery, no claimed imports",
+  "sources": [
+    {
+      "id": "hf-mt560",
+      "url": "https://huggingface.co/datasets/michsethowusu/english-duala_sentence-pairs_mt560",
+      "type": "english-duala-parallel-sentences",
+      "license": "CC-BY-4.0",
+      "priority": 1,
+      "notes": "Parquet dataset 1.86MB, 10K-100K size category; exact aligned count must be measured; verify quality, provenance and banking coverage"
+    },
+    {
+      "id": "kaikki-duala",
+      "url": "https://kaikki.org/frwiktionary/Douala/index.html",
+      "type": "machine-readable-lexicon",
+      "license": "Wiktionary CC BY-SA; verify exact attribution requirements",
+      "priority": 2,
+      "reported_word_forms": 412
+    },
+    {
+      "id": "kemelang-duala",
+      "url": "https://kemelang.com/duala/",
+      "type": "online-lexicon",
+      "license": "not verified for bulk reuse",
+      "priority": 3,
+      "reported_words": 910
+    },
+    {
+      "id": "asjp-duala",
+      "url": "https://asjp.clld.org/languages/DUALA",
+      "type": "phonetic-wordlist",
+      "license": "CC-BY-4.0",
+      "priority": 4
+    },
+    {
+      "id": "afrispeech",
+      "url": "https://github.com/AfriSpeech/africa-corpus-builder",
+      "type": "parallel-verses",
+      "license": "code MIT, text rights require separate verification",
+      "priority": 5
+    },
+    {
+      "id": "ukc",
+      "url": "https://datascientiafoundation.github.io/LiveLanguage/datasets/dua-ukc-lexicon-/",
+      "type": "lexicon",
+      "license": "CC BY-NC-SA",
+      "priority": 6,
+      "notes": "1 word only; not suitable for commercial use"
+    },
+    {
+      "id": "helmlinger",
+      "url": "https://catalogue.bnf.fr/ark:/12148/cb35290082f",
+      "type": "historical-dictionary",
+      "license": "reproduction restricted; not redistributable by default",
+      "priority": 7
+    }
+  ]
+}
