@@ -1,0 +1,32 @@
+name: Ewondo parallel corpus research
+on:
+  workflow_dispatch:
+jobs:
+  align-ewondo-french:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout LinguaBridge
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependency
+        run: python -m pip install 'huggingface_hub>=0.25,<2'
+      - name: Fetch upstream builder
+        run: git clone --depth 1 https://github.com/AfriSpeech/africa-corpus-builder.git /tmp/africa-corpus-builder
+      - name: Align Ewondo and French
+        run: |
+          python linguabridge/scripts/build_ewondo_parallel_research.py \
+            --builder /tmp/africa-corpus-builder/africa_corpus.py \
+            --out local-research/ewondo-french-parallel.csv
+      - name: Print report (not copyrighted verse text)
+        if: always()
+        run: |
+          if [ -f local-research/ewondo-french-parallel.report.json ]; then
+            cat local-research/ewondo-french-parallel.report.json
+          fi
+      # Text stays in ephemeral runner storage: no upload, commit, or production import.
+      # Verify original translation rights before any redistribution or model training.
