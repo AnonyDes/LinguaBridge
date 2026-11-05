@@ -1,0 +1,926 @@
+{
+  "schema_version": "1.0",
+  "language_source": "fr",
+  "language_target": "dua",
+  "scope": "banking-websites",
+  "note": "Original French source UI phrases, NOT verified Duala translations. No automatic translation from Ewondo: the languages are distinct.",
+  "license": "CC0-1.0 (original French prompts only)",
+  "status": "awaiting_native_duala_translation",
+  "sources_to_evaluate": [
+    {
+      "name": "Glottosphere Duala dictionary",
+      "url": "https://glottosphere.com/dictionary/dua",
+      "claimed_entries": 386,
+      "license": "CC BY-SA 4.0",
+      "use": "lexical candidates with attribution and share-alike compliance; not automatically integrated"
+    },
+    {
+      "name": "ASJP Duala",
+      "url": "https://asjp.clld.org/languages/DUALA",
+      "license": "CC BY 4.0",
+      "use": "phonetic comparison only; not banking phrase translation"
+    },
+    {
+      "name": "Duala.org",
+      "url": "https://duala.org/learn",
+      "license": "unverified",
+      "use": "manual linguistic reference only; no bulk redistribution"
+    }
+  ],
+  "entries": [
+    {
+      "category": "navigation",
+      "source": "Accueil",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Mes comptes",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Tableau de bord",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Mes opérations",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Historique des transactions",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Mes bénéficiaires",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Paramètres du compte",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Centre d'aide",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Contacter le support",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Se déconnecter",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Se connecter",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Créer un compte",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Voir les détails",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Retour",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Continuer",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Suivant",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Annuler",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Confirmer",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Enregistrer",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "navigation",
+      "source": "Télécharger le reçu",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Consulter mon solde",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Solde disponible",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Solde actuel",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Solde insuffisant",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Numéro de compte",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Titulaire du compte",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Compte courant",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Compte épargne",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Relevé bancaire",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Télécharger mon relevé",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Compte bloqué",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Compte suspendu",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Compte inactif",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Votre compte a été activé",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Votre compte a été désactivé",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Ajouter un compte bancaire",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "accounts",
+      "source": "Sélectionner un compte",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Envoyer de l'argent",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Recevoir de l'argent",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Effectuer un virement",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Virement bancaire",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Transfert d'argent",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Montant du transfert",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Nom du bénéficiaire",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Numéro du bénéficiaire",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Ajouter un bénéficiaire",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Modifier le bénéficiaire",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Confirmer le transfert",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Annuler le transfert",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Virement réussi",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Virement refusé",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Virement en attente",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Virement impossible",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Vérifiez les informations du bénéficiaire",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Votre transfert a été effectué",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Vous avez atteint votre plafond de transfert",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "transfers",
+      "source": "Le bénéficiaire est introuvable",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Effectuer un paiement",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Payer une facture",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Paiement marchand",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Paiement en cours",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Paiement confirmé",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Paiement refusé",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Paiement échoué",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Frais de paiement",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Montant total à payer",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Choisir un moyen de paiement",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Payer avec Mobile Money",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Payer avec Orange Money",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Payer avec MTN MoMo",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Confirmer le paiement",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Télécharger la preuve de paiement",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Numéro de référence du paiement",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Vous avez reçu un paiement",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "payments",
+      "source": "Votre paiement a été annulé",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Retirer de l'argent",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Déposer de l'argent",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Montant du retrait",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Montant du dépôt",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Retrait réussi",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Retrait refusé",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Dépôt confirmé",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Dépôt en attente",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Trouver un distributeur",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Trouver une agence",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Frais de retrait",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "cash",
+      "source": "Plafond de retrait",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Saisissez votre code PIN",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Code PIN incorrect",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Modifier mon code PIN",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Ne partagez jamais votre code PIN",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Saisissez le code de vérification",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Code de vérification expiré",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Renvoyer le code de vérification",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Authentification à deux facteurs",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Vérifier mon identité",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Mot de passe oublié",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Réinitialiser mon mot de passe",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Mot de passe incorrect",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Votre session a expiré",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Connexion sécurisée",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Déconnexion réussie",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Carte bancaire bloquée",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Bloquer ma carte",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Débloquer ma carte",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Carte expirée",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "security",
+      "source": "Signaler une fraude",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Une erreur est survenue",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Veuillez réessayer",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Veuillez réessayer plus tard",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Connexion indisponible",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Service temporairement indisponible",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Transaction impossible",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Transaction refusée",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Transaction annulée",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Transaction réussie",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Transaction en attente",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Vérifiez votre connexion Internet",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Le montant saisi est invalide",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Le numéro saisi est invalide",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Vous avez dépassé votre limite quotidienne",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Cette opération est irréversible",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Veuillez vérifier les détails avant de confirmer",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Opération en cours",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Aucune transaction trouvée",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "errors",
+      "source": "Aucune donnée disponible",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Demander un prêt",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Montant du prêt",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Taux d'intérêt",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Durée du prêt",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Rembourser un prêt",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Échéance du prêt",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Prochain remboursement",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Solde restant dû",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Simuler un crédit",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "loans",
+      "source": "Consulter les conditions du prêt",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Votre solde est de {amount}",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Vous avez reçu {amount}",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Vous avez envoyé {amount}",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Les frais sont de {amount}",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Votre paiement de {amount} a réussi",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Votre paiement de {amount} a échoué",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Vous avez reçu {amount} de {sender}",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Vous avez envoyé {amount} à {recipient}",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "La transaction {reference} est en attente",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Votre plafond quotidien est de {amount}",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Le code de vérification expire dans {minutes} minutes",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Le numéro de compte est {account_number}",
+      "translation": null,
+      "status": "needs_native_review"
+    },
+    {
+      "category": "templates",
+      "source": "Confirmez le transfert de {amount} vers {recipient}",
+      "translation": null,
+      "status": "needs_native_review"
+    }
+  ]
+}
