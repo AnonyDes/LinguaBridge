@@ -10,7 +10,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
   chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus?.create({
       id: 'linguabridge-translate-selection',
-      title: 'Traduire "%s" en langue maternelle (Ewondo)',
+      title: 'Traduire "%s" en langue maternelle',
       contexts: ['selection'],
     });
   });
@@ -25,41 +25,32 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
   });
 }
 
-// Background message dispatcher
+// Background message dispatcher supporting all 5 Sovereign Cameroonian Languages
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     const targetLang = message.targetLang || 'ewo-CM';
     const isEwondo = targetLang.includes('ewo');
-    const local = (text: string, sourceLang?: string) => translateLocalText(text, sourceLang || (isEwondo ? 'fr' : 'en'), targetLang);
-
-    if (message.type === 'TRANSLATE_TEXT' && !isEwondo) {
-      const result = local(message.text, message.sourceLang);
-      sendResponse({ success: true, result: { ...result, originalText: message.text, sourceLang: message.sourceLang || 'en', targetLang, provider: 'duala-research-exact', speechAvailable: false } });
-      return false;
-    }
-    if (message.type === 'TRANSLATE_BATCH' && !isEwondo) {
-      sendResponse({ success: true, results: message.items.map((item: any) => ({ ...local(item.text, item.sourceLang), originalText: item.text, sourceLang: item.sourceLang || 'en', targetLang, provider: 'duala-research-exact', speechAvailable: false })) });
-      return false;
-    }
+    const local = (text: string, sourceLang?: string) =>
+      translateLocalText(text, sourceLang || (isEwondo ? 'fr' : 'en'), targetLang);
 
     if (message.type === 'TRANSLATE_TEXT') {
       client
         .translate({
           text: message.text,
-          sourceLang: message.sourceLang || 'fr',
-          targetLang: message.targetLang || 'ewo-CM',
+          sourceLang: message.sourceLang || (isEwondo ? 'fr' : 'en'),
+          targetLang,
           domain: message.domain || 'financial',
         })
         .then((result) => {
-          if ((!result.translatedText || result.translatedText === message.text) && isEwondo) {
-            const localTrans = local(message.text, message.sourceLang).translatedText;
+          if (!result.translatedText || result.translatedText === message.text) {
+            const localRes = local(message.text, message.sourceLang);
             sendResponse({
               success: true,
               result: {
                 ...result,
-                translatedText: localTrans,
-                status: local(message.text, message.sourceLang).status,
-                phonetic: getEwondoPhonetic(localTrans),
+                translatedText: localRes.translatedText,
+                status: localRes.status,
+                phonetic: isEwondo ? getEwondoPhonetic(localRes.translatedText) : undefined,
               },
             });
             return;
@@ -73,23 +64,23 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           });
         })
         .catch(() => {
-          // Autonomous offline / fallback execution
-          const trans = isEwondo ? local(message.text, message.sourceLang).translatedText : message.text;
+          // Autonomous offline / fallback execution across all 5 languages
+          const localRes = local(message.text, message.sourceLang);
           sendResponse({
             success: true,
             result: {
               id: `local-${Date.now()}`,
               originalText: message.text,
-              translatedText: trans,
-              sourceLang: message.sourceLang || 'fr',
-              targetLang: message.targetLang || 'ewo-CM',
-              provider: isEwondo ? 'ewondo-lexicon' : 'duala-research-exact',
-              status: isEwondo && trans !== message.text ? 'success' : 'unverified',
+              translatedText: localRes.translatedText,
+              sourceLang: message.sourceLang || (isEwondo ? 'fr' : 'en'),
+              targetLang,
+              provider: 'sovereign-lexicon',
+              status: localRes.status,
               cacheStatus: 'miss',
-              warnings: local(message.text, message.sourceLang).warnings,
+              warnings: localRes.warnings,
               latencyMs: 1,
               speechAvailable: true,
-              phonetic: isEwondo ? getEwondoPhonetic(trans) : undefined,
+              phonetic: isEwondo ? getEwondoPhonetic(localRes.translatedText) : undefined,
             },
           });
         });
@@ -101,13 +92,14 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         .translateBatch(message.items)
         .then((results) => {
           const processed = results.map((r, idx) => {
-            if ((!r.translatedText || r.translatedText === message.items[idx]?.text) && isEwondo) {
-              const trans = local(message.items[idx]?.text || '', message.items[idx]?.sourceLang).translatedText;
+            const item = message.items[idx];
+            if (!r.translatedText || r.translatedText === item?.text) {
+              const localRes = local(item?.text || '', item?.sourceLang);
               return {
                 ...r,
-                translatedText: trans,
-                status: local(message.items[idx]?.text || '', message.items[idx]?.sourceLang).status,
-                phonetic: getEwondoPhonetic(trans),
+                translatedText: localRes.translatedText,
+                status: localRes.status,
+                phonetic: isEwondo ? getEwondoPhonetic(localRes.translatedText) : undefined,
               };
             }
             return {
@@ -118,22 +110,22 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           sendResponse({ success: true, results: processed });
         })
         .catch(() => {
-          // Autonomous offline / fallback execution for batch
+          // Autonomous offline fallback execution across all 5 languages
           const results = message.items.map((item: any, idx: number) => {
-            const trans = isEwondo ? local(item.text, item.sourceLang).translatedText : item.text;
+            const localRes = local(item.text, item.sourceLang);
             return {
               id: `local-batch-${idx}`,
               originalText: item.text,
-              translatedText: trans,
-              sourceLang: item.sourceLang || 'fr',
-              targetLang: item.targetLang || 'ewo-CM',
-              provider: isEwondo ? 'ewondo-lexicon' : 'duala-research-exact',
-              status: isEwondo && trans !== item.text ? 'success' : 'unverified',
+              translatedText: localRes.translatedText,
+              sourceLang: item.sourceLang || (isEwondo ? 'fr' : 'en'),
+              targetLang: item.targetLang || targetLang,
+              provider: 'sovereign-lexicon',
+              status: localRes.status,
               cacheStatus: 'miss',
-              warnings: local(item.text, item.sourceLang).warnings,
+              warnings: localRes.warnings,
               latencyMs: 1,
               speechAvailable: true,
-              phonetic: isEwondo ? getEwondoPhonetic(trans) : undefined,
+              phonetic: isEwondo ? getEwondoPhonetic(localRes.translatedText) : undefined,
             };
           });
           sendResponse({ success: true, results });
@@ -150,7 +142,10 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             success: true,
             languages: [
               { code: 'ewo-CM', name: 'Ewondo (Langue Maternelle)', nativeName: 'Kóbɔ́ Ewondo', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
-              { code: 'dua-CM', name: 'Duala (recherche expérimentale)', nativeName: 'Duala', speechAvailable: false, packStatus: 'unverified', isAvailable: false },
+              { code: 'fuv-CM', name: 'Fulfulde / Peul', nativeName: 'Pulaar / Fulfulde', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
+              { code: 'hau-CM', name: 'Haoussa', nativeName: 'Harshen Hausa', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
+              { code: 'knc-CM', name: 'Kanuri', nativeName: 'Kànurí', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
+              { code: 'pcm-CM', name: 'Cameroon Pidgin', nativeName: 'Kamtok', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
               { code: 'fr', name: 'Français', nativeName: 'Français', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
               { code: 'en', name: 'English', nativeName: 'English', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
             ],
