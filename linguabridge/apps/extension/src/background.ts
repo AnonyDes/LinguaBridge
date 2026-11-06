@@ -1,9 +1,12 @@
 import { LinguaBridgeClient } from '@linguabridge/sdk-js';
 import { translateLocalText, getEwondoPhonetic } from '@linguabridge/translation-engine';
+import { AfricanVoiceProvider } from '@linguabridge/speech-engine';
 
 const client = new LinguaBridgeClient({
   baseUrl: 'http://localhost:3001',
 });
+
+const africanVoiceProvider = new AfricanVoiceProvider();
 
 // Setup context menus
 if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
@@ -150,6 +153,20 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               { code: 'en', name: 'English', nativeName: 'English', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
             ],
           });
+        });
+      return true;
+    }
+
+    if (message.type === 'SYNTHESIZE_SPEECH') {
+      const text = message.text || '';
+      const lang = message.lang || targetLang;
+      africanVoiceProvider
+        .synthesize(text, lang, message.options)
+        .then((result) => {
+          sendResponse({ success: true, result });
+        })
+        .catch((err) => {
+          sendResponse({ success: false, error: err?.message || 'Speech synthesis failed' });
         });
       return true;
     }

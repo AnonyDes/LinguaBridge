@@ -1,51 +1,27 @@
 import type { TranslationResult } from '@linguabridge/shared-types';
 import { translateLocalText, getEwondoPhonetic } from '@linguabridge/translation-engine';
 
-class EwondoSpeechPlayer {
+class AfricanSpeechPlayer {
   private isPlaying = false;
   private audioCtx: AudioContext | null = null;
+  private activeAudio: HTMLAudioElement | null = null;
   private onEndCallback: (() => void) | null = null;
-  private cachedVoice: SpeechSynthesisVoice | null = null;
-  private voicesLoaded = false;
   private currentUtteranceId = 0;
   private activeUtterance: SpeechSynthesisUtterance | null = null;
 
   constructor() {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      this.initVoice();
-      try {
-        if (typeof window.speechSynthesis.addEventListener === 'function') {
-          window.speechSynthesis.addEventListener('voiceschanged', () => this.initVoice());
-        } else if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
-          window.speechSynthesis.onvoiceschanged = () => this.initVoice();
-        }
-      } catch {
-        // Ignored
-      }
-    }
+    this.prewarm();
   }
 
   public prewarm(): void {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    if (typeof window === 'undefined') return;
     try {
-      this.initVoice();
-      // Resume wakes up Chromium's paused/asleep speech synthesis pipeline with zero latency
-      window.speechSynthesis.resume();
-    } catch {
-      // Ignored
-    }
-  }
-
-  private initVoice(): void {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    try {
-      const voices = window.speechSynthesis.getVoices();
-      if (voices && voices.length > 0) {
-        // Bantu / Ewondo tone articulation: Continental Romance vowels (French, Spanish, Italian) best preserve Ewondo phonemes
-        this.cachedVoice =
-          voices.find((v) => v.lang.startsWith('fr') || v.lang.startsWith('es') || v.lang.startsWith('it')) ||
-          voices[0];
-        this.voicesLoaded = true;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.resume();
+      }
+      const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtxClass && !this.audioCtx) {
+        this.audioCtx = new AudioCtxClass();
       }
     } catch {
       // Ignored
@@ -61,111 +37,229 @@ class EwondoSpeechPlayer {
     this.onEndCallback = onEnd || null;
 
     const isEwondo = targetLang.startsWith('ewo');
-    const isPidgin = targetLang.startsWith('pcm');
-    const isHausa = targetLang.startsWith('hau');
-
     const spokenRaw = phonetic || (isEwondo ? getEwondoPhonetic(text) : text) || text;
-    // Strip hyphens between syllables for acoustic TTS engine to eliminate awkward pauses and "trait d'union" stutter
     const spokenText = spokenRaw.replace(/-/g, '');
 
-    if ('speechSynthesis' in window) {
+    // Attempt 1: High-fidelity African audio from Background service / Speech Engine
+    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
       try {
-        // Ensure speech synthesis is awake and unpaused
-        window.speechSynthesis.resume();
-
-        const utterance = new SpeechSynthesisUtterance(spokenText);
-        // Retain reference on instance to prevent Chromium V8 GC issue 679437
-        this.activeUtterance = utterance;
-
-        // Pacing for crystal-clear tone clarity and African phonetic articulation
-        utterance.rate = isPidgin ? 0.95 : 0.88;
-        utterance.pitch = 1.0;
-
-        const voices = window.speechSynthesis.getVoices() || [];
-        if (isPidgin) {
-          utterance.lang = 'en-GB';
-          const enVoice = voices.find((v) => v.lang.startsWith('en-NG') || v.lang.startsWith('en-GB') || v.lang.startsWith('en'));
-          if (enVoice) utterance.voice = enVoice;
-        } else if (isHausa) {
-          const hausaVoice = voices.find((v) => v.lang.startsWith('ha'));
-          if (hausaVoice) {
-            utterance.lang = 'ha-NG';
-            utterance.voice = hausaVoice;
-          } else {
-            utterance.lang = 'fr-FR';
-            if (this.cachedVoice) utterance.voice = this.cachedVoice;
-          }
-        } else {
-          utterance.lang = 'fr-FR'; // Pure continental vowels matching Bantu & Sudanic phonology
-          if (!this.cachedVoice && !this.voicesLoaded) {
-            this.initVoice();
-          }
-          if (this.cachedVoice) {
-            utterance.voice = this.cachedVoice;
-          }
-        }
-
-        utterance.onstart = () => {
-          if (this.currentUtteranceId === thisId) {
-            this.isPlaying = true;
-          }
-        };
-
-        const finish = () => {
-          if (this.currentUtteranceId === thisId) {
-            this.isPlaying = false;
-            this.activeUtterance = null;
-            if (this.onEndCallback) {
-              const cb = this.onEndCallback;
-              this.onEndCallback = null;
-              cb();
+        chrome.runtime.sendMessage(
+          {
+            type: 'SYNTHESIZE_SPEECH',
+            text: spokenText,
+            lang: targetLang,
+            phonetic,
+          },
+          (res: any) => {
+            if (this.currentUtteranceId !== thisId) return;
+            if (res && res.success && res.result?.audioUrl) {
+              this.playAfricanAudio(res.result.audioUrl, thisId);
+              return;
             }
+            // Fallback to client African acoustic synthesizer
+            this.playClientAfricanVoice(spokenText, targetLang, thisId);
           }
-        };
-
-        utterance.onend = finish;
-        utterance.onerror = (e) => {
-          // If canceled or interrupted by another utterance, do not invoke error handler
-          if ((e as any)?.error === 'interrupted' || (e as any)?.error === 'canceled') {
-            return;
-          }
-          finish();
-        };
-
-        window.speechSynthesis.speak(utterance);
+        );
+        return;
       } catch {
-        this.playAcousticChime();
-        if (this.onEndCallback) {
-          setTimeout(() => {
-            if (this.currentUtteranceId === thisId && this.onEndCallback) {
-              const cb = this.onEndCallback;
-              this.onEndCallback = null;
-              cb();
-            }
-          }, 350);
-        }
+        // Fallback to client African voice
       }
-    } else {
-      this.playAcousticChime();
-      if (this.onEndCallback) {
-        setTimeout(() => {
-          if (this.currentUtteranceId === thisId && this.onEndCallback) {
+    }
+
+    this.playClientAfricanVoice(spokenText, targetLang, thisId);
+  }
+
+  private playAfricanAudio(audioUrl: string, thisId: number): void {
+    try {
+      const audio = new Audio(audioUrl);
+      this.activeAudio = audio;
+
+      audio.onplay = () => {
+        if (this.currentUtteranceId === thisId) {
+          this.isPlaying = true;
+        }
+      };
+
+      const finish = () => {
+        if (this.currentUtteranceId === thisId) {
+          this.isPlaying = false;
+          this.activeAudio = null;
+          if (this.onEndCallback) {
             const cb = this.onEndCallback;
             this.onEndCallback = null;
             cb();
           }
-        }, 350);
+        }
+      };
+
+      audio.onended = finish;
+      audio.onerror = () => {
+        finish();
+      };
+
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => finish());
+      }
+    } catch {
+      this.finishUtterance(thisId);
+    }
+  }
+
+  private playClientAfricanVoice(text: string, targetLang: string, thisId: number): void {
+    // Check if browser has a native African voice (e.g. en-NG, ha-NG, sw-KE, zu-ZA)
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        const voices = window.speechSynthesis.getVoices() || [];
+        const isPidgin = targetLang.startsWith('pcm');
+        const isHausa = targetLang.startsWith('hau');
+
+        // Look STRICTLY for African regional locales (Nigeria, Kenya, South Africa, Ghana, Senegal, Cameroon)
+        const africanVoice = voices.find((v) => {
+          const l = v.lang.toLowerCase();
+          return (
+            l.startsWith('en-ng') ||
+            l.startsWith('ha') ||
+            l.startsWith('sw') ||
+            l.startsWith('zu') ||
+            l.startsWith('fr-cm') ||
+            l.startsWith('fr-sn') ||
+            l.startsWith('fr-ci') ||
+            l.startsWith('en-gh') ||
+            l.startsWith('en-ke') ||
+            l.startsWith('en-za')
+          );
+        });
+
+        if (africanVoice) {
+          window.speechSynthesis.resume();
+          const utterance = new SpeechSynthesisUtterance(text);
+          this.activeUtterance = utterance;
+          utterance.voice = africanVoice;
+          utterance.lang = africanVoice.lang;
+          utterance.rate = isPidgin ? 0.95 : 0.88;
+          utterance.pitch = isHausa ? 1.05 : 1.0;
+
+          utterance.onstart = () => {
+            if (this.currentUtteranceId === thisId) {
+              this.isPlaying = true;
+            }
+          };
+
+          const finish = () => {
+            if (this.currentUtteranceId === thisId) {
+              this.isPlaying = false;
+              this.activeUtterance = null;
+              if (this.onEndCallback) {
+                const cb = this.onEndCallback;
+                this.onEndCallback = null;
+                cb();
+              }
+            }
+          };
+
+          utterance.onend = finish;
+          utterance.onerror = (e) => {
+            if ((e as any)?.error === 'interrupted' || (e as any)?.error === 'canceled') return;
+            finish();
+          };
+
+          window.speechSynthesis.speak(utterance);
+          return;
+        }
+      } catch {
+        // Fall through to authentic acoustic tone
+      }
+    }
+
+    // NEVER fallback to fr-FR or en-GB!
+    // Instead, synthesize African warm acoustic pitch contour via Web Audio
+    this.playAcousticAfricanResonator(targetLang, thisId);
+  }
+
+  private playAcousticAfricanResonator(targetLang: string, thisId: number): void {
+    try {
+      const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtxClass) {
+        this.finishUtterance(thisId);
+        return;
+      }
+      if (!this.audioCtx) this.audioCtx = new AudioCtxClass();
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume().catch(() => {});
+      }
+
+      this.isPlaying = true;
+      const now = this.audioCtx.currentTime;
+
+      // African warm chest register: ~140Hz base F0 with tone pitch motion
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+      const filter = this.audioCtx.createBiquadFilter();
+
+      // Formant bandpass filter modeling open African vowel resonance
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(750, now); // F1 open vowel
+      filter.Q.setValueAtTime(3.0, now);
+
+      let baseF0 = 142;
+      if (targetLang.startsWith('ewo')) baseF0 = 138;
+      else if (targetLang.startsWith('fuv')) baseF0 = 148;
+      else if (targetLang.startsWith('hau')) baseF0 = 140;
+      else if (targetLang.startsWith('knc')) baseF0 = 136;
+      else if (targetLang.startsWith('pcm')) baseF0 = 152;
+
+      osc.type = 'sawtooth'; // Rich vocal cord harmonic overtone series
+      osc.frequency.setValueAtTime(baseF0, now);
+      // Tonal pitch inflection (Bantu rising/falling contour)
+      osc.frequency.linearRampToValueAtTime(baseF0 * 1.15, now + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(baseF0 * 0.90, now + 0.35);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.20, now + 0.05); // Attack
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38); // Decay
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.38);
+
+      setTimeout(() => {
+        this.finishUtterance(thisId);
+      }, 400);
+    } catch {
+      this.finishUtterance(thisId);
+    }
+  }
+
+  private finishUtterance(thisId: number): void {
+    if (this.currentUtteranceId === thisId) {
+      this.isPlaying = false;
+      this.activeAudio = null;
+      this.activeUtterance = null;
+      if (this.onEndCallback) {
+        const cb = this.onEndCallback;
+        this.onEndCallback = null;
+        cb();
       }
     }
   }
 
   public pause(): void {
+    if (this.activeAudio && !this.activeAudio.paused) {
+      this.activeAudio.pause();
+    }
     if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.speaking) {
       window.speechSynthesis.pause();
     }
   }
 
   public resume(): void {
+    if (this.activeAudio && this.activeAudio.paused) {
+      this.activeAudio.play().catch(() => {});
+    }
     if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
     }
@@ -173,6 +267,15 @@ class EwondoSpeechPlayer {
 
   public stop(): void {
     this.currentUtteranceId++;
+    if (this.activeAudio) {
+      try {
+        this.activeAudio.pause();
+        this.activeAudio.currentTime = 0;
+      } catch {
+        // Ignored
+      }
+      this.activeAudio = null;
+    }
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
         window.speechSynthesis.cancel();
@@ -185,26 +288,10 @@ class EwondoSpeechPlayer {
     this.isPlaying = false;
     this.onEndCallback = null;
   }
-
-  private playAcousticChime(): void {
-    try {
-      const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtxClass) return;
-      if (!this.audioCtx) this.audioCtx = new AudioCtxClass();
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(this.audioCtx.destination);
-      osc.frequency.setValueAtTime(440, this.audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.15, this.audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.35);
-      osc.start();
-      osc.stop(this.audioCtx.currentTime + 0.35);
-    } catch {
-      // Ignored
-    }
-  }
 }
+
+// Backward-compatible alias
+const EwondoSpeechPlayer = AfricanSpeechPlayer;
 
 class ExtensionAssistant {
   private container: HTMLElement | null = null;

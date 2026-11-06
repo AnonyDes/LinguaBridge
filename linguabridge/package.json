@@ -9,6 +9,7 @@
     "test": "turbo test",
     "lint": "turbo lint",
     "db:migrate": "pnpm --filter @linguabridge/database migrate",
+    "voice:serve": "python scripts/serve_african_voice.py",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },

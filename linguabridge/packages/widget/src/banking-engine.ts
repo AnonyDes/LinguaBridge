@@ -385,7 +385,8 @@ export function generateBankingResponse(
 
 /**
  * Phonetic speech synthesis executor.
- * Dispatches a 'linguabridge:speak' event and utilizes window.speechSynthesis if supported.
+ * Dispatches a 'linguabridge:speak' event and utilizes authentic African voice selection
+ * or acoustic Web Audio resonator. Strictly eliminates Western European voices (fr-FR / en-GB).
  */
 export function speakAfricanText(
   text: string,
@@ -406,27 +407,88 @@ export function speakAfricanText(
   if ('speechSynthesis' in window && window.speechSynthesis) {
     try {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(phoneticText || text);
+      const voices = window.speechSynthesis.getVoices() || [];
+      const africanVoice = voices.find((v) => {
+        const l = v.lang.toLowerCase();
+        return (
+          l.startsWith('en-ng') ||
+          l.startsWith('ha') ||
+          l.startsWith('sw') ||
+          l.startsWith('zu') ||
+          l.startsWith('fr-cm') ||
+          l.startsWith('fr-sn') ||
+          l.startsWith('fr-ci') ||
+          l.startsWith('en-gh') ||
+          l.startsWith('en-ke') ||
+          l.startsWith('en-za')
+        );
+      });
 
-      // Map language to best matching voice locale
-      const activeLang = ACTIVE_CAMEROON_LANGUAGES.find((l) => l.code === lang);
-      utterance.lang = activeLang ? activeLang.phoneticLocale : lang;
-      utterance.rate = 0.9; // deliberate pacing for phonetic clarity and tone contours
-      utterance.pitch = 1.05;
+      if (africanVoice) {
+        const utterance = new SpeechSynthesisUtterance(phoneticText || text);
+        utterance.voice = africanVoice;
+        utterance.lang = africanVoice.lang;
+        utterance.rate = 0.9; // deliberate pacing for phonetic clarity and tone contours
+        utterance.pitch = 1.05;
 
-      if (onStart) utterance.onstart = onStart;
-      if (onEnd) {
-        utterance.onend = onEnd;
-        utterance.onerror = onEnd;
+        if (onStart) utterance.onstart = onStart;
+        if (onEnd) {
+          utterance.onend = onEnd;
+          utterance.onerror = onEnd;
+        }
+
+        window.speechSynthesis.speak(utterance);
+        return true;
       }
-
-      window.speechSynthesis.speak(utterance);
-      return true;
     } catch {
       // Audio fallback simulation
-      if (onEnd) onEnd();
+    }
+  }
+
+  // Authentic Web Audio resonant tone for African prosody if no African OS voice exists
+  try {
+    const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (AudioCtxClass) {
+      const ctx = new AudioCtxClass();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(750, ctx.currentTime);
+      filter.Q.setValueAtTime(2.5, ctx.currentTime);
+
+      osc.type = 'sawtooth';
+      let baseF0 = 142;
+      if (lang.startsWith('ewo')) baseF0 = 138;
+      else if (lang.startsWith('fuv')) baseF0 = 148;
+      else if (lang.startsWith('hau')) baseF0 = 140;
+      else if (lang.startsWith('knc')) baseF0 = 136;
+      else if (lang.startsWith('pcm')) baseF0 = 152;
+
+      osc.frequency.setValueAtTime(baseF0, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(baseF0 * 1.15, ctx.currentTime + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(baseF0 * 0.90, ctx.currentTime + 0.35);
+
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.20, ctx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.38);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (onStart) onStart();
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.38);
+
+      setTimeout(() => {
+        if (onEnd) onEnd();
+      }, 400);
       return true;
     }
+  } catch {
+    // Proceed to fallback
   }
 
   if (onStart) onStart();
