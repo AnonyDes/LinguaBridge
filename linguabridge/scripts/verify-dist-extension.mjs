@@ -29,7 +29,7 @@ document.body.innerHTML = `
     <button id="transfer" aria-label="Effectuer un virement sécurisé">Effectuer un virement sécurisé</button>
     <input id="acc" type="text" placeholder="Numéro de compte" />
     <input id="btn-submit" type="submit" value="Confirmer le transfert" />
-    <div id="nayokan">
+    <div id="portal-inquiry">
       <h2>Say hello. Or send a serious enquiry.</h2>
       <p>Choose the route that matches your enquiry</p>
     </div>
@@ -117,7 +117,7 @@ console.log('✓ Translated Button text:', btnText);
 console.log('✓ Translated Button aria-label attribute:', transferEl.getAttribute('aria-label'));
 console.log('✓ Translated Input Placeholder:', accInput.placeholder);
 console.log('✓ Translated Submit Button Value:', submitBtn.value);
-console.log('✓ Translated Nayokan section:', window.document.getElementById('nayokan').textContent.trim());
+console.log('✓ Translated portal section:', window.document.getElementById('portal-inquiry').textContent.trim());
 
 if (!h1Text.includes('Mbólo') || !balanceText.includes('25000 FCFA')) {
   console.error('✗ Unexpected translation output:', { h1Text, balanceText, btnText });

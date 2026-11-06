@@ -23,6 +23,7 @@ import { packRoutes } from './routes/packs';
 import { keysRoutes } from './routes/keys';
 import { logsRoutes } from './routes/logs';
 import { dashboardRoutes } from './routes/dashboard';
+import { speechRoutes } from './routes/speech.routes';
 import {
   TranslateRequestSchema,
   TranslationResultSchema,
@@ -591,6 +592,7 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
   await fastify.register(keysRoutes, { apiKeyService });
   await fastify.register(logsRoutes, { auditLogger });
   await fastify.register(dashboardRoutes, { auditLogger, apiKeyService });
+  await fastify.register(speechRoutes);
 
   return fastify;
 }

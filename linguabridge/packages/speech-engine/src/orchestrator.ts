@@ -1,6 +1,7 @@
 import type { SpeechSynthesisResult } from '@linguabridge/shared-types';
 import type { SpeechProvider, SpeechSynthesisOptions } from './types';
 import { MockSpeechProvider } from './providers/mock-provider';
+import { AfricanVoiceProvider } from './providers/african-voice-provider';
 
 export interface SpeechOrchestratorConfig {
   providers?: SpeechProvider[];
@@ -15,8 +16,8 @@ export class SpeechOrchestrator {
     if (config?.providers && config.providers.length > 0) {
       this.providers = [...config.providers];
     } else {
-      // Default to MockSpeechProvider if none specified
-      this.providers = [new MockSpeechProvider()];
+      // Default to AfricanVoiceProvider and MockSpeechProvider
+      this.providers = [new AfricanVoiceProvider(), new MockSpeechProvider()];
     }
   }
 
@@ -30,16 +31,17 @@ export class SpeechOrchestrator {
 
   isLanguageSupported(lang: string): boolean {
     if (!lang) return false;
-    // Known deferred Cameroonian languages strictly lack approved acoustic models
+    const norm = lang.trim().toLowerCase();
+    // Duala is strictly quarantined and excluded
+    if (norm === 'dua' || norm === 'dua-cm') {
+      return false;
+    }
+    // Deferred uncertified non-sovereign Cameroonian languages strictly lack approved acoustic models
     const unverifiedLocales = [
-      'ewo', 'ewo-cm',
-      'dua', 'dua-cm',
       'bas', 'bas-cm',
-      'fub', 'fub-cm',
-      'fuv', 'fuv-cm',
       'bum', 'bum-cm',
     ];
-    if (unverifiedLocales.includes(lang.toLowerCase())) {
+    if (unverifiedLocales.includes(norm)) {
       return false;
     }
 
@@ -60,19 +62,22 @@ export class SpeechOrchestrator {
       };
     }
 
-    // Check Degrade-First Policy for uncertified or unsupported languages
     const normalizedLang = lang.trim().toLowerCase();
+
+    // Strict quarantine check for Duala
+    if (normalizedLang === 'dua' || normalizedLang === 'dua-cm') {
+      return {
+        available: false,
+        lang,
+        unavailableReason: 'Audio synthesis is strictly quarantined for Duala (dua-CM). Acoustic models are pending qualified native phonetic certification. Silent fallback to another language is prevented by safety policy.',
+        fallbackLang: null,
+      };
+    }
+
+    // Check Degrade-First Policy for uncertified non-sovereign languages
     const deferredLanguages: Record<string, string> = {
-      'ewo': 'Ewondo (ewo-CM)',
-      'ewo-cm': 'Ewondo (ewo-CM)',
-      'dua': 'Duala (dua-CM)',
-      'dua-cm': 'Duala (dua-CM)',
       'bas': 'Basaa (bas-CM)',
       'bas-cm': 'Basaa (bas-CM)',
-      'fub': 'Fulfulde (fub-CM)',
-      'fub-cm': 'Fulfulde (fub-CM)',
-      'fuv': 'Fulfulde (fuv-CM)',
-      'fuv-cm': 'Fulfulde (fuv-CM)',
       'bum': 'Bulu (bum-CM)',
       'bum-cm': 'Bulu (bum-CM)',
     };

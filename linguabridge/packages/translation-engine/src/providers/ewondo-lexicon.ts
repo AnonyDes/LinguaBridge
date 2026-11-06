@@ -3647,8 +3647,6 @@ const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
   'into jobs': 'É bə ésyé',
   'in cameroon': 'Á Kamərún',
   'in cameroon.': 'Á Kamərún.',
-  'nayokan offers hands-on training and helps people develop business ideas. we welcome universities, employers and investors who want to support that work.': 'Nayokan á vɛ̌ ayə́gə́lá ésyé, á vól bód á kús fə̀k nkap. Bí á nyə̌ŋ dán nda bəkóbó, békôn ésyé ai bə́sə́gí móni bé yí á vól ésyé nyə.',
-  'nayokan offers hands-on training and helps people develop business ideas': 'Nayokan á vɛ̌ ayə́gə́lá ésyé, á vól bód á kús fə̀k nkap',
   'offers hands-on training and helps people develop business ideas': 'Á vɛ̌ ayə́gə́lá ésyé, á vól bód á kús fə̀k nkap',
   'we welcome universities, employers and investors who want to support that work': 'Bí á nyə̌ŋ dán nda bəkóbó, békôn ésyé ai bə́sə́gí móni bé yí á vól ésyé nyə',
   'hands-on training': 'Ayə́gə́lá ésyé',
@@ -3716,7 +3714,7 @@ const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
   'register': 'Tili dzóé',
   'logout': 'Kudú',
 
-  // Ecosystem & Landing page phrases (Nayokan & startup ecosystem)
+  // Ecosystem & Digital Business Landing page phrases
   'building people, enterprises and productive systems for cameroon': 'Nlónan bôt, mímbóglán aí mimbóg yá mbuma asú yá Kamərún',
   'building people': 'Nlónan bôt',
   'productive systems': 'Mimbóg yá mbuma',
@@ -4195,7 +4193,7 @@ export function translateSentenceToEwondo(text: string): string {
   }
 
   // 4. Token-by-token replacement & French elision handling
-  const words = workingText.split(/(\s+|[,;:.!?()\/\-]|(?<=[ldcsqnjm]['’])(?=[\p{L}]))/u);
+  const words = workingText.split(/(\s+|[,;:.!?()\/\-]|<\/?t\d+>|⟦T\d+:|⟧|(?<=[ldcsqnjm]['’])(?=[\p{L}]))/u);
   const translatedTokens: string[] = [];
 
   for (let i = 0; i < words.length; i++) {
@@ -4208,8 +4206,8 @@ export function translateSentenceToEwondo(text: string): string {
       continue;
     }
 
-    // Preserve entity placeholders without modification
-    if (/^___FIN_GUARD_\d+___$/.test(token)) {
+    // Preserve entity placeholders and tag tokens without modification
+    if (/^___FIN_GUARD_\d+___$/.test(token) || /^<\/?t\d+>$/.test(token) || /^⟦T\d+:$/.test(token) || token === '⟧') {
       translatedTokens.push(token);
       continue;
     }

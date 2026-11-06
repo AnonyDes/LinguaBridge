@@ -232,4 +232,40 @@ describe('LinguaBridgeWidget & Sovereign Banking Assistant', () => {
     expect(spokenDetail.lang).toBe('ewo-CM');
     expect(spokenDetail.phoneticText).toBeDefined();
   });
+
+  it('translates attributes, composite containers with inline tags, and restores cleanly', async () => {
+    document.body.innerHTML = `
+      <div>
+        <h1 id="title" title="Portail bancaire">Portail bancaire</h1>
+        <p id="msg">Consultez votre <strong>solde disponible</strong> sur votre compte.</p>
+        <input id="acc" type="text" placeholder="Numéro de compte" />
+        <input id="submit" type="submit" value="Confirmer" />
+        <img id="logo" src="logo.png" alt="Logo de sécurité" />
+      </div>
+    `;
+
+    widget = LinguaBridgeWidget.init({ apiUrl: 'http://localhost:3001' });
+    await widget.translatePage();
+
+    const titleEl = document.getElementById('title');
+    const msgEl = document.getElementById('msg');
+    const accEl = document.getElementById('acc') as HTMLInputElement;
+    const submitEl = document.getElementById('submit') as HTMLInputElement;
+    const logoEl = document.getElementById('logo') as HTMLImageElement;
+
+    // Translated checks
+    expect(titleEl?.getAttribute('title')).toBe('En-Portail bancaire');
+    expect(accEl.placeholder).toBe('En-Numéro de compte');
+    expect(submitEl.value).toBe('En-Confirmer');
+    expect(logoEl.getAttribute('alt')).toBe('En-Logo de sécurité');
+    expect(msgEl?.innerHTML).toBe('En-Consultez votre <strong>solde disponible</strong> sur votre compte.');
+
+    // Restoration
+    widget.restoreOriginalPage();
+    expect(titleEl?.getAttribute('title')).toBe('Portail bancaire');
+    expect(accEl.placeholder).toBe('Numéro de compte');
+    expect(submitEl.value).toBe('Confirmer');
+    expect(logoEl.getAttribute('alt')).toBe('Logo de sécurité');
+    expect(msgEl?.innerHTML).toBe('Consultez votre <strong>solde disponible</strong> sur votre compte.');
+  });
 });

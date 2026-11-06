@@ -75,27 +75,8 @@ const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
   // 1. FULFULDE / PEUL (fuv-CM / fuv)
   // ==========================================
   fuv: {
-    'helping people turn skills into jobs and businesses in cameroon.': 'Wallugo yimɓe waylitugo gandal maɓɓe wonta kuuɗe e njulaaku nder Kamerun.',
-    'helping people turn skills into jobs and businesses in cameroon': 'Wallugo yimɓe waylitugo gandal maɓɓe wonta kuuɗe e njulaaku nder Kamerun',
-    'helping people turn skills into jobs and businesses': 'Wallugo yimɓe waylitugo gandal maɓɓe wonta kuuɗe e njulaaku',
-    'turn skills into jobs and businesses in cameroon': 'Waylitugo gandal maɓɓe wonta kuuɗe e njulaaku nder Kamerun',
-    'turn skills into jobs and businesses': 'Waylitugo gandal maɓɓe wonta kuuɗe e njulaaku',
-    'jobs and businesses in cameroon': 'Kuuɗe e njulaaku nder Kamerun',
-    'jobs and businesses': 'Kuuɗe e njulaaku',
-    'helping people': 'Wallugo yimɓe',
-    'turn skills': 'Waylitugo gandal',
-    'into jobs': 'Wonta kuuɗe',
-    'in cameroon': 'Nder Kamerun',
-    'in cameroon.': 'Nder Kamerun.',
-    'nayokan offers hands-on training and helps people develop business ideas. we welcome universities, employers and investors who want to support that work.': 'Nayokan ɗon hokka ekkitinol kuuɗe juude kadi ɗon walla yimɓe heɓugo miijooji njulaaku. En ɗon jaɓɓoo jaaɓi-haatireeji, jom en kuuɗe e wattooɓe ceede yiɗɓe wallugo ngal kuugal.',
-    'nayokan offers hands-on training and helps people develop business ideas': 'Nayokan ɗon hokka ekkitinol kuuɗe juude kadi ɗon walla yimɓe heɓugo miijooji njulaaku',
-    'offers hands-on training and helps people develop business ideas': 'Ɗon hokka ekkitinol kuuɗe juude kadi ɗon walla yimɓe heɓugo miijooji njulaaku',
-    'we welcome universities, employers and investors who want to support that work': 'En ɗon jaɓɓoo jaaɓi-haatireeji, jom en kuuɗe e wattooɓe ceede yiɗɓe wallugo ngal kuugal',
-    'who want to support that work': 'Yiɗɓe wallugo ngal kuugal',
-    'universities, employers and investors': 'Jaaɓi-haatireeji, jom en kuuɗe e wattooɓe ceede',
     'hands-on training': 'Ekkitinol kuuɗe juude',
     'business ideas': 'Miijooji njulaaku',
-    'develop business ideas': 'Heɓugo miijooji njulaaku',
     'what we do': 'Ko min ngollata',
     'venture capital': 'Ceede njulaaku',
     'impact': 'Battane lobɓe',
@@ -103,13 +84,13 @@ const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
     'about': 'Kala amen',
     'about us': 'Kala amen',
     'find training': 'Teftu ekkitinol',
-    'find training →': 'Teftu ekkitinol →',
     'get startup funding': 'Heɓu ceede njulaaku',
-    'get startup': 'Heɓu njulaaku kesu',
     'startup funding': 'Ceede njulaaku kesu',
     'computer lab': 'Nokku kompiyuta',
-    'computer lab · yaoundé': 'Nokku kompiyuta · Yaoundé',
-    'computer lab · yaounde': 'Nokku kompiyuta · Yaoundé',
+    'and': 'e',
+    'et': 'e',
+    'that': 'ngal',
+    'helps': 'ɗon walla',
     'helping': 'Wallugo',
     'people': 'Yimɓe',
     'turn': 'Waylitugo',
@@ -411,27 +392,8 @@ const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
   // 2. HAOUSSA (hau-CM / hau)
   // ==========================================
   hau: {
-    'helping people turn skills into jobs and businesses in cameroon.': 'Taimaka wa mutane mayar da dabarunsu zuwa ayyukan yi da kasuwanci a Kamaru.',
-    'helping people turn skills into jobs and businesses in cameroon': 'Taimaka wa mutane mayar da dabarunsu zuwa ayyukan yi da kasuwanci a Kamaru',
-    'helping people turn skills into jobs and businesses': 'Taimaka wa mutane mayar da dabarunsu zuwa ayyukan yi da kasuwanci',
-    'turn skills into jobs and businesses in cameroon': 'Mayar da dabarunsu zuwa ayyukan yi da kasuwanci a Kamaru',
-    'turn skills into jobs and businesses': 'Mayar da dabarunsu zuwa ayyukan yi da kasuwanci',
-    'jobs and businesses in cameroon': 'Ayyukan yi da kasuwanci a Kamaru',
-    'jobs and businesses': 'Ayyukan yi da kasuwanci',
-    'helping people': 'Taimaka wa mutane',
-    'turn skills': 'Mayar da dabaru',
-    'into jobs': 'Zuwa ayyukan yi',
-    'in cameroon': 'A Kamaru',
-    'in cameroon.': 'A Kamaru.',
-    'nayokan offers hands-on training and helps people develop business ideas. we welcome universities, employers and investors who want to support that work.': 'Nayokan na ba da horo a aikace kuma yana taimaka wa mutane haɓaka dabarun kasuwanci. Muna maraba da jami\'o\'i, masu ɗaukar ma\'aikata da masu saka hannun jari da suke son tallafa wa wannan aiki.',
-    'nayokan offers hands-on training and helps people develop business ideas': 'Nayokan na ba da horo a aikace kuma yana taimaka wa mutane haɓaka dabarun kasuwanci',
-    'offers hands-on training and helps people develop business ideas': 'Na ba da horo a aikace kuma yana taimaka wa mutane haɓaka dabarun kasuwanci',
-    'we welcome universities, employers and investors who want to support that work': 'Muna maraba da jami\'o\'i, masu ɗaukar ma\'aikata da masu saka hannun jari da suke son tallafa wa wannan aiki',
-    'who want to support that work': 'Wadanda suke son tallafa wa wannan aiki',
-    'universities, employers and investors': 'Jami\'o\'i, masu ɗaukar ma\'aikata da masu saka hannun jari',
     'hands-on training': 'Horo a aikace',
     'business ideas': 'Dabarun kasuwanci',
-    'develop business ideas': 'Haɓaka dabarun kasuwanci',
     'what we do': 'Abin da muke yi',
     'venture capital': 'Kudin kasuwanci',
     'impact': 'Tasiri',
@@ -439,13 +401,13 @@ const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
     'about': 'Game da mu',
     'about us': 'Game da mu',
     'find training': 'Nemi horo',
-    'find training →': 'Nemi horo →',
     'get startup funding': 'Sami kudin fara kasuwanci',
-    'get startup': 'Sami fara kasuwanci',
     'startup funding': 'Kudin fara kasuwanci',
     'computer lab': 'Dakin na\'ura mai kwakwalwa',
-    'computer lab · yaoundé': 'Dakin na\'ura mai kwakwalwa · Yaoundé',
-    'computer lab · yaounde': 'Dakin na\'ura mai kwakwalwa · Yaoundé',
+    'and': 'da',
+    'et': 'da',
+    'that': 'wannan',
+    'helps': 'yana taimakawa',
     'helping': 'Taimaka',
     'people': 'Mutane',
     'turn': 'Mayar',
@@ -759,8 +721,6 @@ const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
     'into jobs': 'Cida ro',
     'in cameroon': 'Bəla Cameroun lan',
     'in cameroon.': 'Bəla Cameroun lan.',
-    'nayokan offers hands-on training and helps people develop business ideas. we welcome universities, employers and investors who want to support that work.': 'Nayokan kəra cida kəskaye cin, kuru am banatə nəmngəla cidaram sawuro. Jamiya so, kwaye cidabe so kuru am kudi cidarambe so banatə cida abiro bərəwa.',
-    'nayokan offers hands-on training and helps people develop business ideas': 'Nayokan kəra cida kəskaye cin, kuru am banatə nəmngəla cidaram sawuro',
     'offers hands-on training and helps people develop business ideas': 'Kəra cida kəskaye cin, kuru am banatə nəmngəla cidaram sawuro',
     'we welcome universities, employers and investors who want to support that work': 'Jamiya so, kwaye cidabe so kuru am kudi cidarambe so banatə cida abiro bərəwa',
     'who want to support that work': 'Cida abiro banatə ragana so',
@@ -1095,8 +1055,6 @@ const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
     'into jobs': 'Into work',
     'in cameroon': 'For Cameroon',
     'in cameroon.': 'For Cameroon.',
-    'nayokan offers hands-on training and helps people develop business ideas. we welcome universities, employers and investors who want to support that work.': 'Nayokan dey give correct practical training and dey help pipo bring up business ideas. We dey welcome universities, employers and investors dem wey want support dis work.',
-    'nayokan offers hands-on training and helps people develop business ideas': 'Nayokan dey give correct practical training and dey help pipo bring up business ideas',
     'offers hands-on training and helps people develop business ideas': 'Dey give practical training and dey help pipo bring up business ideas',
     'we welcome universities, employers and investors who want to support that work': 'We dey welcome universities, employers and investors dem wey want support dis work',
     'who want to support that work': 'Wey dem want support dis work',
@@ -1493,16 +1451,19 @@ export function translateSentenceToSovereign(
   }
 
   // 3. Token-by-token single word substitution (matching website UI elements, buttons, titles)
-  const tokens = workingText.split(/(\s+|[,;:.!?()\/\\'\-–—«»""→←↑↓·•|])/u);
+  const tokens = workingText.split(/(\s+|[,;:.!?()\/\\'\-–—«»""→←↑↓·•|]|<\/?t\d+>|⟦T\d+:|⟧)/u);
   const translatedTokens: string[] = [];
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     if (!token) continue;
 
-    // Preserve whitespace, punctuation, entity placeholders, pure numbers
+    // Preserve whitespace, punctuation, entity placeholders, tag placeholders, pure numbers
     if (/^(\s+|[,;:.!?()\/\\'\-–—«»""])$/.test(token) ||
         /^___FIN_GUARD_\d+___$/.test(token) ||
+        /^<\/?t\d+>$/.test(token) ||
+        /^⟦T\d+:$/.test(token) ||
+        token === '⟧' ||
         /^[\d\s.,\u00a0]+$/.test(token) ||
         /^(FCFA|XAF|CFA|EUR|USD|XOF)$/i.test(token)) {
       translatedTokens.push(token);

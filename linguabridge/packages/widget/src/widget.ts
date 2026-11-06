@@ -40,6 +40,21 @@ export class LinguaBridgeWidget {
   private currentTargetLang = 'ewo-CM';
   private currentSourceLang = 'fr';
   private originalDomMap = new Map<Node, string>();
+  private originalChildNodesMap = new Map<HTMLElement, Node[]>();
+  private originalAttrMap = new Map<
+    Element,
+    { placeholder?: string; value?: string; title?: string; ariaLabel?: string; alt?: string }
+  >();
+
+  private static readonly INLINE_TAGS = new Set([
+    'EM', 'STRONG', 'SPAN', 'B', 'I', 'U', 'A', 'SMALL', 'MARK', 'SUB', 'SUP', 'CODE', 'ABBR', 'CITE', 'TIME', 'BDO', 'BDI'
+  ]);
+
+  private static readonly CONTAINER_SELECTOR =
+    'h1, h2, h3, h4, h5, h6, p, li, button, label, dt, dd, td, th, blockquote, figcaption, summary, caption';
+  private static readonly CONTAINER_BLOCK_TAGS = new Set([
+    'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'LI', 'BUTTON', 'LABEL', 'DT', 'DD', 'TD', 'TH', 'BLOCKQUOTE', 'FIGCAPTION', 'SUMMARY', 'CAPTION'
+  ]);
   private isPageTranslated = false;
   private availableLanguages: Language[] = [];
   private chatMessages: ChatMessage[] = [];
@@ -251,41 +266,338 @@ export class LinguaBridgeWidget {
     );
   }
 
+  private translateElementAttributes(
+    el: HTMLElement,
+    attrItems: { el: HTMLElement; type: 'placeholder' | 'value' | 'title' | 'ariaLabel' | 'alt'; text: string }[]
+  ): void {
+    if (!el || typeof (el as any).getAttribute !== 'function' || el.closest?.('linguabridge-widget-host')) return;
+    const tag = (el.tagName || '').toLowerCase();
+
+    // 1. Placeholder
+    if (tag === 'input' || tag === 'textarea') {
+      const inputEl = el as any;
+      const ph = inputEl.placeholder;
+      if (ph && ph.trim()) {
+        const orig = this.originalAttrMap.get(el);
+        if (!orig || orig.placeholder === undefined) {
+          this.originalAttrMap.set(el, { ...orig, placeholder: ph });
+        }
+        const sourcePh = (this.originalAttrMap.get(el)?.placeholder ?? ph).trim();
+        attrItems.push({ el, type: 'placeholder', text: sourcePh });
+      }
+    }
+
+    // 2. Submit / button value
+    if (tag === 'input') {
+      const inputEl = el as any;
+      const type = (inputEl.type || '').toLowerCase();
+      if (['button', 'submit', 'reset'].includes(type) && inputEl.value && inputEl.value.trim()) {
+        const orig = this.originalAttrMap.get(el);
+        if (!orig || orig.value === undefined) {
+          this.originalAttrMap.set(el, { ...orig, value: inputEl.value });
+        }
+        const sourceVal = (this.originalAttrMap.get(el)?.value ?? inputEl.value).trim();
+        attrItems.push({ el, type: 'value', text: sourceVal });
+      }
+    }
+
+    // 3. title
+    const title = el.getAttribute('title');
+    if (title && title.trim()) {
+      const orig = this.originalAttrMap.get(el);
+      if (!orig || orig.title === undefined) {
+        this.originalAttrMap.set(el, { ...orig, title });
+      }
+      const sourceTitle = (this.originalAttrMap.get(el)?.title ?? title).trim();
+      attrItems.push({ el, type: 'title', text: sourceTitle });
+    }
+
+    // 4. aria-label
+    const ariaLabel = el.getAttribute('aria-label');
+    if (ariaLabel && ariaLabel.trim()) {
+      const orig = this.originalAttrMap.get(el);
+      if (!orig || orig.ariaLabel === undefined) {
+        this.originalAttrMap.set(el, { ...orig, ariaLabel });
+      }
+      const sourceAria = (this.originalAttrMap.get(el)?.ariaLabel ?? ariaLabel).trim();
+      attrItems.push({ el, type: 'ariaLabel', text: sourceAria });
+    }
+
+    // 5. alt on img
+    if (tag === 'img') {
+      const alt = el.getAttribute('alt');
+      if (alt && alt.trim()) {
+        const orig = this.originalAttrMap.get(el);
+        if (!orig || orig.alt === undefined) {
+          this.originalAttrMap.set(el, { ...orig, alt });
+        }
+        const sourceAlt = (this.originalAttrMap.get(el)?.alt ?? alt).trim();
+        attrItems.push({ el, type: 'alt', text: sourceAlt });
+      }
+    }
+  }
+
+  private buildMaskedSentence(node: Node, inlineElements: HTMLElement[]): string {
+    let res = '';
+    for (let i = 0; i < node.childNodes.length; i++) {
+      const child = node.childNodes[i];
+      if (child.nodeType === 3) {
+        res += child.textContent || '';
+      } else if (child.nodeType === 1) {
+        const childEl = child as HTMLElement;
+        const tag = (childEl.tagName || '').toUpperCase();
+        if (LinguaBridgeWidget.INLINE_TAGS.has(tag)) {
+          const idx = inlineElements.length;
+          inlineElements.push(childEl);
+          const inner = this.buildMaskedSentence(childEl, inlineElements);
+          res += `<t${idx}>${inner}</t${idx}>`;
+        } else if (tag === 'BR') {
+          res += '\n';
+        } else {
+          res += childEl.textContent || '';
+        }
+      }
+    }
+    return res;
+  }
+
+  private reassembleTranslatedSentence(
+    translated: string,
+    inlineElements: HTMLElement[]
+  ): DocumentFragment {
+    const fragment = document.createDocumentFragment();
+    const stack: (HTMLElement | DocumentFragment)[] = [fragment];
+    const tokenRegex = /(<t(\d+)>)|(<\/t(\d+)>)|(⟦T(\d+):)|(⟧)/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = tokenRegex.exec(translated)) !== null) {
+      const textBefore = translated.slice(lastIndex, match.index);
+      if (textBefore) {
+        stack[stack.length - 1].appendChild(document.createTextNode(textBefore));
+      }
+
+      if (match[1]) {
+        // <tN>
+        const idx = parseInt(match[2], 10);
+        const top = stack[stack.length - 1];
+        if (idx >= 0 && idx < inlineElements.length) {
+          const el = inlineElements[idx];
+          while (el.firstChild) el.removeChild(el.firstChild);
+          top.appendChild(el);
+          stack.push(el);
+        } else {
+          const span = document.createElement('span');
+          top.appendChild(span);
+          stack.push(span);
+        }
+      } else if (match[3]) {
+        // </tN>
+        if (stack.length > 1) stack.pop();
+      } else if (match[5]) {
+        // ⟦TN:
+        const idx = parseInt(match[6], 10);
+        const top = stack[stack.length - 1];
+        if (idx >= 0 && idx < inlineElements.length) {
+          const el = inlineElements[idx];
+          while (el.firstChild) el.removeChild(el.firstChild);
+          top.appendChild(el);
+          stack.push(el);
+        } else {
+          const span = document.createElement('span');
+          top.appendChild(span);
+          stack.push(span);
+        }
+      } else if (match[7]) {
+        // ⟧
+        if (stack.length > 1) stack.pop();
+      }
+
+      lastIndex = tokenRegex.lastIndex;
+    }
+
+    const remainingText = translated.slice(lastIndex);
+    if (remainingText) {
+      stack[stack.length - 1].appendChild(document.createTextNode(remainingText));
+    }
+
+    return fragment;
+  }
+
+  private prepareCompositeContainer(c: HTMLElement): void {
+    if (this.originalChildNodesMap.has(c)) {
+      const origNodes = this.originalChildNodesMap.get(c)!;
+      while (c.firstChild) c.removeChild(c.firstChild);
+      for (const n of origNodes) {
+        if (this.originalDomMap.has(n)) n.textContent = this.originalDomMap.get(n)!;
+        c.appendChild(n);
+      }
+    } else {
+      this.originalChildNodesMap.set(c, Array.from(c.childNodes));
+      for (let j = 0; j < c.childNodes.length; j++) {
+        const ch = c.childNodes[j];
+        if (!this.originalDomMap.has(ch)) {
+          this.originalDomMap.set(ch, ch.textContent || '');
+        }
+        if (ch.nodeType === 1) {
+          const chWalker = document.createTreeWalker(ch, NodeFilter.SHOW_TEXT);
+          let chCurr = chWalker.nextNode();
+          while (chCurr) {
+            if (!this.originalDomMap.has(chCurr)) {
+              this.originalDomMap.set(chCurr, chCurr.textContent || '');
+            }
+            chCurr = chWalker.nextNode();
+          }
+        }
+      }
+    }
+  }
+
   public async translatePage(): Promise<void> {
     if (typeof document === 'undefined') return;
 
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-      acceptNode: (node) => {
-        if (!node.textContent || !node.textContent.trim()) return NodeFilter.FILTER_REJECT;
-        const parent = node.parentElement;
-        if (!parent) return NodeFilter.FILTER_REJECT;
-        const tag = parent.tagName.toLowerCase();
-        if (['script', 'style', 'code', 'pre', 'noscript', 'linguabridge-widget-host'].includes(tag)) {
-          return NodeFilter.FILTER_REJECT;
+    const compositeItems: { container: HTMLElement; inlineElements: HTMLElement[]; text: string; leading: string; trailing: string }[] = [];
+    const attrItems: { el: HTMLElement; type: 'placeholder' | 'value' | 'title' | 'ariaLabel' | 'alt'; text: string }[] = [];
+    const textNodeItems: { node: Node; leading: string; text: string; trailing: string }[] = [];
+    const translatedContainers = new Set<HTMLElement>();
+
+    const collectFromRoot = (root: Node) => {
+      if (!root || !root.isConnected) return;
+      if (root.nodeType === 1 || root.nodeType === 11) {
+        const el = root as HTMLElement;
+        const tag = (el.tagName || '').toLowerCase();
+        if (['script', 'style', 'code', 'pre', 'noscript', 'linguabridge-widget-host'].includes(tag)) return;
+        if (el.closest?.('linguabridge-widget-host')) return;
+
+        // Attributes
+        if (root.nodeType === 1) {
+          this.translateElementAttributes(el, attrItems);
         }
-        if (parent.closest('linguabridge-widget-host')) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      },
-    });
+        if (el.querySelectorAll) {
+          const attrElements = el.querySelectorAll<HTMLElement>('input, textarea, [title], [aria-label], img[alt]');
+          for (let i = 0; i < attrElements.length; i++) {
+            this.translateElementAttributes(attrElements[i], attrItems);
+          }
+        }
 
-    const nodesToTranslate: { node: Node; text: string }[] = [];
-    let currentNode = walker.nextNode();
-    while (currentNode) {
-      if (!this.originalDomMap.has(currentNode)) {
-        this.originalDomMap.set(currentNode, currentNode.textContent || '');
-      }
-      const originalText = this.originalDomMap.get(currentNode) || currentNode.textContent || '';
-      const trimmed = originalText.trim();
-      if (trimmed) {
-        nodesToTranslate.push({ node: currentNode, text: trimmed });
-      }
-      currentNode = walker.nextNode();
-    }
+        // Shadow DOM custom components
+        if ((el as any).shadowRoot && !(el as any).shadowRoot.host?.closest?.('linguabridge-widget-host')) {
+          collectFromRoot((el as any).shadowRoot);
+        }
+        if (el.querySelectorAll) {
+          const customs = el.querySelectorAll<HTMLElement>('*');
+          for (let i = 0; i < customs.length; i++) {
+            const shadow = (customs[i] as any).shadowRoot;
+            if (shadow && !shadow.host?.closest?.('linguabridge-widget-host')) {
+              collectFromRoot(shadow);
+            }
+          }
+        }
 
-    if (nodesToTranslate.length === 0) return;
+        // Composite containers
+        if (el.querySelectorAll) {
+          const candidates = el.querySelectorAll<HTMLElement>(LinguaBridgeWidget.CONTAINER_SELECTOR);
+          for (let i = 0; i < candidates.length; i++) {
+            const c = candidates[i];
+            if (c.closest?.('linguabridge-widget-host')) continue;
+            if (c.querySelector(LinguaBridgeWidget.CONTAINER_SELECTOR)) continue;
+
+            const hasInline = Array.from(c.children).some((child) =>
+              LinguaBridgeWidget.INLINE_TAGS.has((child.tagName || '').toUpperCase())
+            );
+            if (hasInline) {
+              this.prepareCompositeContainer(c);
+
+              const inlineElements: HTMLElement[] = [];
+              const maskedText = this.buildMaskedSentence(c, inlineElements);
+
+              const wsMatch = maskedText.match(/^(\s*)([\s\S]*?)(\s*)$/);
+              const leading = wsMatch ? wsMatch[1] : '';
+              const trimmed = wsMatch ? wsMatch[2] : '';
+              const trailing = wsMatch ? wsMatch[3] : '';
+
+              if (trimmed) {
+                compositeItems.push({ container: c, inlineElements, text: trimmed, leading, trailing });
+                translatedContainers.add(c);
+              }
+            }
+          }
+        }
+
+        // Check standalone <a> links with mixed inline elements not inside a block container
+        if (el.querySelectorAll) {
+          const candidateLinks = el.querySelectorAll<HTMLElement>('a');
+          for (let i = 0; i < candidateLinks.length; i++) {
+            const a = candidateLinks[i];
+            if (a.closest?.('linguabridge-widget-host')) continue;
+            if (a.closest?.(LinguaBridgeWidget.CONTAINER_SELECTOR)) continue;
+            const hasInline = Array.from(a.children).some((child) =>
+              LinguaBridgeWidget.INLINE_TAGS.has((child.tagName || '').toUpperCase())
+            );
+            if (hasInline && !translatedContainers.has(a)) {
+              this.prepareCompositeContainer(a);
+              const inlineElements: HTMLElement[] = [];
+              const maskedText = this.buildMaskedSentence(a, inlineElements);
+              const wsMatch = maskedText.match(/^(\s*)([\s\S]*?)(\s*)$/);
+              const leading = wsMatch ? wsMatch[1] : '';
+              const trimmed = wsMatch ? wsMatch[2] : '';
+              const trailing = wsMatch ? wsMatch[3] : '';
+              if (trimmed) {
+                compositeItems.push({ container: a, inlineElements, text: trimmed, leading, trailing });
+                translatedContainers.add(a);
+              }
+            }
+          }
+        }
+
+        // TreeWalker for standalone text nodes
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+          acceptNode: (node) => {
+            if (!node.textContent || !node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+            const parent = node.parentElement;
+            if (!parent) return NodeFilter.FILTER_REJECT;
+            const pTag = parent.tagName.toLowerCase();
+            if (['script', 'style', 'code', 'pre', 'noscript', 'linguabridge-widget-host'].includes(pTag)) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            if (parent.closest('linguabridge-widget-host')) return NodeFilter.FILTER_REJECT;
+            for (const tc of translatedContainers) {
+              if (tc.contains(node)) return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          },
+        });
+
+        let currentNode = walker.nextNode();
+        while (currentNode) {
+          if (!this.originalDomMap.has(currentNode)) {
+            this.originalDomMap.set(currentNode, currentNode.textContent || '');
+          }
+          const originalText = this.originalDomMap.get(currentNode) || currentNode.textContent || '';
+          const match = originalText.match(/^(\s*)([\s\S]*?)(\s*)$/);
+          const leading = match ? match[1] : '';
+          const trimmed = match ? match[2] : '';
+          const trailing = match ? match[3] : '';
+          if (trimmed) {
+            textNodeItems.push({ node: currentNode, leading, text: trimmed, trailing });
+          }
+          currentNode = walker.nextNode();
+        }
+      }
+    };
+
+    collectFromRoot(document.body);
+
+    const allRequests: { text: string }[] = [
+      ...compositeItems.map((c) => ({ text: c.text })),
+      ...attrItems.map((a) => ({ text: a.text })),
+      ...textNodeItems.map((t) => ({ text: t.text })),
+    ];
+
+    if (allRequests.length === 0) return;
 
     try {
-      const items = nodesToTranslate.map((item) => ({
+      const items = allRequests.map((item) => ({
         text: item.text,
         sourceLang: this.currentSourceLang,
         targetLang: this.currentTargetLang,
@@ -293,11 +605,42 @@ export class LinguaBridgeWidget {
       }));
 
       const results = await this.client.translateBatch(items);
-      results.forEach((res, index) => {
-        if (nodesToTranslate[index] && res.translatedText) {
-          nodesToTranslate[index].node.textContent = res.translatedText;
+      let cursor = 0;
+
+      // 1. Unpack composite containers
+      for (let i = 0; i < compositeItems.length; i++) {
+        const item = compositeItems[i];
+        const res = results[cursor++];
+        if (res?.translatedText) {
+          const fullTranslated = (item.leading || '') + res.translatedText + (item.trailing || '');
+          const newFragment = this.reassembleTranslatedSentence(fullTranslated, item.inlineElements);
+          while (item.container.firstChild) item.container.removeChild(item.container.firstChild);
+          item.container.appendChild(newFragment);
         }
-      });
+      }
+
+      // 2. Unpack attributes
+      for (let i = 0; i < attrItems.length; i++) {
+        const item = attrItems[i];
+        const res = results[cursor++];
+        if (res?.translatedText) {
+          const val = res.translatedText;
+          if (item.type === 'placeholder') (item.el as any).placeholder = val;
+          else if (item.type === 'value') (item.el as any).value = val;
+          else if (item.type === 'title') item.el.setAttribute('title', val);
+          else if (item.type === 'ariaLabel') item.el.setAttribute('aria-label', val);
+          else if (item.type === 'alt') item.el.setAttribute('alt', val);
+        }
+      }
+
+      // 3. Unpack text nodes
+      for (let i = 0; i < textNodeItems.length; i++) {
+        const item = textNodeItems[i];
+        const res = results[cursor++];
+        if (res?.translatedText) {
+          item.node.textContent = item.leading + res.translatedText + item.trailing;
+        }
+      }
 
       this.isPageTranslated = true;
       this.render();
@@ -307,9 +650,41 @@ export class LinguaBridgeWidget {
   }
 
   public restoreOriginalPage(): void {
-    for (const [node, originalText] of this.originalDomMap.entries()) {
-      node.textContent = originalText;
+    // 1. Restore composite containers
+    for (const [container, origNodes] of this.originalChildNodesMap.entries()) {
+      if (container.isConnected) {
+        while (container.firstChild) container.removeChild(container.firstChild);
+        for (const n of origNodes) {
+          container.appendChild(n);
+        }
+      }
     }
+    this.originalChildNodesMap.clear();
+
+    // 2. Restore text nodes
+    for (const [node, originalText] of this.originalDomMap.entries()) {
+      if (node.isConnected) {
+        node.textContent = originalText;
+      }
+    }
+
+    // 3. Restore attributes
+    for (const [el, orig] of this.originalAttrMap.entries()) {
+      if (el.isConnected) {
+        const inputEl = el as any;
+        const tag = (el.tagName || '').toLowerCase();
+        if (orig.placeholder !== undefined && (tag === 'input' || tag === 'textarea')) {
+          inputEl.placeholder = orig.placeholder;
+        }
+        if (orig.value !== undefined && tag === 'input') {
+          inputEl.value = orig.value;
+        }
+        if (orig.title !== undefined) el.setAttribute('title', orig.title);
+        if (orig.ariaLabel !== undefined) el.setAttribute('aria-label', orig.ariaLabel);
+        if (orig.alt !== undefined && tag === 'img') el.setAttribute('alt', orig.alt);
+      }
+    }
+
     this.isPageTranslated = false;
     this.render();
   }

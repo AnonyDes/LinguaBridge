@@ -210,6 +210,15 @@ class ExtensionAssistant {
   private container: HTMLElement | null = null;
   private shadow: ShadowRoot | null = null;
   private originalTextMap = new Map<Node, string>();
+  private originalChildNodesMap = new Map<HTMLElement, Node[]>();
+  private static readonly INLINE_TAGS = new Set([
+    'EM', 'STRONG', 'SPAN', 'B', 'I', 'U', 'A', 'SMALL', 'MARK', 'SUB', 'SUP', 'CODE', 'ABBR', 'CITE', 'TIME', 'BDO', 'BDI'
+  ]);
+  private static readonly CONTAINER_SELECTOR =
+    'h1, h2, h3, h4, h5, h6, p, li, button, label, dt, dd, td, th, blockquote, figcaption, summary, caption';
+  private static readonly CONTAINER_BLOCK_TAGS = new Set([
+    'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'LI', 'BUTTON', 'LABEL', 'DT', 'DD', 'TD', 'TH', 'BLOCKQUOTE', 'FIGCAPTION', 'SUMMARY', 'CAPTION'
+  ]);
   private originalAttrMap = new Map<
     Element,
     { placeholder?: string; value?: string; title?: string; ariaLabel?: string; alt?: string }
@@ -913,6 +922,150 @@ class ExtensionAssistant {
     }
   }
 
+  private buildMaskedSentence(node: Node, inlineElements: HTMLElement[]): string {
+    let res = '';
+    for (let i = 0; i < node.childNodes.length; i++) {
+      const child = node.childNodes[i];
+      if (child.nodeType === 3) {
+        res += child.textContent || '';
+      } else if (child.nodeType === 1) {
+        const childEl = child as HTMLElement;
+        const tag = (childEl.tagName || '').toUpperCase();
+        if (ExtensionAssistant.INLINE_TAGS.has(tag)) {
+          const idx = inlineElements.length;
+          inlineElements.push(childEl);
+          const inner = this.buildMaskedSentence(childEl, inlineElements);
+          res += `<t${idx}>${inner}</t${idx}>`;
+        } else if (tag === 'BR') {
+          res += '\n';
+        } else {
+          res += childEl.textContent || '';
+        }
+      }
+    }
+    return res;
+  }
+
+  private reassembleTranslatedSentence(
+    translated: string,
+    inlineElements: HTMLElement[]
+  ): DocumentFragment {
+    const fragment = document.createDocumentFragment();
+    const stack: (HTMLElement | DocumentFragment)[] = [fragment];
+    const tokenRegex = /(<t(\d+)>)|(<\/t(\d+)>)|(⟦T(\d+):)|(⟧)/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = tokenRegex.exec(translated)) !== null) {
+      const textBefore = translated.slice(lastIndex, match.index);
+      if (textBefore) {
+        stack[stack.length - 1].appendChild(document.createTextNode(textBefore));
+      }
+
+      if (match[1]) {
+        // <tN>
+        const idx = parseInt(match[2], 10);
+        const top = stack[stack.length - 1];
+        if (idx >= 0 && idx < inlineElements.length) {
+          const el = inlineElements[idx];
+          while (el.firstChild) el.removeChild(el.firstChild);
+          top.appendChild(el);
+          stack.push(el);
+        } else {
+          const span = document.createElement('span');
+          top.appendChild(span);
+          stack.push(span);
+        }
+      } else if (match[3]) {
+        // </tN>
+        if (stack.length > 1) stack.pop();
+      } else if (match[5]) {
+        // ⟦TN:
+        const idx = parseInt(match[6], 10);
+        const top = stack[stack.length - 1];
+        if (idx >= 0 && idx < inlineElements.length) {
+          const el = inlineElements[idx];
+          while (el.firstChild) el.removeChild(el.firstChild);
+          top.appendChild(el);
+          stack.push(el);
+        } else {
+          const span = document.createElement('span');
+          top.appendChild(span);
+          stack.push(span);
+        }
+      } else if (match[7]) {
+        // ⟧
+        if (stack.length > 1) stack.pop();
+      }
+
+      lastIndex = tokenRegex.lastIndex;
+    }
+
+    const remainingText = translated.slice(lastIndex);
+    if (remainingText) {
+      stack[stack.length - 1].appendChild(document.createTextNode(remainingText));
+    }
+
+    return fragment;
+  }
+
+  private translateCompositeContainer(container: HTMLElement): void {
+    if (this.originalChildNodesMap.has(container)) {
+      const origNodes = this.originalChildNodesMap.get(container)!;
+      while (container.firstChild) container.removeChild(container.firstChild);
+      for (const n of origNodes) {
+        if (this.originalTextMap.has(n)) n.textContent = this.originalTextMap.get(n)!;
+        container.appendChild(n);
+      }
+    } else {
+      this.originalChildNodesMap.set(container, Array.from(container.childNodes));
+      for (let i = 0; i < container.childNodes.length; i++) {
+        const child = container.childNodes[i];
+        if (!this.originalTextMap.has(child)) {
+          this.originalTextMap.set(child, child.textContent || '');
+        }
+        if (child.nodeType === 1) {
+          const walker = document.createTreeWalker(child, NodeFilter.SHOW_TEXT);
+          let curr = walker.nextNode();
+          while (curr) {
+            if (!this.originalTextMap.has(curr)) {
+              this.originalTextMap.set(curr, curr.textContent || '');
+            }
+            curr = walker.nextNode();
+          }
+        }
+      }
+    }
+
+    const inlineElements: HTMLElement[] = [];
+    const maskedText = this.buildMaskedSentence(container, inlineElements);
+
+    const wsMatch = maskedText.match(/^(\s*)([\s\S]*?)(\s*)$/);
+    const leading = wsMatch ? wsMatch[1] : '';
+    const trimmed = wsMatch ? wsMatch[2] : '';
+    const trailing = wsMatch ? wsMatch[3] : '';
+    if (!trimmed) return;
+
+    const translated = this.translateLocal(trimmed);
+    if (!translated || translated === trimmed) return;
+
+    const fullTranslated = leading + translated + trailing;
+    const newFragment = this.reassembleTranslatedSentence(fullTranslated, inlineElements);
+
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    container.appendChild(newFragment);
+
+    const fullText = container.textContent || '';
+    if (fullText && !this.translationSpeechCache.has(fullText)) {
+      this.translationSpeechCache.set(fullText, {
+        ewondo: fullText,
+        phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(fullText) : '',
+      });
+    }
+  }
+
   private translateNodeSubtree(rootNode: Node): void {
     if (!rootNode || !rootNode.isConnected) return;
     if (this.isExtensionNode(rootNode)) return;
@@ -954,6 +1107,56 @@ class ExtensionAssistant {
         }
       }
 
+      // Translate composite containers with mixed inline tags
+      const translatedContainers = new Set<HTMLElement>();
+      if (el.querySelectorAll) {
+        const candidateContainers = el.querySelectorAll<HTMLElement>(ExtensionAssistant.CONTAINER_SELECTOR);
+        for (let i = 0; i < candidateContainers.length; i++) {
+          const c = candidateContainers[i];
+          if (this.isExtensionNode(c)) continue;
+          if (c.querySelector(ExtensionAssistant.CONTAINER_SELECTOR)) continue;
+
+          const hasInline = Array.from(c.children).some((child) =>
+            ExtensionAssistant.INLINE_TAGS.has((child.tagName || '').toUpperCase())
+          );
+          if (hasInline) {
+            this.translateCompositeContainer(c);
+            translatedContainers.add(c);
+          }
+        }
+      }
+
+      const elTag = (el.tagName || '').toUpperCase();
+      if (
+        ExtensionAssistant.CONTAINER_BLOCK_TAGS.has(elTag) &&
+        !el.querySelector?.(ExtensionAssistant.CONTAINER_SELECTOR)
+      ) {
+        const hasInline = Array.from(el.children).some((child) =>
+          ExtensionAssistant.INLINE_TAGS.has((child.tagName || '').toUpperCase())
+        );
+        if (hasInline && !translatedContainers.has(el)) {
+          this.translateCompositeContainer(el);
+          translatedContainers.add(el);
+        }
+      }
+
+      // Also check standalone <a> links with mixed inline elements not inside a block container
+      if (el.querySelectorAll) {
+        const candidateLinks = el.querySelectorAll<HTMLElement>('a');
+        for (let i = 0; i < candidateLinks.length; i++) {
+          const a = candidateLinks[i];
+          if (this.isExtensionNode(a)) continue;
+          if (a.closest(ExtensionAssistant.CONTAINER_SELECTOR)) continue;
+          const hasInline = Array.from(a.children).some((child) =>
+            ExtensionAssistant.INLINE_TAGS.has((child.tagName || '').toUpperCase())
+          );
+          if (hasInline && !translatedContainers.has(a)) {
+            this.translateCompositeContainer(a);
+            translatedContainers.add(a);
+          }
+        }
+      }
+
       // Walk all text nodes comprehensively across headings, paragraphs, buttons, table cells, spans, links, labels, modals
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
         acceptNode: (node) => {
@@ -965,6 +1168,11 @@ class ExtensionAssistant {
             return NodeFilter.FILTER_REJECT;
           }
           if (this.isExtensionNode(parent)) return NodeFilter.FILTER_REJECT;
+
+          for (const tc of translatedContainers) {
+            if (tc.contains(node)) return NodeFilter.FILTER_REJECT;
+          }
+
           return NodeFilter.FILTER_ACCEPT;
         },
       });
@@ -1019,7 +1227,18 @@ class ExtensionAssistant {
   public restorePage(): void {
     this.isTranslating = true;
     try {
-      // 1. Restore text nodes
+      // 1. Restore composite containers with inline tags to pristine DOM child node order
+      for (const [container, origNodes] of this.originalChildNodesMap.entries()) {
+        if (container.isConnected) {
+          while (container.firstChild) container.removeChild(container.firstChild);
+          for (const n of origNodes) {
+            container.appendChild(n);
+          }
+        }
+      }
+      this.originalChildNodesMap.clear();
+
+      // 2. Restore individual text nodes
       for (const [node, original] of this.originalTextMap.entries()) {
         if (node.isConnected) {
           node.textContent = original;

@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 const distPath = path.resolve(__dirname, '../apps/extension/dist');
 
 console.log('================================================================');
-console.log('🧪 Testing Exact Nayokan.org Page with Built Chrome Extension');
+console.log('🧪 Testing Universal Web Portal with Built Chrome Extension');
 console.log('================================================================\n');
 
 const contentJs = fs.readFileSync(path.join(distPath, 'content.js'), 'utf8');
@@ -29,7 +29,7 @@ document.body.innerHTML = `
 </header>
 <main>
   <h1 id="hero-title">Helping people turn <em>skills</em> into jobs and businesses in <span class="green">Cameroon.</span></h1>
-  <p id="hero-sub">Nayokan offers hands-on training and helps people develop business ideas. We welcome universities, employers and investors who want to support that work.</p>
+  <p id="hero-sub">Our platform offers hands-on training and helps people develop business ideas. We welcome universities, employers and investors who want to support that work.</p>
   <div class="actions">
     <button id="btn-train">Find training →</button>
     <button id="btn-startup">Get startup funding</button>
@@ -71,7 +71,7 @@ const langs = [
 ];
 
 for (const lang of langs) {
-  console.log(`\n--- Testing ${lang.name} [${lang.code}] on Nayokan.org ---`);
+  console.log(`\n--- Testing ${lang.name} [${lang.code}] on Universal Portal ---`);
   messageListener({ type: 'POPUP_TRANSLATE_PAGE', targetLang: lang.code, sourceLang: 'en' });
 
   const whatWeDo = document.getElementById('nav-what')?.textContent?.trim();
@@ -106,9 +106,9 @@ for (const lang of langs) {
     process.exit(1);
   }
 
-  console.log(`  ✅ ${lang.name}: 100% SUCCESS ON NAYOKAN.ORG!`);
+  console.log(`  ✅ ${lang.name}: 100% SUCCESS ON UNIVERSAL PORTAL!`);
 }
 
 console.log('\n================================================================');
-console.log('🎉 ALL 5 SOVEREIGN LANGUAGES SUCCESSFULLY TRANSLATE NAYOKAN.ORG!');
+console.log('🎉 ALL 5 SOVEREIGN LANGUAGES SUCCESSFULLY TRANSLATE UNIVERSAL PORTAL!');
 console.log('================================================================\n');

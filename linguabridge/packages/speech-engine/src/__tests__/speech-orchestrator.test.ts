@@ -18,10 +18,42 @@ describe('SpeechOrchestrator - Degrade-First Speech Architecture', () => {
     expect(res.fallbackLang).toBeNull();
   });
 
-  it('strictly refuses uncertified Cameroonian languages with explicit degrade message', async () => {
-    const cameroonCodes = ['ewo', 'ewo-CM', 'dua', 'dua-CM', 'bas', 'bas-CM', 'fub', 'fub-CM', 'fuv', 'fuv-CM', 'bum', 'bum-CM'];
+  it('synthesizes fluid live speech for the 5 Sovereign Cameroonian Languages', async () => {
+    const sovereignLanguages = [
+      { code: 'ewo-CM', sample: 'Mbólo, móni mí ne wá é bẽng' },
+      { code: 'fuv-CM', sample: 'Jam bandu, ceede maada heddiiɗe' },
+      { code: 'hau-CM', sample: 'Sannu, kudin asusunka' },
+      { code: 'knc-CM', sample: 'Ndawuro, kudi asusunəmye' },
+      { code: 'pcm-CM', sample: 'How far, your money balance na' },
+    ];
 
-    for (const code of cameroonCodes) {
+    for (const item of sovereignLanguages) {
+      const res = await orchestrator.synthesize(item.sample, item.code);
+      expect(res.available).toBe(true);
+      expect(res.lang).toBe(item.code);
+      expect(res.audioBase64).toBeDefined();
+      expect(res.audioUrl).toContain('data:audio/wav;base64,');
+      expect(res.engine).toBe('african-neural-mms');
+      expect(res.fallbackLang).toBeNull();
+    }
+  });
+
+  it('strictly quarantines Duala and refuses voice synthesis', async () => {
+    const dualaCodes = ['dua', 'dua-CM', 'dua-cm'];
+
+    for (const code of dualaCodes) {
+      const res = await orchestrator.synthesize('Mbolo mosso', code);
+      expect(res.available).toBe(false);
+      expect(res.lang).toBe(code);
+      expect(res.unavailableReason).toContain('strictly quarantined');
+      expect(res.fallbackLang).toBeNull();
+    }
+  });
+
+  it('strictly refuses uncertified non-sovereign Cameroonian languages with explicit degrade message', async () => {
+    const uncertifiedCodes = ['bas', 'bas-CM', 'bum', 'bum-CM'];
+
+    for (const code of uncertifiedCodes) {
       const res = await orchestrator.synthesize('Mbôk', code);
       expect(res.available).toBe(false);
       expect(res.lang).toBe(code);
@@ -32,7 +64,7 @@ describe('SpeechOrchestrator - Degrade-First Speech Architecture', () => {
   });
 
   it('never substitutes an unsupported language with English or French audio', async () => {
-    const res = await orchestrator.synthesize('A mbege', 'ewo-CM');
+    const res = await orchestrator.synthesize('Mbôk', 'bas-CM');
     expect(res.available).toBe(false);
     expect(res.fallbackLang).toBeNull();
     expect(res.audioBase64).toBeUndefined();
@@ -47,8 +79,13 @@ describe('SpeechOrchestrator - Degrade-First Speech Architecture', () => {
   it('reports language support accurately through isLanguageSupported', () => {
     expect(orchestrator.isLanguageSupported('fr')).toBe(true);
     expect(orchestrator.isLanguageSupported('en')).toBe(true);
-    expect(orchestrator.isLanguageSupported('ewo-CM')).toBe(false);
+    expect(orchestrator.isLanguageSupported('ewo-CM')).toBe(true);
+    expect(orchestrator.isLanguageSupported('fuv-CM')).toBe(true);
+    expect(orchestrator.isLanguageSupported('hau-CM')).toBe(true);
+    expect(orchestrator.isLanguageSupported('knc-CM')).toBe(true);
+    expect(orchestrator.isLanguageSupported('pcm-CM')).toBe(true);
     expect(orchestrator.isLanguageSupported('dua-CM')).toBe(false);
+    expect(orchestrator.isLanguageSupported('bas-CM')).toBe(false);
     expect(orchestrator.isLanguageSupported('xyz-unknown')).toBe(false);
   });
 
