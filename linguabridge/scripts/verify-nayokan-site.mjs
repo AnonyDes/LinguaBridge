@@ -112,3 +112,5 @@ for (const lang of langs) {
 console.log('\n================================================================');
 console.log('🎉 ALL 5 SOVEREIGN LANGUAGES SUCCESSFULLY TRANSLATE UNIVERSAL PORTAL!');
 console.log('================================================================\n');
+
+process.exit(0);
