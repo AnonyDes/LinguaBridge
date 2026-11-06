@@ -3635,20 +3635,12 @@ for (const [key, val] of Object.entries(EXTENDED_BANKING_UI_LEXICON)) {
 
 // 4. Common English Conversational, Web & Landing Page Vocabulary
 const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
-  'helping people turn skills into jobs and businesses in cameroon.': 'Vól bód ná bé tsîŋ akóbó ébǐan é bə ésyé áyə̌ nkap á Kamərún.',
-  'helping people turn skills into jobs and businesses in cameroon': 'Vól bód ná bé tsîŋ akóbó ébǐan é bə ésyé áyə̌ nkap á Kamərún',
-  'helping people turn skills into jobs and businesses': 'Vól bód ná bé tsîŋ akóbó ébǐan é bə ésyé áyə̌ nkap',
-  'turn skills into jobs and businesses in cameroon': 'Tsîŋ akóbó ébǐan é bə ésyé áyə̌ nkap á Kamərún',
-  'turn skills into jobs and businesses': 'Tsîŋ akóbó ébǐan é bə ésyé áyə̌ nkap',
-  'jobs and businesses in cameroon': 'Ésyé áyə̌ nkap á Kamərún',
   'jobs and businesses': 'Ésyé áyə̌ nkap',
   'helping people': 'Vól bód',
   'turn skills': 'Tsîŋ akóbó',
   'into jobs': 'É bə ésyé',
   'in cameroon': 'Á Kamərún',
   'in cameroon.': 'Á Kamərún.',
-  'offers hands-on training and helps people develop business ideas': 'Á vɛ̌ ayə́gə́lá ésyé, á vól bód á kús fə̀k nkap',
-  'we welcome universities, employers and investors who want to support that work': 'Bí á nyə̌ŋ dán nda bəkóbó, békôn ésyé ai bə́sə́gí móni bé yí á vól ésyé nyə',
   'hands-on training': 'Ayə́gə́lá ésyé',
   'business ideas': 'Fə̀k nkap',
   'what we do': 'Dzam bí á bô',
@@ -3715,7 +3707,6 @@ const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
   'logout': 'Kudú',
 
   // Ecosystem & Digital Business Landing page phrases
-  'building people, enterprises and productive systems for cameroon': 'Nlónan bôt, mímbóglán aí mimbóg yá mbuma asú yá Kamərún',
   'building people': 'Nlónan bôt',
   'productive systems': 'Mimbóg yá mbuma',
   'vocational education': 'Nyéglán yá ésáma',
