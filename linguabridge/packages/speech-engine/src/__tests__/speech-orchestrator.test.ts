@@ -33,10 +33,10 @@ describe('SpeechOrchestrator - Degrade-First Speech Architecture', () => {
       expect(res.lang).toBe(item.code);
       expect(res.audioBase64).toBeDefined();
       expect(res.audioUrl).toContain('data:audio/wav;base64,');
-      expect(res.engine).toBe('african-neural-mms');
+      expect(['african-neural-mms', 'meta-mms-neural-live']).toContain(res.engine);
       expect(res.fallbackLang).toBeNull();
     }
-  });
+  }, 25000);
 
   it('strictly quarantines Duala and refuses voice synthesis', async () => {
     const dualaCodes = ['dua', 'dua-CM', 'dua-cm'];

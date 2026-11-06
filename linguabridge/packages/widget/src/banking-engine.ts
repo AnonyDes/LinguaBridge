@@ -424,22 +424,32 @@ export function speakAfricanText(
         );
       });
 
-      if (africanVoice) {
-        const utterance = new SpeechSynthesisUtterance(phoneticText || text);
-        utterance.voice = africanVoice;
-        utterance.lang = africanVoice.lang;
-        utterance.rate = 0.9; // deliberate pacing for phonetic clarity and tone contours
-        utterance.pitch = 1.05;
-
-        if (onStart) utterance.onstart = onStart;
-        if (onEnd) {
-          utterance.onend = onEnd;
-          utterance.onerror = onEnd;
+      const isPidgin = lang.startsWith('pcm');
+      let selectedVoice = africanVoice;
+      if (!selectedVoice) {
+        if (isPidgin) {
+          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('en')) || voices[0];
+        } else {
+          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('fr')) || voices[0];
         }
-
-        window.speechSynthesis.speak(utterance);
-        return true;
       }
+
+      const utterance = new SpeechSynthesisUtterance(phoneticText || text);
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        utterance.lang = selectedVoice.lang;
+      }
+      utterance.rate = isPidgin ? 0.92 : 0.85; // deliberate pacing for phonetic clarity and tone contours
+      utterance.pitch = isPidgin ? 1.05 : 0.88; // Deep chest register
+
+      if (onStart) utterance.onstart = onStart;
+      if (onEnd) {
+        utterance.onend = onEnd;
+        utterance.onerror = onEnd;
+      }
+
+      window.speechSynthesis.speak(utterance);
+      return true;
     } catch {
       // Audio fallback simulation
     }

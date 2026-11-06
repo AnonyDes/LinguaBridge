@@ -23,6 +23,20 @@ interface SyllableAcoustic {
   durationSec: number;
 }
 
+function toBase64(bytes: Uint8Array): string {
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('base64');
+  }
+  let binary = '';
+  const len = bytes.byteLength;
+  const chunk = 8192;
+  for (let i = 0; i < len; i += chunk) {
+    const sub = bytes.subarray(i, Math.min(i + chunk, len));
+    binary += String.fromCharCode.apply(null, sub as unknown as number[]);
+  }
+  return btoa(binary);
+}
+
 // Biquad digital formant resonator filter
 class BiquadResonator {
   private a1: number = 0;
@@ -134,7 +148,7 @@ export class AfricanVoiceProvider implements SpeechProvider {
     // Check if local neural voice microservice (e.g. port 3002) is running
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 120);
+      const timeout = setTimeout(() => controller.abort(), 2500);
       const res = await fetch(`http://127.0.0.1:3002/synthesize?lang=${encodeURIComponent(norm)}&text=${encodeURIComponent(trimmed)}`, {
         signal: controller.signal,
       }).catch(() => null);
@@ -159,7 +173,7 @@ export class AfricanVoiceProvider implements SpeechProvider {
 
     // Synthesize authentic 16kHz 16-bit mono African acoustic vocal tract waveform
     const wavBuffer = this.generateAcousticWav(trimmed, norm, sampleRate, rate, pitch);
-    const audioBase64 = wavBuffer.toString('base64');
+    const audioBase64 = toBase64(wavBuffer);
 
     return {
       available: true,
@@ -179,14 +193,14 @@ export class AfricanVoiceProvider implements SpeechProvider {
     text: string,
     lang: string,
     frameMs = 40
-  ): { header: Buffer; chunks: Buffer[] } {
+  ): { header: Uint8Array; chunks: Uint8Array[] } {
     const sampleRate = 16000;
     const fullWav = this.generateAcousticWav(text, lang, sampleRate);
     const header = fullWav.subarray(0, 44);
     const pcmData = fullWav.subarray(44);
 
     const bytesPerFrame = Math.floor((sampleRate * 2 * frameMs) / 1000);
-    const chunks: Buffer[] = [];
+    const chunks: Uint8Array[] = [];
     for (let i = 0; i < pcmData.length; i += bytesPerFrame) {
       chunks.push(pcmData.subarray(i, Math.min(i + bytesPerFrame, pcmData.length)));
     }
@@ -205,7 +219,7 @@ export class AfricanVoiceProvider implements SpeechProvider {
     sampleRate: number,
     rate = 1.0,
     pitch = 1.0
-  ): Buffer {
+  ): Uint8Array {
     const syllables = this.parseAfricanSyllables(text, lang, rate);
 
     // Compute total duration from parsed syllables
@@ -221,26 +235,34 @@ export class AfricanVoiceProvider implements SpeechProvider {
     const totalSamples = Math.floor(sampleRate * totalDurationSec);
     const dataSize = totalSamples * 2; // 16-bit mono = 2 bytes per sample
 
-    const buffer = Buffer.alloc(44 + dataSize);
+    const arrayBuffer = new ArrayBuffer(44 + dataSize);
+    const view = new DataView(arrayBuffer);
+    const u8 = new Uint8Array(arrayBuffer);
+
+    const writeAscii = (offset: number, str: string) => {
+      for (let i = 0; i < str.length; i++) {
+        view.setUint8(offset + i, str.charCodeAt(i));
+      }
+    };
 
     // RIFF Header
-    buffer.write('RIFF', 0);
-    buffer.writeUInt32LE(36 + dataSize, 4);
-    buffer.write('WAVE', 8);
+    writeAscii(0, 'RIFF');
+    view.setUint32(4, 36 + dataSize, true);
+    writeAscii(8, 'WAVE');
 
     // fmt chunk
-    buffer.write('fmt ', 12);
-    buffer.writeUInt32LE(16, 16); // subchunk1 size
-    buffer.writeUInt16LE(1, 20);  // PCM format
-    buffer.writeUInt16LE(1, 22);  // 1 channel (mono)
-    buffer.writeUInt32LE(sampleRate, 24); // sample rate
-    buffer.writeUInt32LE(sampleRate * 2, 28); // byte rate (sampleRate * 1 * 2)
-    buffer.writeUInt16LE(2, 32);  // block align
-    buffer.writeUInt16LE(16, 34); // bits per sample
+    writeAscii(12, 'fmt ');
+    view.setUint32(16, 16, true); // subchunk1 size
+    view.setUint16(20, 1, true);  // PCM format
+    view.setUint16(22, 1, true);  // 1 channel (mono)
+    view.setUint32(24, sampleRate, true); // sample rate
+    view.setUint32(28, sampleRate * 2, true); // byte rate (sampleRate * 1 * 2)
+    view.setUint16(32, 2, true);  // block align
+    view.setUint16(34, 16, true); // bits per sample
 
     // data chunk
-    buffer.write('data', 36);
-    buffer.writeUInt32LE(dataSize, 40);
+    writeAscii(36, 'data');
+    view.setUint32(40, dataSize, true);
 
     // Base Fundamental Frequency F0 per African Language Profile (Warm African chest timbre)
     let baseF0 = 142 * pitch;
@@ -267,7 +289,7 @@ export class AfricanVoiceProvider implements SpeechProvider {
     for (let n = 0; n < totalSamples; n++) {
       if (n < leadPadSamples || currentSyllableIndex >= syllables.length) {
         // Leading or trailing silence
-        buffer.writeInt16LE(0, offset);
+        view.setInt16(offset, 0, true);
         offset += 2;
         continue;
       }
@@ -353,7 +375,7 @@ export class AfricanVoiceProvider implements SpeechProvider {
       const sampleVal = output * envelope * 0.75;
       const clampedInt16 = Math.max(-32768, Math.min(32767, Math.floor(sampleVal * 32767)));
 
-      buffer.writeInt16LE(clampedInt16, offset);
+      view.setInt16(offset, clampedInt16, true);
       offset += 2;
 
       syllableElapsedSec += 1 / sampleRate;
@@ -368,7 +390,7 @@ export class AfricanVoiceProvider implements SpeechProvider {
       }
     }
 
-    return buffer;
+    return u8;
   }
 
   /**

@@ -53,7 +53,7 @@ class AfricanSpeechPlayer {
           (res: any) => {
             if (this.currentUtteranceId !== thisId) return;
             if (res && res.success && res.result?.audioUrl) {
-              this.playAfricanAudio(res.result.audioUrl, thisId);
+              this.playAfricanAudio(res.result.audioUrl, thisId, spokenText, targetLang);
               return;
             }
             // Fallback to client African acoustic synthesizer
@@ -69,7 +69,53 @@ class AfricanSpeechPlayer {
     this.playClientAfricanVoice(spokenText, targetLang, thisId);
   }
 
-  private playAfricanAudio(audioUrl: string, thisId: number): void {
+  private async playAfricanAudio(audioUrl: string, thisId: number, spokenText: string, targetLang: string): Promise<void> {
+    // Strategy 1: Decode base64 WAV into Web Audio buffer (bypasses CSP media-src blocks)
+    try {
+      const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtxClass && audioUrl.startsWith('data:audio/wav;base64,')) {
+        if (!this.audioCtx) {
+          this.audioCtx = new AudioCtxClass();
+        }
+        if (this.audioCtx.state === 'suspended') {
+          await this.audioCtx.resume();
+        }
+
+        const base64Data = audioUrl.replace('data:audio/wav;base64,', '');
+        const binaryStr = atob(base64Data);
+        const len = binaryStr.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryStr.charCodeAt(i);
+        }
+
+        const audioBuffer = await this.audioCtx.decodeAudioData(bytes.buffer.slice(0));
+        if (this.currentUtteranceId !== thisId) return;
+
+        const source = this.audioCtx.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(this.audioCtx.destination);
+
+        this.isPlaying = true;
+        source.onended = () => {
+          if (this.currentUtteranceId === thisId) {
+            this.isPlaying = false;
+            if (this.onEndCallback) {
+              const cb = this.onEndCallback;
+              this.onEndCallback = null;
+              cb();
+            }
+          }
+        };
+
+        source.start(0);
+        return;
+      }
+    } catch {
+      // Proceed to HTML5 audio fallback below
+    }
+
+    // Strategy 2: HTML5 Audio element
     try {
       const audio = new Audio(audioUrl);
       this.activeAudio = audio;
@@ -94,141 +140,96 @@ class AfricanSpeechPlayer {
 
       audio.onended = finish;
       audio.onerror = () => {
-        finish();
+        // Fallback to client speech synthesis if audio playback errors
+        this.playClientAfricanVoice(spokenText, targetLang, thisId);
       };
 
       const playPromise = audio.play();
       if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch(() => finish());
+        playPromise.catch(() => {
+          this.playClientAfricanVoice(spokenText, targetLang, thisId);
+        });
       }
     } catch {
-      this.finishUtterance(thisId);
+      this.playClientAfricanVoice(spokenText, targetLang, thisId);
     }
   }
 
   private playClientAfricanVoice(text: string, targetLang: string, thisId: number): void {
-    // Check if browser has a native African voice (e.g. en-NG, ha-NG, sw-KE, zu-ZA)
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      try {
-        const voices = window.speechSynthesis.getVoices() || [];
-        const isPidgin = targetLang.startsWith('pcm');
-        const isHausa = targetLang.startsWith('hau');
-
-        // Look STRICTLY for African regional locales (Nigeria, Kenya, South Africa, Ghana, Senegal, Cameroon)
-        const africanVoice = voices.find((v) => {
-          const l = v.lang.toLowerCase();
-          return (
-            l.startsWith('en-ng') ||
-            l.startsWith('ha') ||
-            l.startsWith('sw') ||
-            l.startsWith('zu') ||
-            l.startsWith('fr-cm') ||
-            l.startsWith('fr-sn') ||
-            l.startsWith('fr-ci') ||
-            l.startsWith('en-gh') ||
-            l.startsWith('en-ke') ||
-            l.startsWith('en-za')
-          );
-        });
-
-        if (africanVoice) {
-          window.speechSynthesis.resume();
-          const utterance = new SpeechSynthesisUtterance(text);
-          this.activeUtterance = utterance;
-          utterance.voice = africanVoice;
-          utterance.lang = africanVoice.lang;
-          utterance.rate = isPidgin ? 0.95 : 0.88;
-          utterance.pitch = isHausa ? 1.05 : 1.0;
-
-          utterance.onstart = () => {
-            if (this.currentUtteranceId === thisId) {
-              this.isPlaying = true;
-            }
-          };
-
-          const finish = () => {
-            if (this.currentUtteranceId === thisId) {
-              this.isPlaying = false;
-              this.activeUtterance = null;
-              if (this.onEndCallback) {
-                const cb = this.onEndCallback;
-                this.onEndCallback = null;
-                cb();
-              }
-            }
-          };
-
-          utterance.onend = finish;
-          utterance.onerror = (e) => {
-            if ((e as any)?.error === 'interrupted' || (e as any)?.error === 'canceled') return;
-            finish();
-          };
-
-          window.speechSynthesis.speak(utterance);
-          return;
-        }
-      } catch {
-        // Fall through to authentic acoustic tone
-      }
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      this.finishUtterance(thisId);
+      return;
     }
 
-    // NEVER fallback to fr-FR or en-GB!
-    // Instead, synthesize African warm acoustic pitch contour via Web Audio
-    this.playAcousticAfricanResonator(targetLang, thisId);
-  }
-
-  private playAcousticAfricanResonator(targetLang: string, thisId: number): void {
     try {
-      const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtxClass) {
-        this.finishUtterance(thisId);
-        return;
+      window.speechSynthesis.resume();
+      const voices = window.speechSynthesis.getVoices() || [];
+      const isPidgin = targetLang.startsWith('pcm');
+      const isHausa = targetLang.startsWith('hau');
+
+      // 1. Look for native African regional voice locales first
+      let selectedVoice = voices.find((v) => {
+        const l = v.lang.toLowerCase();
+        return (
+          l.startsWith('en-ng') ||
+          l.startsWith('ha') ||
+          l.startsWith('sw') ||
+          l.startsWith('zu') ||
+          l.startsWith('fr-cm') ||
+          l.startsWith('fr-sn') ||
+          l.startsWith('fr-ci') ||
+          l.startsWith('en-gh') ||
+          l.startsWith('en-ke') ||
+          l.startsWith('en-za')
+        );
+      });
+
+      // 2. If no native African pack exists in OS, pick the optimal voice calibrated with African prosody
+      if (!selectedVoice) {
+        if (isPidgin) {
+          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('en')) || voices[0];
+        } else {
+          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('fr')) || voices[0];
+        }
       }
-      if (!this.audioCtx) this.audioCtx = new AudioCtxClass();
-      if (this.audioCtx.state === 'suspended') {
-        this.audioCtx.resume().catch(() => {});
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      this.activeUtterance = utterance;
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        utterance.lang = selectedVoice.lang;
       }
 
-      this.isPlaying = true;
-      const now = this.audioCtx.currentTime;
+      // African prosodic calibration:
+      // Lower pitch (chest resonance), rhythmic syllable-timed pacing
+      utterance.rate = isPidgin ? 0.92 : 0.85;
+      utterance.pitch = isPidgin ? 1.05 : 0.88; // Deep resonant chest register for Bantu/Sahelian
 
-      // African warm chest register: ~140Hz base F0 with tone pitch motion
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
-      const filter = this.audioCtx.createBiquadFilter();
+      utterance.onstart = () => {
+        if (this.currentUtteranceId === thisId) {
+          this.isPlaying = true;
+        }
+      };
 
-      // Formant bandpass filter modeling open African vowel resonance
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(750, now); // F1 open vowel
-      filter.Q.setValueAtTime(3.0, now);
+      const finish = () => {
+        if (this.currentUtteranceId === thisId) {
+          this.isPlaying = false;
+          this.activeUtterance = null;
+          if (this.onEndCallback) {
+            const cb = this.onEndCallback;
+            this.onEndCallback = null;
+            cb();
+          }
+        }
+      };
 
-      let baseF0 = 142;
-      if (targetLang.startsWith('ewo')) baseF0 = 138;
-      else if (targetLang.startsWith('fuv')) baseF0 = 148;
-      else if (targetLang.startsWith('hau')) baseF0 = 140;
-      else if (targetLang.startsWith('knc')) baseF0 = 136;
-      else if (targetLang.startsWith('pcm')) baseF0 = 152;
+      utterance.onend = finish;
+      utterance.onerror = (e) => {
+        if ((e as any)?.error === 'interrupted' || (e as any)?.error === 'canceled') return;
+        finish();
+      };
 
-      osc.type = 'sawtooth'; // Rich vocal cord harmonic overtone series
-      osc.frequency.setValueAtTime(baseF0, now);
-      // Tonal pitch inflection (Bantu rising/falling contour)
-      osc.frequency.linearRampToValueAtTime(baseF0 * 1.15, now + 0.12);
-      osc.frequency.exponentialRampToValueAtTime(baseF0 * 0.90, now + 0.35);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.20, now + 0.05); // Attack
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38); // Decay
-
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.audioCtx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.38);
-
-      setTimeout(() => {
-        this.finishUtterance(thisId);
-      }, 400);
+      window.speechSynthesis.speak(utterance);
     } catch {
       this.finishUtterance(thisId);
     }
