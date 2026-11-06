@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ExtensionAssistant } from '../content';
+import { APERTIUM_EWONDO_ENTRIES, translateSentenceToSovereign } from '@linguabridge/translation-engine';
 
 describe('Chrome Extension Content Assistant', () => {
   let assistant: ExtensionAssistant | null = null;
@@ -513,5 +514,78 @@ describe('Chrome Extension Content Assistant', () => {
     assistant.restorePage();
     expect(wcShadow.querySelector('h3')?.textContent).toBe('Solde disponible');
     expect(wcShadow.querySelector('button')?.textContent).toBe('Confirmer le transfert');
+  });
+
+  it('translates arbitrary sentences crossing multiple inline tags (em, strong, span, a, code) and preserves nested tag hierarchy and attributes', () => {
+    document.body.innerHTML = `
+      <div id="inline-test">
+        <p id="rich-sentence">
+          Bienvenue sur <strong>notre <em>espace <a href="/banking" class="link-btn"><span>bancaire</span></a></em></strong> pour vos opérations.
+        </p>
+      </div>
+    `;
+
+    assistant = new ExtensionAssistant();
+    assistant.translateFullPage();
+
+    const p = document.getElementById('rich-sentence') as HTMLParagraphElement;
+    expect(p).not.toBeNull();
+
+    // Check that nested inline tags are preserved in DOM hierarchy
+    const strong = p.querySelector('strong');
+    expect(strong).not.toBeNull();
+    const em = strong?.querySelector('em');
+    expect(em).not.toBeNull();
+    const a = em?.querySelector('a');
+    expect(a).not.toBeNull();
+    expect(a?.getAttribute('href')).toBe('/banking');
+    expect(a?.className).toBe('link-btn');
+    const span = a?.querySelector('span');
+    expect(span).not.toBeNull();
+
+    // The sentence was translated into Ewondo
+    expect(p.textContent).toContain('Mbólo');
+
+    // 100% reversible restoration
+    assistant.restorePage();
+    expect(p.querySelector('strong')).not.toBeNull();
+    expect(p.querySelector('strong em a span')).not.toBeNull();
+    expect(a?.getAttribute('href')).toBe('/banking');
+    expect(a?.className).toBe('link-btn');
+    expect(p.textContent?.trim()).toBe('Bienvenue sur notre espace bancaire pour vos opérations.');
+  });
+
+  it('supports 100% reversible restoration with zero leftover translated fragments or broken whitespace', () => {
+    const originalHtml = '<p id="ws-test">  Solde disponible : <strong>25 000 FCFA</strong> sur le compte.  </p>';
+    document.body.innerHTML = originalHtml;
+
+    assistant = new ExtensionAssistant();
+    assistant.translateFullPage();
+
+    const p = document.getElementById('ws-test');
+    expect(p?.textContent).toContain('25 000 FCFA');
+
+    assistant.restorePage();
+    // Verify exact content and structure restored with no leftover translated fragments
+    expect(document.getElementById('ws-test')?.innerHTML).toBe('  Solde disponible : <strong>25 000 FCFA</strong> sur le compte.  ');
+  });
+
+  it('verifies absence of site-specific "nayokan" strings across sovereign lexicons', () => {
+    // 1. Check Ewondo lexicon entries
+    for (const entry of APERTIUM_EWONDO_ENTRIES) {
+      expect(entry.ewo.toLowerCase()).not.toContain('nayokan');
+      expect(entry.fra.toLowerCase()).not.toContain('nayokan');
+      if (entry.en) {
+        expect(entry.en.toLowerCase()).not.toContain('nayokan');
+      }
+    }
+
+    // 2. Translate sample sentences to verify open-domain general behavior
+    const generalSentence = 'Helping people turn skills into jobs and businesses in Cameroon.';
+    for (const lang of ['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM']) {
+      const trans = translateSentenceToSovereign(generalSentence, lang);
+      expect(trans.translatedText.toLowerCase()).not.toContain('nayokan');
+      expect(trans.translatedText.length).toBeGreaterThan(0);
+    }
   });
 });

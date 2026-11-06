@@ -268,4 +268,62 @@ describe('LinguaBridgeWidget & Sovereign Banking Assistant', () => {
     expect(logoEl.getAttribute('alt')).toBe('Logo de sécurité');
     expect(msgEl?.innerHTML).toBe('Consultez votre <strong>solde disponible</strong> sur votre compte.');
   });
+
+  it('translates arbitrary sentences crossing multiple inline tags and preserves nested hierarchy in widget', async () => {
+    document.body.innerHTML = `
+      <div id="widget-inline-test">
+        <p id="rich-p">
+          Consultez votre <strong>solde <em>disponible <a href="/details" class="acc-link"><span>maintenant</span></a></em></strong>.
+        </p>
+      </div>
+    `;
+
+    widget = LinguaBridgeWidget.init({ apiUrl: 'http://localhost:3001' });
+    await widget.translatePage();
+
+    const p = document.getElementById('rich-p');
+    expect(p).not.toBeNull();
+    const strong = p?.querySelector('strong');
+    expect(strong).not.toBeNull();
+    const em = strong?.querySelector('em');
+    expect(em).not.toBeNull();
+    const a = em?.querySelector('a');
+    expect(a).not.toBeNull();
+    expect(a?.getAttribute('href')).toBe('/details');
+    expect(a?.className).toBe('acc-link');
+    const span = a?.querySelector('span');
+    expect(span).not.toBeNull();
+
+    widget.restoreOriginalPage();
+    expect(p?.querySelector('strong em a span')).not.toBeNull();
+    expect(a?.getAttribute('href')).toBe('/details');
+    expect(a?.className).toBe('acc-link');
+    expect(p?.textContent?.trim()).toBe('Consultez votre solde disponible maintenant.');
+  });
+
+  it('translates nested content inside custom Web Component open shadow DOM roots in widget', async () => {
+    const customHost = document.createElement('div');
+    customHost.id = 'widget-wc';
+    const wcShadow = customHost.attachShadow({ mode: 'open' });
+    wcShadow.innerHTML = `
+      <div class="wc-card">
+        <h3>Solde disponible</h3>
+        <input type="text" placeholder="Entrez le montant" />
+        <button id="wc-btn">Confirmer le transfert</button>
+      </div>
+    `;
+    document.body.appendChild(customHost);
+
+    widget = LinguaBridgeWidget.init({ apiUrl: 'http://localhost:3001' });
+    await widget.translatePage();
+
+    expect(wcShadow.querySelector('h3')?.textContent).toBe('En-Solde disponible');
+    expect((wcShadow.querySelector('input') as HTMLInputElement)?.placeholder).toBe('En-Entrez le montant');
+    expect(wcShadow.querySelector('button')?.textContent).toBe('En-Confirmer le transfert');
+
+    widget.restoreOriginalPage();
+    expect(wcShadow.querySelector('h3')?.textContent).toBe('Solde disponible');
+    expect((wcShadow.querySelector('input') as HTMLInputElement)?.placeholder).toBe('Entrez le montant');
+    expect(wcShadow.querySelector('button')?.textContent).toBe('Confirmer le transfert');
+  });
 });

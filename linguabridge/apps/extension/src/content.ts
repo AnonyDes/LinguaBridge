@@ -1009,33 +1009,41 @@ class ExtensionAssistant {
     return fragment;
   }
 
-  private translateCompositeContainer(container: HTMLElement): void {
-    if (this.originalChildNodesMap.has(container)) {
-      const origNodes = this.originalChildNodesMap.get(container)!;
-      while (container.firstChild) container.removeChild(container.firstChild);
-      for (const n of origNodes) {
-        if (this.originalTextMap.has(n)) n.textContent = this.originalTextMap.get(n)!;
-        container.appendChild(n);
-      }
-    } else {
-      this.originalChildNodesMap.set(container, Array.from(container.childNodes));
-      for (let i = 0; i < container.childNodes.length; i++) {
-        const child = container.childNodes[i];
-        if (!this.originalTextMap.has(child)) {
-          this.originalTextMap.set(child, child.textContent || '');
-        }
-        if (child.nodeType === 1) {
-          const walker = document.createTreeWalker(child, NodeFilter.SHOW_TEXT);
-          let curr = walker.nextNode();
-          while (curr) {
-            if (!this.originalTextMap.has(curr)) {
-              this.originalTextMap.set(curr, curr.textContent || '');
-            }
-            curr = walker.nextNode();
+  private saveElementChildrenRecursively(el: HTMLElement): void {
+    if (!this.originalChildNodesMap.has(el)) {
+      this.originalChildNodesMap.set(el, Array.from(el.childNodes));
+      for (let i = 0; i < el.childNodes.length; i++) {
+        const child = el.childNodes[i];
+        if (child.nodeType === 3) {
+          if (!this.originalTextMap.has(child)) {
+            this.originalTextMap.set(child, child.textContent || '');
           }
+        } else if (child.nodeType === 1) {
+          this.saveElementChildrenRecursively(child as HTMLElement);
         }
       }
     }
+  }
+
+  private restoreCompositeContainers(): void {
+    const entries = Array.from(this.originalChildNodesMap.entries()).reverse();
+    for (const [el, origChildren] of entries) {
+      while (el.firstChild) el.removeChild(el.firstChild);
+      for (const child of origChildren) {
+        if (child.nodeType === 3 && this.originalTextMap.has(child)) {
+          child.textContent = this.originalTextMap.get(child)!;
+        }
+        el.appendChild(child);
+      }
+    }
+    this.originalChildNodesMap.clear();
+  }
+
+  private translateCompositeContainer(container: HTMLElement): void {
+    if (this.originalChildNodesMap.has(container)) {
+      this.restoreCompositeContainers();
+    }
+    this.saveElementChildrenRecursively(container);
 
     const inlineElements: HTMLElement[] = [];
     const maskedText = this.buildMaskedSentence(container, inlineElements);
@@ -1228,19 +1236,11 @@ class ExtensionAssistant {
     this.isTranslating = true;
     try {
       // 1. Restore composite containers with inline tags to pristine DOM child node order
-      for (const [container, origNodes] of this.originalChildNodesMap.entries()) {
-        if (container.isConnected) {
-          while (container.firstChild) container.removeChild(container.firstChild);
-          for (const n of origNodes) {
-            container.appendChild(n);
-          }
-        }
-      }
-      this.originalChildNodesMap.clear();
+      this.restoreCompositeContainers();
 
       // 2. Restore individual text nodes
       for (const [node, original] of this.originalTextMap.entries()) {
-        if (node.isConnected) {
+        if (node.nodeType === 3 && node.isConnected) {
           node.textContent = original;
         }
       }

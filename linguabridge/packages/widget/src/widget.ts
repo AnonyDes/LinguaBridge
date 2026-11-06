@@ -424,33 +424,41 @@ export class LinguaBridgeWidget {
     return fragment;
   }
 
-  private prepareCompositeContainer(c: HTMLElement): void {
-    if (this.originalChildNodesMap.has(c)) {
-      const origNodes = this.originalChildNodesMap.get(c)!;
-      while (c.firstChild) c.removeChild(c.firstChild);
-      for (const n of origNodes) {
-        if (this.originalDomMap.has(n)) n.textContent = this.originalDomMap.get(n)!;
-        c.appendChild(n);
-      }
-    } else {
-      this.originalChildNodesMap.set(c, Array.from(c.childNodes));
-      for (let j = 0; j < c.childNodes.length; j++) {
-        const ch = c.childNodes[j];
-        if (!this.originalDomMap.has(ch)) {
-          this.originalDomMap.set(ch, ch.textContent || '');
-        }
-        if (ch.nodeType === 1) {
-          const chWalker = document.createTreeWalker(ch, NodeFilter.SHOW_TEXT);
-          let chCurr = chWalker.nextNode();
-          while (chCurr) {
-            if (!this.originalDomMap.has(chCurr)) {
-              this.originalDomMap.set(chCurr, chCurr.textContent || '');
-            }
-            chCurr = chWalker.nextNode();
+  private saveElementChildrenRecursively(el: HTMLElement): void {
+    if (!this.originalChildNodesMap.has(el)) {
+      this.originalChildNodesMap.set(el, Array.from(el.childNodes));
+      for (let i = 0; i < el.childNodes.length; i++) {
+        const child = el.childNodes[i];
+        if (child.nodeType === 3) {
+          if (!this.originalDomMap.has(child)) {
+            this.originalDomMap.set(child, child.textContent || '');
           }
+        } else if (child.nodeType === 1) {
+          this.saveElementChildrenRecursively(child as HTMLElement);
         }
       }
     }
+  }
+
+  private restoreCompositeContainers(): void {
+    const entries = Array.from(this.originalChildNodesMap.entries()).reverse();
+    for (const [el, origChildren] of entries) {
+      while (el.firstChild) el.removeChild(el.firstChild);
+      for (const child of origChildren) {
+        if (child.nodeType === 3 && this.originalDomMap.has(child)) {
+          child.textContent = this.originalDomMap.get(child)!;
+        }
+        el.appendChild(child);
+      }
+    }
+    this.originalChildNodesMap.clear();
+  }
+
+  private prepareCompositeContainer(c: HTMLElement): void {
+    if (this.originalChildNodesMap.has(c)) {
+      this.restoreCompositeContainers();
+    }
+    this.saveElementChildrenRecursively(c);
   }
 
   public async translatePage(): Promise<void> {
@@ -651,19 +659,11 @@ export class LinguaBridgeWidget {
 
   public restoreOriginalPage(): void {
     // 1. Restore composite containers
-    for (const [container, origNodes] of this.originalChildNodesMap.entries()) {
-      if (container.isConnected) {
-        while (container.firstChild) container.removeChild(container.firstChild);
-        for (const n of origNodes) {
-          container.appendChild(n);
-        }
-      }
-    }
-    this.originalChildNodesMap.clear();
+    this.restoreCompositeContainers();
 
     // 2. Restore text nodes
     for (const [node, originalText] of this.originalDomMap.entries()) {
-      if (node.isConnected) {
+      if (node.nodeType === 3 && node.isConnected) {
         node.textContent = originalText;
       }
     }
