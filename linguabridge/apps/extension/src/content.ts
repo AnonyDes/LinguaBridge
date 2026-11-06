@@ -431,6 +431,8 @@ class ExtensionAssistant {
           this.translateFullPage();
         } else if (msg.type === 'POPUP_TOGGLE_TOUCH_SPEAK' || msg.type === 'POPUP_TOGGLE_HOVER_SPEAK') {
           this.toggleTouchSpeakMode();
+        } else if (msg.type === 'POPUP_RESTORE_PAGE') {
+          this.restorePage();
         }
       };
       chrome.runtime.onMessage.addListener(this.onRuntimeMessageHandler);
@@ -1039,9 +1041,25 @@ class ExtensionAssistant {
     this.originalChildNodesMap.clear();
   }
 
+  private restoreSingleCompositeContainer(container: HTMLElement): void {
+    const entries = Array.from(this.originalChildNodesMap.entries()).reverse();
+    for (const [el, origChildren] of entries) {
+      if (el === container || container.contains(el)) {
+        while (el.firstChild) el.removeChild(el.firstChild);
+        for (const child of origChildren) {
+          if (child.nodeType === 3 && this.originalTextMap.has(child)) {
+            child.textContent = this.originalTextMap.get(child)!;
+          }
+          el.appendChild(child);
+        }
+        this.originalChildNodesMap.delete(el);
+      }
+    }
+  }
+
   private translateCompositeContainer(container: HTMLElement): void {
     if (this.originalChildNodesMap.has(container)) {
-      this.restoreCompositeContainers();
+      this.restoreSingleCompositeContainer(container);
     }
     this.saveElementChildrenRecursively(container);
 

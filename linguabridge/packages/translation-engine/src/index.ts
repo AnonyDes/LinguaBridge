@@ -11,5 +11,5 @@ export { NllbLocalProvider } from './providers/nllb-local.provider';
 export { LibreTranslateProvider, type LibreTranslateConfig } from './providers/libretranslate.provider';
 export { OpenRouterProvider, type OpenRouterConfig } from './providers/openrouter.provider';
 export * from './providers/ewondo-lexicon';
-export { translateSentenceToSovereign } from './providers/sovereign-lexicon';
+export { translateSentenceToSovereign, SOVEREIGN_DICTIONARIES } from './providers/sovereign-lexicon';
 export { lookupDualaResearchSentence, translateLocalText } from './providers/duala-research';

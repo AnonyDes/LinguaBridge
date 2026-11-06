@@ -454,9 +454,25 @@ export class LinguaBridgeWidget {
     this.originalChildNodesMap.clear();
   }
 
+  private restoreSingleCompositeContainer(container: HTMLElement): void {
+    const entries = Array.from(this.originalChildNodesMap.entries()).reverse();
+    for (const [el, origChildren] of entries) {
+      if (el === container || container.contains(el)) {
+        while (el.firstChild) el.removeChild(el.firstChild);
+        for (const child of origChildren) {
+          if (child.nodeType === 3 && this.originalDomMap.has(child)) {
+            child.textContent = this.originalDomMap.get(child)!;
+          }
+          el.appendChild(child);
+        }
+        this.originalChildNodesMap.delete(el);
+      }
+    }
+  }
+
   private prepareCompositeContainer(c: HTMLElement): void {
     if (this.originalChildNodesMap.has(c)) {
-      this.restoreCompositeContainers();
+      this.restoreSingleCompositeContainer(c);
     }
     this.saveElementChildrenRecursively(c);
   }

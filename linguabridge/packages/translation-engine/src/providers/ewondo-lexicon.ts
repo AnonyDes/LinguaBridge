@@ -3633,38 +3633,24 @@ for (const [key, val] of Object.entries(EXTENDED_BANKING_UI_LEXICON)) {
   registerBilingualTerm(key, (val as any).en, val.ewo, val.phonetic);
 }
 
-// 4. Common English Conversational, Web & Landing Page Vocabulary
-const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
-  'jobs and businesses': 'Ésyé áyə̌ nkap',
-  'helping people': 'Vól bód',
-  'turn skills': 'Tsîŋ akóbó',
-  'into jobs': 'É bə ésyé',
-  'in cameroon': 'Á Kamərún',
-  'in cameroon.': 'Á Kamərún.',
-  'hands-on training': 'Ayə́gə́lá ésyé',
-  'business ideas': 'Fə̀k nkap',
+// 4. Common English Conversational, Web & Open-Domain Vocabulary
+export const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
   'what we do': 'Dzam bí á bô',
   'venture capital': 'Móni ésyé',
   'impact': 'Mbébə́',
   'insights': 'Nfí áyə̌ fə̀k',
   'about': 'É bísíé bísə',
   'about us': 'É bísíé bísə',
-  'find training': 'Jəŋ ayə́gə́lá',
-  'find training →': 'Jəŋ ayə́gə́lá →',
-  'get startup funding': 'Kús móni ésyé',
-  'get startup': 'Kús móni ésyé',
-  'startup funding': 'Móni ésyé',
-  'computer lab': 'Éfílə kɔmpútà',
-  'computer lab · yaoundé': 'Éfílə kɔmpútà · Yaoundé',
-  'computer lab · yaounde': 'Éfílə kɔmpútà · Yaoundé',
   'helping': 'Vól',
   'turn': 'Tsîŋ',
   'skills': 'Akóbó',
   'skill': 'Akóbó',
   'into': 'É',
   'jobs': 'Ésyé',
+  'job': 'Ésyé',
   'businesses': 'Nkap',
   'offers': 'Á vɛ̌',
+  'offer': 'Vɛ̌',
   'hands-on': 'Ékɔ̀ŋ ésyé',
   'training': 'Ayə́gə́lá',
   'develop': 'Yóbə́',
@@ -3684,6 +3670,11 @@ const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
   'get': 'Kús',
   'startup': 'Ésyé',
   'funding': 'Móni',
+  'computer': 'kɔmpútà',
+  'lab': 'Éfílə',
+  'laboratory': 'Éfílə',
+  'platform': 'éfílə',
+  'center': 'nda',
 
   // Navigation & Web menus
   'venture': 'ésáma',
@@ -3706,24 +3697,19 @@ const ENGLISH_COMMON_ENTRIES: Record<string, string> = {
   'register': 'Tili dzóé',
   'logout': 'Kudú',
 
-  // Ecosystem & Digital Business Landing page phrases
-  'building people': 'Nlónan bôt',
-  'productive systems': 'Mimbóg yá mbuma',
+  // General Conversational & Form Vocabulary
   'vocational education': 'Nyéglán yá ésáma',
   'say hello': 'Kóbɔ́ Mbólo',
   'hello': 'Mbólo',
   'hi': 'Mbólo',
   'say': 'kóbɔ́',
   'send': 'lóm',
-  'send enquiry': 'lóm nsílí',
   'enquiry': 'nsílí',
-  'serious enquiry': 'nsílí anɛn',
   'choose': 'tobô',
   'route': 'nzɛn',
   'team': 'nkôla',
   'direct': 'lédí',
   'form': 'kálada',
-  'general form': 'kálada ésese',
   'anything else': 'mam méfe',
 
   // Core Nouns & Concepts

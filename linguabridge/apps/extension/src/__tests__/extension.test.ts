@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ExtensionAssistant } from '../content';
-import { APERTIUM_EWONDO_ENTRIES, translateSentenceToSovereign } from '@linguabridge/translation-engine';
+import { APERTIUM_EWONDO_ENTRIES, translateSentenceToSovereign, ENGLISH_COMMON_ENTRIES, SOVEREIGN_DICTIONARIES } from '@linguabridge/translation-engine';
 
 describe('Chrome Extension Content Assistant', () => {
   let assistant: ExtensionAssistant | null = null;
@@ -570,22 +570,86 @@ describe('Chrome Extension Content Assistant', () => {
     expect(document.getElementById('ws-test')?.innerHTML).toBe('  Solde disponible : <strong>25 000 FCFA</strong> sur le compte.  ');
   });
 
-  it('verifies absence of site-specific "nayokan" strings across sovereign lexicons', () => {
-    // 1. Check Ewondo lexicon entries
-    for (const entry of APERTIUM_EWONDO_ENTRIES) {
-      expect(entry.ewo.toLowerCase()).not.toContain('nayokan');
-      expect(entry.fra.toLowerCase()).not.toContain('nayokan');
-      if (entry.en) {
-        expect(entry.en.toLowerCase()).not.toContain('nayokan');
+  it('strictly verifies complete absence of site-specific phrases across all dictionaries and tests authentic open-domain translation', () => {
+    // 1. Audit ENGLISH_COMMON_ENTRIES for prohibited site strings, UI arrows, and bullets
+    const PROHIBITED_SUBSTRINGS = [
+      'nayokan',
+      'turn skills',
+      'offers hands-on',
+      'welcome universities',
+      'find training →',
+      'computer lab ·',
+      'building people, enterprises',
+    ];
+
+    // Check Ewondo English entries
+    const ewondoKeys = Object.keys(ENGLISH_COMMON_ENTRIES || {});
+    for (const key of ewondoKeys) {
+      for (const prohibited of PROHIBITED_SUBSTRINGS) {
+        expect(key.toLowerCase()).not.toContain(prohibited);
+      }
+      expect(key).not.toMatch(/[→←↑↓·•]/);
+    }
+
+    // Check all 4 Sovereign dictionaries (fuv, hau, knc, pcm)
+    for (const [langKey, dict] of Object.entries(SOVEREIGN_DICTIONARIES)) {
+      for (const key of Object.keys(dict)) {
+        for (const prohibited of PROHIBITED_SUBSTRINGS) {
+          expect(key.toLowerCase()).not.toContain(prohibited);
+        }
+        expect(key).not.toMatch(/[→←↑↓·•]/);
       }
     }
 
-    // 2. Translate sample sentences to verify open-domain general behavior
-    const generalSentence = 'Helping people turn skills into jobs and businesses in Cameroon.';
-    for (const lang of ['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM']) {
-      const trans = translateSentenceToSovereign(generalSentence, lang);
-      expect(trans.translatedText.toLowerCase()).not.toContain('nayokan');
-      expect(trans.translatedText.length).toBeGreaterThan(0);
+    // 2. Translate authentic, independent open-domain general sentences across all 5 languages
+    const openDomainSentences = [
+      'Welcome to the community center for education and growth.',
+      'Create an account to transfer money and save.',
+      'Contact our team for help and services.',
+    ];
+
+    for (const sentence of openDomainSentences) {
+      for (const lang of ['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM']) {
+        const trans = translateSentenceToSovereign(sentence, lang);
+        expect(trans.translatedText.length).toBeGreaterThan(0);
+        expect(trans.translatedText).not.toBe(sentence);
+        expect(trans.translatedText.toLowerCase()).not.toContain('nayokan');
+      }
     }
+  });
+
+  it('translating an individual composite container does not restore or alter other translated composite containers on the page', () => {
+    document.body.innerHTML = `
+      <div id="container-a"><p id="p-a">Consultez votre <strong>solde disponible</strong> ici.</p></div>
+      <div id="container-b"><p id="p-b">Effectuer un <em>virement sécurisé</em> maintenant.</p></div>
+    `;
+
+    assistant = new ExtensionAssistant();
+    const pA = document.getElementById('p-a') as HTMLElement;
+    const pB = document.getElementById('p-b') as HTMLElement;
+
+    // Translate Container A
+    (assistant as any).translateCompositeContainer(pA);
+    const transTextA1 = pA.textContent;
+    expect(transTextA1).toContain('Móni mí ne wá é bẽng');
+
+    // Translate Container B
+    (assistant as any).translateCompositeContainer(pB);
+    const transTextB = pB.textContent;
+    expect(transTextB).toContain('Lóm móni É ne mbaán');
+
+    // Crucial Scoped Restoration check: Container A MUST remain translated, NOT reverted to French
+    expect(pA.textContent).toBe(transTextA1);
+    expect(pA.querySelector('strong')).not.toBeNull();
+
+    // Re-translate Container A (e.g. dynamic content update)
+    (assistant as any).translateCompositeContainer(pA);
+    expect(pA.textContent).toBe(transTextA1);
+    expect(pB.textContent).toBe(transTextB);
+
+    // Global restorePage() properly restores BOTH containers
+    assistant.restorePage();
+    expect(pA.textContent?.trim()).toBe('Consultez votre solde disponible ici.');
+    expect(pB.textContent?.trim()).toBe('Effectuer un virement sécurisé maintenant.');
   });
 });
