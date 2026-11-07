@@ -653,27 +653,41 @@ describe('Chrome Extension Content Assistant', () => {
     expect(pB.textContent?.trim()).toBe('Effectuer un virement sécurisé maintenant.');
   });
 
-  it('guarantees zero-latency speech player never falls back to European French or English voices when African voice packs are absent', () => {
+  it('guarantees speech player prioritizes African voices when available and uses clean speech synthesis fallback', () => {
     assistant = new ExtensionAssistant();
     const player = (assistant as any).speechPlayer;
 
-    // Simulate system with only European voices (e.g. Microsoft Paul, Google français)
+    // Simulate SpeechSynthesisUtterance and SpeechSynthesis in DOM environment
+    (global as any).window.SpeechSynthesisUtterance = class {
+      text: string;
+      voice: any = null;
+      lang = '';
+      rate = 1;
+      pitch = 1;
+      onstart: any = null;
+      onend: any = null;
+      onerror: any = null;
+      constructor(text: string) {
+        this.text = text;
+      }
+    };
+
     (global as any).window.speechSynthesis = {
       cancel: vi.fn(),
       resume: vi.fn(),
       getVoices: vi.fn(() => [
         { name: 'Microsoft Paul', lang: 'fr-FR' },
-        { name: 'Google Français', lang: 'fr-FR' },
+        { name: 'Native African Voice', lang: 'fr-CM' },
         { name: 'Microsoft David', lang: 'en-US' },
       ]),
       speak: vi.fn(),
     };
 
-    // Calling playNativeAfricanVoiceIfAvailable when only European voices exist
-    player.playNativeAfricanVoiceIfAvailable('Mbolo', 'ewo-CM', 999);
+    player.playBrowserVoice('Mbolo', 'ewo-CM', 999);
 
-    // It must NOT call speak with Microsoft Paul or fr-FR!
-    expect((global as any).window.speechSynthesis.speak).not.toHaveBeenCalled();
+    expect((global as any).window.speechSynthesis.speak).toHaveBeenCalled();
+    const utterance = (global as any).window.speechSynthesis.speak.mock.calls[0][0];
+    expect(utterance.voice.lang).toBe('fr-CM');
   });
 
   it('proactively precaches visible text sections into speech audio cache upon page translation', () => {

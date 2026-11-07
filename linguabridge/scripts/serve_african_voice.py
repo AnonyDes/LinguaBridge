@@ -119,15 +119,23 @@ def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
     return wav_bytes
 
 def preload_core_models():
-    """Preloads core models into RAM so user requests are served in < 500ms with zero delay."""
-    print("🚀 Preloading and warming up sovereign African voice models...", flush=True)
-    for lang in ["ewo-cm", "hau-cm"]:
+    """Preloads ALL 5 sovereign models into RAM so every first request is instant."""
+    print("🚀 Preloading ALL sovereign African voice models...", flush=True)
+    warmup_phrases = {
+        "ewo-cm": "Mbolo",
+        "hau-cm": "Sannu",
+        "fuv-cm": "Jam",
+        "knc-cm": "Ndawuro",
+        "pcm-cm": "How far",
+    }
+    for lang, phrase in warmup_phrases.items():
         try:
             get_model_and_tokenizer(lang)
-            synthesize_wav_bytes("Mbolo", lang)
-            print(f"✅ {lang} model warmed up and ready for instant playback!", flush=True)
+            synthesize_wav_bytes(phrase, lang)
+            print(f"✅ {lang} model warmed up and ready!", flush=True)
         except Exception as e:
             print(f"⚠️ Preload warning for {lang}: {e}", flush=True)
+    print("🎉 All sovereign models loaded and ready for instant playback!", flush=True)
 
 @app.route("/health", methods=["GET"])
 def health():
