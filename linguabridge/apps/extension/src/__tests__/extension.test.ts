@@ -690,6 +690,26 @@ describe('Chrome Extension Content Assistant', () => {
     expect(utterance.voice.lang).toBe('fr-CM');
   });
 
+  it('strictly blocks Google voices and European voices when African voice is absent', () => {
+    assistant = new ExtensionAssistant();
+    const player = (assistant as any).speechPlayer;
+
+    (global as any).window.speechSynthesis = {
+      cancel: vi.fn(),
+      resume: vi.fn(),
+      getVoices: vi.fn(() => [
+        { name: 'Google français', lang: 'fr-FR' },
+        { name: 'Google US English', lang: 'en-US' },
+        { name: 'Microsoft Paul', lang: 'fr-FR' },
+      ]),
+      speak: vi.fn(),
+    };
+
+    player.playBrowserVoice('Mbolo', 'ewo-CM', 999);
+
+    expect((global as any).window.speechSynthesis.speak).not.toHaveBeenCalled();
+  });
+
   it('proactively precaches visible text sections into speech audio cache upon page translation', () => {
     document.body.innerHTML = `
       <div id="content">

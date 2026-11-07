@@ -160,14 +160,43 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
     if (message.type === 'SYNTHESIZE_SPEECH') {
       const text = message.text || '';
       const lang = message.lang || targetLang;
-      africanVoiceProvider
-        .synthesize(text, lang, message.options)
-        .then((result) => {
-          sendResponse({ success: true, result });
+
+      // Direct ultra-fast fetch to running Python neural voice server
+      const tryFetch = async (host: string) => {
+        const url = `${host}/synthesize?lang=${encodeURIComponent(lang)}&text=${encodeURIComponent(text)}`;
+        const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json() as any;
+        if (!data || !data.audioBase64) throw new Error('Missing audio payload');
+        return data;
+      };
+
+      tryFetch('http://127.0.0.1:3002')
+        .catch(() => tryFetch('http://localhost:3002'))
+        .then((data) => {
+          sendResponse({
+            success: true,
+            result: {
+              available: true,
+              lang,
+              audioBase64: data.audioBase64,
+              audioUrl: `data:audio/wav;base64,${data.audioBase64}`,
+              engine: 'meta-mms-neural-live',
+            },
+          });
         })
-        .catch((err) => {
-          sendResponse({ success: false, error: err?.message || 'Speech synthesis failed' });
+        .catch(() => {
+          // Fallback to internal speech provider
+          africanVoiceProvider
+            .synthesize(text, lang, message.options)
+            .then((result) => {
+              sendResponse({ success: true, result });
+            })
+            .catch((err) => {
+              sendResponse({ success: false, error: err?.message || 'Speech synthesis failed' });
+            });
         });
+
       return true;
     }
   });

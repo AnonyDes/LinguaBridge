@@ -289,11 +289,23 @@ class AfricanSpeechPlayer {
       window.speechSynthesis.resume();
 
       const voices = window.speechSynthesis.getVoices() || [];
-      const isPidgin = targetLang.startsWith('pcm');
 
-      // 1. Prefer genuine African regional voices if the OS has them
-      let selectedVoice = voices.find((v) => {
-        const l = v.lang.toLowerCase();
+      // STRICT PERMANENT BLOCK: Never use Google voices or European/American voices
+      // If voice name contains 'Google' or lang is European (fr-FR, en-US, en-GB), IT IS PERMANENTLY FORBIDDEN.
+      const africanVoice = voices.find((v) => {
+        const name = (v.name || '').toLowerCase();
+        const l = (v.lang || '').toLowerCase();
+        if (
+          name.includes('google') ||
+          name.includes('microsoft paul') ||
+          name.includes('microsoft hortense') ||
+          name.includes('hortense') ||
+          l === 'fr-fr' ||
+          l === 'en-us' ||
+          l === 'en-gb'
+        ) {
+          return false;
+        }
         return (
           l.startsWith('en-ng') ||
           l.startsWith('ha') ||
@@ -308,29 +320,27 @@ class AfricanSpeechPlayer {
         );
       });
 
-      // 2. If no African voice pack, use system voice as intelligible human fallback
-      if (!selectedVoice && voices.length > 0) {
-        if (isPidgin) {
-          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('en')) || voices[0];
-        } else {
-          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('fr')) || voices[0];
-        }
+      // If NO authentic African voice exists in the OS/browser, PERMANENTLY REFUSE TO SPEAK with Google or European voices!
+      if (!africanVoice) {
+        console.warn('[LinguaBridge] Google and European voices are permanently blocked. Awaiting sovereign African neural voice.');
+        this.finishUtterance(thisId);
+        return;
       }
 
-      const utterance = new SpeechSynthesisUtterance(text);
+      const SpeechUtteranceClass = (window as any).SpeechSynthesisUtterance || (global as any).SpeechSynthesisUtterance;
+      if (!SpeechUtteranceClass) {
+        this.finishUtterance(thisId);
+        return;
+      }
+
+      const utterance = new SpeechUtteranceClass(text);
       (window as any).__linguaActiveUtterance = utterance;
       this.activeUtterance = utterance;
 
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-        utterance.lang = selectedVoice.lang;
-      } else {
-        utterance.lang = isPidgin ? 'en-US' : 'fr-FR';
-      }
-
-      // Syllable-timed cadence with resonant register
-      utterance.rate = isPidgin ? 0.92 : 0.85;
-      utterance.pitch = isPidgin ? 1.05 : 0.88;
+      utterance.voice = africanVoice;
+      utterance.lang = africanVoice.lang;
+      utterance.rate = targetLang.startsWith('pcm') ? 0.92 : 0.85;
+      utterance.pitch = targetLang.startsWith('pcm') ? 1.05 : 0.88;
 
       utterance.onstart = () => {
         if (this.currentUtteranceId === thisId) {
@@ -352,8 +362,8 @@ class AfricanSpeechPlayer {
       };
 
       utterance.onend = finish;
-      utterance.onerror = (e) => {
-        if ((e as any)?.error === 'interrupted' || (e as any)?.error === 'canceled') return;
+      utterance.onerror = (e: any) => {
+        if (e?.error === 'interrupted' || e?.error === 'canceled') return;
         finish();
       };
 
