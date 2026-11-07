@@ -143,16 +143,26 @@ export default function CameroPayDemo() {
     },
   }[lang];
 
-  const handleSpeak = (text: string) => {
+  const handleSpeak = async (text: string) => {
     if (lang === 'ewo-CM') {
       setShowPhoneticModal(true);
       return;
     }
+    // Block European window.speechSynthesis permanently
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang === 'fr' ? 'fr-FR' : 'en-US';
-      window.speechSynthesis.speak(utterance);
+      try { window.speechSynthesis.cancel(); } catch {}
+    }
+    try {
+      const res = await fetch(`http://127.0.0.1:3002/synthesize?lang=${encodeURIComponent(lang)}&text=${encodeURIComponent(text)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.audioBase64) {
+          const audio = new Audio(data.audioBase64);
+          audio.play().catch(() => {});
+        }
+      }
+    } catch {
+      // Offline
     }
   };
 

@@ -3992,6 +3992,14 @@ const FRENCH_COMMON_ENTRIES: Record<string, string> = {
   'équipe': 'nkôla',
   'route': 'nzɛn',
   'chemin': 'nzɛn',
+  '0': 'zélo', '1': 'fɔ́k', '2': 'bɛ̌', '3': 'lǎl', '4': 'nyǐn', '5': 'tán',
+  '6': 'samə́n', '7': 'zangbá', '8': 'mwôm', '9': 'ebúl', '10': 'awóm',
+  '01': 'fɔ́k', '02': 'bɛ̌', '03': 'lǎl', '04': 'nyǐn', '05': 'tán',
+  '06': 'samə́n', '07': 'zangbá', '08': 'mwôm', '09': 'ebúl',
+  'un': 'fɔ́k', 'une': 'fɔ́k', 'deux': 'bɛ̌', 'trois': 'lǎl', 'quatre': 'nyǐn',
+  'cinq': 'tán', 'six': 'samə́n', 'sept': 'zangbá', 'huit': 'mwôm', 'neuf': 'ebúl', 'dix': 'awóm',
+  'one': 'fɔ́k', 'two': 'bɛ̌', 'three': 'lǎl', 'four': 'nyǐn', 'five': 'tán',
+  'seven': 'zangbá', 'eight': 'mwôm', 'nine': 'ebúl', 'ten': 'awóm',
 };
 for (const [frWord, ewoWord] of Object.entries(FRENCH_COMMON_ENTRIES)) {
   frToEwoMap.set(frWord.toLowerCase().trim(), ewoWord);
@@ -4189,7 +4197,20 @@ export function translateSentenceToEwondo(text: string): string {
       continue;
     }
 
-    // Preserve pure numbers and currency codes
+    // Direct word or mapped digit lookup (French or English)
+    const directMatch = lookupEwondoWord(token) || lookupEwondoFromEnglish(token);
+    if (directMatch) {
+      let result = directMatch;
+      if (token === token.toUpperCase() && token.length > 1) {
+        result = directMatch.toUpperCase();
+      } else if (token[0] === token[0].toUpperCase()) {
+        result = directMatch.charAt(0).toUpperCase() + directMatch.slice(1);
+      }
+      translatedTokens.push(result);
+      continue;
+    }
+
+    // Preserve unmapped pure numbers and currency codes
     if (/^[\d\s.,\u00a0]+$/.test(token) || /^(FCFA|XAF|CFA|EUR|USD|XOF)$/i.test(token)) {
       translatedTokens.push(token);
       continue;
@@ -4218,19 +4239,7 @@ export function translateSentenceToEwondo(text: string): string {
       continue;
     }
 
-    // Direct word lookup (French or English)
-    const match = lookupEwondoWord(token) || lookupEwondoFromEnglish(token);
-    if (match) {
-      let result = match;
-      if (token === token.toUpperCase() && token.length > 1) {
-        result = match.toUpperCase();
-      } else if (token[0] === token[0].toUpperCase()) {
-        result = match.charAt(0).toUpperCase() + match.slice(1);
-      }
-      translatedTokens.push(result);
-      continue;
-    }
-
+    // Unmatched token fallback
     translatedTokens.push(token);
   }
 

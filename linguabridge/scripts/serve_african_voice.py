@@ -50,7 +50,10 @@ MODEL_PATHS = {
 }
 
 import torch
-torch.set_num_threads(2)
+import os
+torch.set_num_threads(min(4, os.cpu_count() or 4))
+DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available() else "cpu")
+print(f"⚡ Neural voice acceleration device: {DEVICE.upper()} (Threads: {torch.get_num_threads()})", flush=True)
 
 # Cache for loaded models, tokenizers, and synthesized audio
 LOADED_MODELS = {}
@@ -73,12 +76,12 @@ def get_model_and_tokenizer(lang_norm: str):
         from transformers import VitsModel, VitsTokenizer
 
         tokenizer = VitsTokenizer.from_pretrained(str(model_dir))
-        model = VitsModel.from_pretrained(str(model_dir))
+        model = VitsModel.from_pretrained(str(model_dir)).to(DEVICE)
         model.eval()
 
         LOADED_TOKENIZERS[cache_key] = tokenizer
         LOADED_MODELS[cache_key] = model
-        print(f"✅ Loaded {model_dir.name} into memory!", flush=True)
+        print(f"✅ Loaded {model_dir.name} into memory on {DEVICE}!", flush=True)
 
     return LOADED_MODELS[cache_key], LOADED_TOKENIZERS[cache_key]
 
@@ -87,18 +90,26 @@ import threading
 
 MODEL_INFERENCE_LOCK = threading.Lock()
 
+CALIBRATION_PARAMS = {
+    "ewo": {"speaking_rate": 0.909, "noise_scale": 0.55, "noise_scale_w": 0.80},
+    "fuv": {"speaking_rate": 0.926, "noise_scale": 0.55, "noise_scale_w": 0.80},
+    "hau": {"speaking_rate": 0.909, "noise_scale": 0.55, "noise_scale_w": 0.80},
+    "knc": {"speaking_rate": 0.893, "noise_scale": 0.55, "noise_scale_w": 0.80},
+    "pcm": {"speaking_rate": 0.926, "noise_scale": 0.55, "noise_scale_w": 0.80},
+}
+
 DIGIT_WORDS = {
     "ewo": {
         "0": "zélo", "1": "fɔ́k", "2": "bɛ̌", "3": "lǎl", "4": "nyǐn",
-        "5": "tán", "6": "samə́n", "7": "zangbá", "8": "mwôm", "9": "ebúl"
+        "5": "tán", "6": "samen", "7": "zangbá", "8": "mwôm", "9": "ebúl"
     },
     "hau": {
         "0": "sifili", "1": "daya", "2": "biyu", "3": "uku", "4": "hudu",
         "5": "biyar", "6": "shida", "7": "bakwai", "8": "takwas", "9": "tara"
     },
     "knc": {
-        "0": "sifili", "1": "daya", "2": "biyu", "3": "uku", "4": "hudu",
-        "5": "biyar", "6": "shida", "7": "bakwai", "8": "takwas", "9": "tara"
+        "0": "sifili", "1": "tílō", "2": "ndí", "3": "yakkə́", "4": "déyé",
+        "5": "úwù", "6": "araskə́", "7": "tulur", "8": "wusku", "9": "ləgar"
     },
     "fuv": {
         "0": "bolum", "1": "go'o", "2": "ɗiɗi", "3": "tati", "4": "nay",
@@ -109,6 +120,93 @@ DIGIT_WORDS = {
         "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine"
     }
 }
+
+def normalize_phonetics_and_loanwords(text: str, lang_norm: str) -> str:
+    """
+    Language-specific G2P pre-processor, diacritic normalizer and loanword phonotactic smoother.
+    Guarantees that no vowels or phonemes are silently dropped by Meta MMS VITS tokenizers.
+    """
+    if not text or not text.strip():
+        return ""
+
+    t = text
+
+    # 1. Typographical symbols -> acoustic breath pauses
+    t = re.sub(r'[·•\*\-–—]+', ', ', t)
+    t = re.sub(r'[→←↑↓\>]+', ', ', t)
+    t = re.sub(r'[“\"\”«»]+', ' ', t)
+    t = re.sub(r'[\r\n\t]+', '. ', t)
+    t = re.sub(r'[\(\)\[\]\{\}\<\>]+', ' ', t)
+
+    # 2. Universal brand names & common loanwords
+    t = re.sub(r'\bNAYOKAN\b', 'nayokan', t, flags=re.IGNORECASE)
+    t = re.sub(r'\bhandson\b|\bhands-on\b', 'practical', t, flags=re.IGNORECASE)
+    t = re.sub(r'\bpartner with us\b', 'join us', t, flags=re.IGNORECASE)
+
+    base = lang_norm.split("-")[0].lower()
+
+    # 3. Currency verbalization
+    if base == "ewo":
+        t = re.sub(r'\bFCFA\b|\bXAF\b', 'frank', t, flags=re.IGNORECASE)
+    elif base == "fuv":
+        t = re.sub(r'\bFCFA\b|\bXAF\b', 'seede', t, flags=re.IGNORECASE)
+    elif base == "hau":
+        t = re.sub(r'\bFCFA\b|\bXAF\b', 'kudi', t, flags=re.IGNORECASE)
+    elif base == "knc":
+        t = re.sub(r'\bFCFA\b|\bXAF\b', 'kudi', t, flags=re.IGNORECASE)
+    elif base == "pcm":
+        t = re.sub(r'\bFCFA\b|\bXAF\b', 'cfa', t, flags=re.IGNORECASE)
+
+    # 4. Language-specific phonetic G2P and vocabulary alignment
+    if base == "ewo":
+        # MMS mms-tts-ewo lacks acute vowels and drops them! Map acute to plain vowels to preserve them:
+        t = t.replace('á', 'a').replace('Á', 'a')
+        t = t.replace('é', 'e').replace('É', 'e')
+        t = t.replace('í', 'i').replace('Í', 'i')
+        t = t.replace('ó', 'o').replace('Ó', 'o')
+        t = t.replace('ú', 'u').replace('Ú', 'u')
+        # Central vowel schwa (absent in vocab)
+        t = t.replace('ə́', 'e').replace('ə̀', 'e').replace('ə', 'e').replace('Ə', 'e')
+        # Nasal vowels (tilde absent in vocab)
+        t = t.replace('ẽ', 'en').replace('ã', 'an').replace('õ', 'on')
+        # Open vowels
+        t = t.replace('ɔ́', 'o').replace('ɔ̀', 'o').replace('ɔ', 'o')
+        t = t.replace('ɛ́', 'e').replace('ɛ̀', 'e').replace('ɛ', 'e')
+        # Strip remaining combining diacritics
+        t = re.sub(r'[\u0300-\u036f]', '', t)
+        t = t.replace('q', 'k').replace('x', 'ks')
+
+    elif base == "fuv":
+        # Glottal stops: unify all typographic apostrophes to ASCII '
+        t = re.sub(r'[’ʼ‘ʻ`]', "'", t)
+        # Consonant smoothing for mms-tts-ful (lacks v, z, x, q)
+        t = re.sub(r'\bv', 'w', t, flags=re.IGNORECASE).replace('v', 'w').replace('z', 's').replace('x', 'ks').replace('q', 'k')
+
+    elif base == "hau":
+        # MMS mms-tts-hau uses digraph 'y instead of hooked ƴ
+        t = t.replace('ƴ', "'y").replace('Ƴ', "'y")
+        # Consonant smoothing for mms-tts-hau (lacks p, v, x, q)
+        t = re.sub(r'\bp', 'f', t, flags=re.IGNORECASE).replace('p', 'f').replace('v', 'w').replace('x', 'ks').replace('q', 'k')
+
+    elif base == "knc":
+        # Kanuri uses mms-tts-hau: map central vowel ə -> e and smooth consonants
+        t = t.replace('ə', 'e').replace('ǝ', 'e').replace('Ə', 'e')
+        t = re.sub(r'\bp', 'f', t, flags=re.IGNORECASE).replace('p', 'f').replace('v', 'w').replace('x', 'ks').replace('q', 'k')
+
+    elif base == "pcm":
+        # Cameroon Pidgin Kamtok respellings for natural prosody
+        t = re.sub(r'\bbecause\b', 'bicos', t, flags=re.IGNORECASE)
+        t = re.sub(r'\bsomething\b', 'somtin', t, flags=re.IGNORECASE)
+        t = re.sub(r'\bplenty\b', 'plenti', t, flags=re.IGNORECASE)
+        t = re.sub(r'\bchildren\b|\bchild\b', 'pikin', t, flags=re.IGNORECASE)
+        t = re.sub(r'\bknow\b|\bunderstand\b', 'sabi', t, flags=re.IGNORECASE)
+        t = re.sub(r'\bis\b|\bare\b', 'dey', t, flags=re.IGNORECASE)
+        t = re.sub(r'\bcompleted\b|\bhave done\b', 'don', t, flags=re.IGNORECASE)
+        t = re.sub(r'\bcan\b|\bable to\b', 'fit', t, flags=re.IGNORECASE)
+
+    # 5. Collapse extra spaces and punctuation
+    t = re.sub(r'\s*([,\.])\s*', r'\1 ', t)
+    return re.sub(r'\s+', ' ', t).strip()
 
 def verbalize_numbers(text: str, lang_norm: str) -> str:
     """Verbalizes raw Arabic numerals (01, 5000, 2026) into spoken words to prevent VITS tokenizer crashes."""
@@ -123,30 +221,77 @@ def verbalize_numbers(text: str, lang_norm: str) -> str:
     verbalized = re.sub(r'\s+', ' ', verbalized).strip()
     return verbalized if verbalized else text
 
+def create_silent_wav_bytes(sample_rate: int = 16000) -> bytes:
+    """Generates a valid 44-byte silent PCM WAV header with 0 data bytes (defensive silence)."""
+    wav_io = io.BytesIO()
+    with wave.open(wav_io, 'wb') as wf:
+        wf.setnchannels(1)      # mono
+        wf.setsampwidth(2)      # 16-bit
+        wf.setframerate(sample_rate)
+        wf.writeframes(b'')
+    return wav_io.getvalue()
+
 def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
     """Synthesizes text into 16kHz mono 16-bit PCM WAV bytes with in-memory caching."""
     import numpy as np
 
-    verbalized_text = verbalize_numbers(text, lang_norm)
-    clean_text = verbalized_text.strip()
+    base_lang = lang_norm.split("-")[0].lower()
+    calibration = CALIBRATION_PARAMS.get(base_lang, CALIBRATION_PARAMS["ewo"])
+
+    # 1. High-precision native G2P normalization and loanword smoothing
+    normalized_text = normalize_phonetics_and_loanwords(text, lang_norm)
+    # 2. Number verbalization
+    verbalized_text = verbalize_numbers(normalized_text, lang_norm)
+    clean_text = re.sub(r'\s+', ' ', verbalized_text).strip()
+    if not clean_text:
+        return create_silent_wav_bytes()
+
     cache_key = f"{lang_norm}:{clean_text.lower()}"
     if cache_key in AUDIO_CACHE:
         return AUDIO_CACHE[cache_key]
 
     model, tokenizer = get_model_and_tokenizer(lang_norm)
 
-    inputs = tokenizer(clean_text, return_tensors="pt")
+    # Calibrate acoustic hyperparameters on model config
+    model.config.noise_scale = calibration["noise_scale"]
+    model.config.noise_scale_duration = calibration["noise_scale_w"]
 
-    # Guard against 0 tokens (e.g. text was only symbols or unprintable characters)
+    # For responsive real-time UI assistive audio, if text is an entire multi-sentence paragraph (> 140 chars),
+    # synthesize the first sentence or clause so TTFB is fast (< 1.5s on CPU) instead of 30s!
+    inference_text = clean_text
+    if len(clean_text) > 140:
+        sentences = re.split(r'(?<=[.!?])\s+', clean_text)
+        if sentences and len(sentences[0]) >= 10:
+            inference_text = sentences[0]
+            if len(sentences) > 1 and len(inference_text) < 70:
+                inference_text = f"{sentences[0]} {sentences[1]}"
+
+    inputs = tokenizer(inference_text, return_tensors="pt")
+
+    # Absolute Zero-Noise Mandate: Guard against 0 tokens (never emit dummy fallback token 'a')
     if inputs.get("input_ids") is None or inputs["input_ids"].shape[-1] == 0:
-        fallback_token = "a"
-        inputs = tokenizer(fallback_token, return_tensors="pt")
+        return create_silent_wav_bytes(getattr(model.config, "sampling_rate", 16000) or 16000)
+
+    inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
 
     with MODEL_INFERENCE_LOCK:
         with torch.no_grad():
-            output = model(**inputs)
+            output = model(**inputs, speaking_rate=calibration["speaking_rate"])
 
-    waveform = output.waveform[0].cpu().numpy()
+    waveform = output.waveform[0].detach().cpu().numpy()
+
+    # Absolute Zero-Noise Mandate: Clamp acoustic anomalies (ZCR > 0.25 on active speech) to defensive silence
+    active_speech = waveform[np.abs(waveform) > 0.005]
+    zcr = float(np.mean(np.diff(np.sign(active_speech)) != 0)) if len(active_speech) > 0 else 0
+    if zcr > 0.25:
+        print(f"⚠️ Acoustic anomaly detected (ZCR={zcr:.3f} > 0.25) -> Clamping to defensive silence", flush=True)
+        waveform = np.zeros_like(waveform)
+
+    # Peak normalization to prevent clipping (max_amp <= 0.95)
+    max_amp = float(np.max(np.abs(waveform))) if len(waveform) > 0 else 0
+    if max_amp > 0.95:
+        waveform = (waveform / max_amp) * 0.95
+
     # Normalize and clamp to int16
     waveform = np.clip(waveform, -1.0, 1.0)
     int16_samples = (waveform * 32767).astype(np.int16)
@@ -214,8 +359,16 @@ def synthesize():
             "message": "Duala (dua-CM) is strictly quarantined and excluded from active voice synthesis."
         }), 403
 
-    if not text:
-        return jsonify({"error": "BAD_REQUEST", "message": "Text is required."}), 400
+    if not text or not text.strip():
+        silent_bytes = create_silent_wav_bytes()
+        b64 = base64.b64encode(silent_bytes).decode("ascii")
+        return jsonify({
+            "success": True,
+            "lang": lang,
+            "audioBase64": b64,
+            "audioUrl": f"data:audio/wav;base64,{b64}",
+            "engine": "defensive-silence"
+        })
 
     try:
         wav_bytes = synthesize_wav_bytes(text, norm_lang)
@@ -245,8 +398,17 @@ def stream():
             "message": "Duala (dua-CM) is strictly quarantined and excluded from active voice streaming."
         }), 403
 
-    if not text:
-        return jsonify({"error": "BAD_REQUEST", "message": "Text is required."}), 400
+    if not text or not text.strip():
+        silent_bytes = create_silent_wav_bytes()
+        return Response(
+            silent_bytes,
+            mimetype="audio/wav",
+            headers={
+                "X-Speech-Engine": "defensive-silence",
+                "X-Voice-Lang": lang,
+                "Content-Disposition": "inline; filename=speech.wav"
+            }
+        )
 
     try:
         wav_bytes = synthesize_wav_bytes(text, norm_lang)

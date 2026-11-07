@@ -160,12 +160,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
     if (message.type === 'SYNTHESIZE_SPEECH') {
       const text = message.text || '';
       const lang = message.lang || targetLang;
-      console.log(`[LinguaBridge SW] SYNTHESIZE_SPEECH request: lang=${lang}, text="${text.substring(0, 40)}"`);
+      const normLang = (lang || 'ewo-CM').trim().toLowerCase();
+      console.log(`[LinguaBridge SW] SYNTHESIZE_SPEECH request: lang=${lang} (norm=${normLang}), text="${text.substring(0, 40)}"`);
 
       // Direct ultra-fast fetch to running Python neural voice server
       const tryFetch = async (host: string) => {
-        const url = `${host}/synthesize?lang=${encodeURIComponent(lang)}&text=${encodeURIComponent(text)}`;
-        const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+        const url = `${host}/synthesize?lang=${encodeURIComponent(normLang)}&text=${encodeURIComponent(text)}`;
+        const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json() as any;
         if (!data || !data.audioBase64) throw new Error('Missing audio payload');
@@ -188,16 +189,9 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           });
         })
         .catch((fetchErr) => {
-          console.warn('[LinguaBridge SW] Microservice port 3002 fetch failed, trying provider:', fetchErr?.message);
-          africanVoiceProvider
-            .synthesize(text, lang, message.options)
-            .then((result) => {
-              sendResponse({ success: true, result });
-            })
-            .catch((err) => {
-              console.error('[LinguaBridge SW] Speech synthesis failed completely:', err?.message);
-              sendResponse({ success: false, error: err?.message || 'Speech synthesis failed' });
-            });
+          console.warn('[LinguaBridge SW] Microservice port 3002 fetch failed:', fetchErr?.message);
+          // Absolute Zero-Noise Mandate: Stay silent if microservice unreachable
+          sendResponse({ success: false, error: fetchErr?.message || 'Neural voice service unavailable' });
         });
 
       return true;

@@ -35,7 +35,7 @@ describe('@linguabridge/mcp-server Specification & Tools Suite', () => {
       }};
     }
 
-    it('lists all 4 registered tools', async () => {
+    it('lists all registered tools including vocal synthesizer', async () => {
       const { client, cleanup } = await setupClientServer();
       try {
         const toolsResult = await client.listTools();
@@ -45,6 +45,28 @@ describe('@linguabridge/mcp-server Specification & Tools Suite', () => {
         expect(toolNames).toContain('verify_zero_drift');
         expect(toolNames).toContain('lookup_glossary');
         expect(toolNames).toContain('list_supported_languages');
+        expect(toolNames).toContain('synthesize_speech');
+      } finally {
+        await cleanup();
+      }
+    });
+
+    it('executes synthesize_speech tool for certified African language', async () => {
+      const { client, cleanup } = await setupClientServer();
+      try {
+        const result = await client.callTool({
+          name: 'synthesize_speech',
+          arguments: {
+            text: 'Móni m\'ékabedá: 25 000 FCFA',
+            lang: 'ewo-CM',
+          },
+        });
+
+        expect(result.content).toBeDefined();
+        const content = JSON.parse((result.content[0] as any).text);
+        expect(content.available).toBe(true);
+        expect(content.lang).toBe('ewo-CM');
+        expect(content.text).toBe('Móni m\'ékabedá: 25 000 FCFA');
       } finally {
         await cleanup();
       }

@@ -58,5 +58,7 @@ export const healthRoutes: FastifyPluginAsync<HealthRouteOptions> = async (fasti
   };
 
   fastify.get('/health', { schema: healthSchema }, handler);
+  fastify.get('/v1/health', { schema: healthSchema }, handler);
   fastify.get('/api/health', { schema: { ...healthSchema, hide: true } }, handler);
+  fastify.get('/api/v1/health', { schema: { ...healthSchema, hide: true } }, handler);
 };

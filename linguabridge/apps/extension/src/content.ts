@@ -13,21 +13,27 @@ class AfricanSpeechPlayer {
 
   constructor() {
     this.prewarm();
+    if (typeof window !== 'undefined') {
+      const unlock = () => {
+        this.ensureAudioContext();
+      };
+      window.addEventListener('pointerdown', unlock, { capture: true, passive: true });
+      window.addEventListener('click', unlock, { capture: true, passive: true });
+      window.addEventListener('keydown', unlock, { capture: true, passive: true });
+      window.addEventListener('touchend', unlock, { capture: true, passive: true });
+    }
   }
 
   public prewarm(): void {
     if (typeof window === 'undefined') return;
     try {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.resume();
-      }
       this.ensureAudioContext();
     } catch {
       // Ignored
     }
   }
 
-  private ensureAudioContext(): void {
+  public ensureAudioContext(): void {
     try {
       const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtxClass) {
@@ -37,16 +43,14 @@ class AfricanSpeechPlayer {
         if (this.audioCtx.state === 'suspended') {
           this.audioCtx.resume().catch(() => {});
         }
-        // Force-unlock Chromium user activation with a 1-sample buffer
-        const unlockBuf = this.audioCtx.createBuffer(1, 1, 22050);
-        const unlockSrc = this.audioCtx.createBufferSource();
-        unlockSrc.buffer = unlockBuf;
-        unlockSrc.connect(this.audioCtx.destination);
-        unlockSrc.start(0);
       }
     } catch {
       // Ignored
     }
+  }
+
+  public isAudioContextSuspended(): boolean {
+    return !this.audioCtx || this.audioCtx.state === 'suspended';
   }
 
   public speak(text: string, phonetic?: string, onEnd?: () => void, targetLang = 'ewo-CM'): void {
@@ -59,10 +63,27 @@ class AfricanSpeechPlayer {
 
     const isEwondo = targetLang.startsWith('ewo');
     const spokenRaw = phonetic || (isEwondo ? getEwondoPhonetic(text) : text) || text;
-    const spokenText = spokenRaw.replace(/-/g, '');
-    const cacheKey = `${targetLang}:${spokenText.trim().toLowerCase()}`;
+    let spokenText = spokenRaw.replace(/-/g, '').trim();
+    if (!spokenText) return;
 
-    // Synchronously prime & unlock Web Audio context within user gesture (click/pointer event)
+    // For instantaneous real-time voice playback (< 1.5s TTFB), if text is a multi-sentence paragraph (> 130 chars),
+    // speak the first complete sentence or natural clause
+    if (spokenText.length > 130) {
+      const sentenceMatch = spokenText.match(/^([^.!?]+[.!?])/);
+      if (sentenceMatch && sentenceMatch[1].length >= 20) {
+        spokenText = sentenceMatch[1].trim();
+      } else {
+        const truncated = spokenText.slice(0, 130);
+        const lastSpace = truncated.lastIndexOf(' ');
+        if (lastSpace > 40) {
+          spokenText = truncated.slice(0, lastSpace).trim();
+        }
+      }
+    }
+
+    const cacheKey = `${targetLang}:${spokenText.toLowerCase()}`;
+
+    // Prime Web Audio context
     this.ensureAudioContext();
 
     // 1. FAST PATH (<1ms): Instant playback from decoded AudioBuffer cache
@@ -72,77 +93,43 @@ class AfricanSpeechPlayer {
       return;
     }
 
-    let handled = false;
-    // Resilient safety timer: if background/neural API does not reply within 5000ms, fall back to browser speech synthesis
-    const fallbackTimer = setTimeout(() => {
-      if (!handled && this.currentUtteranceId === thisId) {
-        handled = true;
-        this.playBrowserVoice(spokenText, targetLang, thisId);
-      }
-    }, 5000);
+    // Direct background service worker synthesis (never falls back to Google or Windows voices!)
+    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+      chrome.runtime.sendMessage(
+        {
+          type: 'SYNTHESIZE_SPEECH',
+          text: spokenText,
+          lang: targetLang,
+          phonetic,
+        },
+        async (res: any) => {
+          if (this.currentUtteranceId !== thisId) return;
+          if (res?.success && res.result?.audioUrl) {
+            await this.playNeuralAudio(res.result.audioUrl, thisId, spokenText, targetLang, cacheKey);
+          } else {
+            console.warn('[LinguaBridge Speech] African neural speech synthesis returned unavailable:', res?.error);
+            this.finishUtterance(thisId);
+          }
+        }
+      );
+      return;
+    }
 
-    const tryDirectFetch = async (): Promise<boolean> => {
-      try {
-        const url = `http://127.0.0.1:3002/synthesize?lang=${encodeURIComponent(targetLang)}&text=${encodeURIComponent(spokenText)}`;
-        const r = await fetch(url, { signal: AbortSignal.timeout(4000) });
-        if (!r.ok) return false;
-        const data = (await r.json()) as any;
+    // Fallback if running outside extension environment (e.g. standalone test page)
+    fetch(`http://127.0.0.1:3002/synthesize?lang=${encodeURIComponent(targetLang)}&text=${encodeURIComponent(spokenText)}`)
+      .then((r) => r.json())
+      .then(async (data: any) => {
+        if (this.currentUtteranceId !== thisId) return;
         if (data?.audioBase64) {
           const audioUrl = `data:audio/wav;base64,${data.audioBase64}`;
           await this.playNeuralAudio(audioUrl, thisId, spokenText, targetLang, cacheKey);
-          return true;
+        } else {
+          this.finishUtterance(thisId);
         }
-      } catch {
-        // Direct fetch may be blocked by mixed-content or CSP
-      }
-      return false;
-    };
-
-    // Primary Path: High-fidelity African audio from Background service / Meta MMS Neural Engine
-    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-      try {
-        chrome.runtime.sendMessage(
-          {
-            type: 'SYNTHESIZE_SPEECH',
-            text: spokenText,
-            lang: targetLang,
-            phonetic,
-          },
-          async (res: any) => {
-            if (this.currentUtteranceId !== thisId) return;
-            if (handled) {
-              // Background arrived after fallback started; decode and cache for subsequent 0ms clicks
-              if (res && res.success && res.result?.audioUrl) {
-                this.cacheAudioUrl(cacheKey, res.result.audioUrl);
-              }
-              return;
-            }
-            handled = true;
-            clearTimeout(fallbackTimer);
-            if (chrome.runtime?.lastError || !res || !res.success || !res.result?.audioUrl) {
-              console.warn(
-                '[LinguaBridge Speech] Background sendMessage failed, attempting direct fetch:',
-                chrome.runtime?.lastError?.message || res?.error
-              );
-              const directOk = await tryDirectFetch();
-              if (!directOk) {
-                this.playBrowserVoice(spokenText, targetLang, thisId);
-              }
-              return;
-            }
-            await this.playNeuralAudio(res.result.audioUrl, thisId, spokenText, targetLang, cacheKey);
-          }
-        );
-        return;
-      } catch {
-        clearTimeout(fallbackTimer);
-      }
-    }
-
-    clearTimeout(fallbackTimer);
-    tryDirectFetch().then((ok) => {
-      if (!ok) this.playBrowserVoice(spokenText, targetLang, thisId);
-    });
+      })
+      .catch(() => {
+        this.finishUtterance(thisId);
+      });
   }
 
   private playBuffer(audioBuffer: AudioBuffer, thisId: number): void {
@@ -297,113 +284,24 @@ class AfricanSpeechPlayer {
 
       audio.onended = finish;
       audio.onerror = () => {
-        this.playBrowserVoice(spokenText, targetLang, thisId);
+        this.finishUtterance(thisId);
       };
 
       const playPromise = audio.play();
       if (playPromise && typeof playPromise.catch === 'function') {
         playPromise.catch(() => {
-          this.playBrowserVoice(spokenText, targetLang, thisId);
+          this.finishUtterance(thisId);
         });
       }
     } catch {
-      this.playBrowserVoice(spokenText, targetLang, thisId);
+      this.finishUtterance(thisId);
     }
   }
 
-  private playBrowserVoice(text: string, targetLang: string, thisId: number): void {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      this.finishUtterance(thisId);
-      return;
-    }
-
-    try {
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.resume();
-
-      const voices = window.speechSynthesis.getVoices() || [];
-
-      // STRICT PERMANENT BLOCK: Never use Google voices or European/American voices
-      // If voice name contains 'Google' or lang is European (fr-FR, en-US, en-GB), IT IS PERMANENTLY FORBIDDEN.
-      const africanVoice = voices.find((v) => {
-        const name = (v.name || '').toLowerCase();
-        const l = (v.lang || '').toLowerCase();
-        if (
-          name.includes('google') ||
-          name.includes('microsoft paul') ||
-          name.includes('microsoft hortense') ||
-          name.includes('hortense') ||
-          l === 'fr-fr' ||
-          l === 'en-us' ||
-          l === 'en-gb'
-        ) {
-          return false;
-        }
-        return (
-          l.startsWith('en-ng') ||
-          l.startsWith('ha') ||
-          l.startsWith('sw') ||
-          l.startsWith('zu') ||
-          l.startsWith('fr-cm') ||
-          l.startsWith('fr-sn') ||
-          l.startsWith('fr-ci') ||
-          l.startsWith('en-gh') ||
-          l.startsWith('en-ke') ||
-          l.startsWith('en-za')
-        );
-      });
-
-      // If NO authentic African voice exists in the OS/browser, PERMANENTLY REFUSE TO SPEAK with Google or European voices!
-      if (!africanVoice) {
-        console.warn('[LinguaBridge] Google and European voices are permanently blocked. Awaiting sovereign African neural voice.');
-        this.finishUtterance(thisId);
-        return;
-      }
-
-      const SpeechUtteranceClass = (window as any).SpeechSynthesisUtterance || (global as any).SpeechSynthesisUtterance;
-      if (!SpeechUtteranceClass) {
-        this.finishUtterance(thisId);
-        return;
-      }
-
-      const utterance = new SpeechUtteranceClass(text);
-      (window as any).__linguaActiveUtterance = utterance;
-      this.activeUtterance = utterance;
-
-      utterance.voice = africanVoice;
-      utterance.lang = africanVoice.lang;
-      utterance.rate = targetLang.startsWith('pcm') ? 0.92 : 0.85;
-      utterance.pitch = targetLang.startsWith('pcm') ? 1.05 : 0.88;
-
-      utterance.onstart = () => {
-        if (this.currentUtteranceId === thisId) {
-          this.isPlaying = true;
-        }
-      };
-
-      const finish = () => {
-        if (this.currentUtteranceId === thisId) {
-          this.isPlaying = false;
-          this.activeUtterance = null;
-          (window as any).__linguaActiveUtterance = null;
-          if (this.onEndCallback) {
-            const cb = this.onEndCallback;
-            this.onEndCallback = null;
-            cb();
-          }
-        }
-      };
-
-      utterance.onend = finish;
-      utterance.onerror = (e: any) => {
-        if (e?.error === 'interrupted' || e?.error === 'canceled') return;
-        finish();
-      };
-
-      window.speechSynthesis.speak(utterance);
-    } catch {
-      this.finishUtterance(thisId);
-    }
+  private playBrowserVoice(_text: string, _targetLang: string, thisId: number): void {
+    // Permanent Block: Google and European/Windows browser speech engines are strictly blocked.
+    // Only Meta MMS African neural engine is permitted.
+    this.finishUtterance(thisId);
   }
 
   private finishUtterance(thisId: number): void {
@@ -506,7 +404,7 @@ class ExtensionAssistant {
   private speechPlayer = new EwondoSpeechPlayer();
 
   // Instant speech & phonetic cache to eliminate voice latency
-  private translationSpeechCache = new Map<string, { ewondo: string; phonetic: string }>();
+  private translationSpeechCache = new Map<string, { spokenTranslation: string; phonetic: string }>();
 
   // Hover-to-speak tracking & debouncing ("survoler une section ça parle seul, une fois")
   private hoverDwellTimeout: any = null;
@@ -630,7 +528,7 @@ class ExtensionAssistant {
           semanticBlock.textContent?.trim() ||
           semanticBlock.getAttribute('aria-label')?.trim() ||
           semanticBlock.getAttribute('title')?.trim();
-      if (text && text.length >= 2) {
+      if (text && text.length >= 1) {
         return semanticBlock;
       }
     }
@@ -657,7 +555,7 @@ class ExtensionAssistant {
         target.textContent?.trim() ||
         target.getAttribute('aria-label')?.trim() ||
         target.getAttribute('title')?.trim();
-    if (text && text.length >= 2) {
+    if (text && text.length >= 1) {
       return target;
     }
 
@@ -763,7 +661,7 @@ class ExtensionAssistant {
               section.textContent?.trim() ||
               section.getAttribute('aria-label')?.trim() ||
               section.getAttribute('title')?.trim();
-          if (text && text.length >= 2) {
+          if (text && text.length >= 1) {
             this.speakTextSection(text, section);
           }
         }
@@ -826,7 +724,7 @@ class ExtensionAssistant {
           section.textContent?.trim() ||
           section.getAttribute('aria-label')?.trim() ||
           section.getAttribute('title')?.trim();
-      if (!text || text.length < 2) return;
+      if (!text || text.length < 1) return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -858,7 +756,7 @@ class ExtensionAssistant {
           section.textContent?.trim() ||
           section.getAttribute('aria-label')?.trim() ||
           section.getAttribute('title')?.trim();
-      if (!text || text.length < 2) return;
+      if (!text || text.length < 1) return;
 
       e.preventDefault();
       this.stopSpeech();
@@ -890,17 +788,18 @@ class ExtensionAssistant {
     if (!rawText || !rawText.trim()) return;
 
     // Fast synchronous cache lookup / translation (0ms latency boost)
-    let ewondoText: string;
+    const cacheKey = `${this.currentTargetLang}:${rawText.trim()}`;
+    let spokenTranslation: string;
     let phonetic: string;
 
-    const cached = this.translationSpeechCache.get(rawText);
+    const cached = this.translationSpeechCache.get(cacheKey);
     if (cached) {
-      ewondoText = cached.ewondo;
+      spokenTranslation = cached.spokenTranslation;
       phonetic = cached.phonetic;
     } else {
-      ewondoText = this.translateLocal(rawText);
-      phonetic = this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(ewondoText) : '';
-      this.translationSpeechCache.set(rawText, { ewondo: ewondoText, phonetic });
+      spokenTranslation = this.translateLocal(rawText);
+      phonetic = this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(spokenTranslation) : '';
+      this.translationSpeechCache.set(cacheKey, { spokenTranslation, phonetic });
     }
 
     // Visual highlight on speaking section
@@ -915,10 +814,10 @@ class ExtensionAssistant {
     }
 
     // Show floating phonetic subtitle bar immediately
-    this.showAudioFloatingBar(ewondoText, phonetic);
+    this.showAudioFloatingBar(spokenTranslation, phonetic);
 
-    // Speak immediately with local browser Web Speech API
-    this.speechPlayer.speak(ewondoText, phonetic, () => {
+    // Speak immediately with authentic Meta MMS African neural engine
+    this.speechPlayer.speak(spokenTranslation, phonetic, () => {
       if (this.currentSpokenEl === targetEl) {
         if (targetEl && targetEl !== this.currentHoveredEl) {
           targetEl.style.outline = '';
@@ -1102,8 +1001,9 @@ class ExtensionAssistant {
         const translatedPh = this.translateLocal(sourcePh);
         if (translatedPh && translatedPh !== sourcePh) {
           inputEl.placeholder = translatedPh;
-          this.translationSpeechCache.set(translatedPh, {
-            ewondo: translatedPh,
+          const cacheKey = `${this.currentTargetLang}:${translatedPh.trim()}`;
+          this.translationSpeechCache.set(cacheKey, {
+            spokenTranslation: translatedPh,
             phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedPh) : '',
           });
         } else {
@@ -1125,8 +1025,9 @@ class ExtensionAssistant {
         const translatedVal = this.translateLocal(sourceVal);
         if (translatedVal && translatedVal !== sourceVal) {
           inputEl.value = translatedVal;
-          this.translationSpeechCache.set(translatedVal, {
-            ewondo: translatedVal,
+          const cacheKey = `${this.currentTargetLang}:${translatedVal.trim()}`;
+          this.translationSpeechCache.set(cacheKey, {
+            spokenTranslation: translatedVal,
             phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedVal) : '',
           });
         } else {
@@ -1146,8 +1047,9 @@ class ExtensionAssistant {
       const translatedTitle = this.translateLocal(sourceTitle);
       if (translatedTitle && translatedTitle !== sourceTitle) {
         el.setAttribute('title', translatedTitle);
-        this.translationSpeechCache.set(translatedTitle, {
-          ewondo: translatedTitle,
+        const cacheKey = `${this.currentTargetLang}:${translatedTitle.trim()}`;
+        this.translationSpeechCache.set(cacheKey, {
+          spokenTranslation: translatedTitle,
           phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedTitle) : '',
         });
       } else {
@@ -1167,8 +1069,9 @@ class ExtensionAssistant {
       const translatedAria = this.translateLocal(sourceAria);
       if (translatedAria && translatedAria !== sourceAria) {
         el.setAttribute('aria-label', translatedAria);
-        this.translationSpeechCache.set(translatedAria, {
-          ewondo: translatedAria,
+        const cacheKey = `${this.currentTargetLang}:${translatedAria.trim()}`;
+        this.translationSpeechCache.set(cacheKey, {
+          spokenTranslation: translatedAria,
           phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedAria) : '',
         });
       } else {
@@ -1189,8 +1092,9 @@ class ExtensionAssistant {
         const translatedAlt = this.translateLocal(sourceAlt);
         if (translatedAlt && translatedAlt !== sourceAlt) {
           el.setAttribute('alt', translatedAlt);
-          this.translationSpeechCache.set(translatedAlt, {
-            ewondo: translatedAlt,
+          const cacheKey = `${this.currentTargetLang}:${translatedAlt.trim()}`;
+          this.translationSpeechCache.set(cacheKey, {
+            spokenTranslation: translatedAlt,
             phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translatedAlt) : '',
           });
         } else {
@@ -1334,7 +1238,7 @@ class ExtensionAssistant {
     }
   }
 
-  private translateCompositeContainer(container: HTMLElement): void {
+  private translateCompositeContainer(container: HTMLElement): boolean {
     if (this.originalChildNodesMap.has(container)) {
       this.restoreSingleCompositeContainer(container);
     }
@@ -1347,10 +1251,10 @@ class ExtensionAssistant {
     const leading = wsMatch ? wsMatch[1] : '';
     const trimmed = wsMatch ? wsMatch[2] : '';
     const trailing = wsMatch ? wsMatch[3] : '';
-    if (!trimmed) return;
+    if (!trimmed) return false;
 
     const translated = this.translateLocal(trimmed);
-    if (!translated || translated === trimmed) return;
+    if (!translated || translated === trimmed) return false;
 
     const fullTranslated = leading + translated + trailing;
     const newFragment = this.reassembleTranslatedSentence(fullTranslated, inlineElements);
@@ -1361,12 +1265,16 @@ class ExtensionAssistant {
     container.appendChild(newFragment);
 
     const fullText = container.textContent || '';
-    if (fullText && !this.translationSpeechCache.has(fullText)) {
-      this.translationSpeechCache.set(fullText, {
-        ewondo: fullText,
-        phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(fullText) : '',
-      });
+    if (fullText) {
+      const cacheKey = `${this.currentTargetLang}:${fullText.trim()}`;
+      if (!this.translationSpeechCache.has(cacheKey)) {
+        this.translationSpeechCache.set(cacheKey, {
+          spokenTranslation: fullText,
+          phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(fullText) : '',
+        });
+      }
     }
+    return true;
   }
 
   private translateNodeSubtree(rootNode: Node): void {
@@ -1423,8 +1331,10 @@ class ExtensionAssistant {
             ExtensionAssistant.INLINE_TAGS.has((child.tagName || '').toUpperCase())
           );
           if (hasInline) {
-            this.translateCompositeContainer(c);
-            translatedContainers.add(c);
+            const didTranslate = this.translateCompositeContainer(c);
+            if (didTranslate) {
+              translatedContainers.add(c);
+            }
           }
         }
       }
@@ -1438,8 +1348,10 @@ class ExtensionAssistant {
           ExtensionAssistant.INLINE_TAGS.has((child.tagName || '').toUpperCase())
         );
         if (hasInline && !translatedContainers.has(el)) {
-          this.translateCompositeContainer(el);
-          translatedContainers.add(el);
+          const didTranslate = this.translateCompositeContainer(el);
+          if (didTranslate) {
+            translatedContainers.add(el);
+          }
         }
       }
 
@@ -1454,8 +1366,10 @@ class ExtensionAssistant {
             ExtensionAssistant.INLINE_TAGS.has((child.tagName || '').toUpperCase())
           );
           if (hasInline && !translatedContainers.has(a)) {
-            this.translateCompositeContainer(a);
-            translatedContainers.add(a);
+            const didTranslate = this.translateCompositeContainer(a);
+            if (didTranslate) {
+              translatedContainers.add(a);
+            }
           }
         }
       }
@@ -1502,9 +1416,10 @@ class ExtensionAssistant {
       if (translated && translated !== trimmed) {
         node.textContent = leading + translated + trailing;
         // Warm up speech cache for instant hover reading without delay
-        if (!this.translationSpeechCache.has(translated)) {
-          this.translationSpeechCache.set(translated, {
-            ewondo: translated,
+        const cacheKey = `${this.currentTargetLang}:${translated.trim()}`;
+        if (!this.translationSpeechCache.has(cacheKey)) {
+          this.translationSpeechCache.set(cacheKey, {
+            spokenTranslation: translated,
             phonetic: this.currentTargetLang.startsWith('ewo') ? getEwondoPhonetic(translated) : '',
           });
         }
@@ -1534,22 +1449,28 @@ class ExtensionAssistant {
     try {
       if (typeof window === 'undefined' || !document.body) return;
       const elements = Array.from(
-        document.querySelectorAll('h1, h2, h3, button, [role="button"], p')
+        document.querySelectorAll('h1, h2, h3, button, [role="button"]')
       ) as HTMLElement[];
 
       const candidates: string[] = [];
       for (const el of elements) {
         if (this.isExtensionNode(el)) continue;
         const text = (el.innerText || el.textContent || '').trim();
-        if (text.length >= 2 && text.length <= 60 && !candidates.includes(text)) {
+        if (text.length >= 2 && text.length <= 40 && !candidates.includes(text)) {
           candidates.push(text);
-          if (candidates.length >= 8) break;
+          if (candidates.length >= 2) break;
         }
       }
 
-      for (const t of candidates) {
-        this.speechPlayer.precache(t, this.currentTargetLang);
-      }
+      candidates.forEach((t, index) => {
+        if (index === 0) {
+          this.speechPlayer.precache(t, this.currentTargetLang);
+        } else {
+          setTimeout(() => {
+            this.speechPlayer.precache(t, this.currentTargetLang);
+          }, index * 800);
+        }
+      });
     } catch {
       // Ignored
     }
@@ -1850,6 +1771,8 @@ class ExtensionAssistant {
 
     this.shadow.getElementById('target-lang')?.addEventListener('change', (e) => {
       this.currentTargetLang = (e.target as HTMLSelectElement).value;
+      this.translationSpeechCache.clear();
+      this.stopSpeech();
       if (this.isPageTranslated) {
         this.translateFullPage();
       } else {

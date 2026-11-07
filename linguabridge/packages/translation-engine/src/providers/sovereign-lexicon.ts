@@ -75,6 +75,14 @@ export const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
   // 1. FULFULDE / PEUL (fuv-CM / fuv)
   // ==========================================
   fuv: {
+    '0': 'bolum', '1': "go'o", '2': 'ɗiɗi', '3': 'tati', '4': 'nay', '5': 'jowi',
+    '6': "jee-go'o", '7': 'jee-ɗiɗi', '8': 'jee-tati', '9': 'jee-nay', '10': 'sappo',
+    '01': "go'o", '02': 'ɗiɗi', '03': 'tati', '04': 'nay', '05': 'jowi',
+    '06': "jee-go'o", '07': 'jee-ɗiɗi', '08': 'jee-tati', '09': 'jee-nay',
+    'un': "go'o", 'une': "go'o", 'deux': 'ɗiɗi', 'trois': 'tati', 'quatre': 'nay', 'cinq': 'jowi',
+    'six': "jee-go'o", 'sept': 'jee-ɗiɗi', 'huit': 'jee-tati', 'neuf': 'jee-nay', 'dix': 'sappo',
+    'one': "go'o", 'two': 'ɗiɗi', 'three': 'tati', 'four': 'nay', 'five': 'jowi',
+    'seven': 'jee-ɗiɗi', 'eight': 'jee-tati', 'nine': 'jee-nay', 'ten': 'sappo',
     'what we do': 'Ko min ngollata',
     'venture capital': 'Ceede njulaaku',
     'impact': 'Battane lobɓe',
@@ -392,6 +400,14 @@ export const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
   // 2. HAOUSSA (hau-CM / hau)
   // ==========================================
   hau: {
+    '0': 'sifili', '1': 'daya', '2': 'biyu', '3': 'uku', '4': 'hudu', '5': 'biyar',
+    '6': 'shida', '7': 'bakwai', '8': 'takwas', '9': 'tara', '10': 'goma',
+    '01': 'daya', '02': 'biyu', '03': 'uku', '04': 'hudu', '05': 'biyar',
+    '06': 'shida', '07': 'bakwai', '08': 'takwas', '09': 'tara',
+    'un': 'daya', 'une': 'daya', 'deux': 'biyu', 'trois': 'uku', 'quatre': 'hudu', 'cinq': 'biyar',
+    'six': 'shida', 'sept': 'bakwai', 'huit': 'takwas', 'neuf': 'tara', 'dix': 'goma',
+    'one': 'daya', 'two': 'biyu', 'three': 'uku', 'four': 'hudu', 'five': 'biyar',
+    'seven': 'bakwai', 'eight': 'takwas', 'nine': 'tara', 'ten': 'goma',
     'what we do': 'Abin da muke yi',
     'venture capital': 'Kudin kasuwanci',
     'impact': 'Tasiri',
@@ -709,6 +725,14 @@ export const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
   // 3. KANURI (knc-CM / knc)
   // ==========================================
   knc: {
+    '0': 'sifili', '1': 'tílō', '2': 'ndí', '3': 'yakkə́', '4': 'déyé', '5': 'úwù',
+    '6': 'araskə́', '7': 'tulur', '8': 'wusku', '9': 'ləgar', '10': 'mewu',
+    '01': 'tílō', '02': 'ndí', '03': 'yakkə́', '04': 'déyé', '05': 'úwù',
+    '06': 'araskə́', '07': 'tulur', '08': 'wusku', '09': 'ləgar',
+    'un': 'tílō', 'une': 'tílō', 'deux': 'ndí', 'trois': 'yakkə́', 'quatre': 'déyé', 'cinq': 'úwù',
+    'six': 'araskə́', 'sept': 'tulur', 'huit': 'wusku', 'neuf': 'ləgar', 'dix': 'mewu',
+    'one': 'tílō', 'two': 'ndí', 'three': 'yakkə́', 'four': 'déyé', 'five': 'úwù',
+    'seven': 'tulur', 'eight': 'wusku', 'nine': 'ləgar', 'ten': 'mewu',
     'what we do': 'Cida bəla',
     'venture capital': 'Kudi cidaram',
     'impact': 'Gadu',
@@ -1023,6 +1047,14 @@ export const SOVEREIGN_DICTIONARIES: Record<string, Record<string, string>> = {
   // 4. CAMEROON PIDGIN ENGLISH (pcm-CM / pcm)
   // ==========================================
   pcm: {
+    '0': 'zero', '1': 'wan', '2': 'tu', '3': 'tri', '4': 'fo', '5': 'faiv',
+    '6': 'siks', '7': 'sɛvin', '8': 'et', '9': 'nain', '10': 'tɛn',
+    '01': 'wan', '02': 'tu', '03': 'tri', '04': 'fo', '05': 'faiv',
+    '06': 'siks', '07': 'sɛvin', '08': 'et', '09': 'nain',
+    'un': 'wan', 'une': 'wan', 'deux': 'tu', 'trois': 'tri', 'quatre': 'fo', 'cinq': 'faiv',
+    'six': 'siks', 'sept': 'sɛvin', 'huit': 'et', 'neuf': 'nain', 'dix': 'tɛn',
+    'one': 'wan', 'two': 'tu', 'three': 'tri', 'four': 'fo', 'five': 'faiv',
+    'seven': 'sɛvin', 'eight': 'et', 'nine': 'nain', 'ten': 'tɛn',
     'what we do': 'Wetin we dey do',
     'venture capital': 'Startup money',
     'impact': 'Better change',
@@ -1418,7 +1450,22 @@ export function translateSentenceToSovereign(
     const token = tokens[i];
     if (!token) continue;
 
-    // Preserve whitespace, punctuation, entity placeholders, tag placeholders, pure numbers
+    // Direct single word or mapped digit/number lookup
+    const wordKey = token.toLowerCase();
+    const wordMatch = dict[wordKey];
+    if (wordMatch) {
+      matched = true;
+      let repl = wordMatch;
+      if (token === token.toUpperCase() && token.length > 1) {
+        repl = wordMatch.toUpperCase();
+      } else if (token[0] === token[0].toUpperCase()) {
+        repl = wordMatch.charAt(0).toUpperCase() + wordMatch.slice(1);
+      }
+      translatedTokens.push(repl);
+      continue;
+    }
+
+    // Preserve whitespace, punctuation, entity placeholders, tag placeholders, unmapped pure numbers
     if (/^(\s+|[,;:.!?()\/\\'\-–—«»""])$/.test(token) ||
         /^___FIN_GUARD_\d+___$/.test(token) ||
         /^<\/?t\d+>$/.test(token) ||
@@ -1452,21 +1499,8 @@ export function translateSentenceToSovereign(
       }
     }
 
-    // Direct single word lookup
-    const wordKey = token.toLowerCase();
-    const wordMatch = dict[wordKey];
-    if (wordMatch) {
-      matched = true;
-      let repl = wordMatch;
-      if (token === token.toUpperCase() && token.length > 1) {
-        repl = wordMatch.toUpperCase();
-      } else if (token[0] === token[0].toUpperCase()) {
-        repl = wordMatch.charAt(0).toUpperCase() + wordMatch.slice(1);
-      }
-      translatedTokens.push(repl);
-    } else {
-      translatedTokens.push(token);
-    }
+    // Unmatched token fallback
+    translatedTokens.push(token);
   }
 
   let finalWorking = translatedTokens.join('');

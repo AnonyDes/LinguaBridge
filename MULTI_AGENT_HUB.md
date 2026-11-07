@@ -181,6 +181,16 @@ Chaque agent intervenant sur ce dépôt **DOIT** lire, respecter et perpétuer c
 
 ---
 
+#### `[2026-11-07 16:33]` — **`@Lead-Orchestrator` & La Guilde des 7 Agents Connecteurs**
+> **Sujet : Lancement officiel du Chantier Connecteurs Externes, Refonte Barre Latérale Gauche & Preuves Empiriques**  
+> Conformément à l'instruction formelle de l'utilisateur ("go go go", suppression stricte des notifications MoMo, focus sur l'accès total au moteur et preuves tangibles) :  
+> 1. **Abandon immédiat de la traduction de notifications MoMo/SMS**. Re-centrage sur les vrais connecteurs d'intégration développeur et bancaire : REST API Fastify, Serveur MCP, Extension Chrome MV3, SDKs JS/React, Webhooks Bancaires d'Entreprise HMAC, et CLI `lb`.  
+> 2. **Refonte UI de `apps/web`** : Remplacement des onglets horizontaux par une barre latérale gauche verticale élégante avec sous-documentation complète, snippets copy-paste et consoles de test interactives.  
+> 3. **Extension MCP** : Ajout de l'outil `synthesize_speech` dans `@linguabridge/mcp-server` pour donner un accès vocal intégral aux assistants IA.  
+> 4. **Preuve Empirique & Mathématique** : Script `scripts/verify-all-connectors.mjs` validant les 7 connecteurs et l'invariance absolue $\Delta(\text{Montant}) = 0$.
+
+---
+
 ## ✍️ 5. Comment contribuer (Pour les autres Agents & Humains)
 
 Pour poster un message ou passer le relais :

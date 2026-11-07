@@ -10,6 +10,7 @@ import {
   FixtureProvider,
   type CacheStore,
 } from '@linguabridge/translation-engine';
+import { SpeechOrchestrator } from '@linguabridge/speech-engine';
 import { loadGlossaryForLang, loadSupportedLanguages } from './pack-loader';
 import type {
   TranslateToolInput,
@@ -20,6 +21,8 @@ import type {
   GlossaryToolOutput,
   LanguagesToolInput,
   LanguagesToolOutput,
+  SynthesizeSpeechToolInput,
+  SynthesizeSpeechToolOutput,
   McpServerConfig,
 } from './types';
 
@@ -59,6 +62,7 @@ export function registerTools(server: McpServer, config?: McpServerConfig): void
     providers: [new FixtureProvider()],
     cache: new InMemoryCacheStore(),
   });
+  const speechOrchestrator = new SpeechOrchestrator();
 
   // Tool 1: translate_financial_text
   server.tool(
@@ -693,5 +697,102 @@ export function registerTools(server: McpServer, config?: McpServerConfig): void
         .describe('Whether to include unapproved/quarantined template packs (default false)'),
     },
     handleListLanguages
+  );
+
+  // Tool 6: synthesize_speech
+  server.tool(
+    'synthesize_speech',
+    'Synthesize native audio and tonal guide for Cameroonian national languages with African acoustic models',
+    {
+      text: z.string().describe('Text in a supported African language to synthesize into speech'),
+      lang: z.string().describe('Language locale code (e.g. "ewo-CM", "fuv-CM", "hau-CM", "knc-CM", "pcm-CM")'),
+      voiceStyle: z.enum(['neutral', 'formal', 'informal']).optional().describe('Voice inflection and pacing style'),
+      rate: z.number().min(0.5).max(2.0).optional().describe('Speech rate multiplier (0.5 to 2.0, default 1.0)'),
+      pitch: z.number().min(0.5).max(2.0).optional().describe('Pitch multiplier (0.5 to 2.0, default 1.0)'),
+    },
+    async (args: SynthesizeSpeechToolInput) => {
+      try {
+        if (!args || typeof args !== 'object') {
+          return {
+            isError: true,
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({ isError: true, error: 'Invalid tool arguments' }, null, 2),
+              },
+            ],
+          };
+        }
+
+        const rawText = typeof args.text === 'string' ? args.text : '';
+        const text = rawText.trim();
+        const rawLang = typeof args.lang === 'string' ? args.lang : '';
+        const lang = rawLang.trim();
+
+        if (!text) {
+          const errOutput: SynthesizeSpeechToolOutput = {
+            available: false,
+            lang: lang || 'unknown',
+            text: '',
+            unavailableReason: 'Cannot synthesize speech for empty text.',
+          };
+          return {
+            content: [{ type: 'text' as const, text: JSON.stringify(errOutput, null, 2) }],
+          };
+        }
+
+        const normLang = lang.toLowerCase();
+        if (normLang === 'dua' || normLang === 'dua-cm') {
+          const errOutput: SynthesizeSpeechToolOutput = {
+            available: false,
+            lang,
+            text,
+            unavailableReason: 'Duala language pack is currently quarantined (unapproved acoustics).',
+          };
+          return {
+            content: [{ type: 'text' as const, text: JSON.stringify(errOutput, null, 2) }],
+          };
+        }
+
+        const result = await speechOrchestrator.synthesize(text, lang, {
+          rate: args.rate,
+          pitch: args.pitch,
+        });
+
+        const output: SynthesizeSpeechToolOutput = {
+          available: result.available,
+          lang: result.lang || lang,
+          text,
+          audioUrl: result.audioUrl,
+          audioBase64: result.audioBase64,
+          unavailableReason: result.unavailableReason,
+        };
+
+        return {
+          content: [{ type: 'text' as const, text: JSON.stringify(output, null, 2) }],
+        };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  available: false,
+                  lang: args?.lang || 'unknown',
+                  text: args?.text || '',
+                  error: message,
+                  unavailableReason: `Speech synthesis failed: ${message}`,
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      }
+    }
   );
 }

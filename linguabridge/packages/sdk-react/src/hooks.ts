@@ -264,3 +264,24 @@ export function useBankingAssistant(options: BankingAssistantOptions = {}): UseB
     loading,
   };
 }
+
+export function useSpeech() {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const speak = useCallback((text: string, lang: string, phoneticText?: string) => {
+    setIsSpeaking(true);
+    speakAfricanText(
+      text,
+      phoneticText || text,
+      lang,
+      () => setIsSpeaking(true),
+      () => setIsSpeaking(false)
+    );
+  }, []);
+  const stop = useCallback(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+  }, []);
+  return { speak, stop, isSpeaking };
+}

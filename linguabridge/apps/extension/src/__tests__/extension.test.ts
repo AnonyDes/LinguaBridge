@@ -685,9 +685,8 @@ describe('Chrome Extension Content Assistant', () => {
 
     player.playBrowserVoice('Mbolo', 'ewo-CM', 999);
 
-    expect((global as any).window.speechSynthesis.speak).toHaveBeenCalled();
-    const utterance = (global as any).window.speechSynthesis.speak.mock.calls[0][0];
-    expect(utterance.voice.lang).toBe('fr-CM');
+    // Browser speech synthesis is strictly blocked to guarantee zero Google/Windows voice leakage
+    expect((global as any).window.speechSynthesis.speak).not.toHaveBeenCalled();
   });
 
   it('strictly blocks Google voices and European voices when African voice is absent', () => {

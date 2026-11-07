@@ -97,6 +97,28 @@ export interface LanguagesToolOutput {
   error?: string;
 }
 
+export interface SynthesizeSpeechToolInput {
+  text: string;
+  lang: string;
+  voiceStyle?: 'neutral' | 'formal' | 'informal';
+  rate?: number;
+  pitch?: number;
+}
+
+export interface SynthesizeSpeechToolOutput {
+  available: boolean;
+  lang: string;
+  text: string;
+  audioUrl?: string;
+  audioBase64?: string;
+  durationMs?: number;
+  phoneticSpelling?: string;
+  accentProfile?: string;
+  tonalGuide?: string[];
+  unavailableReason?: string;
+  error?: string;
+}
+
 export interface McpServerConfig {
   name?: string;
   version?: string;

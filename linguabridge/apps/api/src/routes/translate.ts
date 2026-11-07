@@ -149,7 +149,14 @@ export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async 
 
   // Single translate handler
   const singleTranslateHandler = async (request: FastifyRequest, reply: FastifyReply) => {
-    const parseResult = TranslateBodyZodSchema.safeParse(request.body);
+    const rawBody = (request.body as any) || {};
+    if (rawBody.text && !rawBody.sourceText) {
+      rawBody.sourceText = rawBody.text;
+    }
+    if (!rawBody.sourceLang) {
+      rawBody.sourceLang = 'fr';
+    }
+    const parseResult = TranslateBodyZodSchema.safeParse(rawBody);
     if (!parseResult.success) {
       return reply.status(400).send({
         error: 'Bad Request',
@@ -311,11 +318,43 @@ export const translateRoutes: FastifyPluginAsync<TranslateRouteOptions> = async 
     });
   };
 
+  const verifyHandler = async (request: FastifyRequest, reply: FastifyReply) => {
+    const body = (request.body as any) || {};
+    const sourceText = body.sourceText || body.text || '';
+    const translatedText = body.translatedText || '';
+
+    if (!sourceText || !translatedText) {
+      return reply.status(400).send({
+        error: 'Bad Request',
+        message: 'sourceText and translatedText are required',
+      });
+    }
+
+    const { FinancialEntityExtractor, computeEntityFingerprint } = await import('@linguabridge/financial-domain');
+    const extractor = new FinancialEntityExtractor();
+    const srcEnts = extractor.extract(sourceText);
+    const tgtEnts = extractor.extract(translatedText);
+    const srcFp = computeEntityFingerprint(srcEnts);
+    const tgtFp = computeEntityFingerprint(tgtEnts);
+    const safe = srcFp === tgtFp;
+
+    return reply.status(200).send({
+      safe,
+      sourceFingerprint: srcFp,
+      translatedFingerprint: tgtFp,
+      violations: safe ? [] : [{ type: 'drift', message: 'Entity fingerprint mismatch detected' }],
+    });
+  };
+
   for (const prefix of ['/api/v1', '/v1']) {
     fastify.post(
       `${prefix}/translate`,
       { schema: singleTranslateSchema, preValidation: authPreValidation },
       singleTranslateHandler
+    );
+    fastify.post(
+      `${prefix}/verify`,
+      verifyHandler
     );
     fastify.post(
       `${prefix}/translate/batch`,

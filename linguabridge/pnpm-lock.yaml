@@ -295,6 +295,9 @@ importers:
       '@linguabridge/shared-types':
         specifier: workspace:*
         version: link:../shared-types
+      '@linguabridge/speech-engine':
+        specifier: workspace:*
+        version: link:../speech-engine
       '@linguabridge/translation-engine':
         specifier: workspace:*
         version: link:../translation-engine

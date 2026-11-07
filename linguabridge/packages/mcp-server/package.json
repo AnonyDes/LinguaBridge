@@ -23,6 +23,7 @@
     "@linguabridge/financial-domain": "workspace:*",
     "@linguabridge/language-registry": "workspace:*",
     "@linguabridge/shared-types": "workspace:*",
+    "@linguabridge/speech-engine": "workspace:*",
     "@linguabridge/translation-engine": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.6.0",
     "zod": "^3.23.0"

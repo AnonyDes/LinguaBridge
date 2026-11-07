@@ -293,6 +293,22 @@ export class LinguaBridgeClient {
     return this.request<{ status: string; timestamp: string }>('/health');
   }
 
+  async health(): Promise<{ status: string; timestamp: string }> {
+    return this.checkHealth();
+  }
+
+  async synthesizeSpeech(params: {
+    text: string;
+    lang: string;
+    rate?: number;
+    pitch?: number;
+  }): Promise<any> {
+    return this.request('/v1/speech/synthesize', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
   clearLocalCache(): void {
     this.memoryCache.clear();
   }

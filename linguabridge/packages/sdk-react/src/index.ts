@@ -9,6 +9,7 @@ export {
   useTranslate,
   useLanguages,
   useBankingAssistant,
+  useSpeech,
   type UseTranslateOptions,
   type UseTranslateResult,
   type BankingAssistantOptions,

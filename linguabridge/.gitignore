@@ -13,3 +13,6 @@ coverage/
 playwright-report/
 test-results/
 models/
+__pycache__/
+*.pyc
+

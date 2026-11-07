@@ -15,3 +15,6 @@ test-results/
 models/
 linguabridge/models/
 logs/
+__pycache__/
+*.pyc
+

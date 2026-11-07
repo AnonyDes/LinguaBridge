@@ -383,16 +383,34 @@ export function generateBankingResponse(
   };
 }
 
+let sdkAudioCtx: AudioContext | null = null;
+const sdkAudioCache = new Map<string, AudioBuffer>();
+
+function getSdkAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+  if (!AudioCtxClass) return null;
+  if (!sdkAudioCtx) {
+    sdkAudioCtx = new AudioCtxClass();
+  }
+  if (sdkAudioCtx.state === 'suspended') {
+    sdkAudioCtx.resume().catch(() => {});
+  }
+  return sdkAudioCtx;
+}
+
 /**
  * Phonetic speech synthesis executor.
- * Dispatches a 'linguabridge:speak' event and utilizes window.speechSynthesis if supported.
+ * Strictly uses Meta MMS African neural engine or complete defensive silence.
+ * Browser speechSynthesis (Google/Windows/European) is permanently blocked.
  */
 export function speakAfricanText(
   text: string,
   phoneticText: string,
   lang: string,
   onStart?: () => void,
-  onEnd?: () => void
+  onEnd?: () => void,
+  voiceUrl?: string
 ): boolean {
   if (typeof window === 'undefined') return false;
 
@@ -402,31 +420,68 @@ export function speakAfricanText(
   });
   window.dispatchEvent(event);
 
+  // Permanently block browser speechSynthesis
   if ('speechSynthesis' in window && window.speechSynthesis) {
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(phoneticText || text);
-
-      const activeLang = CAMEROON_BANKING_LANGUAGES.find((l) => l.code === lang);
-      utterance.lang = activeLang ? activeLang.phoneticLocale : lang;
-      utterance.rate = 0.9;
-      utterance.pitch = 1.05;
-
-      if (onStart) utterance.onstart = onStart;
-      if (onEnd) {
-        utterance.onend = onEnd;
-        utterance.onerror = onEnd;
-      }
-
-      window.speechSynthesis.speak(utterance);
-      return true;
-    } catch {
-      if (onEnd) onEnd();
-      return true;
-    }
+    try { window.speechSynthesis.cancel(); } catch {}
   }
 
-  if (onStart) onStart();
-  if (onEnd) setTimeout(onEnd, 100);
+  const cleanText = (phoneticText || text || '').replace(/\[|\]/g, '').trim();
+  if (!cleanText) {
+    if (onStart) onStart();
+    if (onEnd) setTimeout(onEnd, 50);
+    return true;
+  }
+
+  const cacheKey = `${lang}:${cleanText.toLowerCase()}`;
+  const ctx = getSdkAudioContext();
+
+  const playBuffer = (buffer: AudioBuffer): boolean => {
+    if (!ctx) return false;
+    try {
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      if (onStart) onStart();
+      source.onended = () => {
+        if (onEnd) onEnd();
+      };
+      source.start(0);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const cached = sdkAudioCache.get(cacheKey);
+  if (cached && ctx) {
+    return playBuffer(cached);
+  }
+
+  const baseVoiceUrl = voiceUrl || 'http://127.0.0.1:3002';
+  fetch(`${baseVoiceUrl}/synthesize?lang=${encodeURIComponent(lang)}&text=${encodeURIComponent(cleanText)}`, {
+    signal: AbortSignal.timeout(8000),
+  })
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data?.audioBase64 && ctx) {
+        const base64Data = data.audioBase64.replace(/^data:audio\/wav;base64,/, '');
+        const binaryStr = atob(base64Data);
+        const len = binaryStr.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) bytes[i] = binaryStr.charCodeAt(i);
+        const audioBuffer = await ctx.decodeAudioData(bytes.buffer.slice(0));
+        sdkAudioCache.set(cacheKey, audioBuffer);
+        playBuffer(audioBuffer);
+        return;
+      }
+      // Offline: Enforce silence
+      if (onEnd) setTimeout(onEnd, 50);
+    })
+    .catch(() => {
+      // Offline: Enforce silence
+      if (onEnd) setTimeout(onEnd, 50);
+    });
+
   return true;
 }
