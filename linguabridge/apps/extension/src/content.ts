@@ -733,11 +733,6 @@ class ExtensionAssistant {
         this.currentHoveredEl.style.cursor = '';
       }
 
-      // If switching sections, stop previous speech and clear previous spoken element outline immediately
-      if (this.currentSpokenEl && this.currentSpokenEl !== section) {
-        this.stopSpeech();
-      }
-
       this.currentHoveredEl = section;
       section.style.outline = '2px solid #16a34a';
       section.style.outlineOffset = '2px';
@@ -749,10 +744,14 @@ class ExtensionAssistant {
       // Prewarm voice synthesis on hover for zero-latency speech start
       this.speechPlayer.prewarm();
 
-      // Debounce dwell delay (220ms) to avoid triggering on fast mouse passage
+      // Debounce dwell delay (200ms) so casual mouse movement does not trigger or abort speech
       this.hoverDwellTimeout = setTimeout(() => {
         if (this.currentHoveredEl === section && this.lastSpokenEl !== section) {
           this.lastSpokenEl = section;
+          // Only stop previous speech when new section actually begins speaking
+          if (this.currentSpokenEl && this.currentSpokenEl !== section) {
+            this.stopSpeech();
+          }
           const secTag = (section.tagName || '').toLowerCase();
           const isSecInput = secTag === 'input' || secTag === 'textarea';
           const text = isSecInput
@@ -768,7 +767,7 @@ class ExtensionAssistant {
             this.speakTextSection(text, section);
           }
         }
-      }, 220);
+      }, 200);
     };
 
     this.onMouseOutHandler = (e: MouseEvent) => {
@@ -832,6 +831,7 @@ class ExtensionAssistant {
       e.preventDefault();
       e.stopPropagation();
 
+      this.stopSpeech();
       this.lastSpokenEl = section;
       this.speakTextSection(text, section);
     };
@@ -861,6 +861,7 @@ class ExtensionAssistant {
       if (!text || text.length < 2) return;
 
       e.preventDefault();
+      this.stopSpeech();
       this.lastSpokenEl = section;
       this.speakTextSection(text, section);
     };

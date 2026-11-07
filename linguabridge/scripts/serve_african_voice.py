@@ -82,11 +82,53 @@ def get_model_and_tokenizer(lang_norm: str):
 
     return LOADED_MODELS[cache_key], LOADED_TOKENIZERS[cache_key]
 
+import re
+import threading
+
+MODEL_INFERENCE_LOCK = threading.Lock()
+
+DIGIT_WORDS = {
+    "ewo": {
+        "0": "zélo", "1": "fɔ́k", "2": "bɛ̌", "3": "lǎl", "4": "nyǐn",
+        "5": "tán", "6": "samə́n", "7": "zangbá", "8": "mwôm", "9": "ebúl"
+    },
+    "hau": {
+        "0": "sifili", "1": "daya", "2": "biyu", "3": "uku", "4": "hudu",
+        "5": "biyar", "6": "shida", "7": "bakwai", "8": "takwas", "9": "tara"
+    },
+    "knc": {
+        "0": "sifili", "1": "daya", "2": "biyu", "3": "uku", "4": "hudu",
+        "5": "biyar", "6": "shida", "7": "bakwai", "8": "takwas", "9": "tara"
+    },
+    "fuv": {
+        "0": "bolum", "1": "go'o", "2": "ɗiɗi", "3": "tati", "4": "nay",
+        "5": "jowi", "6": "jee-go'o", "7": "jee-ɗiɗi", "8": "jee-tati", "9": "jee-nay"
+    },
+    "pcm": {
+        "0": "zero", "1": "one", "2": "two", "3": "three", "4": "four",
+        "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine"
+    }
+}
+
+def verbalize_numbers(text: str, lang_norm: str) -> str:
+    """Verbalizes raw Arabic numerals (01, 5000, 2026) into spoken words to prevent VITS tokenizer crashes."""
+    base_lang = lang_norm.split("-")[0]
+    digit_map = DIGIT_WORDS.get(base_lang, DIGIT_WORDS["ewo"])
+
+    def repl_num(match):
+        digits = match.group(0)
+        return " " + " ".join(digit_map.get(d, d) for d in digits) + " "
+
+    verbalized = re.sub(r'\d+', repl_num, text)
+    verbalized = re.sub(r'\s+', ' ', verbalized).strip()
+    return verbalized if verbalized else text
+
 def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
     """Synthesizes text into 16kHz mono 16-bit PCM WAV bytes with in-memory caching."""
     import numpy as np
 
-    clean_text = text.strip()
+    verbalized_text = verbalize_numbers(text, lang_norm)
+    clean_text = verbalized_text.strip()
     cache_key = f"{lang_norm}:{clean_text.lower()}"
     if cache_key in AUDIO_CACHE:
         return AUDIO_CACHE[cache_key]
@@ -95,8 +137,14 @@ def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
 
     inputs = tokenizer(clean_text, return_tensors="pt")
 
-    with torch.no_grad():
-        output = model(**inputs)
+    # Guard against 0 tokens (e.g. text was only symbols or unprintable characters)
+    if inputs.get("input_ids") is None or inputs["input_ids"].shape[-1] == 0:
+        fallback_token = "a"
+        inputs = tokenizer(fallback_token, return_tensors="pt")
+
+    with MODEL_INFERENCE_LOCK:
+        with torch.no_grad():
+            output = model(**inputs)
 
     waveform = output.waveform[0].cpu().numpy()
     # Normalize and clamp to int16
@@ -113,7 +161,7 @@ def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
 
     wav_bytes = wav_io.getvalue()
     # Cache result for ultra-fast instant sub-millisecond retrieval on re-read/hover
-    if len(AUDIO_CACHE) < 500:
+    if len(AUDIO_CACHE) < 1000:
         AUDIO_CACHE[cache_key] = wav_bytes
 
     return wav_bytes
