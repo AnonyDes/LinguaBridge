@@ -1,5 +1,15 @@
-import { randomUUID } from 'crypto';
 import type { TranslationProvider, TranslationRequest, TranslationResult, ProviderHealth } from '@linguabridge/shared-types';
+
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
 
 export interface LibreTranslateConfig {
   baseUrl: string;
@@ -45,7 +55,7 @@ export class LibreTranslateProvider implements TranslationProvider {
     const data = await response.json() as { translatedText: string };
 
     return {
-      id: request.id || randomUUID(),
+      id: request.id || generateUUID(),
       originalText: request.sourceText,
       translatedText: data.translatedText,
       sourceLang: request.sourceLang,

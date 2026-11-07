@@ -81,6 +81,23 @@ class AfricanSpeechPlayer {
       }
     }, 5000);
 
+    const tryDirectFetch = async (): Promise<boolean> => {
+      try {
+        const url = `http://127.0.0.1:3002/synthesize?lang=${encodeURIComponent(targetLang)}&text=${encodeURIComponent(spokenText)}`;
+        const r = await fetch(url, { signal: AbortSignal.timeout(4000) });
+        if (!r.ok) return false;
+        const data = (await r.json()) as any;
+        if (data?.audioBase64) {
+          const audioUrl = `data:audio/wav;base64,${data.audioBase64}`;
+          await this.playNeuralAudio(audioUrl, thisId, spokenText, targetLang, cacheKey);
+          return true;
+        }
+      } catch {
+        // Direct fetch may be blocked by mixed-content or CSP
+      }
+      return false;
+    };
+
     // Primary Path: High-fidelity African audio from Background service / Meta MMS Neural Engine
     if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
       try {
@@ -103,7 +120,14 @@ class AfricanSpeechPlayer {
             handled = true;
             clearTimeout(fallbackTimer);
             if (chrome.runtime?.lastError || !res || !res.success || !res.result?.audioUrl) {
-              this.playBrowserVoice(spokenText, targetLang, thisId);
+              console.warn(
+                '[LinguaBridge Speech] Background sendMessage failed, attempting direct fetch:',
+                chrome.runtime?.lastError?.message || res?.error
+              );
+              const directOk = await tryDirectFetch();
+              if (!directOk) {
+                this.playBrowserVoice(spokenText, targetLang, thisId);
+              }
               return;
             }
             await this.playNeuralAudio(res.result.audioUrl, thisId, spokenText, targetLang, cacheKey);
@@ -116,7 +140,9 @@ class AfricanSpeechPlayer {
     }
 
     clearTimeout(fallbackTimer);
-    this.playBrowserVoice(spokenText, targetLang, thisId);
+    tryDirectFetch().then((ok) => {
+      if (!ok) this.playBrowserVoice(spokenText, targetLang, thisId);
+    });
   }
 
   private playBuffer(audioBuffer: AudioBuffer, thisId: number): void {
@@ -133,13 +159,19 @@ class AfricanSpeechPlayer {
       this.activeSource = null;
     }
 
+    if (this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume().catch(() => {});
+    }
+
     const source = this.audioCtx.createBufferSource();
     source.buffer = audioBuffer;
     source.connect(this.audioCtx.destination);
     this.activeSource = source;
     this.isPlaying = true;
+    console.log(`[LinguaBridge Speech] AudioBuffer playback started (duration: ${audioBuffer.duration.toFixed(2)}s, ctx state: ${this.audioCtx.state})`);
 
     source.onended = () => {
+      console.log('[LinguaBridge Speech] AudioBuffer playback finished');
       if (this.currentUtteranceId === thisId) {
         this.isPlaying = false;
         this.activeSource = null;
@@ -207,6 +239,7 @@ class AfricanSpeechPlayer {
     targetLang: string,
     cacheKey?: string
   ): Promise<void> {
+    console.log(`[LinguaBridge Speech] playNeuralAudio received payload (${audioUrl.length} chars) for "${spokenText.substring(0, 30)}"`);
     // Strategy 1: Decode base64 WAV into Web Audio buffer (bypasses CSP media-src blocks)
     try {
       const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;

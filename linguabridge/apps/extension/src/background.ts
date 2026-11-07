@@ -160,6 +160,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
     if (message.type === 'SYNTHESIZE_SPEECH') {
       const text = message.text || '';
       const lang = message.lang || targetLang;
+      console.log(`[LinguaBridge SW] SYNTHESIZE_SPEECH request: lang=${lang}, text="${text.substring(0, 40)}"`);
 
       // Direct ultra-fast fetch to running Python neural voice server
       const tryFetch = async (host: string) => {
@@ -174,6 +175,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       tryFetch('http://127.0.0.1:3002')
         .catch(() => tryFetch('http://localhost:3002'))
         .then((data) => {
+          console.log(`[LinguaBridge SW] Synthesized neural audio successfully (${data.audioBase64.length} b64 chars)`);
           sendResponse({
             success: true,
             result: {
@@ -185,14 +187,15 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             },
           });
         })
-        .catch(() => {
-          // Fallback to internal speech provider
+        .catch((fetchErr) => {
+          console.warn('[LinguaBridge SW] Microservice port 3002 fetch failed, trying provider:', fetchErr?.message);
           africanVoiceProvider
             .synthesize(text, lang, message.options)
             .then((result) => {
               sendResponse({ success: true, result });
             })
             .catch((err) => {
+              console.error('[LinguaBridge SW] Speech synthesis failed completely:', err?.message);
               sendResponse({ success: false, error: err?.message || 'Speech synthesis failed' });
             });
         });
