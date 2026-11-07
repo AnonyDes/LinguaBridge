@@ -8,6 +8,7 @@ export function WidgetMount() {
     if (typeof window !== 'undefined') {
       const widget = LinguaBridgeWidget.init({
         apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+        voiceUrl: process.env.NEXT_PUBLIC_VOICE_URL || 'http://127.0.0.1:3002',
         position: 'bottom-right',
       });
       return () => {

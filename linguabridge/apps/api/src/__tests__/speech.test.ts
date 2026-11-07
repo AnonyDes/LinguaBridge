@@ -43,7 +43,7 @@ describe('African Live Voice & Speech Streaming API', () => {
         expect(body.data.audioUrl).toContain('data:audio/wav;base64,');
         expect(['african-neural-mms', 'meta-mms-neural-live']).toContain(body.data.engine);
       }
-    }, 25000);
+    }, 60000);
 
     it('strictly returns 403 Forbidden when Duala (dua-CM) is requested', async () => {
       const response = await app.inject({

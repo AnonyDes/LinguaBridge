@@ -564,7 +564,8 @@ class ExtensionAssistant {
 
     const mount = () => {
       if (document.getElementById('linguabridge-extension-root')) return;
-      if (!document.body) return;
+      const target = document.body || document.documentElement;
+      if (!target) return;
 
       this.container = document.createElement('div');
       this.container.id = 'linguabridge-extension-root';
@@ -576,7 +577,7 @@ class ExtensionAssistant {
 
       this.shadow = this.container.attachShadow({ mode: 'open' });
       this.render();
-      document.body.appendChild(this.container);
+      target.appendChild(this.container);
 
       this.setupListeners();
       this.setupMutationObserver();

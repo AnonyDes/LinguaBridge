@@ -12,6 +12,7 @@ import {
 export interface WidgetOptions {
   apiUrl?: string;
   apiKey?: string;
+  voiceUrl?: string;
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   defaultSourceLang?: string;
   defaultTargetLang?: string;
@@ -262,7 +263,8 @@ export class LinguaBridgeWidget {
         this.isSpeaking = false;
         this.activeSpeakingId = null;
         this.render();
-      }
+      },
+      this.options.voiceUrl
     );
   }
 

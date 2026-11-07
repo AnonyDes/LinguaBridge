@@ -383,17 +383,39 @@ export function generateBankingResponse(
   };
 }
 
+// Global shared AudioContext and buffer cache for the widget
+let widgetAudioCtx: AudioContext | null = null;
+const widgetAudioCache = new Map<string, AudioBuffer>();
+
+function getWidgetAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+  if (!AudioCtxClass) return null;
+  if (!widgetAudioCtx) {
+    widgetAudioCtx = new AudioCtxClass();
+  }
+  if (widgetAudioCtx.state === 'suspended') {
+    widgetAudioCtx.resume().catch(() => {});
+  }
+  return widgetAudioCtx;
+}
+
 /**
- * Phonetic speech synthesis executor.
- * Dispatches a 'linguabridge:speak' event and utilizes authentic African voice selection
- * or acoustic Web Audio resonator. Strictly eliminates Western European voices (fr-FR / en-GB).
+ * Sovereign African Speech Synthesis Executor.
+ * 1. Primary: High-fidelity African Neural Voice Engine (Meta MMS VITS microservice on port 3002).
+ * 2. Secondary: Authentic African OS voice (fr-CM, ha, sw, zu, etc.).
+ * 3. Fallback: Acoustic African Prosody Tone Resonator (zero European voice corruption).
+ * 
+ * STRICT RULE: Google voices, Microsoft Hortense/Paul, and Western European/American voices
+ * are permanently banned.
  */
 export function speakAfricanText(
   text: string,
   phoneticText: string,
   lang: string,
   onStart?: () => void,
-  onEnd?: () => void
+  onEnd?: () => void,
+  voiceUrl?: string
 ): boolean {
   if (typeof window === 'undefined') return false;
 
@@ -404,104 +426,163 @@ export function speakAfricanText(
   });
   window.dispatchEvent(event);
 
-  if ('speechSynthesis' in window && window.speechSynthesis) {
+  const cleanText = (phoneticText || text || '').replace(/\[|\]/g, '').trim();
+  if (!cleanText) {
+    if (onStart) onStart();
+    if (onEnd) setTimeout(onEnd, 50);
+    return true;
+  }
+
+  const cacheKey = `${lang}:${cleanText.toLowerCase()}`;
+  const ctx = getWidgetAudioContext();
+
+  // Helper to play an AudioBuffer
+  const playBuffer = (buffer: AudioBuffer): boolean => {
+    if (!ctx) return false;
     try {
-      window.speechSynthesis.cancel();
-      const voices = window.speechSynthesis.getVoices() || [];
-      const africanVoice = voices.find((v) => {
-        const l = v.lang.toLowerCase();
-        return (
-          l.startsWith('en-ng') ||
-          l.startsWith('ha') ||
-          l.startsWith('sw') ||
-          l.startsWith('zu') ||
-          l.startsWith('fr-cm') ||
-          l.startsWith('fr-sn') ||
-          l.startsWith('fr-ci') ||
-          l.startsWith('en-gh') ||
-          l.startsWith('en-ke') ||
-          l.startsWith('en-za')
-        );
-      });
-
-      const isPidgin = lang.startsWith('pcm');
-      let selectedVoice = africanVoice;
-      if (!selectedVoice) {
-        if (isPidgin) {
-          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('en')) || voices[0];
-        } else {
-          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('fr')) || voices[0];
-        }
-      }
-
-      const utterance = new SpeechSynthesisUtterance(phoneticText || text);
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-        utterance.lang = selectedVoice.lang;
-      }
-      utterance.rate = isPidgin ? 0.92 : 0.85; // deliberate pacing for phonetic clarity and tone contours
-      utterance.pitch = isPidgin ? 1.05 : 0.88; // Deep chest register
-
-      if (onStart) utterance.onstart = onStart;
-      if (onEnd) {
-        utterance.onend = onEnd;
-        utterance.onerror = onEnd;
-      }
-
-      window.speechSynthesis.speak(utterance);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      if (onStart) onStart();
+      source.onended = () => {
+        if (onEnd) onEnd();
+      };
+      source.start(0);
       return true;
     } catch {
-      // Audio fallback simulation
+      return false;
     }
+  };
+
+  // 1. Instant Cache Hit (<1ms)
+  const cached = widgetAudioCache.get(cacheKey);
+  if (cached && ctx) {
+    return playBuffer(cached);
   }
 
-  // Authentic Web Audio resonant tone for African prosody if no African OS voice exists
-  try {
-    const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (AudioCtxClass) {
-      const ctx = new AudioCtxClass();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
+  // Helper to synthesize African resonant prosody tones (never European voice!)
+  const playAfricanToneResonator = (): boolean => {
+    if (ctx) {
+      try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
 
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(750, ctx.currentTime);
-      filter.Q.setValueAtTime(2.5, ctx.currentTime);
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(750, ctx.currentTime);
+        filter.Q.setValueAtTime(2.5, ctx.currentTime);
 
-      osc.type = 'sawtooth';
-      let baseF0 = 142;
-      if (lang.startsWith('ewo')) baseF0 = 138;
-      else if (lang.startsWith('fuv')) baseF0 = 148;
-      else if (lang.startsWith('hau')) baseF0 = 140;
-      else if (lang.startsWith('knc')) baseF0 = 136;
-      else if (lang.startsWith('pcm')) baseF0 = 152;
+        osc.type = 'sawtooth';
+        let baseF0 = 142;
+        if (lang.startsWith('ewo')) baseF0 = 138;
+        else if (lang.startsWith('fuv')) baseF0 = 148;
+        else if (lang.startsWith('hau')) baseF0 = 140;
+        else if (lang.startsWith('knc')) baseF0 = 136;
+        else if (lang.startsWith('pcm')) baseF0 = 152;
 
-      osc.frequency.setValueAtTime(baseF0, ctx.currentTime);
-      osc.frequency.linearRampToValueAtTime(baseF0 * 1.15, ctx.currentTime + 0.12);
-      osc.frequency.exponentialRampToValueAtTime(baseF0 * 0.90, ctx.currentTime + 0.35);
+        osc.frequency.setValueAtTime(baseF0, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(baseF0 * 1.15, ctx.currentTime + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(baseF0 * 0.90, ctx.currentTime + 0.35);
 
-      gain.gain.setValueAtTime(0.001, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.20, ctx.currentTime + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.38);
+        gain.gain.setValueAtTime(0.001, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.20, ctx.currentTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.38);
 
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
 
-      if (onStart) onStart();
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.38);
+        if (onStart) onStart();
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.38);
 
-      setTimeout(() => {
-        if (onEnd) onEnd();
-      }, 400);
-      return true;
+        setTimeout(() => {
+          if (onEnd) onEnd();
+        }, 400);
+        return true;
+      } catch {}
     }
-  } catch {
-    // Proceed to fallback
-  }
+    if (onStart) onStart();
+    if (onEnd) setTimeout(onEnd, 100);
+    return true;
+  };
 
-  if (onStart) onStart();
-  if (onEnd) setTimeout(onEnd, 100);
+  // 2. High-Fidelity African Neural Voice Service (Priority 1)
+  const baseVoiceUrl = voiceUrl || 'http://127.0.0.1:3002';
+  const tryNeuralSynthesis = async () => {
+    try {
+      const url = `${baseVoiceUrl}/synthesize?lang=${encodeURIComponent(lang)}&text=${encodeURIComponent(cleanText)}`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as any;
+      if (data?.audioBase64 && ctx) {
+        const base64Data = data.audioBase64.replace(/^data:audio\/wav;base64,/, '');
+        const binaryStr = atob(base64Data);
+        const len = binaryStr.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryStr.charCodeAt(i);
+        }
+        const audioBuffer = await ctx.decodeAudioData(bytes.buffer.slice(0));
+        widgetAudioCache.set(cacheKey, audioBuffer);
+        playBuffer(audioBuffer);
+        return true;
+      }
+    } catch {
+      // Neural service unreachable or failed
+    }
+
+    // 3. Authentic African OS voice check (NEVER European/American!)
+    if ('speechSynthesis' in window && window.speechSynthesis) {
+      try {
+        const FORBIDDEN_VOICE_NAMES = [
+          'google', 'microsoft', 'hortense', 'paul', 'david', 'zira', 'mark',
+          'hazel', 'hedda', 'helena', 'george', 'susan', 'julie', 'harmonie', 'desktop'
+        ];
+        const FORBIDDEN_LANGS = ['fr-fr', 'en-us', 'en-gb', 'es-es', 'de-de', 'it-it'];
+
+        const voices = window.speechSynthesis.getVoices() || [];
+        const authenticAfricanVoice = voices.find((v) => {
+          const name = (v.name || '').toLowerCase();
+          const l = (v.lang || '').toLowerCase();
+          if (FORBIDDEN_VOICE_NAMES.some((forbidden) => name.includes(forbidden))) return false;
+          if (FORBIDDEN_LANGS.includes(l)) return false;
+          return (
+            l.startsWith('en-ng') ||
+            l.startsWith('ha') ||
+            l.startsWith('sw') ||
+            l.startsWith('zu') ||
+            l.startsWith('fr-cm') ||
+            l.startsWith('fr-sn') ||
+            l.startsWith('fr-ci') ||
+            l.startsWith('en-gh') ||
+            l.startsWith('en-ke') ||
+            l.startsWith('en-za')
+          );
+        });
+
+        if (authenticAfricanVoice) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          utterance.voice = authenticAfricanVoice;
+          utterance.lang = authenticAfricanVoice.lang;
+          utterance.rate = lang.startsWith('pcm') ? 0.92 : 0.85;
+          utterance.pitch = lang.startsWith('pcm') ? 1.05 : 0.88;
+          if (onStart) utterance.onstart = onStart;
+          if (onEnd) {
+            utterance.onend = onEnd;
+            utterance.onerror = onEnd;
+          }
+          window.speechSynthesis.speak(utterance);
+          return true;
+        }
+      } catch {}
+    }
+
+    // 4. Acoustic African Tone Resonator (Zero European Voice Fallback)
+    return playAfricanToneResonator();
+  };
+
+  tryNeuralSynthesis();
   return true;
 }
