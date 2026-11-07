@@ -11,7 +11,8 @@ export default defineConfig({
   noExternal: [
     '@linguabridge/shared-types',
     '@linguabridge/sdk-js',
-    '@linguabridge/translation-engine'
+    '@linguabridge/translation-engine',
+    '@linguabridge/speech-engine'
   ],
   clean: false,
   splitting: false,

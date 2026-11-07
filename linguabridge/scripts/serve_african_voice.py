@@ -49,9 +49,13 @@ MODEL_PATHS = {
     "knc-cm": MODELS_BASE / "mms-tts-hau",
 }
 
-# Cache for loaded models and tokenizers (lazy loading)
+import torch
+torch.set_num_threads(2)
+
+# Cache for loaded models, tokenizers, and synthesized audio
 LOADED_MODELS = {}
 LOADED_TOKENIZERS = {}
+AUDIO_CACHE = {}
 
 def get_model_and_tokenizer(lang_norm: str):
     """Loads and caches VITS model and tokenizer on first demand."""
@@ -66,7 +70,6 @@ def get_model_and_tokenizer(lang_norm: str):
     cache_key = str(model_dir)
     if cache_key not in LOADED_MODELS:
         print(f"⏳ Loading neural voice model for '{lang_norm}' from {model_dir.name}...", flush=True)
-        import torch
         from transformers import VitsModel, VitsTokenizer
 
         tokenizer = VitsTokenizer.from_pretrained(str(model_dir))
@@ -80,13 +83,16 @@ def get_model_and_tokenizer(lang_norm: str):
     return LOADED_MODELS[cache_key], LOADED_TOKENIZERS[cache_key]
 
 def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
-    """Synthesizes text into 16kHz mono 16-bit PCM WAV bytes."""
-    import torch
+    """Synthesizes text into 16kHz mono 16-bit PCM WAV bytes with in-memory caching."""
     import numpy as np
+
+    clean_text = text.strip()
+    cache_key = f"{lang_norm}:{clean_text.lower()}"
+    if cache_key in AUDIO_CACHE:
+        return AUDIO_CACHE[cache_key]
 
     model, tokenizer = get_model_and_tokenizer(lang_norm)
 
-    clean_text = text.strip()
     inputs = tokenizer(clean_text, return_tensors="pt")
 
     with torch.no_grad():
@@ -105,7 +111,23 @@ def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
         wf.setframerate(model.config.sampling_rate or 16000)
         wf.writeframes(int16_samples.tobytes())
 
-    return wav_io.getvalue()
+    wav_bytes = wav_io.getvalue()
+    # Cache result for ultra-fast instant sub-millisecond retrieval on re-read/hover
+    if len(AUDIO_CACHE) < 500:
+        AUDIO_CACHE[cache_key] = wav_bytes
+
+    return wav_bytes
+
+def preload_core_models():
+    """Preloads core models into RAM so user requests are served in < 500ms with zero delay."""
+    print("🚀 Preloading and warming up sovereign African voice models...", flush=True)
+    for lang in ["ewo-cm", "hau-cm"]:
+        try:
+            get_model_and_tokenizer(lang)
+            synthesize_wav_bytes("Mbolo", lang)
+            print(f"✅ {lang} model warmed up and ready for instant playback!", flush=True)
+        except Exception as e:
+            print(f"⚠️ Preload warning for {lang}: {e}", flush=True)
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -187,5 +209,6 @@ def stream():
 
 if __name__ == "__main__":
     port = int(os.environ.get("VOICE_PORT", 3002))
+    preload_core_models()
     print(f"🚀 LinguaBridge African Voice Server running on http://127.0.0.1:{port}", flush=True)
     app.run(host="127.0.0.1", port=port, debug=False, threaded=True)

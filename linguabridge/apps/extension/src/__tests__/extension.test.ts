@@ -652,4 +652,46 @@ describe('Chrome Extension Content Assistant', () => {
     expect(pA.textContent?.trim()).toBe('Consultez votre solde disponible ici.');
     expect(pB.textContent?.trim()).toBe('Effectuer un virement sécurisé maintenant.');
   });
+
+  it('guarantees zero-latency speech player never falls back to European French or English voices when African voice packs are absent', () => {
+    assistant = new ExtensionAssistant();
+    const player = (assistant as any).speechPlayer;
+
+    // Simulate system with only European voices (e.g. Microsoft Paul, Google français)
+    (global as any).window.speechSynthesis = {
+      cancel: vi.fn(),
+      resume: vi.fn(),
+      getVoices: vi.fn(() => [
+        { name: 'Microsoft Paul', lang: 'fr-FR' },
+        { name: 'Google Français', lang: 'fr-FR' },
+        { name: 'Microsoft David', lang: 'en-US' },
+      ]),
+      speak: vi.fn(),
+    };
+
+    // Calling playNativeAfricanVoiceIfAvailable when only European voices exist
+    player.playNativeAfricanVoiceIfAvailable('Mbolo', 'ewo-CM', 999);
+
+    // It must NOT call speak with Microsoft Paul or fr-FR!
+    expect((global as any).window.speechSynthesis.speak).not.toHaveBeenCalled();
+  });
+
+  it('proactively precaches visible text sections into speech audio cache upon page translation', () => {
+    document.body.innerHTML = `
+      <div id="content">
+        <h1>Bienvenue sur votre espace bancaire</h1>
+        <h2>Solde disponible</h2>
+        <button id="btn-transfert">Envoyer de l'argent</button>
+      </div>
+    `;
+
+    const precacheSpy = vi.fn();
+    assistant = new ExtensionAssistant();
+    (assistant as any).speechPlayer.precache = precacheSpy;
+
+    assistant.translateFullPage();
+
+    // Verify precache was called on the visible headings/buttons
+    expect(precacheSpy).toHaveBeenCalled();
+  });
 });

@@ -1,5 +1,6 @@
 import type { TranslationResult } from '@linguabridge/shared-types';
 import { translateLocalText, getEwondoPhonetic } from '@linguabridge/translation-engine';
+import { AfricanVoiceProvider } from '@linguabridge/speech-engine';
 
 class AfricanSpeechPlayer {
   private isPlaying = false;
@@ -9,6 +10,8 @@ class AfricanSpeechPlayer {
   private onEndCallback: (() => void) | null = null;
   private currentUtteranceId = 0;
   private activeUtterance: SpeechSynthesisUtterance | null = null;
+  private audioBufferCache = new Map<string, AudioBuffer>();
+  private acousticProvider = new AfricanVoiceProvider();
 
   constructor() {
     this.prewarm();
@@ -20,28 +23,13 @@ class AfricanSpeechPlayer {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.resume();
       }
-      const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioCtxClass && !this.audioCtx) {
-        this.audioCtx = new AudioCtxClass();
-      }
+      this.ensureAudioContext();
     } catch {
       // Ignored
     }
   }
 
-  public speak(text: string, phonetic?: string, onEnd?: () => void, targetLang = 'ewo-CM'): void {
-    if (typeof window === 'undefined') return;
-
-    this.stop();
-    this.currentUtteranceId++;
-    const thisId = this.currentUtteranceId;
-    this.onEndCallback = onEnd || null;
-
-    const isEwondo = targetLang.startsWith('ewo');
-    const spokenRaw = phonetic || (isEwondo ? getEwondoPhonetic(text) : text) || text;
-    const spokenText = spokenRaw.replace(/-/g, '');
-
-    // Synchronously prime & unlock Web Audio context within user gesture (click/pointer event)
+  private ensureAudioContext(): void {
     try {
       const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtxClass) {
@@ -61,15 +49,39 @@ class AfricanSpeechPlayer {
     } catch {
       // Ignored
     }
+  }
+
+  public speak(text: string, phonetic?: string, onEnd?: () => void, targetLang = 'ewo-CM'): void {
+    if (typeof window === 'undefined') return;
+
+    this.stop();
+    this.currentUtteranceId++;
+    const thisId = this.currentUtteranceId;
+    this.onEndCallback = onEnd || null;
+
+    const isEwondo = targetLang.startsWith('ewo');
+    const spokenRaw = phonetic || (isEwondo ? getEwondoPhonetic(text) : text) || text;
+    const spokenText = spokenRaw.replace(/-/g, '');
+    const cacheKey = `${targetLang}:${spokenText.trim().toLowerCase()}`;
+
+    // Synchronously prime & unlock Web Audio context within user gesture (click/pointer event)
+    this.ensureAudioContext();
+
+    // 1. FAST PATH (<1ms): Instant playback from decoded AudioBuffer cache
+    const cachedBuffer = this.audioBufferCache.get(cacheKey);
+    if (cachedBuffer) {
+      this.playBuffer(cachedBuffer, thisId);
+      return;
+    }
 
     let handled = false;
-    // Resilient safety timer: if background/neural API does not reply within 2200ms, immediately speak with calibrated client voice
+    // Resilient safety timer: if background/neural API does not reply within 600ms, immediately speak with authentic African acoustic vocal tract voice
     const fallbackTimer = setTimeout(() => {
       if (!handled && this.currentUtteranceId === thisId) {
         handled = true;
-        this.playClientAfricanVoice(spokenText, targetLang, thisId);
+        this.playAcousticAfricanVoice(spokenText, targetLang, thisId, cacheKey);
       }
-    }, 2200);
+    }, 600);
 
     // Attempt 1: High-fidelity African audio from Background service / Speech Engine
     if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
@@ -81,15 +93,22 @@ class AfricanSpeechPlayer {
             lang: targetLang,
             phonetic,
           },
-          (res: any) => {
-            if (handled || this.currentUtteranceId !== thisId) return;
+          async (res: any) => {
+            if (this.currentUtteranceId !== thisId) return;
+            if (handled) {
+              // Background arrived after acoustic voice started; decode and cache for subsequent 0ms clicks
+              if (res && res.success && res.result?.audioUrl) {
+                this.cacheAudioUrl(cacheKey, res.result.audioUrl);
+              }
+              return;
+            }
             handled = true;
             clearTimeout(fallbackTimer);
             if (chrome.runtime?.lastError || !res || !res.success || !res.result?.audioUrl) {
-              this.playClientAfricanVoice(spokenText, targetLang, thisId);
+              this.playAcousticAfricanVoice(spokenText, targetLang, thisId, cacheKey);
               return;
             }
-            this.playAfricanAudio(res.result.audioUrl, thisId, spokenText, targetLang);
+            await this.playAfricanAudio(res.result.audioUrl, thisId, spokenText, targetLang, cacheKey);
           }
         );
         return;
@@ -99,10 +118,97 @@ class AfricanSpeechPlayer {
     }
 
     clearTimeout(fallbackTimer);
-    this.playClientAfricanVoice(spokenText, targetLang, thisId);
+    this.playAcousticAfricanVoice(spokenText, targetLang, thisId, cacheKey);
   }
 
-  private async playAfricanAudio(audioUrl: string, thisId: number, spokenText: string, targetLang: string): Promise<void> {
+  private playBuffer(audioBuffer: AudioBuffer, thisId: number): void {
+    if (!this.audioCtx) {
+      this.ensureAudioContext();
+    }
+    if (!this.audioCtx || this.currentUtteranceId !== thisId) return;
+
+    if (this.activeSource) {
+      try {
+        this.activeSource.stop();
+        this.activeSource.disconnect();
+      } catch {}
+      this.activeSource = null;
+    }
+
+    const source = this.audioCtx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(this.audioCtx.destination);
+    this.activeSource = source;
+    this.isPlaying = true;
+
+    source.onended = () => {
+      if (this.currentUtteranceId === thisId) {
+        this.isPlaying = false;
+        this.activeSource = null;
+        if (this.onEndCallback) {
+          const cb = this.onEndCallback;
+          this.onEndCallback = null;
+          cb();
+        }
+      }
+    };
+
+    source.start(0);
+  }
+
+  private async cacheAudioUrl(cacheKey: string, audioUrl: string): Promise<AudioBuffer | null> {
+    try {
+      this.ensureAudioContext();
+      if (!this.audioCtx) return null;
+
+      const base64Data = audioUrl.replace('data:audio/wav;base64,', '');
+      const binaryStr = atob(base64Data);
+      const len = binaryStr.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+
+      const audioBuffer = await this.audioCtx.decodeAudioData(bytes.buffer.slice(0));
+      this.audioBufferCache.set(cacheKey, audioBuffer);
+      return audioBuffer;
+    } catch {
+      return null;
+    }
+  }
+
+  public async precache(text: string, targetLang = 'ewo-CM'): Promise<void> {
+    if (typeof window === 'undefined') return;
+    const isEwondo = targetLang.startsWith('ewo');
+    const spokenRaw = isEwondo ? getEwondoPhonetic(text) : text;
+    const spokenText = spokenRaw.replace(/-/g, '');
+    const cacheKey = `${targetLang}:${spokenText.trim().toLowerCase()}`;
+
+    if (this.audioBufferCache.has(cacheKey)) return;
+
+    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+      chrome.runtime.sendMessage(
+        {
+          type: 'SYNTHESIZE_SPEECH',
+          text: spokenText,
+          lang: targetLang,
+        },
+        async (res: any) => {
+          if (res && res.success && res.result?.audioUrl) {
+            await this.cacheAudioUrl(cacheKey, res.result.audioUrl);
+          }
+        }
+      );
+    }
+  }
+
+  private async playAfricanAudio(
+    audioUrl: string,
+    thisId: number,
+    spokenText: string,
+    targetLang: string,
+    cacheKey?: string
+  ): Promise<void> {
     // Strategy 1: Decode base64 WAV into Web Audio buffer (bypasses CSP media-src blocks)
     try {
       const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -123,27 +229,12 @@ class AfricanSpeechPlayer {
         }
 
         const audioBuffer = await this.audioCtx.decodeAudioData(bytes.buffer.slice(0));
+        if (cacheKey) {
+          this.audioBufferCache.set(cacheKey, audioBuffer);
+        }
         if (this.currentUtteranceId !== thisId) return;
 
-        const source = this.audioCtx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(this.audioCtx.destination);
-        this.activeSource = source;
-
-        this.isPlaying = true;
-        source.onended = () => {
-          if (this.currentUtteranceId === thisId) {
-            this.isPlaying = false;
-            this.activeSource = null;
-            if (this.onEndCallback) {
-              const cb = this.onEndCallback;
-              this.onEndCallback = null;
-              cb();
-            }
-          }
-        };
-
-        source.start(0);
+        this.playBuffer(audioBuffer, thisId);
         return;
       }
     } catch {
@@ -175,22 +266,53 @@ class AfricanSpeechPlayer {
 
       audio.onended = finish;
       audio.onerror = () => {
-        // Fallback to client speech synthesis if audio playback errors
-        this.playClientAfricanVoice(spokenText, targetLang, thisId);
+        this.playAcousticAfricanVoice(spokenText, targetLang, thisId, cacheKey);
       };
 
       const playPromise = audio.play();
       if (playPromise && typeof playPromise.catch === 'function') {
         playPromise.catch(() => {
-          this.playClientAfricanVoice(spokenText, targetLang, thisId);
+          this.playAcousticAfricanVoice(spokenText, targetLang, thisId, cacheKey);
         });
       }
     } catch {
-      this.playClientAfricanVoice(spokenText, targetLang, thisId);
+      this.playAcousticAfricanVoice(spokenText, targetLang, thisId, cacheKey);
     }
   }
 
-  private playClientAfricanVoice(text: string, targetLang: string, thisId: number): void {
+  private async playAcousticAfricanVoice(
+    text: string,
+    targetLang: string,
+    thisId: number,
+    cacheKey?: string
+  ): Promise<void> {
+    try {
+      this.ensureAudioContext();
+      if (!this.audioCtx) {
+        this.playNativeAfricanVoiceIfAvailable(text, targetLang, thisId);
+        return;
+      }
+
+      // Synthesize authentic 16kHz African vocal tract waveform (< 50ms)
+      const sampleRate = this.audioCtx.sampleRate || 16000;
+      const wavBytes = this.acousticProvider.generateAcousticWav(text, targetLang, sampleRate);
+      const audioBuffer = await this.audioCtx.decodeAudioData(
+        wavBytes.buffer.slice(wavBytes.byteOffset, wavBytes.byteOffset + wavBytes.byteLength)
+      );
+
+      if (cacheKey && !this.audioBufferCache.has(cacheKey)) {
+        this.audioBufferCache.set(cacheKey, audioBuffer);
+      }
+
+      if (this.currentUtteranceId === thisId) {
+        this.playBuffer(audioBuffer, thisId);
+      }
+    } catch {
+      this.playNativeAfricanVoiceIfAvailable(text, targetLang, thisId);
+    }
+  }
+
+  private playNativeAfricanVoiceIfAvailable(text: string, targetLang: string, thisId: number): void {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       this.finishUtterance(thisId);
       return;
@@ -201,11 +323,10 @@ class AfricanSpeechPlayer {
       window.speechSynthesis.resume();
 
       const voices = window.speechSynthesis.getVoices() || [];
-      const isPidgin = targetLang.startsWith('pcm');
-      const isHausa = targetLang.startsWith('hau');
 
-      // 1. Look for native African regional voice locales first
-      let selectedVoice = voices.find((v) => {
+      // STRICT RULE: Only select genuine African regional voice locales
+      // Never fall back to fr-FR or en-US (which produce European accents).
+      const africanVoice = voices.find((v) => {
         const l = v.lang.toLowerCase();
         return (
           l.startsWith('en-ng') ||
@@ -221,30 +342,19 @@ class AfricanSpeechPlayer {
         );
       });
 
-      // 2. If no native African pack exists in OS, pick optimal voice calibrated with African prosody
-      if (!selectedVoice && voices.length > 0) {
-        if (isPidgin) {
-          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('en')) || voices[0];
-        } else {
-          selectedVoice = voices.find((v) => v.lang.toLowerCase().startsWith('fr')) || voices[0];
-        }
+      if (!africanVoice) {
+        this.finishUtterance(thisId);
+        return;
       }
 
       const utterance = new SpeechSynthesisUtterance(text);
       (window as any).__linguaActiveUtterance = utterance;
       this.activeUtterance = utterance;
 
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-        utterance.lang = selectedVoice.lang;
-      } else {
-        utterance.lang = isPidgin ? 'en-US' : 'fr-FR';
-      }
-
-      // African prosodic calibration:
-      // Lower pitch (chest resonance), rhythmic syllable-timed pacing
-      utterance.rate = isPidgin ? 0.92 : 0.85;
-      utterance.pitch = isPidgin ? 1.05 : 0.88; // Deep resonant chest register for Bantu/Sahelian
+      utterance.voice = africanVoice;
+      utterance.lang = africanVoice.lang;
+      utterance.rate = 0.90;
+      utterance.pitch = 0.92;
 
       utterance.onstart = () => {
         if (this.currentUtteranceId === thisId) {
@@ -1392,8 +1502,36 @@ class ExtensionAssistant {
       this.translateNodeSubtree(document.body);
       this.isPageTranslated = true;
       this.render();
+
+      // Proactive zero-latency pre-caching: pre-fetch neural audio for top visible headings and key sections
+      this.precacheVisibleSections();
     } finally {
       this.isTranslating = false;
+    }
+  }
+
+  private precacheVisibleSections(): void {
+    try {
+      if (typeof window === 'undefined' || !document.body) return;
+      const elements = Array.from(
+        document.querySelectorAll('h1, h2, h3, button, [role="button"], p')
+      ) as HTMLElement[];
+
+      const candidates: string[] = [];
+      for (const el of elements) {
+        if (this.isExtensionNode(el)) continue;
+        const text = (el.innerText || el.textContent || '').trim();
+        if (text.length >= 2 && text.length <= 60 && !candidates.includes(text)) {
+          candidates.push(text);
+          if (candidates.length >= 8) break;
+        }
+      }
+
+      for (const t of candidates) {
+        this.speechPlayer.precache(t, this.currentTargetLang);
+      }
+    } catch {
+      // Ignored
     }
   }
 

@@ -148,7 +148,7 @@ export class AfricanVoiceProvider implements SpeechProvider {
     // Check if local neural voice microservice (e.g. port 3002) is running
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 4000);
+      const timeout = setTimeout(() => controller.abort(), 1500);
       const res = await fetch(`http://127.0.0.1:3002/synthesize?lang=${encodeURIComponent(norm)}&text=${encodeURIComponent(trimmed)}`, {
         signal: controller.signal,
       }).catch(() => null);
