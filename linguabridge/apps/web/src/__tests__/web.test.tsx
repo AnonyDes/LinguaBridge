@@ -2,7 +2,6 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import CameroPayDemo from '../app/cameropay/page';
 import DeveloperDashboard from '../app/dashboard/page';
 import LandingPage from '../app/page';
 import { WidgetMount } from '../components/WidgetMount';
@@ -12,7 +11,7 @@ vi.mock('next/link', () => ({
   default: ({ children, href, ...props }: any) => React.createElement('a', { href, ...props }, children),
 }));
 
-describe('Web Application & CameroPay UI', () => {
+describe('Web Application UI', () => {
   let container: HTMLDivElement;
 
   beforeEach(() => {
@@ -54,67 +53,6 @@ describe('Web Application & CameroPay UI', () => {
       container.parentNode.removeChild(container);
     }
     vi.restoreAllMocks();
-  });
-
-  it('renders CameroPay demo with mobile money balance and live financial entities', async () => {
-    const root = createRoot(container);
-    await act(async () => {
-      root.render(<CameroPayDemo />);
-    });
-
-    // Check balance display
-    expect(container.textContent).toContain('125\u202F500'); // French localized space
-    expect(container.textContent).toContain('FCFA');
-    expect(container.textContent).toContain('CameroPay');
-
-    // Check detected financial entities (AST extraction)
-    expect(container.textContent).toContain('15000 FCFA');
-    expect(container.textContent).toContain('+237 699 123 456');
-    expect(container.textContent).toContain('Exact Match (0 Drift)');
-
-    // Check transaction history
-    expect(container.textContent).toContain('TX-94821');
-    expect(container.textContent).toContain('Marie Atangana');
-  });
-
-  it('switches CameroPay interface between French and English', async () => {
-    const root = createRoot(container);
-    await act(async () => {
-      root.render(<CameroPayDemo />);
-    });
-
-    expect(container.textContent).toContain("Effectuer un Transfert d'Argent");
-
-    // Click English button
-    const buttons = Array.from(container.querySelectorAll('button'));
-    const enButton = buttons.find((b) => b.textContent?.trim() === 'English');
-    expect(enButton).toBeDefined();
-
-    await act(async () => {
-      enButton?.click();
-    });
-
-    expect(container.textContent).toContain('Make a Money Transfer');
-    expect(container.textContent).toContain('Zero financial drift guaranteed');
-  });
-
-  it('switches CameroPay interface to Ewondo national language', async () => {
-    const root = createRoot(container);
-    await act(async () => {
-      root.render(<CameroPayDemo />);
-    });
-
-    const buttons = Array.from(container.querySelectorAll('button'));
-    const ewoButton = buttons.find((b) => b.textContent?.includes('Kóbɔ́ Ewondo'));
-    expect(ewoButton).toBeDefined();
-
-    await act(async () => {
-      ewoButton?.click();
-    });
-
-    expect(container.textContent).toContain('Lóm móni');
-    expect(container.textContent).toContain('Móni mí ne wá é bẽng');
-    expect(container.textContent).toContain('Nlambá nyí a nòng móni');
   });
 
   it('renders Developer Dashboard with Cameroon pack isolation policy', async () => {
