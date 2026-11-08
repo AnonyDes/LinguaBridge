@@ -1,31 +1,9 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { Manrope, Inter, IBM_Plex_Mono } from 'next/font/google';
 import Link from 'next/link';
 import { Languages, Github, Globe, ShieldCheck, Terminal, Cpu } from 'lucide-react';
 import { WidgetMount } from '@/components/WidgetMount';
 import './globals.css';
-
-const manrope = Manrope({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-manrope',
-  display: 'swap',
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-const plexMono = IBM_Plex_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-plex-mono',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'LinguaBridge — Multilingual Financial Inclusion Infrastructure',
@@ -38,7 +16,7 @@ export default function RootLayout({
   children: ReactNode;
 }) {
   return (
-    <html lang="en" className={`${manrope.variable} ${inter.variable} ${plexMono.variable}`}>
+    <html lang="en" >
       <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         {/* Nayokan Frosted Swiss Top Header */}
         <header
@@ -244,12 +222,12 @@ export default function RootLayout({
                     marginBottom: '16px',
                   }}
                 >
-                  Non-commercial open-source multilingual infrastructure for Central Africa. Mathematical zero-drift guarantee for sovereign FinTech transactions.
+                  Open-source accessibility tools helping people understand financial services in Cameroonian languages.
                 </p>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                   <span className="status-dot status-dot--pulse" style={{ background: 'var(--green-glow)', width: '6px', height: '6px' }}></span>
                   <span className="meta" style={{ color: 'var(--muted-invert)', fontSize: '0.66rem' }}>
-                    BEAC / CEMAC SOVEREIGN SPEC
+                    CAMEROONIAN LANGUAGE ACCESSIBILITY
                   </span>
                 </div>
               </div>
@@ -303,7 +281,7 @@ export default function RootLayout({
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)' }}>
                   <li>Ewondo (ewo-CM) — Tonal Contour</li>
                   <li>Fulfulde (fub-CM) — North Cameroon</li>
-                  <li>Duala, Basaa &amp; Bulu Quarantine</li>
+                  <li>Duala &amp; Ewondo — language development and review</li>
                   <li>CEMAC Multi-Currency Isolation</li>
                   <li>FCFA Currency Invariance Engine</li>
                 </ul>
@@ -326,11 +304,6 @@ export default function RootLayout({
                   <li>
                     <Link href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>
                       Developer Studio &amp; Dashboard
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/cameropay" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>
-                      CameroPay FinTech Sandbox
                     </Link>
                   </li>
                   <li>
