@@ -1,4 +1,5 @@
 import type { TranslationResult } from '@linguabridge/shared-types';
+import { generateBankingResponse } from '@linguabridge/widget';
 import { translateLocalText, getEwondoPhonetic } from '@linguabridge/translation-engine';
 
 function splitIntoAcousticClauses(text: string): string[] {
@@ -485,6 +486,9 @@ class ExtensionAssistant {
 
   private currentSourceLang = typeof document !== 'undefined' && document.documentElement?.lang?.toLowerCase().startsWith('en') ? 'en' : 'fr';
   private isOpen = false;
+  private activePanel: 'translate' | 'assistant' = 'translate';
+  private chatHistory: Array<{ role: 'user' | 'assistant'; text: string }> = [];
+  private lastSelection = '';
   private isTouchSpeakEnabled = false;
   private speechPlayer = new EwondoSpeechPlayer();
 
@@ -526,8 +530,18 @@ class ExtensionAssistant {
     }
   }
 
+  private detectSourceLanguage(): string {
+    const declared = (document.documentElement.lang || '').toLowerCase();
+    if (declared.startsWith('fr')) return 'fr';
+    if (declared.startsWith('en')) return 'en';
+    const sample = (document.body?.innerText || '').slice(0, 5000).toLowerCase();
+    const french = (sample.match(/\\b(le|la|les|des|vous|votre|pour|avec|compte|solde|frais|envoyer)\\b/g) || []).length;
+    const english = (sample.match(/\\b(the|your|account|balance|fees|send|transfer|with|from|payment)\\b/g) || []).length;
+    return english > french ? 'en' : 'fr';
+  }
+
   public isVoiceEnabled(): boolean {
-    return this.isTouchSpeakEnabled || this.isPageTranslated;
+    return this.isTouchSpeakEnabled;
   }
 
   public stopSpeech(): void {
@@ -561,6 +575,13 @@ class ExtensionAssistant {
       this.shadow = this.container.attachShadow({ mode: 'open' });
       this.render();
       target.appendChild(this.container);
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled'], (settings) => {
+          if (settings.linguabridgeTargetLang) this.currentTargetLang = settings.linguabridgeTargetLang;
+          this.isTouchSpeakEnabled = settings.linguabridgeAudioEnabled === true;
+          this.render();
+        });
+      }
 
       this.setupListeners();
       this.setupMutationObserver();
@@ -666,6 +687,10 @@ class ExtensionAssistant {
       const text = selection?.toString().trim();
       if (!text || text.length < 2) return;
 
+      this.lastSelection = text;
+      this.isOpen = true;
+      this.activePanel = 'translate';
+      this.render();
       this.translateSelectedText(text);
     };
     document.addEventListener('mouseup', this.onMouseUpHandler);
@@ -680,9 +705,20 @@ class ExtensionAssistant {
         } else if (msg.type === 'POPUP_TRANSLATE_PAGE') {
           if (msg.targetLang) {
             this.currentTargetLang = msg.targetLang;
-            this.currentSourceLang = msg.sourceLang || 'fr';
+            this.currentSourceLang = this.detectSourceLanguage();
           }
           this.translateFullPage();
+        } else if (msg.type === 'POPUP_SET_TARGET_LANGUAGE') {
+          this.currentTargetLang = msg.targetLang || 'ewo-CM';
+          this.render();
+        } else if (msg.type === 'POPUP_SET_SPEECH') {
+          this.isTouchSpeakEnabled = msg.enabled === true;
+          if (!this.isTouchSpeakEnabled) this.clearHoverState();
+          this.render();
+        } else if (msg.type === 'POPUP_STOP_SPEECH') {
+          this.clearHoverState();
+          const bar = this.shadow?.getElementById('audio-bar');
+          if (bar) bar.style.display = 'none';
         } else if (msg.type === 'POPUP_TOGGLE_TOUCH_SPEAK' || msg.type === 'POPUP_TOGGLE_HOVER_SPEAK') {
           this.toggleTouchSpeakMode();
         } else if (msg.type === 'POPUP_RESTORE_PAGE') {
@@ -826,9 +862,8 @@ class ExtensionAssistant {
           section.getAttribute('title')?.trim();
       if (!text || text.length < 1) return;
 
-      e.preventDefault();
-      e.stopPropagation();
-
+      // Never intercept a banking site's normal click action.
+      if (target.closest('button, a, input, select, textarea, label, [role="button"], [contenteditable]')) return;
       this.stopSpeech();
       this.lastSpokenEl = section;
       this.speakTextSection(text, section);
@@ -858,7 +893,8 @@ class ExtensionAssistant {
           section.getAttribute('title')?.trim();
       if (!text || text.length < 1) return;
 
-      e.preventDefault();
+      // Preserve native touch interactions on financial forms and controls.
+      if (target.closest('button, a, input, select, textarea, label, [role="button"], [contenteditable]')) return;
       this.stopSpeech();
       this.lastSpokenEl = section;
       this.speakTextSection(text, section);
@@ -874,7 +910,8 @@ class ExtensionAssistant {
 
   public toggleTouchSpeakMode(): void {
     this.isTouchSpeakEnabled = !this.isTouchSpeakEnabled;
-    this.speechPlayer.prewarm();
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) chrome.storage.local.set({ linguabridgeAudioEnabled: this.isTouchSpeakEnabled });
+    if (this.isTouchSpeakEnabled) this.speechPlayer.prewarm();
     if (!this.isVoiceEnabled()) {
       this.clearHoverState();
       this.speechPlayer.stop();
