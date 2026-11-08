@@ -39,7 +39,8 @@ export default function LandingPage() {
     'Solde de votre compte Orange Money: 25 000 FCFA. Frais de transfert: 350 FCFA vers le numéro 699123456.'
   );
   const [sourceLang, setSourceLang] = useState('fr');
-  const [targetLang, setTargetLang] = useState('en');
+  const [targetLang, setTargetLang] = useState('ewo-CM');
+  const [translationError, setTranslationError] = useState('');
   const [translatedText, setTranslatedText] = useState('');
   const [latency, setLatency] = useState<number | null>(null);
   const [cacheStatus, setCacheStatus] = useState<string | null>(null);
@@ -50,6 +51,11 @@ export default function LandingPage() {
   const handleTestTranslate = async () => {
     try {
       setLoading(true);
+      setTranslationError('');
+      setTranslatedText('');
+      setLatency(null);
+      setCacheStatus(null);
+      setWarnings([]);
       const res = await client.translate({
         text: sourceText,
         sourceLang,
@@ -61,13 +67,7 @@ export default function LandingPage() {
       setCacheStatus(res.cacheStatus);
       setWarnings(res.warnings);
     } catch {
-      // Offline fallback mock demonstration
-      setTranslatedText(
-        'Balance of your Orange Money account: 25,000 FCFA. Transfer fee: 350 FCFA to number 699123456.'
-      );
-      setLatency(14);
-      setCacheStatus('memory_hit');
-      setWarnings([]);
+      setTranslationError('Translation is unavailable. No simulated result is displayed. Please try again when the translation service is available.');
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ export default function LandingPage() {
             }}
           >
             <Globe size={13} strokeWidth={2} style={{ color: 'var(--brand-green-deep)', flexShrink: 0 }} />
-            <span>FINANCIAL INCLUSION FOR CAMEROON &amp; CEMAC</span>
+            <span>CAMEROONIAN LANGUAGES · DIGITAL FINANCIAL ACCESS</span>
           </span>
         </div>
 
@@ -116,7 +116,7 @@ export default function LandingPage() {
             marginRight: 'auto',
           }}
         >
-          Bridging Languages, <span style={{ color: 'var(--brand-green)' }}>Securing Fintech</span>
+          Banking should <span style={{ color: 'var(--brand-green)' }}>speak your language.</span>
         </h1>
 
         <p
@@ -129,13 +129,12 @@ export default function LandingPage() {
             lineHeight: 1.6,
           }}
         >
-          LinguaBridge is open-source accessibility infrastructure enabling mobile money, banking, and public
-          platforms in Cameroon to serve all citizens with mathematical certainty and zero financial drift.
+          Understand banking, mobile money and payment services in Cameroonian national languages. LinguaBridge adapts existing financial websites from French or English without changing their source code.
         </p>
 
         <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
 <Link
-            href="/dashboard"
+            href="#translation-demo"
             className="btn btn-ghost"
             style={{
               padding: '14px 28px',
@@ -143,7 +142,7 @@ export default function LandingPage() {
               letterSpacing: '-0.01em',
             }}
           >
-            <span>View Developer Dashboard</span>
+            <span>Try the translation demo</span>
           </Link>
         </div>
 
@@ -163,19 +162,19 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="status-dot status-dot--pulse"></span>
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              BEAC / COBAC COMPLIANT
+              NO BANK SOURCE-CODE CHANGES
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ShieldCheck size={14} style={{ color: 'var(--brand-green)' }} />
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              ZERO NUMERIC DRIFT
+              FINANCIAL DETAILS SAFEGUARDED
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Zap size={14} style={{ color: 'var(--brand-green)' }} />
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              &lt; 5MS TM LATENCY
+              FRENCH &amp; ENGLISH INPUT
             </span>
           </div>
         </div>
@@ -185,13 +184,13 @@ export default function LandingPage() {
       <section style={{ marginBottom: 'clamp(64px, 8vw, 96px)' }}>
         <div className="section-header">
           <div>
-            <span className="meta-num">01 / CORE ARCHITECTURE</span>
+            <span className="meta-num">01 / WHY LINGUABRIDGE</span>
             <h2 style={{ fontSize: 'var(--f-h2)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
-              Engineered for Rigorous Financial Inclusion
+              Understand financial services, step by step
             </h2>
           </div>
           <p className="lead" style={{ fontSize: '0.98rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            Four foundational pillars designed to eliminate financial hallucination, protect national language sovereignty, and guarantee real-time microfinance performance.
+            From checking a balance to reviewing fees and transfer warnings, LinguaBridge helps people follow financial journeys in a language they understand.
           </p>
         </div>
 
@@ -222,14 +221,13 @@ export default function LandingPage() {
               >
                 <ShieldCheck size={22} strokeWidth={2} style={{ color: 'var(--brand-green-deep)' }} />
               </div>
-              <span className="meta" style={{ fontSize: '0.64rem', letterSpacing: '0.14em' }}>01 / AST GUARD</span>
+              <span className="meta" style={{ fontSize: '0.64rem', letterSpacing: '0.14em' }}>01 / FINANCIAL SAFETY</span>
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
-              Financial Guard
+              Protect financial details
             </h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.55 }}>
-              Deterministic numeric &amp; entity extractor guarantees that amounts (FCFA), account IDs, and phone numbers are
-              strictly preserved without drift or hallucination.
+              Financial safeguards are designed to preserve amounts, fees, account references and beneficiary details. Critical information must be verified before a transaction.
             </p>
           </div>
 
@@ -259,14 +257,13 @@ export default function LandingPage() {
               >
                 <Zap size={22} strokeWidth={2} style={{ color: '#D97706' }} />
               </div>
-              <span className="meta" style={{ fontSize: '0.64rem', letterSpacing: '0.14em' }}>02 / CACHE</span>
+              <span className="meta" style={{ fontSize: '0.64rem', letterSpacing: '0.14em' }}>02 / NO-CODE ADAPTATION</span>
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
-              Sub-ms Translation Memory
+              Works with existing websites
             </h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.55 }}>
-              High-throughput TM cache delivers instantaneous responses for banking transactions, balance checks, and
-              microfinance menus.
+              Use the browser extension to adapt a financial website without modifying the service's source code.
             </p>
           </div>
 
@@ -296,14 +293,13 @@ export default function LandingPage() {
               >
                 <BadgeCheck size={22} strokeWidth={2} style={{ color: 'var(--brand-green-deep)' }} />
               </div>
-              <span className="meta" style={{ fontSize: '0.64rem', letterSpacing: '0.14em' }}>03 / ISOLATION</span>
+              <span className="meta" style={{ fontSize: '0.64rem', letterSpacing: '0.14em' }}>03 / NATIONAL LANGUAGES</span>
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
-              Cameroon Pack Isolation
+              Duala and Ewondo
             </h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.55 }}>
-              Uncertified language packs (Ewondo, Duala, Basaa, Fulfulde, Bulu) remain strictly quarantined until certified
-              by accredited local linguists.
+              Explore translation from French or English into Cameroonian languages. Linguistic coverage and accuracy require review by competent speakers, especially for financial warnings.
             </p>
           </div>
 
@@ -333,14 +329,13 @@ export default function LandingPage() {
               >
                 <Volume2 size={22} strokeWidth={2} style={{ color: 'var(--brand-green-deep)' }} />
               </div>
-              <span className="meta" style={{ fontSize: '0.64rem', letterSpacing: '0.14em' }}>04 / ACOUSTIC</span>
+              <span className="meta" style={{ fontSize: '0.64rem', letterSpacing: '0.14em' }}>04 / DYNAMIC CONTENT</span>
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
-              Degrade-First Speech
+              Adapts to new messages
             </h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.55 }}>
-              Explicit fallback policy prevents cross-lingual speech corruption, ensuring tonal African languages are
-              never spoken with incorrect acoustic models.
+              The extension is designed to detect content added as users navigate, including transaction instructions, error messages and security alerts.
             </p>
           </div>
         </div>
@@ -348,6 +343,7 @@ export default function LandingPage() {
 
       {/* Interactive Sandbox */}
       <section
+        id="translation-demo"
         className="card"
         style={{
           background: 'var(--paper)',
@@ -372,26 +368,31 @@ export default function LandingPage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.14em' }}>
-                INTERACTIVE TESTBENCH
+                TRY THE PROTOTYPE
               </span>
             </div>
             <h2 style={{ fontSize: '1.35rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
-              Live Financial Translation Sandbox
+              Try a simulated financial translation
             </h2>
             <p style={{ fontSize: '0.88rem', color: 'var(--muted)', marginTop: '4px' }}>
-              Test how LinguaBridge extracts financial entities and protects transaction integrity in real time.
+              Test a simulated balance, transfer fee or warning. No real bank account or confidential information is needed.
             </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span className="ax-pill ax-pill--live" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
               <span className="status-dot status-dot--pulse"></span>
-              API Online :3001
+              Prototype · simulated data
             </span>
           </div>
         </div>
 
-        <div className="grid-2" style={{ marginBottom: 'var(--s-5)', gap: 'var(--s-5)' }}>
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: 'var(--s-5)' }}>
+          <label>From <select aria-label="Source language" value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}><option value="fr">Français</option><option value="en">English</option></select></label>
+          <label>To <select aria-label="National language" value={targetLang} onChange={(e) => setTargetLang(e.target.value)}><option value="ewo-CM">Ewondo</option><option value="dua-CM">Duala</option></select></label>
+        </div>
+        {translationError && <p role="alert" style={{ color: '#B91C1C', marginBottom: 'var(--s-4)' }}>{translationError}</p>}
+                <div className="grid-2" style={{ marginBottom: 'var(--s-5)', gap: 'var(--s-5)' }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <label
@@ -404,9 +405,9 @@ export default function LandingPage() {
                   color: 'var(--muted)',
                 }}
               >
-                Source Language: French
+                Source language
               </label>
-              <span className="meta" style={{ fontSize: '0.64rem' }}>ISO 639-1: FR</span>
+              <span className="meta" style={{ fontSize: '0.64rem' }}>FR / EN</span>
             </div>
             <textarea
               value={sourceText}
@@ -447,7 +448,7 @@ export default function LandingPage() {
                   color: 'var(--muted)',
                 }}
               >
-                Target Language: English
+                National language
               </label>
               {latency !== null && (
                 <span
@@ -480,12 +481,12 @@ export default function LandingPage() {
                 justifyContent: 'space-between',
               }}
             >
-              <div>{translatedText || 'Click "Execute Translation & Verify Financial Guard" to test pipeline...'}</div>
+              <div>{translatedText || 'Translation will appear here after you run the demo.'}</div>
               {translatedText && (
                 <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <ShieldCheck size={14} style={{ color: 'var(--brand-green)' }} />
                   <span className="meta" style={{ fontSize: '0.64rem', color: 'var(--brand-green-deep)' }}>
-                    NUMERIC ENTITIES VERIFIED INVARIANT (0 DRIFT)
+                    Check all amounts, fees and beneficiary details against the original
                   </span>
                 </div>
               )}
@@ -528,7 +529,7 @@ export default function LandingPage() {
             opacity: loading ? 0.7 : 1,
           }}
         >
-          {loading ? 'Processing Translation & Entity Extraction...' : 'Execute Translation & Verify Financial Guard'}
+          {loading ? 'Translating...' : 'Translate simulated financial text'}
         </button>
       </section>
 
@@ -536,13 +537,13 @@ export default function LandingPage() {
       <section>
         <div className="section-header">
           <div>
-            <span className="meta-num">02 / DEVELOPER INTEGRATION</span>
+            <span className="meta-num">02 / FOR DEVELOPERS</span>
             <h2 style={{ fontSize: 'var(--f-h2)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
-              Quickstart Integration
+              Integrate LinguaBridge into your own product
             </h2>
           </div>
           <p className="lead" style={{ fontSize: '0.98rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            Embed accessible CEMAC multilingual interfaces with zero framework overhead using the vanilla script tag, or plug into modern Next.js apps via the React SDK.
+            For teams that control their own applications, LinguaBridge also offers integration options. The browser extension does not require changes to a bank's source code.
           </p>
         </div>
 
@@ -565,7 +566,7 @@ export default function LandingPage() {
               <span className="ax-pill" style={{ fontSize: '0.62rem' }}>CDN SCRIPT</span>
             </div>
             <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: 'var(--s-4)', lineHeight: 1.55 }}>
-              Add a single line of script to enable Shadow-DOM-isolated accessibility on any fintech website:
+              For websites you manage, a widget integration can add accessibility features:
             </p>
 
             <div
