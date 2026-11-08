@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Languages, Globe, ShieldCheck, Terminal, Cpu } from 'lucide-react';
+import { Languages, Globe, ShieldCheck, Terminal, Cpu, Github } from 'lucide-react';
 import { WidgetMount } from '@/components/WidgetMount';
 import './globals.css';
 
@@ -24,9 +24,11 @@ export default function RootLayout({
             <Link href="/" className="lb-header-brand" aria-label="LinguaBridge home">
               <span className="lb-logo-mark" aria-hidden="true">
                 <svg viewBox="0 0 40 40" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="40" height="40" rx="11" fill="#101010"/>
-                  <path d="M9 11H20C25 11 28 14 28 19C28 24 25 27 20 27H14V32" stroke="#6DE17A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M14 19H29M24 14L29 19L24 24" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect width="40" height="40" rx="11" fill="#111111"/>
+                  <path d="M7 27V20C7 12.8 12.8 7 20 7S33 12.8 33 20V27" stroke="#FFFFFF" strokeWidth="3.4" strokeLinecap="round"/>
+                  <path d="M7 27H33" stroke="#67DB83" strokeWidth="3.4" strokeLinecap="round"/>
+                  <path d="M15 20V27M25 20V27" stroke="#67DB83" strokeWidth="3" strokeLinecap="round"/>
+                  <circle cx="20" cy="13" r="2.5" fill="#67DB83"/>
                 </svg>
               </span>
               <span className="lb-brand-word">LinguaBridge</span>
@@ -35,7 +37,9 @@ export default function RootLayout({
               <Link href="/" className="lb-nav-item">Home</Link>
               <Link href="/dashboard" className="lb-nav-item"><span className="lb-nav-full">Get the extension</span><span className="lb-nav-short">Extension</span></Link>
             </nav>
-            <div className="lb-header-balance" aria-hidden="true" />
+            <a className="lb-header-github" href="https://github.com/AnonyDes/LinguaBridge" target="_blank" rel="noreferrer" aria-label="LinguaBridge on GitHub">
+              <Github size={19} strokeWidth={2} />
+            </a>
           </div>
         </header>
 
@@ -157,10 +161,10 @@ export default function RootLayout({
                   LANGUAGE FOCUS
                 </div>
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)' }}>
-                  <li>Ewondo (ewo-CM) — in development</li>
+                  <li>Ewondo (ewo-CM) — financial vocabulary pack</li>
                   <li>French &amp; English source interfaces</li>
-                  <li>Duala &amp; Ewondo — language development and review</li>
-                  <li>Financial terminology review</li>
+                  <li>Fulfulde, Haoussa, Kanuri &amp; Pidgin — research and test packs</li>
+                  <li>Basaa and Bulu — future language packs</li>
                   <li>Amounts and fees safeguards</li>
                 </ul>
               </div>
