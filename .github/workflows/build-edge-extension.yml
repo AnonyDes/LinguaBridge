@@ -1,4 +1,4 @@
-name: Build Edge desktop extension
+name: Build Chrome and Edge desktop extension
 
 on:
   push:
@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  edge-extension:
+  browser-extension:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,10 +50,17 @@ jobs:
           if (manifest.action.default_popup !== 'popup.html') throw new Error('Invalid popup path');
           console.log('Edge/Chrome unpacked extension structure validated');
           EOF
-      - name: Upload Edge installable folder
+      - name: Upload Google Chrome installable folder
         uses: actions/upload-artifact@v4
         with:
-          name: LinguaBridge-Edge-Desktop
+          name: LinguaBridge-Google-Chrome
+          path: linguabridge/apps/extension/dist/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload Microsoft Edge installable folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: LinguaBridge-Microsoft-Edge
           path: linguabridge/apps/extension/dist/
           if-no-files-found: error
           retention-days: 14
