@@ -102,12 +102,12 @@ export default function LandingPage() {
             lineHeight: 1.6,
           }}
         >
-          Understand banking, mobile money and payment services in Cameroonian national languages. LinguaBridge adapts existing financial websites from French or English without changing their source code.
+          LinguaBridge helps people understand banking, mobile money and payment services in Cameroonian national languages. Start with our desktop browser extension, with mobile-friendly web access planned. Built for the SAFINUM challenge: a language accessibility layer for existing digital financial services.
         </p>
 
         <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
 <Link
-            href="#translation-demo"
+            href="/dashboard"
             className="btn btn-ghost"
             style={{
               padding: '14px 28px',
@@ -115,7 +115,7 @@ export default function LandingPage() {
               letterSpacing: '-0.01em',
             }}
           >
-            <span>Try the translation demo</span>
+            <span>Explore the extension</span>
           </Link>
         </div>
 
@@ -135,19 +135,19 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="status-dot status-dot--pulse"></span>
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              NO BANK SOURCE-CODE CHANGES
+              DESKTOP EXTENSION · WEB ACCESS PLANNED
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ShieldCheck size={14} style={{ color: 'var(--brand-green)' }} />
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              FINANCIAL DETAILS SAFEGUARDED
+              AMOUNTS &amp; ACCOUNT DETAILS PROTECTED
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Zap size={14} style={{ color: 'var(--brand-green)' }} />
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              FRENCH &amp; ENGLISH INPUT
+              FRENCH / ENGLISH → DUALA / EWONDO
             </span>
           </div>
         </div>
@@ -236,7 +236,7 @@ export default function LandingPage() {
               Works with existing websites
             </h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.55 }}>
-              Use the browser extension to adapt a financial website without modifying the service's source code.
+              Start on desktop with the Chrome or Edge extension. A mobile-friendly browser experience is planned and not yet available.
             </p>
           </div>
 
@@ -308,7 +308,7 @@ export default function LandingPage() {
               Adapts to new messages
             </h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.55 }}>
-              The extension is designed to detect content added as users navigate, including transaction instructions, error messages and security alerts.
+              LinguaBridge aims to translate instructions, errors and security messages as users navigate. Translation quality and coverage are still under testing.
             </p>
           </div>
         </div>
@@ -510,14 +510,13 @@ export default function LandingPage() {
       <section id="extension" style={{ marginBottom: 'var(--s-8)' }}>
         <div className="section-header">
           <div>
-            <span className="meta-num">02 / BROWSER EXTENSION</span>
+            <span className="meta-num">02 / ACCESS OPTIONS</span>
             <h2 style={{ fontSize: 'var(--f-h2)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
-              Translate financial websites with the LinguaBridge extension
+              One language layer, wherever you access financial services
             </h2>
           </div>
           <p className="lead" style={{ fontSize: '0.98rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            No integration into a bank’s website is needed. Install the extension in your desktop browser,
-            open a financial service and choose a Cameroonian language to translate its interface.
+            Our current approach is a desktop browser extension for Chrome and Edge. We are also working toward direct web access and mobile compatibility. API and SDK connections remain optional for developers.
           </p>
         </div>
         <div className="grid-2" style={{ gap: 'var(--s-6)' }}>
@@ -530,18 +529,18 @@ export default function LandingPage() {
               enable Developer mode and select “Load unpacked”.
             </p>
             <a className="btn btn-primary" style={{ display: 'inline-flex', marginTop: 'var(--s-5)' }}
-              href="https://github.com/AnonyDes/LinguaBridge/actions/workflows/build-edge-extension.yml">
-              Get the extension build
+              href="/dashboard">
+              Explore extension access
             </a>
             <p style={{ color: 'var(--muted)', fontSize: '0.78rem', marginTop: 'var(--s-3)' }}>
-              Prototype installation for desktop Chrome and Edge. Not a browser-store release.
+              Desktop Chrome and Edge prototype. Web and mobile access are planned, not yet released.
             </p>
           </div>
           <div className="card" style={{ padding: 'var(--s-6)', background: 'var(--paper)', border: '1px solid var(--line)' }}>
             <span className="meta-num">02 / TRANSLATE</span>
             <h3 style={{ marginTop: 'var(--s-3)', marginBottom: 'var(--s-3)' }}>Choose your language and browse</h3>
             <p style={{ color: 'var(--muted)', lineHeight: 1.6 }}>
-              Visit a banking, mobile money or payment website. Open LinguaBridge,
+              On desktop, visit a banking, mobile money or payment website. Open LinguaBridge,
               select Duala or Ewondo and translate interface text from French or English.
               The extension is designed to work without changes to the original website.
             </p>
