@@ -575,6 +575,8 @@ class ExtensionAssistant {
       this.shadow = this.container.attachShadow({ mode: 'open' });
       this.render();
       target.appendChild(this.container);
+      // Notify the LinguaBridge website to hide its separate assistant launcher.
+      document.documentElement.setAttribute('data-linguabridge-extension', 'active');
       if (typeof chrome !== 'undefined' && chrome.storage?.local) {
         chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled'], (settings) => {
           if (settings.linguabridgeTargetLang) this.currentTargetLang = settings.linguabridgeTargetLang;
@@ -1970,6 +1972,7 @@ class ExtensionAssistant {
   }
 
   public destroy(): void {
+    document.documentElement.removeAttribute('data-linguabridge-extension');
     this.stopSpeech();
     if (this.isPageTranslated) {
       this.restorePage();
