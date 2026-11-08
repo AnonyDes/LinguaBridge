@@ -721,3 +721,55 @@ pre, code { overflow-wrap: anywhere; word-break: break-word; }
   .lb-site-header nav > div:first-child { justify-content: center; }
   .lb-site-header .lb-brand span:last-child { font-size: 1.05rem !important; }
 }
+
+
+/* LinguaBridge unified header: brand left, tabs centered, no second row */
+.lb-fixed-header {
+  position: sticky; top: 0; z-index: 200;
+  width: 100%; background: rgba(242,243,245,.96);
+  border-bottom: 1px solid #E1E4E8;
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+}
+.lb-header-row {
+  min-height: 72px; display: grid;
+  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+  align-items: center; column-gap: 12px;
+}
+.lb-header-brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  justify-self: start; min-width: 0; color: #111;
+  font-size: 1.12rem; font-weight: 800; letter-spacing: -.035em;
+  white-space: nowrap;
+}
+.lb-logo-mark { display: inline-flex; flex: none; width: 40px; height: 40px; align-items: center; justify-content: center; }
+.lb-brand-word { overflow: hidden; text-overflow: ellipsis; }
+.lb-header-nav {
+  grid-column: 2; display: flex; align-items: center;
+  justify-content: center; gap: clamp(8px,2vw,24px);
+  white-space: nowrap; min-width: 0;
+}
+.lb-nav-item {
+  padding: 10px 12px; border-radius: 9px;
+  font-size: .89rem; font-weight: 650; color: #202124;
+  transition: background .2s ease;
+}
+.lb-nav-item:hover, .lb-nav-item:focus-visible { background: #E1E5E9; }
+.lb-nav-short { display: none; }
+.lb-header-balance { grid-column: 3; }
+@media (max-width: 800px) {
+  .lb-header-row { min-height: 64px; grid-template-columns: minmax(0,1fr) auto; column-gap: 8px; }
+  .lb-header-nav { grid-column: 2; gap: 4px; }
+  .lb-header-balance { display: none; }
+  .lb-header-brand { gap: 5px; font-size: clamp(.85rem,2.8vw,1.08rem); }
+  .lb-logo-mark { width: 35px; height: 35px; }
+  .lb-logo-mark svg { width: 32px; height: 32px; }
+  .lb-nav-item { padding: 9px 7px; font-size: .81rem; }
+  .lb-nav-full { display: none; }
+  .lb-nav-short { display: inline; }
+}
+@media (max-width: 370px) {
+  .lb-header-brand { font-size: .79rem; letter-spacing: -.05em; }
+  .lb-logo-mark { width: 30px; }
+  .lb-logo-mark svg { width: 29px; height: 29px; }
+  .lb-nav-item { font-size: .76rem; padding: 8px 5px; }
+}
