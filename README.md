@@ -1,151 +1,139 @@
-# 🌍 LinguaBridge — Multilingual Accessibility Platform for Central African Financial Inclusion
+# LinguaBridge
 
-> **SAFINUM Innovate Challenge 2026 Submission**  
-> *Empowering 10M+ unbanked and informal economic actors across Cameroon & CEMAC with sovereign, zero-drift linguistic infrastructure for Mobile Money and Digital Microfinance.*
+**SAFINUM Innovate Challenge 2026 | Cameroon | Open-source prototype**
 
-[![CI/CD Tests](https://img.shields.io/badge/tests-167%20passed%20(21%20tasks)-brightgreen.svg)](#testing--verification)
-[![GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success.svg)](https://AnonyDes.github.io/LinguaBridge/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg)](https://www.typescriptlang.org/)
-[![Turborepo](https://img.shields.io/badge/Turborepo-Monorepo-ef4444.svg)](https://turbo.build/)
-[![National Language](https://img.shields.io/badge/Language%20Pack-Ewondo%20(ewo--CM)-059669.svg)](#certified-national-language-ewondo)
-[![License](https://img.shields.io/badge/License-MIT%20%2F%20CC--BY--NC-purple.svg)](LICENSE)
+LinguaBridge helps people understand banking, mobile-money and payment interfaces in Cameroonian languages. It is an accessibility layer for **existing** digital financial services, not a bank, payment processor or replacement for the original website.
 
----
+**[Visit the website](https://anonydes.github.io/LinguaBridge/)** · **[Open the extension portal](https://anonydes.github.io/LinguaBridge/dashboard/)** · **[Desktop installation guide](linguabridge/apps/extension/EDGE_DESKTOP.md)**
 
-## 📌 Executive Summary
+## 1. What can people use today?
 
-Over 65% of Cameroon's active economic population relies on informal commerce, tontines (*njangi*), and mobile money (Orange Money, MTN MoMo). However, digital financial interfaces operate almost exclusively in standard French and English, excluding millions of national language speakers who understand finances orally or in their native tongue.
+| Access method | Status | Explanation |
+| --- | --- | --- |
+| Chrome desktop extension | Prototype / testing | Load an unpacked Manifest V3 extension and translate visible interface text |
+| Microsoft Edge desktop extension | Prototype / testing | Same Chromium extension code; see installation guide |
+| Direct web access | **Beta / in development** | Planned browser-based access without installing the desktop extension |
+| Mobile experience | **Planned** | Not a released mobile extension or app |
+| API, JavaScript SDK, React SDK and embeddable widget | Complementary developer tools | Available as source modules; require their own integration and/or backend configuration |
 
-**LinguaBridge** provides a production-grade, sovereign multilingual accessibility layer designed specifically for African fintech ecosystems. It guarantees:
-1. **0% Financial Distortion Guarantee**: Monetary figures, fees, phone numbers, and transaction IDs are cryptographically anchored and validated via SHA-256 AST extraction before any translation is surfaced.
-2. **Sovereign National Language Support**: Commencing with **Ewondo (`ewo-CM`)**, rooted in official linguistic consensus (NACALCO / Université de Yaoundé I) for mobile money terminology.
-3. **Turnkey Cloud Readiness**: Deployable in 3 minutes — only Supabase, OpenRouter, and Vercel credentials are required. Works out-of-the-box locally with zero external dependencies.
+The GitHub Pages website is a **static showcase**. It does not by itself host the translation API. An interactive translation request can fail when no reachable API has been configured; the interface should not fabricate a result.
 
----
+## 2. Languages and current limitations
 
-## 🏛 Architecture & Monorepo Structure
+The system accepts **French and English** as source languages. The repository contains resources or code paths for the following targets:
 
-Built with **Turborepo** + **pnpm workspaces**:
+| Language | Locale | Repository evidence | Important caveat |
+| --- | --- | --- | --- |
+| Ewondo | `ewo-CM` | Financial glossary, Apertium lexicon and provider code | Translation quality and linguistic certification need independent verification |
+| Fulfulde | `fuv-CM` | Financial glossary and phrase-cache provider | Phrase coverage is limited |
+| Haoussa | `hau-CM` | Financial glossary and phrase-cache provider | Phrase coverage is limited |
+| Kanuri | `knc-CM` | Financial glossary and phrase-cache provider | Phrase coverage is limited |
+| Cameroon Pidgin / Kamtok | `pcm-CM` | Financial glossary and phrase-cache provider | Phrase coverage is limited |
+| Basaa, Bulu | `bas-CM`, `bum-CM` | Pack manifests / templates | Not established as fully operational |
+| Duala | `dua-CM` | Research corpora, vocabulary guides and experimental translation code | The pack manifest still says `not_installed` and some providers exclude it; do **not** advertise it as production-ready |
 
-```
+**A manifest field such as `production_approved` is a configuration value, not independently verified evidence of linguistic or regulatory certification.** Likewise, a translation that comes from a glossary or cached phrase is not proof that arbitrary sentences are correctly translated. Language coverage must be checked in the actual extension and API.
+
+Language resources live in [`linguabridge/language-packs/`](linguabridge/language-packs/), with research in [`linguabridge/docs/research/`](linguabridge/docs/research/).
+
+## 3. How the extension works
+
+1. The user opens an existing financial website in Chrome or Edge on desktop.
+2. The extension reads eligible interface text and offers source and target language choices.
+3. Known phrases and terminology are looked up through the configured translation pipeline. The system can use other providers depending on configuration.
+4. The financial-domain layer is designed to recognize sensitive values such as amounts, currencies, account references and telephone numbers so they can be checked against the original.
+5. Translated text is displayed in the interface. Dynamically inserted content and unsupported phrases need additional testing.
+
+**Safety:** Do not use this prototype to authorize real payments based solely on translated text. Always compare amounts, fees, beneficiary numbers and security messages with the original. Do not enter banking PINs, passwords or real credentials into demonstration forms.
+
+## 4. External technology, open-source work and research
+
+LinguaBridge combines original integration work with external tools and research. These are **dependencies or reference resources**, not features invented by the project.
+
+| Source | How it relates to LinguaBridge | What we must not claim |
+| --- | --- | --- |
+| **Meta AI NLLB-200** ([research/model](https://ai.meta.com/research/no-language-left-behind/)) | Inspiration and named translation-provider pathway for multilingual translation; the repository includes a provider named `nllb-local` | **The current `nllb-local.provider.ts` uses a predefined financial phrase cache and returns the original text for unknown phrases. It does not itself run Meta neural-model inference.** The existence of this provider is not proof that NLLB weights are loaded or serving translations |
+| **Apertium** ([project](https://www.apertium.org/)) | Ewondo/French lexical candidates and research material, see `ewondo-apertium-candidates.json` and the Ewondo lexicon | Lexicon availability does not prove validated financial translations |
+| **SIL Cameroon, NACALCO, academic sources** | Referenced linguistic research and provenance metadata in language packs | Attribution and alleged reviewer/certification fields need source-by-source confirmation; do not present unverified institutional endorsements as facts |
+| **Next.js / React / TypeScript** | Public website and UI | A static site does not provide a live translation API |
+| **Chromium Manifest V3** | Desktop browser-extension architecture | Mobile browser support is not established |
+| **Fastify** | API gateway in `apps/api` | Requires running/deploying the API |
+| **Supabase / PostgreSQL / Drizzle** | Optional backend persistence infrastructure | Not necessary for simply viewing the public website |
+| **OpenRouter / LibreTranslate** | Optional translation-provider integrations | Requires configuration and may send submitted text to external services; privacy depends on deployment and provider |
+| **Turborepo / pnpm / Vitest** | Monorepo development, builds and tests | Test results should be measured from the latest run, not copied from old badges |
+
+More detail: [architecture](linguabridge/docs/architecture/overview.md), [license audit](linguabridge/docs/research/license-audit.md), [source inventory](linguabridge/docs/research/duala-source-inventory.json), [reference repositories](linguabridge/docs/research/reference-repositories.md).
+
+### Why the distinction about Meta matters
+
+The repository currently has a `NllbLocalProvider` class labeled “Meta NLLB-200 Sovereign Local Provider”. Inspection of its implementation shows **a lookup table of prepared translations**, not a neural model loader or inference call. It may be useful for offline known phrases, but should be documented as **NLLB-inspired / cache-backed prototype functionality** until real model inference is wired and verified. The exact model checkpoint, weights license, deployment, language coverage and evaluation must be recorded before claiming that Meta NLLB is running in production.
+
+## 5. Repository structure
+
+```text
 linguabridge/
-├── apps/
-│   ├── api/             # Fastify API Gateway (:3001) with Hybrid Cache (Supabase/Memory)
-│   ├── web/             # Next.js 14 Showcase & CameroPay Demo App (:3000)
-│   └── extension/       # Chrome Browser Extension for Web Banking & Fintech Portals
-├── packages/
-│   ├── shared-types/    # Core TypeScript interfaces & contracts
-│   ├── financial-domain/# Financial Entity Extractor, AST parsing, SHA-256 integrity
-│   ├── language-registry/# Governance engine & quarantine for unverified language packs
-│   ├── translation-engine/# Pipeline, cache stages, fixture, LibreTranslate & OpenRouter
-│   ├── speech-engine/   # Audio orchestrator, phonetic guidance, Web Speech integration
-│   ├── database/        # Drizzle ORM schema for PostgreSQL / Supabase
-│   ├── sdk-js/          # Universal JavaScript / TypeScript client
-│   ├── sdk-react/       # React hooks (useTranslation, useFinancialGuard)
-│   └── widget/          # Embeddable zero-dependency accessibility widget
-├── language-packs/
-│   └── ewondo/          # Certified National Pack: Kóbɔ́ Ewondo (ewo-CM)
-│       ├── manifest.json
-│       └── dictionaries/financial-glossary.json
-└── infrastructure/
-    └── migrations/
-        └── supabase-init.sql # Turnkey Supabase schema with RLS & seed data
+  apps/
+    extension/          Chromium desktop extension
+    web/                Next.js landing page and extension access portal
+    api/                Fastify translation API
+  packages/
+    translation-engine/ Translation pipeline and providers
+    financial-domain/   Financial entity extraction and checks
+    language-registry/  Language pack registry and validation
+    shared-types/       Shared API types
+    sdk-js/             JavaScript client
+    sdk-react/          React integration
+    widget/             Embeddable integration
+    speech-engine/      Speech-related modules
+    database/           Database schema/integration
+  language-packs/       Language resources and manifests
+  docs/
+    architecture/       Design decisions and architecture
+    research/           Corpora, licensing and linguistic research
+    deployment/         Deployment notes
 ```
 
----
+## 6. Run and test locally
 
-## 🇨🇲 Certified National Language: Ewondo (`ewo-CM`)
-
-Ewondo is the premier national language integrated into LinguaBridge with certified financial consensus:
-
-| Terme Français | English Term | Kóbɔ́ Ewondo (`ewo-CM`) | IPA Transcription |
-|---|---|---|---|
-| **Solde disponible** | Available balance | **Móni mí ne wá é bẽng** | `[móní mí né wá é bèŋ]` |
-| **Transfert d'argent** | Money transfer | **Lóm móni** | `[lóm mó-ní]` |
-| **Frais de transfert** | Transfer fees | **Móni mébembá** | `[mó-ní mé-bèm-bá]` |
-| **Numéro destinataire** | Recipient number | **Nlambá nyí a nòng móni** | `[n-lá-mbá nyí a nòŋ móní]` |
-| **Montant** | Amount | **Abui móni** | `[a-bùí mó-ní]` |
-| **Motif / Référence** | Payment reason | **Asu dzé / Nkat** | `[a-sú dzé]` |
-| **Tontine mensuelle** | Monthly tontine | **Móni tsɔ́ ngɔ́n** | `[mó-ní tsɔ́ ŋgɔ́n]` |
-
-> **Cameroon Pack Isolation Policy**: Non-certified templates (Duala, Basaa, Fulfulde, Bulu) remain strictly quarantined in `not_installed` state until verified by field linguists, preventing synthetic hallucinations.
-
----
-
-## 🛡️ Financial Guard & Zero-Drift Protection
-
-Every translated payload passes through the AST-level **Financial Entity Extractor**:
-- **CEMAC Formats**: Accurately recognizes `15.000 FCFA`, `15k cfa`, `15000 f`, `15 000,50 XAF`.
-- **Phone Numbers**: Full CAMTEL, Orange (+237 69x), MTN (+237 67x/68x) detection.
-- **Cryptographic Fingerprint**:
-  $$\text{Fingerprint} = \text{SHA-256}\left(\sum \text{canonical}(entity_i)\right)$$
-- If an LLM or provider alters a single digit or drops an account number, the pipeline aborts with status `'unsafe'` and falls back to verified human-in-the-loop templates.
-
----
-
-## 🚀 Quickstart & Local Execution
-
-No external accounts or cloud keys are required to run locally:
+Prerequisites: Node.js, pnpm and Git. Run these commands **from the `linguabridge/` folder**:
 
 ```bash
-# 1. Install dependencies
 pnpm install
-
-# 2. Run all tests (18 test suites across all packages)
-pnpm turbo test
-
-# 3. Start development servers
-# Starts API Gateway on :3001 and Web on :3000
-pnpm turbo dev
+pnpm --filter @linguabridge/translation-engine build
+pnpm --filter @linguabridge/extension build
 ```
 
-Visit the interactive apps:
-- **CameroPay Demo**: [http://localhost:3000/cameropay](http://localhost:3000/cameropay)
-- **Developer Dashboard**: [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
-- **Interactive Documentation**: [http://localhost:3001/docs](http://localhost:3001/docs)
+Load `linguabridge/apps/extension/dist/` through **chrome://extensions** or **edge://extensions**, enable Developer mode, then **Load unpacked**. For Edge-specific build instructions use [EDGE_DESKTOP.md](linguabridge/apps/extension/EDGE_DESKTOP.md).
 
----
-
-## ☁️ Turnkey Deployment (GitHub Pages or Vercel)
-
-Full details available in [docs/deployment/TURNKEY_DEPLOYMENT.md](docs/deployment/TURNKEY_DEPLOYMENT.md):
-
-### Option A: 100% Free GitHub Pages (Automated via GitHub Actions)
-LinguaBridge includes an automated workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) that automatically builds and deploys the showcase on every push:
-- **Live URL**: `https://AnonyDes.github.io/LinguaBridge/`
-- Zero external accounts or hosting configuration required.
-
-### Option B: Cloud API & Vercel
-1. **Supabase PostgreSQL**:
-   - Create a project on [supabase.com](https://supabase.com).
-   - Paste [`infrastructure/migrations/supabase-init.sql`](infrastructure/migrations/supabase-init.sql) into SQL Editor and click **Run**.
-   - Copy URI to `DATABASE_URL`.
-2. **OpenRouter**:
-   - Create key on [openrouter.ai](https://openrouter.ai) and set `OPENROUTER_API_KEY`.
-3. **Vercel**:
-   - Import GitHub repository `AnonyDes/LinguaBridge`.
-   - Set `NEXT_PUBLIC_API_URL` to your API gateway URL.
-   - Deploy!
-
----
-
-## 🧪 Testing & Verification
+For developers who also need the API or website:
 
 ```bash
+pnpm turbo dev
 pnpm turbo test
 ```
 
-- `apps/api`: **15/15 tests passing** (Ewondo translation, entity extraction, cache hits, authentication)
-- `apps/web`: **6/6 tests passing** (CameroPay UI, French/English/Ewondo switching, dashboard)
-- `packages/financial-domain`: **11/11 tests passing** (CEMAC currencies, decimal localization, SHA-256 fingerprinting)
-- `packages/translation-engine`: **7/7 tests passing** (Pipeline execution, cache-lookup, cache-writer)
-- `packages/language-registry`: **6/6 tests passing** (Isolation policy, activation, quarantine)
-- `packages/speech-engine`: **6/6 tests passing** (Voice orchestrator, language validation)
-- `packages/sdk-js`: **5/5 tests passing** (Client requests, timeout, authorization)
+Development endpoints and required environment variables depend on the individual app. The web showcase is distinct from the backend. Avoid putting secret API keys into client-side environment variables.
 
----
+## 7. Financial data protection and privacy
 
-## 📄 License
+The design includes a financial entity guard and checks intended to prevent translated text from silently changing amounts, fees, currencies and reference values. **Do not describe this as a mathematically guaranteed zero-error translation system without current end-to-end test evidence.**
 
-- Platform Code & SDKs: **MIT License**
-- National Language Dictionaries (Ewondo): **CC-BY-NC 4.0** (Attribution: NACALCO & Université de Yaoundé I)
+Before any production use, validate: exact preservation of financial values, handling of dynamic page content, language quality with native speakers, extension permissions, data retention, third-party API disclosure, and behavior when translation is unavailable.
+
+## 8. SAFINUM alignment and roadmap
+
+The hackathon challenge asks for an interoperable language-accessibility layer for existing financial services. LinguaBridge prioritizes:
+
+1. **Integration without rewriting bank websites**, starting with the desktop extension.
+2. **French/English into Cameroonian languages**, with clear distinctions between research, test coverage and validated support.
+3. **Financial safety and user trust**, including transparent failure states.
+4. **Broader access on mobile and via the web**, planned rather than falsely presented as complete.
+5. **Complementary integration tools** for fintech teams that want to embed accessibility directly.
+
+## 9. Credits, licenses and contributions
+
+Code, third-party packages, dictionaries and research corpora may carry **different licenses**. Check [LICENSE](LICENSE), individual package licenses, language-pack manifests and [license audit](linguabridge/docs/research/license-audit.md). Do not assume every linguistic dataset is freely redistributable or suitable for commercial use.
+
+Contributions are welcome, especially native-speaker review of financial vocabulary, reproducible language benchmarks, extension accessibility tests and provenance/license corrections.
+
+**Status note:** This document describes the inspected repository architecture and its limitations, not an independently certified banking product.
