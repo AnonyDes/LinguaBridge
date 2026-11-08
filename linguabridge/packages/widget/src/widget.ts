@@ -742,8 +742,8 @@ export class LinguaBridgeWidget {
   private render(): void {
     if (!this.shadow) return;
 
-    const primaryColor = '#16a34a';
-    const primaryHover = '#15803d';
+    const primaryColor = '#111111';
+    const primaryHover = '#303030';
     const visibleLanguages = filterVisibleLanguages(this.availableLanguages);
 
     this.shadow.innerHTML = `
@@ -766,7 +766,7 @@ export class LinguaBridgeWidget {
           padding: 12px 20px;
           font-size: 14px;
           font-weight: 600;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -797,7 +797,7 @@ export class LinguaBridgeWidget {
           justify-content: space-between;
           align-items: center;
           padding: 12px 16px;
-          background: #f8fafc;
+          background: #f7f7f8;
           border-bottom: 1px solid #e2e8f0;
         }
         .header-title-box {
@@ -819,11 +819,11 @@ export class LinguaBridgeWidget {
           gap: 4px;
           font-size: 11px;
           font-weight: 600;
-          color: #047857;
-          background: #ecfdf5;
+          color: #111827;
+          background: #f2f4f5;
           padding: 2px 6px;
           border-radius: 9999px;
-          border: 1px solid #a7f3d0;
+          border: 1px solid #d0d5dd;
           width: fit-content;
         }
         .close-btn {
@@ -873,7 +873,7 @@ export class LinguaBridgeWidget {
         .chat-body {
           flex: 1;
           overflow-y: auto;
-          max-height: 300px;
+          min-height: 140px;
           padding: 14px 16px;
           display: flex;
           flex-direction: column;
@@ -926,7 +926,7 @@ export class LinguaBridgeWidget {
           transition: background 0.15s ease;
         }
         .speak-btn:hover {
-          background: #d1fae5;
+          background: #e7e8ea;
         }
         .drift-badge {
           font-size: 10px;
@@ -1036,8 +1036,8 @@ export class LinguaBridgeWidget {
       <div class="widget-card">
         <div class="header">
           <div class="header-title-box">
-            <span class="header-title">💬 LinguaBridge IA Bancaire 🇨🇲</span>
-            <span class="header-badge">🛡️ AST Guard : Zéro Dérive</span>
+            <span class="header-title">LinguaBridge Assistant</span>
+            <span class="header-badge">Financial guidance · Prototype</span>
           </div>
           <button class="close-btn" id="close-widget" aria-label="Fermer">✕</button>
         </div>
@@ -1070,9 +1070,9 @@ export class LinguaBridgeWidget {
                     <button class="speak-btn" data-msg-id="${msg.id}" data-text="${encodeURIComponent(
                         msg.text
                       )}" data-phonetic="${encodeURIComponent(msg.phonetic || msg.text)}" data-lang="${msg.lang}">
-                      🔊 Écouter
+                      Écouter
                     </button>
-                    ${msg.zeroDriftVerified ? `<span class="drift-badge">✓ Zéro Dérive</span>` : ''}
+                    ${msg.zeroDriftVerified ? `<span class="drift-badge">Valeurs à vérifier</span>` : ''}
                   </div>
                 `
                     : ''
@@ -1084,10 +1084,10 @@ export class LinguaBridgeWidget {
         </div>
 
         <div class="quick-chips">
-          <button class="quick-chip" data-prompt="Comment envoyer de l'argent ?">💸 Comment envoyer ?</button>
-          <button class="quick-chip" data-prompt="Quel est mon solde ?">💳 Quel est mon solde ?</button>
-          <button class="quick-chip" data-prompt="Frais de retrait au distributeur">📊 Frais de retrait</button>
-          <button class="quick-chip" data-prompt="Sécurité de mon compte et code PIN">🔒 Sécurité du compte</button>
+          <button class="quick-chip" data-prompt="Comment envoyer de l'argent ?">Comment envoyer ?</button>
+          <button class="quick-chip" data-prompt="Quel est mon solde ?">Quel est mon solde ?</button>
+          <button class="quick-chip" data-prompt="Frais de retrait au distributeur">Frais de retrait</button>
+          <button class="quick-chip" data-prompt="Sécurité de mon compte et code PIN">Sécurité du compte</button>
         </div>
 
         <div class="input-bar">
@@ -1114,8 +1114,8 @@ export class LinguaBridgeWidget {
       </div>
 
       <button class="widget-button" id="toggle-widget">
-        <span>💬</span>
-        <span>${this.isPageTranslated ? 'Restaurer / Switch' : 'IA Bancaire (LinguaBridge)'}</span>
+        <span class="trigger-symbol" aria-hidden="true">◎</span>
+        <span>${this.isPageTranslated ? 'Restaurer / Switch' : 'LinguaBridge Assistant'}</span>
       </button>
     `;
 
