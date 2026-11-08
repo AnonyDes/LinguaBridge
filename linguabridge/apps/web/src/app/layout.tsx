@@ -146,20 +146,7 @@ export default function RootLayout({
                 >
                   Platform &amp; Docs
                 </Link>
-                <Link
-                  href="/cameropay"
-                  className="nav-link"
-                  style={{
-                    fontSize: '0.88rem',
-                    fontWeight: 600,
-                    color: 'var(--ink)',
-                    textDecoration: 'none',
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  CameroPay Demo
-                </Link>
-                <Link
+<Link
                   href="/dashboard"
                   className="nav-link"
                   style={{
