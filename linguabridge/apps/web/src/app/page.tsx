@@ -60,22 +60,6 @@ export default function LandingPage() {
     <div className="wrap" style={{ paddingTop: 'clamp(48px, 6vw, 80px)', paddingBottom: 'clamp(64px, 8vw, 112px)' }}>
       {/* Hero Section */}
       <section style={{ textAlign: 'center', marginBottom: 'clamp(64px, 8vw, 96px)' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--s-4)' }}>
-          <span
-            className="ax-pill ax-pill--active eyebrow-dot"
-            style={{
-              fontSize: '0.72rem',
-              letterSpacing: '0.14em',
-              padding: '6px 14px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <Globe size={13} strokeWidth={2} style={{ color: 'var(--brand-green-deep)', flexShrink: 0 }} />
-            <span>CAMEROONIAN LANGUAGES · DIGITAL FINANCIAL ACCESS</span>
-          </span>
-        </div>
 
         <h1
           className="hero-type"
