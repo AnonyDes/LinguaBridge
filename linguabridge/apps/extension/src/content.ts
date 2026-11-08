@@ -1,5 +1,5 @@
 import type { TranslationResult } from '@linguabridge/shared-types';
-import { generateBankingResponse } from '@linguabridge/widget';
+import { generateBankingResponse } from '../../../packages/widget/src/banking-engine';
 import { translateLocalText, getEwondoPhonetic } from '@linguabridge/translation-engine';
 
 function splitIntoAcousticClauses(text: string): string[] {
