@@ -92,7 +92,7 @@ export default function RootLayout({
                 }}
               >
                 <span className="status-dot status-dot--pulse" style={{ width: '5px', height: '5px' }}></span>
-                CEMAC LIVE
+                SAFINUM PROTOTYPE
               </span>
             </div>
 
@@ -122,7 +122,7 @@ export default function RootLayout({
                     letterSpacing: '-0.01em',
                   }}
                 >
-                  Platform &amp; Docs
+                  Home
                 </Link>
 <Link
                   href="/dashboard"
@@ -135,7 +135,7 @@ export default function RootLayout({
                     letterSpacing: '-0.01em',
                   }}
                 >
-                  Developer Dashboard
+                  Get the extension
                 </Link>
               </div>
 
@@ -243,24 +243,24 @@ export default function RootLayout({
                     letterSpacing: '0.16em',
                   }}
                 >
-                  SOVEREIGN MODULES
+                  FINANCIAL ACCESSIBILITY
                 </div>
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)' }}>
                   <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <ShieldCheck size={14} style={{ color: 'var(--brand-green)' }} />
-                    <span>Deterministic Financial Guard</span>
+                    <span>Financial detail safeguards</span>
                   </li>
                   <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Cpu size={14} style={{ color: 'var(--brand-green)' }} />
-                    <span>AST Invariance Validator</span>
+                    <span>Translation review & validation</span>
                   </li>
                   <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Terminal size={14} style={{ color: 'var(--brand-green)' }} />
-                    <span>Fastify 5 REST API (:3001)</span>
+                    <span>Desktop browser extension</span>
                   </li>
                   <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Globe size={14} style={{ color: 'var(--brand-green)' }} />
-                    <span>Neural Voice Service (:3002)</span>
+                    <span>Mobile-friendly access planned</span>
                   </li>
                 </ul>
               </div>
@@ -276,14 +276,14 @@ export default function RootLayout({
                     letterSpacing: '0.16em',
                   }}
                 >
-                  REGIONAL COVERAGE
+                  LANGUAGE FOCUS
                 </div>
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)' }}>
-                  <li>Ewondo (ewo-CM) — Tonal Contour</li>
-                  <li>Fulfulde (fub-CM) — North Cameroon</li>
+                  <li>Ewondo (ewo-CM) — in development</li>
+                  <li>French &amp; English source interfaces</li>
                   <li>Duala &amp; Ewondo — language development and review</li>
-                  <li>CEMAC Multi-Currency Isolation</li>
-                  <li>FCFA Currency Invariance Engine</li>
+                  <li>Financial terminology review</li>
+                  <li>Amounts and fees safeguards</li>
                 </ul>
               </div>
 
@@ -298,22 +298,22 @@ export default function RootLayout({
                     letterSpacing: '0.16em',
                   }}
                 >
-                  INTEROPERABILITY
+                  GET STARTED
                 </div>
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.88rem' }}>
                   <li>
                     <Link href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>
-                      Developer Studio &amp; Dashboard
+                      Browser extension &amp; access
                     </Link>
                   </li>
                   <li>
                     <Link href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>
-                      Model Context Protocol (MCP)
+                      Other developer integrations (optional)
                     </Link>
                   </li>
                   <li>
                     <Link href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>
-                      Chrome MV3 Banking Extension
+                      Source code on GitHub
                     </Link>
                   </li>
                 </ul>
