@@ -1668,8 +1668,8 @@ class ExtensionAssistant {
         .assistant-btn {
           width: 52px;
           height: 52px;
-          border-radius: 26px;
-          background: #16a34a;
+          border-radius: 14px;
+          background: #111;
           color: #ffffff;
           border: 1px solid #15803d;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -1682,10 +1682,10 @@ class ExtensionAssistant {
         }
         .assistant-btn:hover {
           transform: scale(1.04);
-          background: #15803d;
+          background: #292929;
         }
         .assistant-btn.active-speak {
-          background: #15803d;
+          background: #292929;
           border: 2px solid #ffffff;
           box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
         }
@@ -1694,7 +1694,7 @@ class ExtensionAssistant {
           position: absolute;
           bottom: 64px;
           right: 0;
-          width: 320px;
+          width: min(360px, calc(100vw - 48px));
           background: #ffffff;
           border-radius: 8px;
           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -1745,12 +1745,12 @@ class ExtensionAssistant {
           background: #f9fafb;
         }
         .btn-action.primary {
-          background: #16a34a;
+          background: #111;
           color: #ffffff;
-          border-color: #16a34a;
+          border-color: #111;
         }
         .btn-action.primary:hover {
-          background: #15803d;
+          background: #292929;
         }
         .btn-action.speak-toggle {
           background: ${this.isTouchSpeakEnabled ? '#15803d' : '#f9fafb'};
@@ -1768,6 +1768,7 @@ class ExtensionAssistant {
           font-size: 11px;
           line-height: 1.4;
         }
+        .lb-quick{border:1px solid #e0e3e7;border-radius:8px;background:#f7f8f9;padding:7px 9px;font-size:11px;cursor:pointer}
         .preview-box {
           display: none;
           margin-top: 10px;
@@ -1796,7 +1797,7 @@ class ExtensionAssistant {
           border: 1px solid #374151;
         }
         .audio-btn {
-          background: #16a34a;
+          background: #111;
           color: #ffffff;
           border: none;
           padding: 5px 10px;
@@ -1806,7 +1807,7 @@ class ExtensionAssistant {
           font-weight: 600;
         }
         .audio-btn:hover {
-          background: #15803d;
+          background: #292929;
         }
         .audio-btn.stop-btn {
           background: #374151;
@@ -1818,6 +1819,11 @@ class ExtensionAssistant {
       </style>
 
       <div class="card">
+        <div style="display:flex;gap:5px;background:#f3f4f6;padding:4px;border-radius:10px;margin-bottom:14px;">
+          <button id="lb-tab-translate" style="flex:1;border:0;padding:10px;border-radius:8px;background:${this.activePanel === 'translate' ? '#fff' : 'transparent'};cursor:pointer;font-weight:650;">Traduction</button>
+          <button id="lb-tab-assistant" style="flex:1;border:0;padding:10px;border-radius:8px;background:${this.activePanel === 'assistant' ? '#fff' : 'transparent'};cursor:pointer;font-weight:650;">Assistant</button>
+        </div>
+        <div style="display:${this.activePanel === 'translate' ? 'block' : 'none'};">
         <div class="header">
           <div style="display: flex; align-items: center; gap: 6px;">
             <span>LinguaBridge</span>
@@ -1829,31 +1835,26 @@ class ExtensionAssistant {
         <div style="margin-bottom: 8px;">
           <label style="font-weight: 600; font-size: 12px; color: #4b5563;">Langue maternelle :</label>
           <select id="target-lang" style="width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #d1d5db; margin-top: 4px; font-size: 13px; font-weight: 600; background: #ffffff;">
-            <option value="ewo-CM" ${this.currentTargetLang === 'ewo-CM' ? 'selected' : ''}>🇨🇲 Ewondo (Centre, Sud, Est)</option>
-            <option value="fuv-CM" ${this.currentTargetLang === 'fuv-CM' ? 'selected' : ''}>🇨🇲 Fulfulde / Peul (Grand Nord, CEMAC)</option>
-            <option value="hau-CM" ${this.currentTargetLang === 'hau-CM' ? 'selected' : ''}>🇨🇲 Haoussa (Grand Nord, Corridors)</option>
-            <option value="knc-CM" ${this.currentTargetLang === 'knc-CM' ? 'selected' : ''}>🇨🇲 Kanuri (Extrême-Nord, Lac Tchad)</option>
-            <option value="pcm-CM" ${this.currentTargetLang === 'pcm-CM' ? 'selected' : ''}>🇨🇲 Pidgin English (NO, SO, Marchés)</option>
+            <option value="ewo-CM" ${this.currentTargetLang === 'ewo-CM' ? 'selected' : ''}>Ewondo (Centre, Sud, Est)</option>
+            <option value="fuv-CM" ${this.currentTargetLang === 'fuv-CM' ? 'selected' : ''}>Fulfulde / Peul (Grand Nord, CEMAC)</option>
+            <option value="hau-CM" ${this.currentTargetLang === 'hau-CM' ? 'selected' : ''}>Haoussa (Grand Nord, Corridors)</option>
+            <option value="knc-CM" ${this.currentTargetLang === 'knc-CM' ? 'selected' : ''}>Kanuri (Extrême-Nord, Lac Tchad)</option>
+            <option value="pcm-CM" ${this.currentTargetLang === 'pcm-CM' ? 'selected' : ''}>Pidgin English (NO, SO, Marchés)</option>
           </select>
-          <label for="source-lang" style="display:block;margin-top:8px;font-size:12px;">Langue de la page :</label>
-          <select id="source-lang" style="width:100%;padding:7px;margin-top:4px;">
-            <option value="fr" ${this.currentSourceLang === 'fr' ? 'selected' : ''}>Français</option>
-            <option value="en" ${this.currentSourceLang === 'en' ? 'selected' : ''}>English</option>
-          </select>
-          <p style="font-size:11px;color:#15803d;margin-top:4px;">Protection AST Zéro-Dérive : 100% des montants FCFA préservés.</p>
+          <p style="font-size:11px;color:#667085;margin-top:9px;">Français et anglais détectés automatiquement. Vérifiez les montants avant une transaction.</p>
         </div>
 
         <div style="margin-top: 10px;">
           ${
             this.isPageTranslated
-              ? `<button class="btn-action" id="btn-restore"><span>↩️</span><span>Restaurer le texte d'origine</span></button>`
-              : `<button class="btn-action primary" id="btn-translate-page"><span>🌐</span><span>Traduire toute la page</span></button>`
+              ? `<button class="btn-action" id="btn-restore"><span></span><span>Restaurer le texte d'origine</span></button>`
+              : `<button class="btn-action primary" id="btn-translate-page"><span></span><span>Traduire toute la page</span></button>`
           }
         </div>
 
         <button class="btn-action speak-toggle" id="btn-toggle-speak">
-          <span>🔊</span>
-          <span>${this.isTouchSpeakEnabled ? 'Désactiver la lecture au toucher & survol' : 'Activer la lecture au toucher & survol'}</span>
+          <span></span>
+          <span>${this.isTouchSpeakEnabled ? 'Désactiver la lecture' : 'Activer la lecture sur demande'}</span>
         </button>
 
         <div class="speak-hint">
@@ -1861,15 +1862,24 @@ class ExtensionAssistant {
         </div>
 
         <div id="selection-preview" class="preview-box"></div>
+        </div>
+        <div style="display:${this.activePanel === 'assistant' ? 'block' : 'none'};">
+          <div class="header"><span>Assistant financier</span><button id="lb-close-chat" style="border:0;background:transparent;cursor:pointer;">Fermer</button></div>
+          <p style="font-size:12px;color:#667085;">Questions bancaires courantes. Réponses locales limitées.</p>
+          <div id="lb-chat-log" style="height:200px;overflow:auto;display:flex;flex-direction:column;gap:9px;margin:12px 0;"></div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"><button class="lb-quick" data-question="Comment envoyer de l’argent ?">Transfert</button><button class="lb-quick" data-question="Comment consulter mon solde ?">Solde</button><button class="lb-quick" data-question="Quels sont les frais de retrait ?">Frais</button><button class="lb-quick" data-question="Comment sécuriser mon compte ?">Sécurité</button></div>
+          <form id="lb-chat-form" style="display:flex;gap:6px;"><input id="lb-chat-input" maxlength="500" placeholder="Votre question..." style="flex:1;min-width:0;border:1px solid #d0d5dd;border-radius:8px;padding:9px;"><button type="submit" style="background:#111;color:#fff;border:0;border-radius:8px;padding:9px;">Envoyer</button></form>
+          <p style="font-size:11px;color:#667085;">Ne communiquez jamais votre PIN ou mot de passe.</p>
+        </div>
       </div>
 
       <button class="assistant-btn ${this.isTouchSpeakEnabled ? 'active-speak' : ''}" id="btn-toggle" title="LinguaBridge - Accessibilité en Langue Maternelle">
-        ${this.isTouchSpeakEnabled ? '🔊' : '🌐'}
+
       </button>
 
       <!-- Bottom floating speech indicator bar -->
       <div id="audio-bar" class="audio-bar">
-        <span style="font-size: 16px;">🔊</span>
+        <span style="font-size: 16px;"></span>
         <div style="max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
           <div id="audio-spoken-text" style="font-weight: 700; font-size: 13px; color: #ffffff;"></div>
           <div id="audio-phonetic" style="font-size: 11px; color: #86efac; font-style: italic;"></div>
@@ -1903,13 +1913,11 @@ class ExtensionAssistant {
       this.toggleTouchSpeakMode();
     });
 
-    this.shadow.getElementById('source-lang')?.addEventListener('change', (e) => {
-      this.currentSourceLang = (e.target as HTMLSelectElement).value;
-      if (this.isPageTranslated) this.translateFullPage();
-    });
+
 
     this.shadow.getElementById('target-lang')?.addEventListener('change', (e) => {
       this.currentTargetLang = (e.target as HTMLSelectElement).value;
+      chrome.storage?.local?.set({ linguabridgeTargetLang: this.currentTargetLang });
       this.translationSpeechCache.clear();
       this.stopSpeech();
       if (this.isPageTranslated) {
@@ -1918,6 +1926,29 @@ class ExtensionAssistant {
         this.render();
       }
     });
+
+    this.shadow.getElementById('lb-tab-translate')?.addEventListener('click', () => { this.activePanel = 'translate'; this.render(); });
+    this.shadow.getElementById('lb-tab-assistant')?.addEventListener('click', () => { this.activePanel = 'assistant'; this.render(); });
+    this.shadow.getElementById('lb-close-chat')?.addEventListener('click', () => { this.isOpen = false; this.render(); });
+    const chatLog = this.shadow.getElementById('lb-chat-log');
+    if (chatLog) {
+      const history = this.chatHistory.length ? this.chatHistory : [{ role: 'assistant', text: 'Bonjour. Posez une question sur un transfert, un solde ou la sécurité.' }];
+      for (const message of history) {
+        const item = document.createElement('div');
+        item.textContent = message.text;
+        item.style.cssText = 'max-width:90%;padding:10px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;background:' + (message.role === 'user' ? '#111;color:#fff;align-self:flex-end' : '#f2f3f5;color:#111;align-self:flex-start');
+        chatLog.appendChild(item);
+      }
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+    const ask = (question: string) => {
+      if (!question.trim()) return;
+      const response = generateBankingResponse(question.trim(), this.currentTargetLang);
+      this.chatHistory.push({ role: 'user', text: question.trim() }, { role: 'assistant', text: response.text });
+      this.render();
+    };
+    this.shadow.getElementById('lb-chat-form')?.addEventListener('submit', e => { e.preventDefault(); ask((this.shadow?.getElementById('lb-chat-input') as HTMLInputElement)?.value || ''); });
+    this.shadow.querySelectorAll<HTMLButtonElement>('.lb-quick').forEach(b => b.addEventListener('click', () => ask(b.dataset.question || '')));
 
     // Audio bar controls
     this.shadow.getElementById('audio-replay')?.addEventListener('click', () => {
