@@ -134,19 +134,7 @@ export default function LandingPage() {
         </p>
 
         <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link
-            href="/cameropay"
-            className="btn btn-primary"
-            style={{
-              padding: '14px 28px',
-              fontSize: '0.95rem',
-              letterSpacing: '-0.01em',
-            }}
-          >
-            <span>Launch CameroPay Demo</span>
-            <span className="arrow">→</span>
-          </Link>
-          <Link
+<Link
             href="/dashboard"
             className="btn btn-ghost"
             style={{
