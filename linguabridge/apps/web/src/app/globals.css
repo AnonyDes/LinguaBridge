@@ -861,3 +861,47 @@ pre, code { overflow-wrap: anywhere; word-break: break-word; }
   body:has(.lb-assistant-page) .lb-mobile-assistant-trigger { display: none; }
   body:has(.lb-assistant-page) footer { display: none; }
 }
+
+
+/* Header: one horizontal row, centered links, GitHub aligned at right */
+.lb-fixed-header .lb-header-row {
+  width: min(100% - 32px, 1280px);
+  margin-inline: auto;
+  min-height: 68px;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+  align-items: center;
+  column-gap: 10px;
+  flex-wrap: nowrap !important;
+}
+.lb-fixed-header .lb-header-brand { grid-column: 1; grid-row: 1; justify-self: start; min-width: 0; }
+.lb-fixed-header .lb-header-nav {
+  grid-column: 2; grid-row: 1; justify-self: center;
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(8px, 2vw, 26px); width: max-content; margin: 0;
+}
+.lb-fixed-header .lb-header-github {
+  grid-column: 3; grid-row: 1; justify-self: end;
+  display: inline-flex !important; flex: none;
+  width: 40px; height: 40px; border-radius: 11px;
+  background: #101010; color: #fff;
+  border: 1px solid #101010;
+}
+.lb-fixed-header .lb-header-github svg { display: block; width: 21px; height: 21px; stroke: #fff; }
+@media (max-width: 700px) {
+  .lb-fixed-header .lb-header-row { width: calc(100% - 20px); min-height: 60px; column-gap: 5px; }
+  .lb-fixed-header .lb-header-brand { gap: 5px; font-size: clamp(.75rem, 2.7vw, 1rem); }
+  .lb-fixed-header .lb-logo-mark { width: 31px; height: 31px; }
+  .lb-fixed-header .lb-logo-mark svg { width: 30px; height: 30px; }
+  .lb-fixed-header .lb-header-nav { gap: 2px; }
+  .lb-fixed-header .lb-nav-item { font-size: clamp(.72rem, 2.7vw, .85rem); padding: 8px 5px; }
+  .lb-fixed-header .lb-header-github { width: 36px; height: 36px; border-radius: 9px; }
+}
+@media (max-width: 380px) {
+  .lb-fixed-header .lb-header-row { width: calc(100% - 14px); column-gap: 3px; }
+  .lb-fixed-header .lb-brand-word { font-size: .73rem; }
+  .lb-fixed-header .lb-logo-mark { width: 27px; height: 27px; }
+  .lb-fixed-header .lb-logo-mark svg { width: 27px; height: 27px; }
+  .lb-fixed-header .lb-nav-item { font-size: .71rem; padding: 7px 3px; }
+  .lb-fixed-header .lb-header-github { width: 31px; height: 31px; }
+}
