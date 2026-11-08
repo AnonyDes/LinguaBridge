@@ -1,0 +1,59 @@
+name: Build Edge desktop extension
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'linguabridge/apps/extension/**'
+      - 'linguabridge/packages/**'
+      - 'linguabridge/pnpm-lock.yaml'
+      - '.github/workflows/build-edge-extension.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  edge-extension:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: linguabridge
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: linguabridge/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      - name: Build extension and workspace dependencies
+        run: pnpm turbo build --filter=@linguabridge/extension...
+      - name: Validate unpacked extension
+        run: |
+          node --input-type=module <<'EOF'
+          import fs from 'node:fs';
+          const dir = 'apps/extension/dist';
+          const manifest = JSON.parse(fs.readFileSync(dir + '/manifest.json', 'utf8'));
+          if (manifest.manifest_version !== 3) throw new Error('Expected Manifest V3');
+          for (const file of ['background.js','content.js','popup.js','popup.html']) {
+            if (!fs.existsSync(dir + '/' + file)) throw new Error('Missing ' + file);
+          }
+          if (manifest.background.service_worker !== 'background.js') throw new Error('Invalid background path');
+          if (manifest.action.default_popup !== 'popup.html') throw new Error('Invalid popup path');
+          console.log('Edge/Chrome unpacked extension structure validated');
+          EOF
+      - name: Upload Edge installable folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: LinguaBridge-Edge-Desktop
+          path: linguabridge/apps/extension/dist/
+          if-no-files-found: error
+          retention-days: 14
