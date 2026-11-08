@@ -104,7 +104,7 @@ export default function LandingPage() {
             lineHeight: 1.6,
           }}
         >
-          Financial services should be understandable to everyone. LinguaBridge helps translate banking, mobile money and payment interfaces from French or English into Duala and Ewondo, starting with a desktop browser extension. Our goal is to make the same accessibility available on mobile and through the web.
+          Financial services should be understandable to everyone. LinguaBridge helps translate banking, mobile money and payment interfaces from French or English into Ewondo, Fulfulde, Haoussa, Kanuri and Cameroon Pidgin, starting with a desktop browser extension. Our goal is to make the same accessibility available on mobile and through the web.
         </p>
 
         <div className="lb-hero-actions">
@@ -148,7 +148,7 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Zap size={14} style={{ color: 'var(--brand-green)' }} />
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              FRENCH &amp; ENGLISH → DUALA &amp; EWONDO
+              FRENCH &amp; ENGLISH → CAMEROONIAN LANGUAGES
             </span>
           </div>
         </div>
@@ -586,7 +586,7 @@ export default function LandingPage() {
             <h3 style={{ marginTop: 'var(--s-3)', marginBottom: 'var(--s-3)' }}>Choose your language and browse</h3>
             <p style={{ color: 'var(--muted)', lineHeight: 1.6 }}>
               On desktop, visit a banking, mobile money or payment website. Open LinguaBridge,
-              select Duala or Ewondo and translate interface text from French or English.
+              select an available Cameroonian language and translate interface text from French or English.
               The extension is designed to work without changes to the original website.
             </p>
             <p style={{ color: 'var(--muted)', lineHeight: 1.6, marginTop: 'var(--s-4)' }}>
