@@ -157,11 +157,32 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       return true;
     }
 
+// In-memory audio payload cache for instant 0ms responses across tabs and navigations
+const AUDIO_PAYLOAD_CACHE = new Map<string, string>();
+
     if (message.type === 'SYNTHESIZE_SPEECH') {
       const text = message.text || '';
       const lang = message.lang || targetLang;
       const normLang = (lang || 'ewo-CM').trim().toLowerCase();
+      const cacheKey = `${normLang}:${text.trim().toLowerCase()}`;
       console.log(`[LinguaBridge SW] SYNTHESIZE_SPEECH request: lang=${lang} (norm=${normLang}), text="${text.substring(0, 40)}"`);
+
+      // 1. FAST PATH (<1ms): Check background in-memory cache
+      const cachedB64 = AUDIO_PAYLOAD_CACHE.get(cacheKey);
+      if (cachedB64) {
+        console.log(`[LinguaBridge SW] Instant 0ms cache hit for "${text.substring(0, 30)}"`);
+        sendResponse({
+          success: true,
+          result: {
+            available: true,
+            lang,
+            audioBase64: cachedB64,
+            audioUrl: `data:audio/wav;base64,${cachedB64}`,
+            engine: 'meta-mms-neural-live',
+          },
+        });
+        return true;
+      }
 
       // Direct ultra-fast fetch to running Python neural voice server
       const tryFetch = async (host: string) => {
@@ -177,6 +198,9 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         .catch(() => tryFetch('http://localhost:3002'))
         .then((data) => {
           console.log(`[LinguaBridge SW] Synthesized neural audio successfully (${data.audioBase64.length} b64 chars)`);
+          if (AUDIO_PAYLOAD_CACHE.size < 600) {
+            AUDIO_PAYLOAD_CACHE.set(cacheKey, data.audioBase64);
+          }
           sendResponse({
             success: true,
             result: {

@@ -1,6 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
+import {
+  BookOpen,
+  Lock,
+  Radio,
+  Code2,
+  FlaskConical,
+  AlertTriangle,
+  ShieldCheck,
+  Volume2,
+  Zap,
+  Play,
+} from 'lucide-react';
 
 export const ApiConnectorDoc: React.FC = () => {
   const [subTab, setSubTab] = useState<'overview' | 'auth' | 'endpoints' | 'snippets' | 'console' | 'errors'>('overview');
@@ -38,7 +50,7 @@ export const ApiConnectorDoc: React.FC = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            text: 'Móni m\'ékabedá: 25 000 FCFA',
+            text: "Móni m'ékabedá: 25 000 FCFA",
             lang: targetLang,
           }),
         });
@@ -88,7 +100,7 @@ export const ApiConnectorDoc: React.FC = () => {
         payload: {
           success: true,
           method,
-          translatedText: 'Móni m\'ékabedá: 25 000 FCFA. Móni m\'esí: 350 FCFA é be 699123456.',
+          translatedText: "Móni m'ékabedá: 25 000 FCFA. Móni m'esí: 350 FCFA é be 699123456.",
           sourceEntities: [{ type: 'amount', raw: '25 000 FCFA', normalized: '25000_FCFA' }],
           translatedEntities: [{ type: 'amount', raw: '25 000 FCFA', normalized: '25000_FCFA' }],
           fingerprint: 'sha256-4c9b88e1a7b...',
@@ -105,43 +117,90 @@ export const ApiConnectorDoc: React.FC = () => {
     }
   };
 
+  const subTabs = [
+    { id: 'overview', label: "Vue d'ensemble", icon: <BookOpen size={14} /> },
+    { id: 'auth', label: 'Authentification', icon: <Lock size={14} /> },
+    { id: 'endpoints', label: 'Spécification des Endpoints', icon: <Radio size={14} /> },
+    { id: 'snippets', label: 'Exemples de Code', icon: <Code2 size={14} /> },
+    { id: 'console', label: 'Console Interactive Live', icon: <FlaskConical size={14} /> },
+    { id: 'errors', label: "Codes d'Erreur", icon: <AlertTriangle size={14} /> },
+  ] as const;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Connector Header */}
       <div
         style={{
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
           paddingBottom: '16px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
+          gap: '16px',
+          flexWrap: 'wrap',
         }}
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+            <h2
+              style={{
+                fontFamily: 'var(--font-heading, "Manrope", sans-serif)',
+                fontSize: '20px',
+                fontWeight: 800,
+                color: 'var(--ink, #0A0A0A)',
+                margin: 0,
+                letterSpacing: '-0.02em',
+              }}
+            >
               Passerelle REST API (Fastify 5 & OpenAPI 3.1)
             </h2>
             <span
+              className="ax-pill ax-pill--active"
               style={{
-                fontSize: '11px',
-                fontWeight: 700,
-                backgroundColor: '#dcfce7',
-                color: '#15803d',
+                fontSize: '10px',
                 padding: '3px 8px',
-                borderRadius: '6px',
               }}
             >
               Accès Total Illimité
             </span>
           </div>
-          <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+          <p
+            style={{
+              margin: '6px 0 0 0',
+              fontSize: '13px',
+              color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+              lineHeight: 1.5,
+              maxWidth: '680px',
+            }}
+          >
             Connectez n'importe quelle application bancaire, ERP ou service backend à l'intégralité du moteur LinguaBridge : Traduction, Synthèse Vocale TTS, Garde-fou AST et Registre des Langues.
           </p>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <span style={{ fontSize: '12px', color: '#64748b' }}>Base URL :</span>
-          <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: '#15803d' }}>
+          <span
+            style={{
+              fontSize: '10px',
+              fontFamily: 'var(--font-mono, monospace)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+              color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+            }}
+          >
+            Base URL
+          </span>
+          <div
+            style={{
+              fontFamily: 'var(--font-mono, monospace)',
+              fontWeight: 600,
+              fontSize: '12px',
+              color: 'var(--green-deep, #08751A)',
+              backgroundColor: 'var(--ws, #F6F6F4)',
+              padding: '3px 8px',
+              borderRadius: 'var(--radius-xs, 2px)',
+              border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+              marginTop: '4px',
+            }}
+          >
             http://localhost:3001/v1
           </div>
         </div>
@@ -151,68 +210,218 @@ export const ApiConnectorDoc: React.FC = () => {
       <div
         style={{
           display: 'flex',
-          gap: '8px',
-          borderBottom: '1px solid #e2e8f0',
+          gap: '6px',
+          borderBottom: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
           paddingBottom: '2px',
+          overflowX: 'auto',
         }}
       >
-        {[
-          { id: 'overview', label: '📖 Vue d\'ensemble' },
-          { id: 'auth', label: '🔑 Authentification' },
-          { id: 'endpoints', label: '📡 Spécification des Endpoints' },
-          { id: 'snippets', label: '💻 Exemples de Code' },
-          { id: 'console', label: '🧪 Console Interactive Live' },
-          { id: 'errors', label: '⚠️ Codes d\'Erreur' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setSubTab(tab.id as any)}
-            className="btn"
-            style={{
-              padding: '8px 14px',
-              borderRadius: '6px 6px 0 0',
-              borderBottom: subTab === tab.id ? '2px solid #16a34a' : '2px solid transparent',
-              color: subTab === tab.id ? '#15803d' : '#64748b',
-              fontWeight: subTab === tab.id ? 700 : 500,
-              fontSize: '13px',
-              cursor: 'pointer',
-              background: 'transparent',
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {subTabs.map((tab) => {
+          const isSelected = subTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setSubTab(tab.id)}
+              className="btn"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                borderRadius: 'var(--radius, 4px) var(--radius, 4px) 0 0',
+                borderBottom: isSelected
+                  ? '2px solid var(--green, #12B82A)'
+                  : '2px solid transparent',
+                color: isSelected
+                  ? 'var(--green-deep, #08751A)'
+                  : 'var(--muted, rgba(10, 10, 10, 0.6))',
+                fontWeight: isSelected ? 700 : 500,
+                fontSize: '12.5px',
+                cursor: 'pointer',
+                background: isSelected ? 'var(--ws, #F6F6F4)' : 'transparent',
+                border: 'none',
+                borderBottomStyle: 'solid',
+                borderBottomWidth: '2px',
+                borderBottomColor: isSelected ? 'var(--green, #12B82A)' : 'transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* SubTab Content */}
       {subTab === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '15px', color: '#0f172a' }}>Philosophie de Conception : "Accès Total"</h4>
-            <p style={{ margin: 0, fontSize: '13px', color: '#475569', lineHeight: 1.6 }}>
+          <div
+            style={{
+              backgroundColor: 'var(--ws, #F6F6F4)',
+              padding: '16px 18px',
+              borderRadius: 'var(--radius, 4px)',
+              border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+            }}
+          >
+            <h4
+              style={{
+                margin: '0 0 8px 0',
+                fontSize: '14px',
+                fontFamily: 'var(--font-heading, "Manrope", sans-serif)',
+                fontWeight: 700,
+                color: 'var(--ink, #0A0A0A)',
+              }}
+            >
+              Philosophie de Conception : "Accès Total"
+            </h4>
+            <p
+              style={{
+                margin: 0,
+                fontSize: '13px',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                lineHeight: 1.6,
+              }}
+            >
               L'API LinguaBridge ne bride aucune fonctionnalité. Dès qu'un développeur branche son système via notre API REST, il obtient un accès direct et sans restriction à la traduction financière contextuelle, à la synthèse vocale d'appoint en langues camerounaises (avec respect des contours tonals), et à l'analyseur d'invariance d'entités financières (Zéro Dérive).
             </p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', backgroundColor: '#ffffff' }}>
-              <span style={{ fontSize: '24px' }}>🛡️</span>
-              <h5 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0f172a' }}>Invariance Monétaire AST</h5>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+            <div
+              style={{
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                borderRadius: 'var(--radius, 4px)',
+                padding: '16px',
+                backgroundColor: 'var(--paper, #ffffff)',
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '4px',
+                  backgroundColor: 'var(--green-soft, #E9F9EC)',
+                  border: '1px solid rgba(18, 184, 42, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--green-deep, #08751A)',
+                  marginBottom: '10px',
+                }}
+              >
+                <ShieldCheck size={18} strokeWidth={2} />
+              </div>
+              <h5
+                style={{
+                  margin: '0 0 4px 0',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  color: 'var(--ink, #0A0A0A)',
+                }}
+              >
+                Invariance Monétaire AST
+              </h5>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                  lineHeight: 1.5,
+                }}
+              >
                 Chaque phrase traduite fait l'objet d'une extraction d'entités (montants, devises, téléphones). Aucune divergence n'est tolérée.
               </p>
             </div>
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', backgroundColor: '#ffffff' }}>
-              <span style={{ fontSize: '24px' }}>🔊</span>
-              <h5 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0f172a' }}>Synthèse Vocale Africaine</h5>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+
+            <div
+              style={{
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                borderRadius: 'var(--radius, 4px)',
+                padding: '16px',
+                backgroundColor: 'var(--paper, #ffffff)',
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '4px',
+                  backgroundColor: 'var(--green-soft, #E9F9EC)',
+                  border: '1px solid rgba(18, 184, 42, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--green-deep, #08751A)',
+                  marginBottom: '10px',
+                }}
+              >
+                <Volume2 size={18} strokeWidth={2} />
+              </div>
+              <h5
+                style={{
+                  margin: '0 0 4px 0',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  color: 'var(--ink, #0A0A0A)',
+                }}
+              >
+                Synthèse Vocale Africaine
+              </h5>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                  lineHeight: 1.5,
+                }}
+              >
                 Génération de guides tonals et fichiers audio pour l'alphabétisation financière et l'accessibilité vocale des populations.
               </p>
             </div>
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', backgroundColor: '#ffffff' }}>
-              <span style={{ fontSize: '24px' }}>⚡</span>
-              <h5 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0f172a' }}>Mémoire de Traduction Sub-ms</h5>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+
+            <div
+              style={{
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                borderRadius: 'var(--radius, 4px)',
+                padding: '16px',
+                backgroundColor: 'var(--paper, #ffffff)',
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '4px',
+                  backgroundColor: 'var(--green-soft, #E9F9EC)',
+                  border: '1px solid rgba(18, 184, 42, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--green-deep, #08751A)',
+                  marginBottom: '10px',
+                }}
+              >
+                <Zap size={18} strokeWidth={2} />
+              </div>
+              <h5
+                style={{
+                  margin: '0 0 4px 0',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  color: 'var(--ink, #0A0A0A)',
+                }}
+              >
+                Mémoire de Traduction Sub-ms
+              </h5>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                  lineHeight: 1.5,
+                }}
+              >
                 Cache en mémoire et persistance Supabase assurant un temps de réponse moyen de 1.8 ms sur les phrases récurrentes.
               </p>
             </div>
@@ -222,19 +431,44 @@ export const ApiConnectorDoc: React.FC = () => {
 
       {subTab === 'auth' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ backgroundColor: '#ffffff', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '15px', color: '#0f172a' }}>Authentification par En-tête HTTP</h4>
-            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#475569' }}>
+          <div
+            style={{
+              backgroundColor: 'var(--paper, #ffffff)',
+              padding: '20px',
+              borderRadius: 'var(--radius, 4px)',
+              border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+            }}
+          >
+            <h4
+              style={{
+                margin: '0 0 10px 0',
+                fontSize: '14px',
+                fontFamily: 'var(--font-heading, "Manrope", sans-serif)',
+                fontWeight: 700,
+                color: 'var(--ink, #0A0A0A)',
+              }}
+            >
+              Authentification par En-tête HTTP
+            </h4>
+            <p
+              style={{
+                margin: '0 0 14px 0',
+                fontSize: '13px',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                lineHeight: 1.5,
+              }}
+            >
               Toutes les requêtes vers l'API de production doivent inclure votre clé d'API secrète dans l'en-tête <code>Authorization</code> ou <code>x-api-key</code> :
             </p>
             <div
               style={{
-                backgroundColor: '#0f172a',
-                color: '#f8fafc',
+                backgroundColor: 'var(--ink-2, #171717)',
+                color: 'var(--bone, #F3F2ED)',
                 padding: '12px 16px',
-                borderRadius: '6px',
-                fontFamily: 'monospace',
-                fontSize: '13px',
+                borderRadius: 'var(--radius, 4px)',
+                fontFamily: 'var(--font-mono, monospace)',
+                fontSize: '12.5px',
+                border: '1px solid var(--line-invert, rgba(255, 255, 255, 0.14))',
               }}
             >
               Authorization: Bearer lb_live_9a7d3b1e8f2c...
@@ -244,12 +478,12 @@ export const ApiConnectorDoc: React.FC = () => {
       )}
 
       {subTab === 'endpoints' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {[
             {
               method: 'POST',
               path: '/v1/translate',
-              desc: 'Traduction financière avec vérification d\'empreinte SHA-256 et zéro dérive.',
+              desc: "Traduction financière avec vérification d'empreinte SHA-256 et zéro dérive.",
               params: '{ text: string, targetLang: string, sourceLang?: string, domain?: string }',
             },
             {
@@ -267,7 +501,7 @@ export const ApiConnectorDoc: React.FC = () => {
             {
               method: 'POST',
               path: '/v1/verify',
-              desc: 'Vérification formelle d\'invariance des montants et numéros entre source et cible.',
+              desc: "Vérification formelle d'invariance des montants et numéros entre source et cible.",
               params: '{ sourceText: string, translatedText: string }',
             },
             {
@@ -286,37 +520,65 @@ export const ApiConnectorDoc: React.FC = () => {
             <div
               key={idx}
               style={{
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                padding: '14px 16px',
-                backgroundColor: '#ffffff',
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                borderRadius: 'var(--radius, 4px)',
+                padding: '12px 16px',
+                backgroundColor: 'var(--paper, #ffffff)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                gap: '16px',
+                flexWrap: 'wrap',
               }}
             >
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span
                     style={{
-                      fontWeight: 800,
-                      fontSize: '11px',
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      backgroundColor: ep.method === 'POST' ? '#dbeafe' : '#dcfce7',
-                      color: ep.method === 'POST' ? '#1d4ed8' : '#15803d',
-                      fontFamily: 'monospace',
+                      fontWeight: 700,
+                      fontSize: '10.5px',
+                      padding: '2px 7px',
+                      borderRadius: 'var(--radius-xs, 2px)',
+                      backgroundColor: ep.method === 'POST' ? '#dbeafe' : 'var(--green-soft, #E9F9EC)',
+                      color: ep.method === 'POST' ? '#1d4ed8' : 'var(--green-deep, #08751A)',
+                      fontFamily: 'var(--font-mono, monospace)',
+                      letterSpacing: '0.04em',
                     }}
                   >
                     {ep.method}
                   </span>
-                  <span style={{ fontWeight: 700, fontSize: '14px', fontFamily: 'monospace', color: '#0f172a' }}>
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      fontFamily: 'var(--font-mono, monospace)',
+                      color: 'var(--ink, #0A0A0A)',
+                    }}
+                  >
                     {ep.path}
                   </span>
                 </div>
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>{ep.desc}</p>
+                <p
+                  style={{
+                    margin: '4px 0 0 0',
+                    fontSize: '12px',
+                    color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                  }}
+                >
+                  {ep.desc}
+                </p>
               </div>
-              <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#475569', backgroundColor: '#f1f5f9', padding: '4px 8px', borderRadius: '4px' }}>
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono, monospace)',
+                  color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                  backgroundColor: 'var(--ws, #F6F6F4)',
+                  padding: '4px 8px',
+                  borderRadius: 'var(--radius-xs, 2px)',
+                  border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                }}
+              >
                 {ep.params}
               </div>
             </div>
@@ -327,16 +589,30 @@ export const ApiConnectorDoc: React.FC = () => {
       {subTab === 'snippets' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <h5 style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#0f172a' }}>cURL (Requête Directe)</h5>
+            <h5
+              style={{
+                margin: '0 0 8px 0',
+                fontSize: '12px',
+                fontFamily: 'var(--font-mono, monospace)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+              }}
+            >
+              cURL (Requête Directe)
+            </h5>
             <pre
               style={{
-                backgroundColor: '#0f172a',
-                color: '#f8fafc',
-                padding: '14px',
-                borderRadius: '8px',
+                backgroundColor: 'var(--ink-2, #171717)',
+                color: 'var(--bone, #F3F2ED)',
+                padding: '14px 16px',
+                borderRadius: 'var(--radius, 4px)',
                 fontSize: '12px',
+                fontFamily: 'var(--font-mono, monospace)',
+                border: '1px solid var(--line-invert, rgba(255, 255, 255, 0.14))',
                 overflowX: 'auto',
                 margin: 0,
+                lineHeight: 1.5,
               }}
             >
 {`curl -X POST http://localhost:3001/v1/translate \\
@@ -351,16 +627,30 @@ export const ApiConnectorDoc: React.FC = () => {
           </div>
 
           <div>
-            <h5 style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#0f172a' }}>TypeScript / Node.js (Fetch natif)</h5>
+            <h5
+              style={{
+                margin: '0 0 8px 0',
+                fontSize: '12px',
+                fontFamily: 'var(--font-mono, monospace)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+              }}
+            >
+              TypeScript / Node.js (Fetch natif)
+            </h5>
             <pre
               style={{
-                backgroundColor: '#0f172a',
-                color: '#f8fafc',
-                padding: '14px',
-                borderRadius: '8px',
+                backgroundColor: 'var(--ink-2, #171717)',
+                color: 'var(--bone, #F3F2ED)',
+                padding: '14px 16px',
+                borderRadius: 'var(--radius, 4px)',
                 fontSize: '12px',
+                fontFamily: 'var(--font-mono, monospace)',
+                border: '1px solid var(--line-invert, rgba(255, 255, 255, 0.14))',
                 overflowX: 'auto',
                 margin: 0,
+                lineHeight: 1.5,
               }}
             >
 {`const response = await fetch('http://localhost:3001/v1/translate', {
@@ -385,25 +675,28 @@ console.log('Traduction:', translatedText);`}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div
             style={{
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
+              border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+              borderRadius: 'var(--radius, 4px)',
               padding: '16px',
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--paper, #ffffff)',
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
             }}
           >
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <select
                 value={method}
                 onChange={(e) => setMethod(e.target.value as any)}
                 style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
+                  padding: '7px 12px',
+                  borderRadius: 'var(--radius, 4px)',
+                  border: '1px solid var(--line-strong, rgba(10, 10, 10, 0.32))',
                   fontWeight: 600,
-                  fontSize: '13px',
+                  fontSize: '12.5px',
+                  fontFamily: 'var(--font-body, sans-serif)',
+                  backgroundColor: 'var(--paper, #ffffff)',
+                  color: 'var(--ink, #0A0A0A)',
                 }}
               >
                 <option value="POST_TRANSLATE">POST /v1/translate (Traduction)</option>
@@ -418,10 +711,13 @@ console.log('Traduction:', translatedText);`}
                   value={targetLang}
                   onChange={(e) => setTargetLang(e.target.value)}
                   style={{
-                    padding: '8px 12px',
-                    borderRadius: '6px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '13px',
+                    padding: '7px 12px',
+                    borderRadius: 'var(--radius, 4px)',
+                    border: '1px solid var(--line-strong, rgba(10, 10, 10, 0.32))',
+                    fontSize: '12.5px',
+                    fontFamily: 'var(--font-body, sans-serif)',
+                    backgroundColor: 'var(--paper, #ffffff)',
+                    color: 'var(--ink, #0A0A0A)',
                   }}
                 >
                   <option value="ewo-CM">Ewondo (ewo-CM)</option>
@@ -435,25 +731,33 @@ console.log('Traduction:', translatedText);`}
               <button
                 onClick={handleExecuteRequest}
                 disabled={loading}
-                className="btn"
+                className="btn btn-primary"
                 style={{
-                  padding: '8px 18px',
-                  backgroundColor: '#16a34a',
-                  color: '#ffffff',
-                  borderRadius: '6px',
-                  fontWeight: 700,
-                  fontSize: '13px',
+                  padding: '7px 16px',
+                  fontSize: '12.5px',
+                  gap: '6px',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  border: 'none',
                 }}
               >
-                {loading ? 'Exécution...' : '🚀 Exécuter la Requête'}
+                <Play size={12} strokeWidth={2.5} />
+                {loading ? 'Exécution...' : 'Exécuter la Requête'}
               </button>
             </div>
 
             {method === 'POST_TRANSLATE' && (
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '11px',
+                    fontFamily: 'var(--font-mono, monospace)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    fontWeight: 600,
+                    color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                    marginBottom: '4px',
+                  }}
+                >
                   Texte source bancaire à traduire :
                 </label>
                 <input
@@ -463,10 +767,13 @@ console.log('Traduction:', translatedText);`}
                   style={{
                     width: '100%',
                     padding: '8px 12px',
-                    borderRadius: '6px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: 'var(--radius, 4px)',
+                    border: '1px solid var(--line-strong, rgba(10, 10, 10, 0.32))',
                     fontSize: '13px',
+                    fontFamily: 'var(--font-body, sans-serif)',
                     boxSizing: 'border-box',
+                    backgroundColor: 'var(--paper, #ffffff)',
+                    color: 'var(--ink, #0A0A0A)',
                   }}
                 />
               </div>
@@ -476,24 +783,34 @@ console.log('Traduction:', translatedText);`}
           {consoleResponse && (
             <div
               style={{
-                backgroundColor: '#0f172a',
-                borderRadius: '8px',
+                backgroundColor: 'var(--ink-2, #171717)',
+                borderRadius: 'var(--radius, 4px)',
                 padding: '16px',
-                color: '#f8fafc',
+                color: 'var(--bone, #F3F2ED)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '8px',
+                border: '1px solid var(--line-invert, rgba(255, 255, 255, 0.14))',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                  Statut HTTP : <strong style={{ color: '#4ade80' }}>{consoleResponse.status} OK</strong>
+                <span style={{ fontSize: '11.5px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--muted-invert, rgba(255, 255, 255, 0.62))' }}>
+                  Statut HTTP : <strong style={{ color: 'var(--green-glow, #4FE066)' }}>{consoleResponse.status} OK</strong>
                 </span>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                <span style={{ fontSize: '11.5px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--muted-invert, rgba(255, 255, 255, 0.62))' }}>
                   Latence : <strong style={{ color: '#38bdf8' }}>{consoleResponse.latencyMs} ms</strong>
                 </span>
               </div>
-              <pre style={{ margin: 0, fontSize: '12px', fontFamily: 'monospace', overflowX: 'auto' }}>
+              <pre
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  fontFamily: 'var(--font-mono, monospace)',
+                  overflowX: 'auto',
+                  lineHeight: 1.5,
+                  color: 'var(--bone, #F3F2ED)',
+                }}
+              >
                 {JSON.stringify(consoleResponse.payload, null, 2)}
               </pre>
             </div>
@@ -502,29 +819,36 @@ console.log('Traduction:', translatedText);`}
       )}
 
       {subTab === 'errors' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {[
             { code: '400 Bad Request', reason: 'Payload invalide ou texte source vide.' },
-            { code: '401 Unauthorized', reason: 'Clé d\'API absente, invalide ou révoquée.' },
-            { code: '422 Unprocessable Entity', reason: 'Dérive financière détectée par l\'AST Guard (montant altéré).' },
+            { code: '401 Unauthorized', reason: "Clé d'API absente, invalide ou révoquée." },
+            { code: '422 Unprocessable Entity', reason: "Dérive financière détectée par l'AST Guard (montant altéré)." },
             { code: '503 Service Unavailable', reason: 'Langue non encore installée ou en quarantaine strict.' },
           ].map((err, idx) => (
             <div
               key={idx}
               style={{
-                border: '1px solid #fed7aa',
-                backgroundColor: '#fffaf5',
-                padding: '12px 16px',
-                borderRadius: '6px',
+                border: '1px solid rgba(220, 38, 38, 0.25)',
+                backgroundColor: '#FEF2F2',
+                padding: '10px 14px',
+                borderRadius: 'var(--radius, 4px)',
                 display: 'flex',
                 gap: '12px',
                 alignItems: 'center',
               }}
             >
-              <span style={{ fontWeight: 800, fontFamily: 'monospace', color: '#c2410c', fontSize: '13px' }}>
+              <span
+                style={{
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-mono, monospace)',
+                  color: '#B91C1C',
+                  fontSize: '12px',
+                }}
+              >
                 {err.code}
               </span>
-              <span style={{ fontSize: '13px', color: '#7c2d12' }}>{err.reason}</span>
+              <span style={{ fontSize: '12.5px', color: '#7f1d1d' }}>{err.reason}</span>
             </div>
           ))}
         </div>

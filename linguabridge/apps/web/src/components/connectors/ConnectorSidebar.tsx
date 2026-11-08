@@ -1,6 +1,20 @@
 'use client';
 
 import React from 'react';
+import {
+  Globe,
+  Radio,
+  Bot,
+  Puzzle,
+  Package,
+  Zap,
+  Terminal,
+  Key,
+  BarChart3,
+  ShieldCheck,
+  Server,
+  Database,
+} from 'lucide-react';
 
 export type ConnectorTab =
   | 'api'
@@ -26,71 +40,83 @@ export const ConnectorSidebar: React.FC<ConnectorSidebarProps> = ({
   apiHealth = 'healthy',
   dbHealth = 'connected',
 }) => {
-  const connectorItems = [
+  const connectorItems: Array<{
+    id: ConnectorTab;
+    label: string;
+    badge: string;
+    icon: React.ReactNode;
+    desc: string;
+  }> = [
     {
-      id: 'api' as ConnectorTab,
+      id: 'api',
       label: 'Passerelle REST API',
       badge: 'v1 / OpenAPI',
-      icon: '🚀',
+      icon: <Radio size={16} strokeWidth={2} />,
       desc: 'Accès intégral : Traduction, Voix TTS, AST Guard & Langues',
     },
     {
-      id: 'mcp' as ConnectorTab,
+      id: 'mcp',
       label: 'Serveur MCP',
       badge: 'Cursor / Claude',
-      icon: '🤖',
+      icon: <Bot size={16} strokeWidth={2} />,
       desc: 'Outils natifs & Synthèse vocale pour assistants IA',
     },
     {
-      id: 'plugin' as ConnectorTab,
+      id: 'plugin',
       label: 'Extension Chrome MV3',
       badge: 'Web Banking',
-      icon: '🧩',
+      icon: <Puzzle size={16} strokeWidth={2} />,
       desc: 'Hover-to-Speak 220ms & Traduction DOM complète',
     },
     {
-      id: 'sdk' as ConnectorTab,
+      id: 'sdk',
       label: 'SDKs JavaScript & React',
       badge: 'TS / UI Kit',
-      icon: '📦',
+      icon: <Package size={16} strokeWidth={2} />,
       desc: 'Client unifié, Chat IA Bancaire & Hooks React',
     },
     {
-      id: 'webhooks' as ConnectorTab,
+      id: 'webhooks',
       label: 'Webhooks & Événements',
       badge: 'HMAC-SHA256',
-      icon: '⚡',
+      icon: <Zap size={16} strokeWidth={2} />,
       desc: 'Flux transactionnels bancaires signés & traçabilité',
     },
     {
-      id: 'cli' as ConnectorTab,
+      id: 'cli',
       label: 'Développeur CLI (lb)',
       badge: 'Terminal',
-      icon: '💻',
+      icon: <Terminal size={16} strokeWidth={2} />,
       desc: 'Vérification zéro dérive, audit & simulation',
     },
   ];
 
-  const governanceItems = [
+  const governanceItems: Array<{
+    id: ConnectorTab;
+    label: string;
+    badge: string;
+    icon: React.ReactNode;
+    desc: string;
+  }> = [
     {
-      id: 'apikeys' as ConnectorTab,
-      label: 'Clés d\'API & Base de Données',
+      id: 'apikeys',
+      label: "Clés d'API & Base de Données",
       badge: 'Supabase',
-      icon: '🔑',
+      icon: <Key size={16} strokeWidth={2} />,
       desc: 'Gestion des credentials & pooler PostgreSQL',
     },
     {
-      id: 'analytics' as ConnectorTab,
+      id: 'analytics',
       label: 'TM Analytics & Performance',
       badge: 'Sub-ms Cache',
-      icon: '📊',
+      icon: <BarChart3 size={16} strokeWidth={2} />,
       desc: 'Débit, latence et taux de réutilisation TM',
     },
     {
-      id: 'packs' as ConnectorTab,
+      id: 'packs',
       label: 'Language Pack Governance',
       badge: '5 Souverains',
-      icon: '🛡️',
+      icon: <ShieldCheck size={16} strokeWidth={2} />,
       desc: 'Ewondo, Fulfulde, Haoussa, Kanuri, Pidgin',
     },
   ];
@@ -100,8 +126,8 @@ export const ConnectorSidebar: React.FC<ConnectorSidebarProps> = ({
       style={{
         width: '300px',
         minWidth: '300px',
-        backgroundColor: '#ffffff',
-        borderRight: '1px solid #e2e8f0',
+        backgroundColor: 'var(--paper, #ffffff)',
+        borderRight: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
         padding: '24px 16px',
         display: 'flex',
         flexDirection: 'column',
@@ -111,53 +137,143 @@ export const ConnectorSidebar: React.FC<ConnectorSidebarProps> = ({
     >
       {/* Brand & Infrastructure Status */}
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <span style={{ fontSize: '20px' }}>🌍</span>
-          <span style={{ fontWeight: 800, fontSize: '15px', color: '#0f172a', letterSpacing: '-0.3px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+          <div
+            style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '4px',
+              backgroundColor: 'var(--green-soft, #E9F9EC)',
+              border: '1px solid rgba(18, 184, 42, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--green-deep, #08751A)',
+            }}
+          >
+            <Globe size={14} strokeWidth={2.2} />
+          </div>
+          <span
+            style={{
+              fontFamily: 'var(--font-heading, "Manrope", sans-serif)',
+              fontWeight: 800,
+              fontSize: '14px',
+              color: 'var(--ink, #0A0A0A)',
+              letterSpacing: '-0.02em',
+            }}
+          >
             LINGUABRIDGE
           </span>
           <span
+            className="ax-pill ax-pill--active"
             style={{
-              fontSize: '10px',
-              fontWeight: 700,
-              backgroundColor: '#dcfce7',
-              color: '#15803d',
+              fontSize: '9px',
               padding: '2px 6px',
-              borderRadius: '4px',
-              textTransform: 'uppercase',
+              letterSpacing: '0.14em',
             }}
           >
             Souverain
           </span>
         </div>
-        <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: '12px',
+            color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+            lineHeight: 1.4,
+          }}
+        >
           Portail Développeur & Connecteurs
         </p>
 
         {/* Live Pill Status */}
         <div
           style={{
-            marginTop: '12px',
-            padding: '8px 12px',
-            backgroundColor: '#f8fafc',
-            borderRadius: '8px',
-            border: '1px solid #e2e8f0',
+            marginTop: '14px',
+            padding: '10px 12px',
+            backgroundColor: 'var(--ws, #F6F6F4)',
+            borderRadius: 'var(--radius, 4px)',
+            border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
             fontSize: '11px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '4px',
+            gap: '6px',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#64748b' }}>API Fastify :</span>
-            <span style={{ fontWeight: 700, color: apiHealth === 'healthy' ? '#16a34a' : '#dc2626' }}>
-              ● {apiHealth === 'healthy' ? 'Port 3001 (Actif)' : 'Hors-ligne'}
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                fontFamily: 'var(--font-mono, monospace)',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+              }}
+            >
+              <Server size={11} /> API Fastify
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-mono, monospace)',
+                fontWeight: 600,
+                fontSize: '11px',
+                color: apiHealth === 'healthy' ? 'var(--green-deep, #08751A)' : '#dc2626',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+              }}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: apiHealth === 'healthy' ? 'var(--green, #12B82A)' : '#dc2626',
+                  display: 'inline-block',
+                }}
+              />
+              {apiHealth === 'healthy' ? 'Port 3001 (Actif)' : 'Hors-ligne'}
             </span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#64748b' }}>Base Supabase :</span>
-            <span style={{ fontWeight: 700, color: dbHealth === 'connected' ? '#16a34a' : '#dc2626' }}>
-              ● {dbHealth === 'connected' ? 'PostgreSQL (OK)' : 'Erreur'}
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                fontFamily: 'var(--font-mono, monospace)',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+              }}
+            >
+              <Database size={11} /> Base Supabase
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-mono, monospace)',
+                fontWeight: 600,
+                fontSize: '11px',
+                color: dbHealth === 'connected' ? 'var(--green-deep, #08751A)' : '#dc2626',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+              }}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: dbHealth === 'connected' ? 'var(--green, #12B82A)' : '#dc2626',
+                  display: 'inline-block',
+                }}
+              />
+              {dbHealth === 'connected' ? 'PostgreSQL (OK)' : 'Erreur'}
             </span>
           </div>
         </div>
@@ -167,13 +283,14 @@ export const ConnectorSidebar: React.FC<ConnectorSidebarProps> = ({
       <div>
         <div
           style={{
-            fontSize: '11px',
-            fontWeight: 800,
+            fontFamily: 'var(--font-mono, monospace)',
+            fontSize: '10px',
+            fontWeight: 600,
             textTransform: 'uppercase',
-            letterSpacing: '0.8px',
-            color: '#94a3b8',
+            letterSpacing: '0.14em',
+            color: 'var(--muted, rgba(10, 10, 10, 0.6))',
             marginBottom: '10px',
-            paddingLeft: '8px',
+            paddingLeft: '6px',
           }}
         >
           Connecteurs Externes
@@ -192,35 +309,70 @@ export const ConnectorSidebar: React.FC<ConnectorSidebarProps> = ({
                   gap: '10px',
                   width: '100%',
                   textAlign: 'left',
-                  padding: '10px 12px',
-                  borderRadius: '8px',
-                  backgroundColor: isSelected ? '#f0fdf4' : 'transparent',
-                  border: isSelected ? '1px solid #bbf7d0' : '1px solid transparent',
-                  borderLeft: isSelected ? '4px solid #16a34a' : '4px solid transparent',
+                  padding: '10px 10px',
+                  borderRadius: 'var(--radius, 4px)',
+                  backgroundColor: isSelected ? 'var(--green-soft, #E9F9EC)' : 'transparent',
+                  border: isSelected
+                    ? '1px solid rgba(18, 184, 42, 0.25)'
+                    : '1px solid transparent',
+                  borderLeft: isSelected
+                    ? '3px solid var(--green, #12B82A)'
+                    : '3px solid transparent',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease',
+                  transition: 'all 0.15s var(--easing, ease)',
+                  boxSizing: 'border-box',
                 }}
               >
-                <span style={{ fontSize: '18px', lineHeight: 1, marginTop: '2px' }}>{item.icon}</span>
+                <div
+                  style={{
+                    color: isSelected
+                      ? 'var(--green-deep, #08751A)'
+                      : 'var(--muted, rgba(10, 10, 10, 0.6))',
+                    marginTop: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  {item.icon}
+                </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '4px',
+                    }}
+                  >
                     <span
                       style={{
                         fontWeight: isSelected ? 700 : 600,
-                        fontSize: '13px',
-                        color: isSelected ? '#15803d' : '#1e293b',
+                        fontSize: '12.5px',
+                        color: isSelected
+                          ? 'var(--green-deep, #08751A)'
+                          : 'var(--ink, #0A0A0A)',
+                        letterSpacing: '-0.01em',
                       }}
                     >
                       {item.label}
                     </span>
                     <span
                       style={{
-                        fontSize: '10px',
+                        fontSize: '9.5px',
+                        fontFamily: 'var(--font-mono, monospace)',
                         fontWeight: 600,
-                        backgroundColor: isSelected ? '#dcfce7' : '#f1f5f9',
-                        color: isSelected ? '#166534' : '#64748b',
+                        backgroundColor: isSelected
+                          ? 'rgba(18, 184, 42, 0.15)'
+                          : 'var(--ws-2, #EFEFEA)',
+                        color: isSelected
+                          ? 'var(--green-deep, #08751A)'
+                          : 'var(--muted, rgba(10, 10, 10, 0.6))',
                         padding: '1px 5px',
-                        borderRadius: '4px',
+                        borderRadius: 'var(--radius-xs, 2px)',
+                        letterSpacing: '0.04em',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {item.badge}
@@ -229,11 +381,14 @@ export const ConnectorSidebar: React.FC<ConnectorSidebarProps> = ({
                   <p
                     style={{
                       margin: '2px 0 0 0',
-                      fontSize: '11px',
-                      color: isSelected ? '#166534' : '#64748b',
+                      fontSize: '10.5px',
+                      color: isSelected
+                        ? 'var(--green-deep, #08751A)'
+                        : 'var(--muted, rgba(10, 10, 10, 0.6))',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
+                      lineHeight: 1.35,
                     }}
                   >
                     {item.desc}
@@ -249,13 +404,14 @@ export const ConnectorSidebar: React.FC<ConnectorSidebarProps> = ({
       <div>
         <div
           style={{
-            fontSize: '11px',
-            fontWeight: 800,
+            fontFamily: 'var(--font-mono, monospace)',
+            fontSize: '10px',
+            fontWeight: 600,
             textTransform: 'uppercase',
-            letterSpacing: '0.8px',
-            color: '#94a3b8',
+            letterSpacing: '0.14em',
+            color: 'var(--muted, rgba(10, 10, 10, 0.6))',
             marginBottom: '10px',
-            paddingLeft: '8px',
+            paddingLeft: '6px',
           }}
         >
           Gouvernance & Moteur
@@ -274,35 +430,70 @@ export const ConnectorSidebar: React.FC<ConnectorSidebarProps> = ({
                   gap: '10px',
                   width: '100%',
                   textAlign: 'left',
-                  padding: '10px 12px',
-                  borderRadius: '8px',
-                  backgroundColor: isSelected ? '#f0fdf4' : 'transparent',
-                  border: isSelected ? '1px solid #bbf7d0' : '1px solid transparent',
-                  borderLeft: isSelected ? '4px solid #16a34a' : '4px solid transparent',
+                  padding: '10px 10px',
+                  borderRadius: 'var(--radius, 4px)',
+                  backgroundColor: isSelected ? 'var(--green-soft, #E9F9EC)' : 'transparent',
+                  border: isSelected
+                    ? '1px solid rgba(18, 184, 42, 0.25)'
+                    : '1px solid transparent',
+                  borderLeft: isSelected
+                    ? '3px solid var(--green, #12B82A)'
+                    : '3px solid transparent',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease',
+                  transition: 'all 0.15s var(--easing, ease)',
+                  boxSizing: 'border-box',
                 }}
               >
-                <span style={{ fontSize: '18px', lineHeight: 1, marginTop: '2px' }}>{item.icon}</span>
+                <div
+                  style={{
+                    color: isSelected
+                      ? 'var(--green-deep, #08751A)'
+                      : 'var(--muted, rgba(10, 10, 10, 0.6))',
+                    marginTop: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  {item.icon}
+                </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '4px',
+                    }}
+                  >
                     <span
                       style={{
                         fontWeight: isSelected ? 700 : 600,
-                        fontSize: '13px',
-                        color: isSelected ? '#15803d' : '#1e293b',
+                        fontSize: '12.5px',
+                        color: isSelected
+                          ? 'var(--green-deep, #08751A)'
+                          : 'var(--ink, #0A0A0A)',
+                        letterSpacing: '-0.01em',
                       }}
                     >
                       {item.label}
                     </span>
                     <span
                       style={{
-                        fontSize: '10px',
+                        fontSize: '9.5px',
+                        fontFamily: 'var(--font-mono, monospace)',
                         fontWeight: 600,
-                        backgroundColor: isSelected ? '#dcfce7' : '#f1f5f9',
-                        color: isSelected ? '#166534' : '#64748b',
+                        backgroundColor: isSelected
+                          ? 'rgba(18, 184, 42, 0.15)'
+                          : 'var(--ws-2, #EFEFEA)',
+                        color: isSelected
+                          ? 'var(--green-deep, #08751A)'
+                          : 'var(--muted, rgba(10, 10, 10, 0.6))',
                         padding: '1px 5px',
-                        borderRadius: '4px',
+                        borderRadius: 'var(--radius-xs, 2px)',
+                        letterSpacing: '0.04em',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {item.badge}
@@ -311,11 +502,14 @@ export const ConnectorSidebar: React.FC<ConnectorSidebarProps> = ({
                   <p
                     style={{
                       margin: '2px 0 0 0',
-                      fontSize: '11px',
-                      color: isSelected ? '#166534' : '#64748b',
+                      fontSize: '10.5px',
+                      color: isSelected
+                        ? 'var(--green-deep, #08751A)'
+                        : 'var(--muted, rgba(10, 10, 10, 0.6))',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
+                      lineHeight: 1.35,
                     }}
                   >
                     {item.desc}

@@ -17,7 +17,8 @@
     "@linguabridge/sdk-js": "workspace:*",
     "@linguabridge/sdk-react": "workspace:*",
     "@linguabridge/widget": "workspace:*",
-    "@linguabridge/financial-domain": "workspace:*"
+    "@linguabridge/financial-domain": "workspace:*",
+    "lucide-react": "^0.460.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

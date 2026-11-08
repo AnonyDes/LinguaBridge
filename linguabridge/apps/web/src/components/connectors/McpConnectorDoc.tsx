@@ -1,6 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
+import {
+  BookOpen,
+  Settings,
+  Wrench,
+  FlaskConical,
+  Cable,
+  ShieldCheck,
+  Volume2,
+  Layers,
+  Play,
+} from 'lucide-react';
 
 export const McpConnectorDoc: React.FC = () => {
   const [subTab, setSubTab] = useState<'overview' | 'config' | 'tools' | 'console' | 'transports'>('overview');
@@ -8,7 +19,7 @@ export const McpConnectorDoc: React.FC = () => {
 
   // MCP Tester State
   const [selectedTool, setSelectedTool] = useState<'translate' | 'speech' | 'verify' | 'glossary' | 'languages'>('speech');
-  const [textParam, setTextParam] = useState('Móni m\'ékabedá: 50 000 FCFA');
+  const [textParam, setTextParam] = useState("Móni m'ékabedá: 50 000 FCFA");
   const [langParam, setLangParam] = useState('ewo-CM');
   const [mcpResult, setMcpResult] = useState<any>(null);
 
@@ -30,7 +41,7 @@ export const McpConnectorDoc: React.FC = () => {
       setMcpResult({
         tool: 'translate_financial_text',
         sourceText: textParam,
-        translatedText: 'Móni m\'ékabedá: 50 000 FCFA',
+        translatedText: "Móni m'ékabedá: 50 000 FCFA",
         safe: true,
         astViolations: [],
         sha256Fingerprint: 'sha256-8a7c2b3d...',
@@ -52,7 +63,7 @@ export const McpConnectorDoc: React.FC = () => {
         matches: [
           {
             fr: 'Solde disponible',
-            ewo: 'Móni m\'ékabedá',
+            ewo: "Móni m'ékabedá",
             fuv: 'Ceedee keddiiɗe',
             hau: 'Sauran kuɗi',
             knc: 'Kubu kəla',
@@ -100,37 +111,61 @@ export const McpConnectorDoc: React.FC = () => {
   }
 }`;
 
+  const subTabs = [
+    { id: 'overview', label: "Vue d'ensemble", icon: <BookOpen size={14} /> },
+    { id: 'config', label: 'Configuration Clients', icon: <Settings size={14} /> },
+    { id: 'tools', label: 'Outils Disponibles (6)', icon: <Wrench size={14} /> },
+    { id: 'console', label: 'Testeur MCP Interactif', icon: <FlaskConical size={14} /> },
+    { id: 'transports', label: 'Transports Stdio / SSE', icon: <Cable size={14} /> },
+  ] as const;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Header */}
       <div
         style={{
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
           paddingBottom: '16px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
+          gap: '16px',
+          flexWrap: 'wrap',
         }}
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+            <h2
+              style={{
+                fontFamily: 'var(--font-heading, "Manrope", sans-serif)',
+                fontSize: '20px',
+                fontWeight: 800,
+                color: 'var(--ink, #0A0A0A)',
+                margin: 0,
+                letterSpacing: '-0.02em',
+              }}
+            >
               Serveur MCP (Model Context Protocol)
             </h2>
             <span
+              className="ax-pill ax-pill--active"
               style={{
-                fontSize: '11px',
-                fontWeight: 700,
-                backgroundColor: '#dcfce7',
-                color: '#15803d',
+                fontSize: '10px',
                 padding: '3px 8px',
-                borderRadius: '6px',
               }}
             >
               Vocal & Zéro Dérive
             </span>
           </div>
-          <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+          <p
+            style={{
+              margin: '6px 0 0 0',
+              fontSize: '13px',
+              color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+              lineHeight: 1.5,
+              maxWidth: '680px',
+            }}
+          >
             Permettez à vos agents d'IA (Cursor, Claude Desktop, Antigravity) de traduire des transactions, de vérifier l'invariance financière et de synthétiser des voix africaines en direct.
           </p>
         </div>
@@ -140,69 +175,218 @@ export const McpConnectorDoc: React.FC = () => {
       <div
         style={{
           display: 'flex',
-          gap: '8px',
-          borderBottom: '1px solid #e2e8f0',
+          gap: '6px',
+          borderBottom: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
           paddingBottom: '2px',
+          overflowX: 'auto',
         }}
       >
-        {[
-          { id: 'overview', label: '📖 Vue d\'ensemble' },
-          { id: 'config', label: '⚙️ Configuration Clients' },
-          { id: 'tools', label: '🛠️ Outils Disponibles (6)' },
-          { id: 'console', label: '🧪 Testeur MCP Interactif' },
-          { id: 'transports', label: '🔌 Transports Stdio / SSE' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setSubTab(tab.id as any)}
-            className="btn"
-            style={{
-              padding: '8px 14px',
-              borderRadius: '6px 6px 0 0',
-              borderBottom: subTab === tab.id ? '2px solid #16a34a' : '2px solid transparent',
-              color: subTab === tab.id ? '#15803d' : '#64748b',
-              fontWeight: subTab === tab.id ? 700 : 500,
-              fontSize: '13px',
-              cursor: 'pointer',
-              background: 'transparent',
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {subTabs.map((tab) => {
+          const isSelected = subTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setSubTab(tab.id)}
+              className="btn"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                borderRadius: 'var(--radius, 4px) var(--radius, 4px) 0 0',
+                borderBottom: isSelected
+                  ? '2px solid var(--green, #12B82A)'
+                  : '2px solid transparent',
+                color: isSelected
+                  ? 'var(--green-deep, #08751A)'
+                  : 'var(--muted, rgba(10, 10, 10, 0.6))',
+                fontWeight: isSelected ? 700 : 500,
+                fontSize: '12.5px',
+                cursor: 'pointer',
+                background: isSelected ? 'var(--ws, #F6F6F4)' : 'transparent',
+                border: 'none',
+                borderBottomStyle: 'solid',
+                borderBottomWidth: '2px',
+                borderBottomColor: isSelected ? 'var(--green, #12B82A)' : 'transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Overview */}
       {subTab === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '15px', color: '#0f172a' }}>
+          <div
+            style={{
+              backgroundColor: 'var(--ws, #F6F6F4)',
+              padding: '16px 18px',
+              borderRadius: 'var(--radius, 4px)',
+              border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+            }}
+          >
+            <h4
+              style={{
+                margin: '0 0 8px 0',
+                fontSize: '14px',
+                fontFamily: 'var(--font-heading, "Manrope", sans-serif)',
+                fontWeight: 700,
+                color: 'var(--ink, #0A0A0A)',
+              }}
+            >
               Intelligence Artificielle Souveraine avec MCP
             </h4>
-            <p style={{ margin: 0, fontSize: '13px', color: '#475569', lineHeight: 1.6 }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: '13px',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                lineHeight: 1.6,
+              }}
+            >
               Le serveur MCP de LinguaBridge expose les capacités linguistiques et vocales camerounaises directement aux LLMs sans intermédiaire. Grâce au protocole ouvert d'Anthropic (Model Context Protocol), votre assistant IA devient capable de raisonner, traduire et prononcer les phrases bancaires en respectant rigoureusement les montants financiers.
             </p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', backgroundColor: '#ffffff' }}>
-              <span style={{ fontSize: '24px' }}>🛡️</span>
-              <h5 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0f172a' }}>Garde-fou Zéro Dérive</h5>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+            <div
+              style={{
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                borderRadius: 'var(--radius, 4px)',
+                padding: '16px',
+                backgroundColor: 'var(--paper, #ffffff)',
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '4px',
+                  backgroundColor: 'var(--green-soft, #E9F9EC)',
+                  border: '1px solid rgba(18, 184, 42, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--green-deep, #08751A)',
+                  marginBottom: '10px',
+                }}
+              >
+                <ShieldCheck size={18} strokeWidth={2} />
+              </div>
+              <h5
+                style={{
+                  margin: '0 0 4px 0',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  color: 'var(--ink, #0A0A0A)',
+                }}
+              >
+                Garde-fou Zéro Dérive
+              </h5>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                  lineHeight: 1.5,
+                }}
+              >
                 L'IA ne peut jamais altérer une valeur monétaire ou inventer un compte : l'arbre syntaxique abstrait (AST) valide chaque caractère.
               </p>
             </div>
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', backgroundColor: '#ffffff' }}>
-              <span style={{ fontSize: '24px' }}>🔊</span>
-              <h5 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0f172a' }}>Outil Vocal Intégré</h5>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+
+            <div
+              style={{
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                borderRadius: 'var(--radius, 4px)',
+                padding: '16px',
+                backgroundColor: 'var(--paper, #ffffff)',
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '4px',
+                  backgroundColor: 'var(--green-soft, #E9F9EC)',
+                  border: '1px solid rgba(18, 184, 42, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--green-deep, #08751A)',
+                  marginBottom: '10px',
+                }}
+              >
+                <Volume2 size={18} strokeWidth={2} />
+              </div>
+              <h5
+                style={{
+                  margin: '0 0 4px 0',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  color: 'var(--ink, #0A0A0A)',
+                }}
+              >
+                Outil Vocal Intégré
+              </h5>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                  lineHeight: 1.5,
+                }}
+              >
                 L'outil <code>synthesize_speech</code> permet à l'agent IA d'obtenir le guide tonal et le flux audio pour accompagner ses réponses d'une voix parlée.
               </p>
             </div>
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', backgroundColor: '#ffffff' }}>
-              <span style={{ fontSize: '24px' }}>⚡</span>
-              <h5 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0f172a' }}>Compatibilité Multi-Clients</h5>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+
+            <div
+              style={{
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                borderRadius: 'var(--radius, 4px)',
+                padding: '16px',
+                backgroundColor: 'var(--paper, #ffffff)',
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '4px',
+                  backgroundColor: 'var(--green-soft, #E9F9EC)',
+                  border: '1px solid rgba(18, 184, 42, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--green-deep, #08751A)',
+                  marginBottom: '10px',
+                }}
+              >
+                <Layers size={18} strokeWidth={2} />
+              </div>
+              <h5
+                style={{
+                  margin: '0 0 4px 0',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  color: 'var(--ink, #0A0A0A)',
+                }}
+              >
+                Compatibilité Multi-Clients
+              </h5>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                  lineHeight: 1.5,
+                }}
+              >
                 Fonctionne nativement avec Cursor, Claude Desktop, Antigravity CLI et n'importe quel client compatible MCP.
               </p>
             </div>
@@ -214,40 +398,49 @@ export const McpConnectorDoc: React.FC = () => {
       {subTab === 'config' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
-            {['cursor', 'claude', 'antigravity'].map((c) => (
-              <button
-                key={c}
-                onClick={() => setSelectedClient(c as any)}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: '6px',
-                  backgroundColor: selectedClient === c ? '#16a34a' : '#f1f5f9',
-                  color: selectedClient === c ? '#ffffff' : '#475569',
-                  fontWeight: 600,
-                  fontSize: '12px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  textTransform: 'capitalize',
-                }}
-              >
-                {c === 'cursor' ? 'Cursor IDE' : c === 'claude' ? 'Claude Desktop' : 'Antigravity'}
-              </button>
-            ))}
+            {(['cursor', 'claude', 'antigravity'] as const).map((c) => {
+              const isSelected = selectedClient === c;
+              return (
+                <button
+                  key={c}
+                  onClick={() => setSelectedClient(c)}
+                  className={`chip ${isSelected ? 'on' : ''}`}
+                  style={{
+                    fontSize: '12px',
+                    padding: '6px 14px',
+                  }}
+                >
+                  {c === 'cursor' ? 'Cursor IDE' : c === 'claude' ? 'Claude Desktop' : 'Antigravity'}
+                </button>
+              );
+            })}
           </div>
 
           <div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '6px' }}>
+            <div
+              style={{
+                fontSize: '11px',
+                fontFamily: 'var(--font-mono, monospace)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                marginBottom: '6px',
+              }}
+            >
               Copiez cette configuration dans votre fichier client :
             </div>
             <pre
               style={{
-                backgroundColor: '#0f172a',
-                color: '#f8fafc',
-                padding: '14px',
-                borderRadius: '8px',
+                backgroundColor: 'var(--ink-2, #171717)',
+                color: 'var(--bone, #F3F2ED)',
+                padding: '14px 16px',
+                borderRadius: 'var(--radius, 4px)',
                 fontSize: '12px',
+                fontFamily: 'var(--font-mono, monospace)',
+                border: '1px solid var(--line-invert, rgba(255, 255, 255, 0.14))',
                 overflowX: 'auto',
                 margin: 0,
+                lineHeight: 1.5,
               }}
             >
               {selectedClient === 'cursor' ? cursorConfig : claudeConfig}
@@ -258,7 +451,7 @@ export const McpConnectorDoc: React.FC = () => {
 
       {/* Tools */}
       {subTab === 'tools' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {[
             {
               name: 'synthesize_speech',
@@ -269,7 +462,7 @@ export const McpConnectorDoc: React.FC = () => {
             {
               name: 'translate_financial_text',
               badge: 'ZÉRO DÉRIVE',
-              desc: 'Traduit un texte fintech avec extraction d\'entités et vérification d\'empreinte SHA-256.',
+              desc: "Traduit un texte fintech avec extraction d'entités et vérification d'empreinte SHA-256.",
               args: 'text: string, targetLang: string, sourceLang?: string, domain?: string',
             },
             {
@@ -287,40 +480,72 @@ export const McpConnectorDoc: React.FC = () => {
             {
               name: 'list_supported_languages',
               badge: 'REGISTRE',
-              desc: 'Liste les 5 langues souveraines opérationnelles et l\'état des quarantaines.',
+              desc: "Liste les 5 langues souveraines opérationnelles et l'état des quarantaines.",
               args: 'includeQuarantined?: boolean',
             },
           ].map((tool, idx) => (
             <div
               key={idx}
               style={{
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                padding: '14px 16px',
-                backgroundColor: '#ffffff',
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                borderRadius: 'var(--radius, 4px)',
+                padding: '12px 16px',
+                backgroundColor: 'var(--paper, #ffffff)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '6px',
+                  gap: '8px',
+                  flexWrap: 'wrap',
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <code style={{ fontSize: '14px', fontWeight: 700, color: '#15803d' }}>{tool.name}</code>
-                  <span
+                  <code
                     style={{
-                      fontSize: '10px',
+                      fontSize: '13px',
                       fontWeight: 700,
-                      backgroundColor: tool.badge.includes('NOUVEAU') ? '#fef3c7' : '#dcfce7',
-                      color: tool.badge.includes('NOUVEAU') ? '#b45309' : '#15803d',
+                      fontFamily: 'var(--font-mono, monospace)',
+                      color: 'var(--green-deep, #08751A)',
+                    }}
+                  >
+                    {tool.name}
+                  </code>
+                  <span
+                    className={tool.badge.includes('NOUVEAU') ? 'ax-pill' : 'ax-pill ax-pill--active'}
+                    style={{
+                      fontSize: '9.5px',
                       padding: '2px 6px',
-                      borderRadius: '4px',
                     }}
                   >
                     {tool.badge}
                   </span>
                 </div>
-                <code style={{ fontSize: '11px', color: '#64748b', backgroundColor: '#f1f5f9', padding: '3px 8px', borderRadius: '4px' }}>
+                <code
+                  style={{
+                    fontSize: '11px',
+                    color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                    backgroundColor: 'var(--ws, #F6F6F4)',
+                    padding: '3px 8px',
+                    borderRadius: 'var(--radius-xs, 2px)',
+                    border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+                  }}
+                >
                   {tool.args}
                 </code>
               </div>
-              <p style={{ margin: 0, fontSize: '12px', color: '#475569' }}>{tool.desc}</p>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                }}
+              >
+                {tool.desc}
+              </p>
             </div>
           ))}
         </div>
@@ -331,25 +556,28 @@ export const McpConnectorDoc: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div
             style={{
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
+              border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+              borderRadius: 'var(--radius, 4px)',
               padding: '16px',
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--paper, #ffffff)',
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
             }}
           >
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <select
                 value={selectedTool}
                 onChange={(e) => setSelectedTool(e.target.value as any)}
                 style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
+                  padding: '7px 12px',
+                  borderRadius: 'var(--radius, 4px)',
+                  border: '1px solid var(--line-strong, rgba(10, 10, 10, 0.32))',
                   fontWeight: 600,
-                  fontSize: '13px',
+                  fontSize: '12.5px',
+                  fontFamily: 'var(--font-body, sans-serif)',
+                  backgroundColor: 'var(--paper, #ffffff)',
+                  color: 'var(--ink, #0A0A0A)',
                 }}
               >
                 <option value="speech">synthesize_speech (Voix & Tons)</option>
@@ -363,10 +591,13 @@ export const McpConnectorDoc: React.FC = () => {
                 value={langParam}
                 onChange={(e) => setLangParam(e.target.value)}
                 style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '13px',
+                  padding: '7px 12px',
+                  borderRadius: 'var(--radius, 4px)',
+                  border: '1px solid var(--line-strong, rgba(10, 10, 10, 0.32))',
+                  fontSize: '12.5px',
+                  fontFamily: 'var(--font-body, sans-serif)',
+                  backgroundColor: 'var(--paper, #ffffff)',
+                  color: 'var(--ink, #0A0A0A)',
                 }}
               >
                 <option value="ewo-CM">Ewondo (ewo-CM)</option>
@@ -378,24 +609,32 @@ export const McpConnectorDoc: React.FC = () => {
 
               <button
                 onClick={handleTestMcp}
-                className="btn"
+                className="btn btn-primary"
                 style={{
-                  padding: '8px 18px',
-                  backgroundColor: '#16a34a',
-                  color: '#ffffff',
-                  borderRadius: '6px',
-                  fontWeight: 700,
-                  fontSize: '13px',
+                  padding: '7px 16px',
+                  fontSize: '12.5px',
+                  gap: '6px',
                   cursor: 'pointer',
-                  border: 'none',
                 }}
               >
-                ⚡ Exécuter l'Outil MCP
+                <Play size={12} strokeWidth={2.5} />
+                Exécuter l'Outil MCP
               </button>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono, monospace)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontWeight: 600,
+                  color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                  marginBottom: '4px',
+                }}
+              >
                 Paramètre textuel de test :
               </label>
               <input
@@ -405,10 +644,13 @@ export const McpConnectorDoc: React.FC = () => {
                 style={{
                   width: '100%',
                   padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
+                  borderRadius: 'var(--radius, 4px)',
+                  border: '1px solid var(--line-strong, rgba(10, 10, 10, 0.32))',
                   fontSize: '13px',
+                  fontFamily: 'var(--font-body, sans-serif)',
                   boxSizing: 'border-box',
+                  backgroundColor: 'var(--paper, #ffffff)',
+                  color: 'var(--ink, #0A0A0A)',
                 }}
               />
             </div>
@@ -417,16 +659,35 @@ export const McpConnectorDoc: React.FC = () => {
           {mcpResult && (
             <div
               style={{
-                backgroundColor: '#0f172a',
-                borderRadius: '8px',
+                backgroundColor: 'var(--ink-2, #171717)',
+                borderRadius: 'var(--radius, 4px)',
                 padding: '16px',
-                color: '#f8fafc',
+                color: 'var(--bone, #F3F2ED)',
+                border: '1px solid var(--line-invert, rgba(255, 255, 255, 0.14))',
               }}
             >
-              <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono, monospace)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  color: 'var(--muted-invert, rgba(255, 255, 255, 0.62))',
+                  marginBottom: '8px',
+                }}
+              >
                 Résultat JSON-RPC MCP :
               </div>
-              <pre style={{ margin: 0, fontSize: '12px', fontFamily: 'monospace', overflowX: 'auto' }}>
+              <pre
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  fontFamily: 'var(--font-mono, monospace)',
+                  overflowX: 'auto',
+                  lineHeight: 1.5,
+                  color: 'var(--bone, #F3F2ED)',
+                }}
+              >
                 {JSON.stringify(mcpResult, null, 2)}
               </pre>
             </div>
@@ -437,21 +698,89 @@ export const McpConnectorDoc: React.FC = () => {
       {/* Transports */}
       {subTab === 'transports' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', backgroundColor: '#ffffff' }}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#0f172a' }}>Transport Stdio (Standard Input/Output)</h4>
-            <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+          <div
+            style={{
+              border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+              borderRadius: 'var(--radius, 4px)',
+              padding: '16px',
+              backgroundColor: 'var(--paper, #ffffff)',
+            }}
+          >
+            <h4
+              style={{
+                margin: '0 0 8px 0',
+                fontSize: '13.5px',
+                fontFamily: 'var(--font-heading, "Manrope", sans-serif)',
+                fontWeight: 700,
+                color: 'var(--ink, #0A0A0A)',
+              }}
+            >
+              Transport Stdio (Standard Input/Output)
+            </h4>
+            <p
+              style={{
+                margin: '0 0 12px 0',
+                fontSize: '12px',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                lineHeight: 1.5,
+              }}
+            >
               Recommandé pour Cursor et Claude Desktop en exécution locale. Les messages JSON-RPC transitent sur stdout/stdin sans latence réseau.
             </p>
-            <div style={{ backgroundColor: '#f1f5f9', padding: '8px 12px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '11px', color: '#1e293b' }}>
+            <div
+              style={{
+                backgroundColor: 'var(--ws, #F6F6F4)',
+                padding: '8px 12px',
+                borderRadius: 'var(--radius-xs, 2px)',
+                fontFamily: 'var(--font-mono, monospace)',
+                fontSize: '11px',
+                color: 'var(--ink, #0A0A0A)',
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+              }}
+            >
               node packages/mcp-server/dist/bin.js
             </div>
           </div>
-          <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', backgroundColor: '#ffffff' }}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#0f172a' }}>Transport SSE (Server-Sent Events)</h4>
-            <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+          <div
+            style={{
+              border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+              borderRadius: 'var(--radius, 4px)',
+              padding: '16px',
+              backgroundColor: 'var(--paper, #ffffff)',
+            }}
+          >
+            <h4
+              style={{
+                margin: '0 0 8px 0',
+                fontSize: '13.5px',
+                fontFamily: 'var(--font-heading, "Manrope", sans-serif)',
+                fontWeight: 700,
+                color: 'var(--ink, #0A0A0A)',
+              }}
+            >
+              Transport SSE (Server-Sent Events)
+            </h4>
+            <p
+              style={{
+                margin: '0 0 12px 0',
+                fontSize: '12px',
+                color: 'var(--muted, rgba(10, 10, 10, 0.6))',
+                lineHeight: 1.5,
+              }}
+            >
               Idéal pour connecter des agents distants ou des services d'orchestration dans le cloud via HTTP streaming.
             </p>
-            <div style={{ backgroundColor: '#f1f5f9', padding: '8px 12px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '11px', color: '#1e293b' }}>
+            <div
+              style={{
+                backgroundColor: 'var(--ws, #F6F6F4)',
+                padding: '8px 12px',
+                borderRadius: 'var(--radius-xs, 2px)',
+                fontFamily: 'var(--font-mono, monospace)',
+                fontSize: '11px',
+                color: 'var(--ink, #0A0A0A)',
+                border: '1px solid var(--line, rgba(10, 10, 10, 0.12))',
+              }}
+            >
               GET /sse & POST /messages?sessionId=...
             </div>
           </div>

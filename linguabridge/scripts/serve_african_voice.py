@@ -256,15 +256,26 @@ def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
     model.config.noise_scale = calibration["noise_scale"]
     model.config.noise_scale_duration = calibration["noise_scale_w"]
 
-    # For responsive real-time UI assistive audio, if text is an entire multi-sentence paragraph (> 140 chars),
-    # synthesize the first sentence or clause so TTFB is fast (< 1.5s on CPU) instead of 30s!
+    # For responsive real-time UI assistive audio, if text is a multi-sentence paragraph (> 50 chars),
+    # synthesize the first natural sentence or clause so TTFB is ultra-fast (< 1s on CPU)
     inference_text = clean_text
-    if len(clean_text) > 140:
-        sentences = re.split(r'(?<=[.!?])\s+', clean_text)
+    if len(clean_text) > 50:
+        sentences = re.split(r'(?<=[.!?;:,])\s+', clean_text)
         if sentences and len(sentences[0]) >= 10:
             inference_text = sentences[0]
-            if len(sentences) > 1 and len(inference_text) < 70:
+            if len(sentences) > 1 and len(inference_text) < 30:
                 inference_text = f"{sentences[0]} {sentences[1]}"
+        else:
+            words = clean_text.split()
+            sub = ""
+            for w in words:
+                cand = f"{sub} {w}".strip() if sub else w
+                if len(cand) <= 45:
+                    sub = cand
+                else:
+                    break
+            if sub:
+                inference_text = sub
 
     inputs = tokenizer(inference_text, return_tensors="pt")
 
@@ -275,7 +286,7 @@ def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
     inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
 
     with MODEL_INFERENCE_LOCK:
-        with torch.no_grad():
+        with torch.inference_mode():
             output = model(**inputs, speaking_rate=calibration["speaking_rate"])
 
     waveform = output.waveform[0].detach().cpu().numpy()
@@ -312,23 +323,23 @@ def synthesize_wav_bytes(text: str, lang_norm: str) -> bytes:
     return wav_bytes
 
 def preload_core_models():
-    """Preloads ALL 5 sovereign models into RAM so every first request is instant."""
+    """Preloads ALL 5 sovereign models into RAM with fast 1-sentence warmup so server is ready in < 10s."""
     print("🚀 Preloading ALL sovereign African voice models...", flush=True)
     warmup_phrases = {
-        "ewo-cm": "Mbolo",
-        "hau-cm": "Sannu",
-        "fuv-cm": "Jam",
-        "knc-cm": "Ndawuro",
-        "pcm-cm": "How far",
+        "ewo-cm": "Mbólo, móni wá á ne mvaé",
+        "hau-cm": "Sannu, kudi ya shiga lami lafiya",
+        "fuv-cm": "Jam waali, seede maada yottake",
+        "knc-cm": "Wushe, kəla kəji ro lewono",
+        "pcm-cm": "Welcome, transfer don complete fine",
     }
     for lang, phrase in warmup_phrases.items():
         try:
             get_model_and_tokenizer(lang)
             synthesize_wav_bytes(phrase, lang)
-            print(f"✅ {lang} model warmed up and ready!", flush=True)
+            print(f"✅ {lang} model warmed up and ready in RAM!", flush=True)
         except Exception as e:
             print(f"⚠️ Preload warning for {lang}: {e}", flush=True)
-    print("🎉 All sovereign models loaded and ready for instant playback!", flush=True)
+    print("🎉 All sovereign models loaded and primed for instant playback!", flush=True)
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -427,6 +438,6 @@ def stream():
 
 if __name__ == "__main__":
     port = int(os.environ.get("VOICE_PORT", 3002))
-    preload_core_models()
+    threading.Thread(target=preload_core_models, daemon=True).start()
     print(f"🚀 LinguaBridge African Voice Server running on http://127.0.0.1:{port}", flush=True)
     app.run(host="127.0.0.1", port=port, debug=False, threaded=True)
