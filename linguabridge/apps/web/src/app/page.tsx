@@ -89,7 +89,7 @@ export default function LandingPage() {
             marginRight: 'auto',
           }}
         >
-          Banking should <span style={{ color: 'var(--brand-green)' }}>speak your language.</span>
+          Your money. <span style={{ color: 'var(--brand-green)' }}>Your language.</span>
         </h1>
 
         <p
@@ -102,7 +102,7 @@ export default function LandingPage() {
             lineHeight: 1.6,
           }}
         >
-          LinguaBridge helps people understand banking, mobile money and payment services in Cameroonian national languages. Start with our desktop browser extension, with mobile-friendly web access planned. Built for the SAFINUM challenge: a language accessibility layer for existing digital financial services.
+          Financial services should be understandable to everyone. LinguaBridge helps translate banking, mobile money and payment interfaces from French or English into Duala and Ewondo, starting with a desktop browser extension. Our goal is to make the same accessibility available on mobile and through the web.
         </p>
 
         <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -115,7 +115,7 @@ export default function LandingPage() {
               letterSpacing: '-0.01em',
             }}
           >
-            <span>Explore the extension</span>
+            <span>Get the browser extension</span>
           </Link>
         </div>
 
@@ -135,29 +135,73 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="status-dot status-dot--pulse"></span>
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              DESKTOP EXTENSION · WEB ACCESS PLANNED
+              DESKTOP EXTENSION AVAILABLE FOR TESTING
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ShieldCheck size={14} style={{ color: 'var(--brand-green)' }} />
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              AMOUNTS &amp; ACCOUNT DETAILS PROTECTED
+              FINANCIAL DATA SAFEGUARDS
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Zap size={14} style={{ color: 'var(--brand-green)' }} />
             <span className="meta" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-              FRENCH / ENGLISH → DUALA / EWONDO
+              FRENCH &amp; ENGLISH → DUALA &amp; EWONDO
             </span>
           </div>
         </div>
       </section>
 
+      {/* SAFINUM user journey and delivery roadmap */}
+      <section style={{ marginBottom: 'clamp(56px, 8vw, 96px)' }} aria-label="How LinguaBridge works">
+        <div className="section-header">
+          <div>
+            <span className="meta-num">01 / ACCESS FOR EVERYONE</span>
+            <h2>One solution, built for desktop and mobile</h2>
+          </div>
+          <p className="lead">Our first delivery is a browser extension. Direct web access and a mobile-friendly experience are next steps, clearly marked as in development.</p>
+        </div>
+        <div className="grid-3">
+          <article className="card" style={{ padding: 'var(--s-6)', border: '1px solid var(--line)', background: '#fff', minWidth: 0 }}>
+            <span className="meta-num" style={{ color: 'var(--brand-green-deep)' }}>AVAILABLE FOR TESTING</span>
+            <h3 style={{ margin: '14px 0' }}>Desktop extension</h3>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>Install on Chrome or Edge, open a financial website, and choose a national language. No changes to the bank's website are required.</p>
+            <Link href="/dashboard" style={{ display: 'inline-block', marginTop: 18, color: 'var(--brand-green-deep)', fontWeight: 700 }}>Explore the extension →</Link>
+          </article>
+          <article className="card" style={{ padding: 'var(--s-6)', border: '1px solid var(--line)', background: '#fff', minWidth: 0 }}>
+            <span className="meta-num" style={{ color: '#946200' }}>BÊTA · IN DEVELOPMENT</span>
+            <h3 style={{ margin: '14px 0' }}>Direct web access</h3>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>Our goal is to offer an accessible web experience without requiring a desktop extension. This option is not available yet.</p>
+          </article>
+          <article className="card" style={{ padding: 'var(--s-6)', border: '1px solid var(--line)', background: '#fff', minWidth: 0 }}>
+            <span className="meta-num" style={{ color: '#946200' }}>PLANNED</span>
+            <h3 style={{ margin: '14px 0' }}>Mobile accessibility</h3>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>We are working toward phone-friendly access so people can understand digital financial services on the devices they already use.</p>
+          </article>
+        </div>
+      </section>
+      <section style={{ marginBottom: 'clamp(56px, 8vw, 96px)' }} aria-label="Financial safety">
+        <div className="section-header">
+          <div><span className="meta-num">02 / SAFETY FIRST</span><h2>Understand the message. Preserve the numbers.</h2></div>
+          <p className="lead">Financial translation must protect what matters: amounts in FCFA, fees, account references, telephone numbers and beneficiary details.</p>
+        </div>
+        <div className="grid-2">
+          <div className="card" style={{ padding: 'var(--s-6)', border: '1px solid var(--line)', minWidth: 0 }}>
+            <h3 style={{ marginBottom: 12 }}>Built for financial information</h3>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>LinguaBridge is designed to identify and preserve sensitive financial values when translating interface text. A translation should never silently change the amount being sent or the destination number.</p>
+          </div>
+          <div className="card" style={{ padding: 'var(--s-6)', border: '1px solid var(--line)', minWidth: 0 }}>
+            <h3 style={{ marginBottom: 12 }}>Privacy and responsible testing</h3>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>We aim to minimize the financial information processed. The current prototype is for testing: verify the original message before completing a transaction, and never enter passwords or PINs into the demo.</p>
+          </div>
+        </div>
+      </section>
       {/* 4 Pillars Grid */}
       <section style={{ marginBottom: 'clamp(64px, 8vw, 96px)' }}>
         <div className="section-header">
           <div>
-            <span className="meta-num">01 / WHY LINGUABRIDGE</span>
+            <span className="meta-num">03 / WHY LINGUABRIDGE</span>
             <h2 style={{ fontSize: 'var(--f-h2)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
               Understand financial services, step by step
             </h2>
@@ -510,7 +554,7 @@ export default function LandingPage() {
       <section id="extension" style={{ marginBottom: 'var(--s-8)' }}>
         <div className="section-header">
           <div>
-            <span className="meta-num">02 / ACCESS OPTIONS</span>
+            <span className="meta-num">04 / GET STARTED</span>
             <h2 style={{ fontSize: 'var(--f-h2)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
               One language layer, wherever you access financial services
             </h2>
