@@ -32,7 +32,7 @@ export default function RootLayout({
           }}
         >
           <div
-            className="wrap"
+            className="wrap lb-site-header"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -46,7 +46,7 @@ export default function RootLayout({
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <Link
                 href="/"
-                className="nav-logo"
+                className="nav-logo lb-brand"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -83,17 +83,7 @@ export default function RootLayout({
                 </span>
               </Link>
 
-              <span
-                className="ax-pill ax-pill--active"
-                style={{
-                  fontSize: '0.62rem',
-                  letterSpacing: '0.14em',
-                  padding: '3px 8px',
-                }}
-              >
-                <span className="status-dot status-dot--pulse" style={{ width: '5px', height: '5px' }}></span>
-                SAFINUM PROTOTYPE
-              </span>
+
             </div>
 
             {/* Navigation Links & Action */}
@@ -113,7 +103,7 @@ export default function RootLayout({
               >
                 <Link
                   href="/"
-                  className="nav-link"
+                  className="nav-link lb-header-link"
                   style={{
                     fontSize: '0.88rem',
                     fontWeight: 600,
@@ -144,7 +134,7 @@ export default function RootLayout({
                   href="https://github.com/AnonyDes/LinguaBridge"
                   target="_blank"
                   rel="noreferrer"
-                  className="btn btn-ghost"
+                  className="btn btn-ghost lb-github-link"
                   style={{
                     padding: '8px 14px',
                     fontSize: '0.82rem',
