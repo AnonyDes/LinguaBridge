@@ -673,3 +673,51 @@ pre, code { overflow-wrap: anywhere; word-break: break-word; }
   .lb-site-header .lb-brand span:last-child { font-size: 0.98rem !important; }
   .lb-site-header nav > div:first-child { gap: 10px !important; }
 }
+
+
+/* Hero actions: accessible on narrow phones, with mango GitHub emphasis */
+.lb-hero-actions {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; width: min(100%, 520px); margin: 0 auto;
+}
+.lb-hero-github {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; min-height: 66px; padding: 14px 20px;
+  background: #FFB22C; color: #111; border: 2px solid #111;
+  border-radius: 12px; font-size: 1.06rem; font-weight: 800;
+  text-decoration: none; transition: background 180ms ease, transform 180ms ease;
+}
+.lb-hero-github:hover { background: #FFC34D; transform: translateY(-2px); }
+.lb-hero-github-arrow {
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-left: auto; width: 36px; height: 36px; border-radius: 9px;
+  background: #111; color: #fff; flex: none;
+}
+.lb-hero-extension {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  width: 100%; min-height: 56px; padding: 12px 20px;
+  background: #111; color: #fff; border: 2px solid #111; border-radius: 10px;
+  font-size: .94rem; font-weight: 700; text-decoration: none;
+}
+.lb-hero-extension:hover { background: #252525; color: #fff; }
+.lb-extension-triangle {
+  width: 0; height: 0; border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent; border-left: 11px solid #fff; flex: none;
+}
+@media (max-width: 700px) {
+  .lb-site-header { flex-wrap: nowrap !important; padding-top: 13px !important; padding-bottom: 13px !important; }
+  .lb-site-header > div:first-child { min-width: 0; }
+  .lb-site-header nav { width: auto !important; margin-left: auto; flex: 0 1 auto; }
+  .lb-site-header nav > div:first-child { flex-wrap: nowrap !important; gap: 12px !important; }
+  .lb-site-header .lb-brand span:last-child { font-size: clamp(.9rem, 3.7vw, 1.08rem) !important; }
+  .lb-site-header .lb-brand span:first-child { width: 29px !important; height: 29px !important; flex: none; }
+  .lb-header-link { font-size: .78rem !important; line-height: 1.25; }
+  .lb-hero-github { min-height: 60px; padding: 12px 14px; font-size: 1rem; }
+  .lb-hero-github-arrow { width: 32px; height: 32px; }
+}
+@media (max-width: 410px) {
+  .lb-site-header { flex-wrap: wrap !important; justify-content: center !important; gap: 8px !important; }
+  .lb-site-header nav { margin: 0 auto; width: 100% !important; justify-content: center !important; }
+  .lb-site-header nav > div:first-child { justify-content: center; }
+  .lb-site-header .lb-brand span:last-child { font-size: 1.05rem !important; }
+}
