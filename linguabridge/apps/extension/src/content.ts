@@ -1917,6 +1917,7 @@ class ExtensionAssistant {
 
     this.shadow.getElementById('target-lang')?.addEventListener('change', (e) => {
       this.currentTargetLang = (e.target as HTMLSelectElement).value;
+      this.currentSourceLang = this.detectSourceLanguage();
       chrome.storage?.local?.set({ linguabridgeTargetLang: this.currentTargetLang });
       this.translationSpeechCache.clear();
       this.stopSpeech();
