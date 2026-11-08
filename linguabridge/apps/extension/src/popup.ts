@@ -1,4 +1,4 @@
-import { generateBankingResponse } from '@linguabridge/widget';
+import { generateBankingResponse } from '../../../packages/widget/src/banking-engine';
 
 type Message = { type: string; [key: string]: unknown };
 const $ = (id: string) => document.getElementById(id);
