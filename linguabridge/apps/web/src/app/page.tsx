@@ -9,6 +9,8 @@ import {
   BadgeCheck,
   Volume2,
   AlertTriangle,
+  Github,
+  ArrowUpRight,
 } from 'lucide-react';
 import { LinguaBridgeClient } from '@linguabridge/sdk-js';
 
@@ -105,17 +107,16 @@ export default function LandingPage() {
           Financial services should be understandable to everyone. LinguaBridge helps translate banking, mobile money and payment interfaces from French or English into Duala and Ewondo, starting with a desktop browser extension. Our goal is to make the same accessibility available on mobile and through the web.
         </p>
 
-        <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-<Link
-            href="/dashboard"
-            className="btn btn-ghost"
-            style={{
-              padding: '14px 28px',
-              fontSize: '0.95rem',
-              letterSpacing: '-0.01em',
-            }}
-          >
+        <div className="lb-hero-actions">
+          <a href="https://github.com/AnonyDes/LinguaBridge" target="_blank" rel="noreferrer"
+            className="lb-hero-github" aria-label="Explore LinguaBridge on GitHub">
+            <Github size={23} strokeWidth={2} />
+            <span>Explore on GitHub</span>
+            <span className="lb-hero-github-arrow"><ArrowUpRight size={22} strokeWidth={2.5} /></span>
+          </a>
+          <Link href="/dashboard" className="lb-hero-extension">
             <span>Get the browser extension</span>
+            <span className="lb-extension-triangle" aria-hidden="true" />
           </Link>
         </div>
 
