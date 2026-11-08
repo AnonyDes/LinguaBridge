@@ -18,119 +18,24 @@ export default function RootLayout({
   return (
     <html lang="en" >
       <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        {/* Nayokan Frosted Swiss Top Header */}
-        <header
-          style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 100,
-            background: 'rgba(255, 255, 255, 0.92)',
-            backdropFilter: 'blur(20px) saturate(160%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-            borderBottom: '1px solid var(--line)',
-            transition: 'border-color var(--dur-fast) var(--easing)',
-          }}
-        >
-          <div
-            className="wrap lb-site-header"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingTop: '16px',
-              paddingBottom: '16px',
-              gap: 'var(--s-5)',
-            }}
-          >
-            {/* Brand Logo & Sovereign Metadata */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <Link
-                href="/"
-                className="nav-logo lb-brand"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  textDecoration: 'none',
-                  color: 'var(--ink)',
-                }}
-              >
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'var(--ink)',
-                    color: 'var(--brand-green)',
-                    border: '1px solid var(--line-strong)',
-                  }}
-                >
-                  <Languages size={18} strokeWidth={2} style={{ color: 'var(--brand-green)' }} />
-                </span>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-heading)',
-                    fontWeight: 800,
-                    fontSize: '1.2rem',
-                    letterSpacing: '-0.025em',
-                    color: 'var(--ink)',
-                  }}
-                >
-                  LinguaBridge
-                </span>
-              </Link>
-
-
-            </div>
-
-            {/* Navigation Links & Action */}
-            <nav
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--s-6)',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--s-5)',
-                }}
-              >
-                <Link
-                  href="/"
-                  className="nav-link lb-header-link"
-                  style={{
-                    fontSize: '0.88rem',
-                    fontWeight: 600,
-                    color: 'var(--ink)',
-                    textDecoration: 'none',
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  Home
-                </Link>
-<Link
-                  href="/dashboard"
-                  className="nav-link lb-header-link"
-                  style={{
-                    fontSize: '0.88rem',
-                    fontWeight: 600,
-                    color: 'var(--ink)',
-                    textDecoration: 'none',
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  Get the extension
-                </Link>
-              </div>
-
-
+        {/* Compact, always-visible mobile and desktop header */}
+        <header className="lb-fixed-header">
+          <div className="wrap lb-header-row">
+            <Link href="/" className="lb-header-brand" aria-label="LinguaBridge home">
+              <span className="lb-logo-mark" aria-hidden="true">
+                <svg viewBox="0 0 40 40" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="40" height="40" rx="11" fill="#101010"/>
+                  <path d="M9 11H20C25 11 28 14 28 19C28 24 25 27 20 27H14V32" stroke="#6DE17A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M14 19H29M24 14L29 19L24 24" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+              <span className="lb-brand-word">LinguaBridge</span>
+            </Link>
+            <nav className="lb-header-nav" aria-label="Main navigation">
+              <Link href="/" className="lb-nav-item">Home</Link>
+              <Link href="/dashboard" className="lb-nav-item"><span className="lb-nav-full">Get the extension</span><span className="lb-nav-short">Extension</span></Link>
             </nav>
+            <div className="lb-header-balance" aria-hidden="true" />
           </div>
         </header>
 
