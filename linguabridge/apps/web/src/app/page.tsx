@@ -9,30 +9,12 @@ import {
   BadgeCheck,
   Volume2,
   AlertTriangle,
-  Copy,
-  Check,
 } from 'lucide-react';
 import { LinguaBridgeClient } from '@linguabridge/sdk-js';
 
 const client = new LinguaBridgeClient({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
 });
-
-const widgetSnippet = `<script 
-  src="https://cdn.linguabridge.org/widget.js" 
-  data-auto-init="true"
-  data-api-url="https://api.linguabridge.org">
-</script>`;
-
-const reactSnippet = `import { LinguaBridgeProvider, Translate } from '@linguabridge/sdk-react';
-
-export default function App() {
-  return (
-    <LinguaBridgeProvider defaultTargetLang="fr">
-      <Translate text="Confirm Transfer of 10,000 FCFA" />
-    </LinguaBridgeProvider>
-  );
-}`;
 
 export default function LandingPage() {
   const [sourceText, setSourceText] = useState(
@@ -46,7 +28,6 @@ export default function LandingPage() {
   const [cacheStatus, setCacheStatus] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [copiedSnippet, setCopiedSnippet] = useState<number | null>(null);
 
   const handleTestTranslate = async () => {
     try {
@@ -70,14 +51,6 @@ export default function LandingPage() {
       setTranslationError('Translation is unavailable. No simulated result is displayed. Please try again when the translation service is available.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCopy = (text: string, id: number) => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(text);
-      setCopiedSnippet(id);
-      setTimeout(() => setCopiedSnippet(null), 2000);
     }
   };
 
@@ -533,191 +506,53 @@ export default function LandingPage() {
         </button>
       </section>
 
-      {/* Integration Docs Portal */}
-      <section>
+      {/* Browser extension installation: primary SAFINUM integration path */}
+      <section id="extension" style={{ marginBottom: 'var(--s-8)' }}>
         <div className="section-header">
           <div>
-            <span className="meta-num">02 / FOR DEVELOPERS</span>
+            <span className="meta-num">02 / BROWSER EXTENSION</span>
             <h2 style={{ fontSize: 'var(--f-h2)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
-              Integrate LinguaBridge into your own product
+              Translate financial websites with the LinguaBridge extension
             </h2>
           </div>
           <p className="lead" style={{ fontSize: '0.98rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            For teams that control their own applications, LinguaBridge also offers integration options. The browser extension does not require changes to a bank's source code.
+            No integration into a bank’s website is needed. Install the extension in your desktop browser,
+            open a financial service and choose a Cameroonian language to translate its interface.
           </p>
         </div>
-
         <div className="grid-2" style={{ gap: 'var(--s-6)' }}>
-          <div
-            className="card"
-            style={{
-              background: 'var(--paper)',
-              border: '1px solid var(--line)',
-              borderRadius: 'var(--radius)',
-              padding: 'var(--s-6)',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
-                1. Embed Standalone Widget
-              </h3>
-              <span className="ax-pill" style={{ fontSize: '0.62rem' }}>CDN SCRIPT</span>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: 'var(--s-4)', lineHeight: 1.55 }}>
-              For websites you manage, a widget integration can add accessibility features:
+          <div className="card" style={{ padding: 'var(--s-6)', background: 'var(--paper)', border: '1px solid var(--line)' }}>
+            <span className="meta-num">01 / INSTALL</span>
+            <h3 style={{ marginTop: 'var(--s-3)', marginBottom: 'var(--s-3)' }}>Add LinguaBridge to your browser</h3>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.6 }}>
+              Download the current prototype build from GitHub Actions. Extract the archive,
+              then open <code>chrome://extensions</code> or <code>edge://extensions</code>,
+              enable Developer mode and select “Load unpacked”.
             </p>
-
-            <div
-              style={{
-                marginTop: 'auto',
-                background: 'var(--ink-2)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: 'var(--radius)',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '8px 14px',
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.68rem',
-                    color: 'rgba(255, 255, 255, 0.6)',
-                    letterSpacing: '0.12em',
-                  }}
-                >
-                  HTML SNIPPET
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy(widgetSnippet, 1)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: copiedSnippet === 1 ? 'var(--brand-green)' : 'rgba(255, 255, 255, 0.75)',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    fontSize: '0.72rem',
-                    fontFamily: 'var(--font-mono)',
-                    padding: '2px 6px',
-                  }}
-                >
-                  {copiedSnippet === 1 ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} />}
-                  <span>{copiedSnippet === 1 ? 'Copied' : 'Copy'}</span>
-                </button>
-              </div>
-              <pre
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.78rem',
-                  lineHeight: 1.6,
-                  color: '#F8FAFC',
-                  padding: '14px',
-                  margin: 0,
-                  overflowX: 'auto',
-                }}
-              >
-{widgetSnippet}
-              </pre>
-            </div>
+            <a className="btn btn-primary" style={{ display: 'inline-flex', marginTop: 'var(--s-5)' }}
+              href="https://github.com/AnonyDes/LinguaBridge/actions/workflows/build-edge-extension.yml">
+              Get the extension build
+            </a>
+            <p style={{ color: 'var(--muted)', fontSize: '0.78rem', marginTop: 'var(--s-3)' }}>
+              Prototype installation for desktop Chrome and Edge. Not a browser-store release.
+            </p>
           </div>
-
-          <div
-            className="card"
-            style={{
-              background: 'var(--paper)',
-              border: '1px solid var(--line)',
-              borderRadius: 'var(--radius)',
-              padding: 'var(--s-6)',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
-                2. Use React SDK
-              </h3>
-              <span className="ax-pill" style={{ fontSize: '0.62rem' }}>NPM PACKAGE</span>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: 'var(--s-4)', lineHeight: 1.55 }}>
-              Wrap your Next.js or React app with <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', padding: '2px 4px', background: 'var(--bone)', borderRadius: '2px' }}>LinguaBridgeProvider</code> for seamless hooks:
+          <div className="card" style={{ padding: 'var(--s-6)', background: 'var(--paper)', border: '1px solid var(--line)' }}>
+            <span className="meta-num">02 / TRANSLATE</span>
+            <h3 style={{ marginTop: 'var(--s-3)', marginBottom: 'var(--s-3)' }}>Choose your language and browse</h3>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.6 }}>
+              Visit a banking, mobile money or payment website. Open LinguaBridge,
+              select Duala or Ewondo and translate interface text from French or English.
+              The extension is designed to work without changes to the original website.
             </p>
-
-            <div
-              style={{
-                marginTop: 'auto',
-                background: 'var(--ink-2)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: 'var(--radius)',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '8px 14px',
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.68rem',
-                    color: 'rgba(255, 255, 255, 0.6)',
-                    letterSpacing: '0.12em',
-                  }}
-                >
-                  REACT / NEXT.JS PROVIDER
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy(reactSnippet, 2)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: copiedSnippet === 2 ? 'var(--brand-green)' : 'rgba(255, 255, 255, 0.75)',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    fontSize: '0.72rem',
-                    fontFamily: 'var(--font-mono)',
-                    padding: '2px 6px',
-                  }}
-                >
-                  {copiedSnippet === 2 ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} />}
-                  <span>{copiedSnippet === 2 ? 'Copied' : 'Copy'}</span>
-                </button>
-              </div>
-              <pre
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.78rem',
-                  lineHeight: 1.6,
-                  color: '#F8FAFC',
-                  padding: '14px',
-                  margin: 0,
-                  overflowX: 'auto',
-                }}
-              >
-{reactSnippet}
-              </pre>
-            </div>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.6, marginTop: 'var(--s-4)' }}>
+              Translation coverage is still being tested. Always check amounts, fees,
+              account details and security warnings against the original before acting.
+            </p>
+            <a className="btn btn-ghost" style={{ display: 'inline-flex', marginTop: 'var(--s-4)' }}
+              href="https://github.com/AnonyDes/LinguaBridge/blob/main/linguabridge/apps/extension/EDGE_DESKTOP.md">
+              Read installation instructions
+            </a>
           </div>
         </div>
       </section>
