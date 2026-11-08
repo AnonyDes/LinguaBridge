@@ -7,6 +7,7 @@ import { ChevronDown, ChevronRight, Download, ExternalLink, Globe2, Laptop, Lock
 type View = 'chrome' | 'edge' | 'web' | 'other';
 const repo = 'https://github.com/AnonyDes/LinguaBridge';
 const build = repo + '/actions/workflows/build-edge-extension.yml';
+const chromeBuild = build;
 
 export default function DeveloperDashboard() {
   const [view, setView] = useState<View>('chrome');
@@ -51,18 +52,19 @@ export default function DeveloperDashboard() {
             {(view === 'chrome' || view === 'edge') && <>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#EAF8ED', color: '#08751A', borderRadius: 99, padding: '6px 12px', fontSize: 12, fontWeight: 700, marginBottom: 20 }}><ShieldCheck size={15}/> Desktop extension · Prototype</div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.1rem)', color: '#101828', letterSpacing: '-0.025em', marginBottom: 12 }}>LinguaBridge for {view === 'chrome' ? 'Google Chrome' : 'Microsoft Edge'}</h2>
-              <p style={{ color: '#667085', lineHeight: 1.75, maxWidth: 720, marginBottom: 26 }}>Read balances, payment instructions, fees and security messages in a familiar language. The extension works alongside existing websites. Duala and Ewondo translations are being developed and reviewed.</p>
-              <a href={build} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, marginBottom: 24 }}><Download size={17}/> Get the prototype extension <ExternalLink size={14}/></a>
+              <p style={{ color: '#667085', lineHeight: 1.75, maxWidth: 720, marginBottom: 26 }}>Read balances, payment instructions, fees and security messages in a familiar language. The extension works alongside existing websites. Ewondo and other Cameroonian language packs are being tested and reviewed.</p>
+              <a href={view === 'chrome' ? chromeBuild : build} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, marginBottom: 24 }}><Download size={17}/> {view === 'chrome' ? 'Download for Google Chrome' : 'Download for Microsoft Edge'} <ExternalLink size={14}/></a>
+              <p style={{ fontSize: 13, color: '#475467', marginBottom: 22 }}>In the latest successful workflow run, open <strong>Artifacts</strong> and download <strong>{view === 'chrome' ? 'LinguaBridge-Google-Chrome' : 'LinguaBridge-Microsoft-Edge'}</strong>. Both browsers use the same Chromium extension code, packaged separately for clarity.</p>
               <div style={{ border: '1px solid #EAECF0', borderRadius: 12, padding: '24px', marginTop: 8 }}>
                 <h3 style={{ fontSize: 17, fontWeight: 750, color: '#101828', marginBottom: 18 }}>Get started in 3 steps</h3>
                 <ol style={{ display: 'grid', gap: 16, paddingLeft: 22, color: '#475467', lineHeight: 1.65 }}>
-                  <li>Download the latest build artifact from GitHub Actions and extract the archive.</li>
-                  <li>Open <code>{view === 'chrome' ? 'chrome://extensions' : 'edge://extensions'}</code>, enable Developer mode, then choose <strong>Load unpacked</strong> and select the extracted extension folder.</li>
-                  <li>Open a financial website, launch LinguaBridge and select Duala or Ewondo. Check all financial details against the original text before acting.</li>
+                  <li>Download the latest successful <strong>{view === 'chrome' ? 'LinguaBridge-Google-Chrome' : 'LinguaBridge-Microsoft-Edge'}</strong> artifact from GitHub Actions, then extract the ZIP file.</li>
+                  <li>Open <code>{view === 'chrome' ? 'chrome://extensions' : 'edge://extensions'}</code>, enable Developer mode, then choose <strong>Load unpacked</strong> and select the extracted folder containing <code>manifest.json</code>. Remove any previous LinguaBridge version to avoid duplicates.</li>
+                  <li>Open a financial website, click the LinguaBridge icon in the browser toolbar, select your target language and use the <strong>Traduction</strong> or <strong>Assistant</strong> tab. The source language is detected automatically. Check financial details against the original text before acting.</li>
                 </ol>
               </div>
               <p style={{ fontSize: 13, color: '#667085', lineHeight: 1.7, marginTop: 18 }}><LockKeyhole size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }}/>Prototype for testing. Not a Chrome Web Store or Edge Add-ons release. Do not enter sensitive credentials into demo fields.</p>
-              <p style={{ marginTop: 12 }}><a href={repo + '/blob/main/linguabridge/apps/extension/EDGE_DESKTOP.md'} target="_blank" rel="noreferrer" style={{ color: '#08751A', fontWeight: 650 }}>Detailed installation guide ↗</a></p>
+              <p style={{ marginTop: 12 }}><a href={repo + '/blob/main/linguabridge/apps/extension/EDGE_DESKTOP.md'} target="_blank" rel="noreferrer" style={{ color: '#08751A', fontWeight: 650 }}>Installation guide (Chrome and Edge) ↗</a></p>
             </>}
             {view === 'web' && <>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#FFF3D6', color: '#8A5B00', borderRadius: 99, padding: '6px 12px', fontSize: 12, fontWeight: 700, marginBottom: 20 }}>BÊTA · In development</div>
