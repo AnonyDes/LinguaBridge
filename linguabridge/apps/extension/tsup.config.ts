@@ -16,6 +16,7 @@ export default defineConfig({
     '@linguabridge/translation-engine',
     '@linguabridge/speech-engine',
     '@linguabridge/financial-domain',
+    '@linguabridge/widget',
   ],
   clean: false,
   splitting: false,
