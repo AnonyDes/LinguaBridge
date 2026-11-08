@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Languages, Github, Globe, ShieldCheck, Terminal, Cpu } from 'lucide-react';
+import { Languages, Globe, ShieldCheck, Terminal, Cpu } from 'lucide-react';
 import { WidgetMount } from '@/components/WidgetMount';
 import './globals.css';
 
@@ -116,7 +116,7 @@ export default function RootLayout({
                 </Link>
 <Link
                   href="/dashboard"
-                  className="nav-link"
+                  className="nav-link lb-header-link"
                   style={{
                     fontSize: '0.88rem',
                     fontWeight: 600,
@@ -129,24 +129,7 @@ export default function RootLayout({
                 </Link>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)' }}>
-                <a
-                  href="https://github.com/AnonyDes/LinguaBridge"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-ghost lb-github-link"
-                  style={{
-                    padding: '8px 14px',
-                    fontSize: '0.82rem',
-                    fontWeight: 600,
-                    gap: '6px',
-                    borderRadius: 'var(--radius)',
-                  }}
-                >
-                  <Github size={14} strokeWidth={1.75} />
-                  <span>GitHub</span>
-                </a>
-              </div>
+
             </nav>
           </div>
         </header>
