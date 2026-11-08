@@ -10,8 +10,9 @@ export function WidgetMount() {
     if (typeof window === 'undefined') return;
     const mq = window.matchMedia('(max-width: 767px)');
     let widget: LinguaBridgeWidget | null = null;
+    const extensionPresent = () => document.documentElement.getAttribute('data-linguabridge-extension') === 'active' || !!document.getElementById('linguabridge-extension-root');
     const sync = () => {
-      if (mq.matches) {
+      if (extensionPresent() || mq.matches) {
         widget?.destroy();
         widget = null;
       } else if (!widget && window.location.pathname.indexOf('/assistant') === -1) {
@@ -24,13 +25,22 @@ export function WidgetMount() {
     };
     sync();
     mq.addEventListener('change', sync);
-    return () => { mq.removeEventListener('change', sync); widget?.destroy(); };
+    const observer = new MutationObserver(sync);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-linguabridge-extension'] });
+    // Extension can be injected after the site has mounted its own widget.
+    const timer = window.setInterval(() => {
+      if (extensionPresent()) sync();
+    }, 1500);
+    return () => { mq.removeEventListener('change', sync); observer.disconnect(); window.clearInterval(timer); widget?.destroy(); };
   }, []);
 
   return (
+    <>
+    <style>{`html[data-linguabridge-extension="active"] .lb-mobile-assistant-trigger { display: none !important; }`}</style>
     <Link href="/assistant" className="lb-mobile-assistant-trigger" aria-label="Open LinguaBridge assistant">
       <MessageCircle size={20} strokeWidth={2} />
       <span>Assistant</span>
     </Link>
+    </>
   );
 }
