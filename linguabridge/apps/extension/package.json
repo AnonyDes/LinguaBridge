@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsup && node scripts/postbuild.js",
     "test": "vitest run",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "build:edge": "pnpm run build"
   },
   "dependencies": {
     "@linguabridge/shared-types": "workspace:*",
