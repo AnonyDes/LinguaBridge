@@ -639,3 +639,37 @@ p {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Responsive containment for SAFINUM homepage and access portal */
+html, body { width: 100%; max-width: 100%; overflow-x: clip; }
+main, section, .wrap, .grid-2, .grid-3, .grid-4 { min-width: 0; }
+img, video, svg { max-width: 100%; }
+textarea, input, select { max-width: 100%; min-width: 0; }
+pre, code { overflow-wrap: anywhere; word-break: break-word; }
+.lb-site-header { min-width: 0; }
+.lb-site-header nav { min-width: 0; }
+.lb-site-header .lb-brand { white-space: nowrap; }
+.lb-access-grid > * { min-width: 0; }
+@media (max-width: 700px) {
+  :root { --gutter: 18px; --s-6: 22px; --s-7: 30px; --s-8: 44px; }
+  .lb-site-header { padding-top: 12px !important; padding-bottom: 12px !important; gap: 10px !important; flex-wrap: wrap; }
+  .lb-site-header .lb-brand { gap: 7px !important; }
+  .lb-site-header .lb-brand span:last-child { font-size: 1.05rem !important; }
+  .lb-site-header nav { gap: 12px !important; width: 100%; justify-content: space-between; }
+  .lb-site-header nav > div:first-child { gap: 16px !important; flex-wrap: wrap; }
+  .lb-header-link { font-size: 0.8rem !important; }
+  .lb-github-link { padding: 7px 9px !important; font-size: 0.78rem !important; }
+  .section-header { gap: 16px !important; padding-bottom: 24px; margin-bottom: 24px; }
+  .section-header h2 { max-width: 100%; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: minmax(0, 1fr) !important; }
+  .lb-access-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 20px !important; }
+  .btn { white-space: normal; text-align: center; overflow-wrap: anywhere; }
+  .hero-type { font-size: clamp(2rem, 9vw, 3rem) !important; }
+  .lead { font-size: 1rem !important; }
+}
+@media (max-width: 360px) {
+  :root { --gutter: 12px; }
+  .lb-site-header .lb-brand span:last-child { font-size: 0.98rem !important; }
+  .lb-site-header nav > div:first-child { gap: 10px !important; }
+}
