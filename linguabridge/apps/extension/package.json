@@ -13,7 +13,8 @@
     "@linguabridge/shared-types": "workspace:*",
     "@linguabridge/sdk-js": "workspace:*",
     "@linguabridge/translation-engine": "workspace:*",
-    "@linguabridge/speech-engine": "workspace:*"
+    "@linguabridge/speech-engine": "workspace:*",
+    "@linguabridge/widget": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
