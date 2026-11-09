@@ -1072,7 +1072,7 @@ export class LinguaBridgeWidget {
                       )}" data-phonetic="${encodeURIComponent(msg.phonetic || msg.text)}" data-lang="${msg.lang}">
                       Écouter
                     </button>
-                    ${msg.zeroDriftVerified ? `<span class="drift-badge">Valeurs à vérifier</span>` : ''}
+                    ${msg.zeroDriftVerified ? `<span class="drift-badge">Zéro Dérive</span>` : ''}
                   </div>
                 `
                     : ''

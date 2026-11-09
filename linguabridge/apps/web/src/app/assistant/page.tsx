@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowUp, Volume2, ShieldCheck, MessageCircle, Globe2 } from 'lucide-react';
 import { ACTIVE_CAMEROON_LANGUAGES, generateBankingResponse, speakAfricanText } from '@linguabridge/widget';

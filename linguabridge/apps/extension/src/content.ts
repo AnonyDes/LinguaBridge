@@ -995,13 +995,13 @@ class ExtensionAssistant {
         ${phonetic ? `<div style="color: #4b5563; font-size: 11px; margin-top: 2px; font-style: italic;">Prononciation : [${phonetic}]</div>` : ''}
         <div style="margin-top: 6px; display: flex; gap: 8px;">
           <button id="btn-speak-selection" style="background: #16a34a; color: #ffffff; border: 1px solid #15803d; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer;">
-            🔊 Écouter en langue maternelle
+            Écouter en langue maternelle
           </button>
         </div>
         ${
           warnings.length > 0
             ? `<div style="margin-top: 6px; padding: 6px 8px; background: #f9fafb; border: 1px solid #d1d5db; border-radius: 4px; color: #111827; font-size: 11px;">
-                🛡️ <strong>Garde financière :</strong> ${warnings.join(', ')}
+                <strong>Garde financière :</strong> ${warnings.join(', ')}
               </div>`
             : ''
         }
@@ -1010,7 +1010,7 @@ class ExtensionAssistant {
       this.shadow?.getElementById('btn-speak-selection')?.addEventListener('click', (e) => {
         const btn = e.currentTarget as HTMLElement;
         const orig = btn ? btn.innerHTML : '';
-        if (btn) btn.innerHTML = '🔊 Lecture vocale...';
+        if (btn) btn.innerHTML = 'Lecture vocale...';
         this.speechPlayer.speak(translatedText, phonetic, () => {
           if (btn) btn.innerHTML = orig;
         }, this.currentTargetLang);
@@ -1856,11 +1856,11 @@ class ExtensionAssistant {
 
         <button class="btn-action speak-toggle" id="btn-toggle-speak">
           <span></span>
-          <span>${this.isTouchSpeakEnabled ? 'Désactiver la lecture' : 'Activer la lecture sur demande'}</span>
+          <span>${this.isTouchSpeakEnabled ? 'Désactiver la lecture au toucher' : 'Activer la lecture sur demande'}</span>
         </button>
 
         <div class="speak-hint">
-          👉 <strong>Mode vocal actif :</strong> Survolez, touchez ou cliquez sur n'importe quelle section pour l'écouter en langue maternelle.
+          <strong>Mode vocal actif :</strong> Survolez, touchez ou cliquez sur n'importe quelle section pour l'écouter en langue maternelle.
         </div>
 
         <div id="selection-preview" class="preview-box"></div>

@@ -55,42 +55,42 @@ describe('Web Application UI', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders Developer Dashboard with Cameroon pack isolation policy', async () => {
+  it('renders Developer Dashboard / Access Portal with browser extension options', async () => {
     const root = createRoot(container);
     await act(async () => {
       root.render(<DeveloperDashboard />);
     });
 
-    // Check dashboard header and tabs
-    expect(container.textContent).toContain('Developer & Infrastructure Dashboard');
-    expect(container.textContent).toContain('TM Analytics & Performance');
-    expect(container.textContent).toContain('Language Pack Governance');
+    // Check header and navigation options
+    expect(container.textContent).toContain('Access LinguaBridge');
+    expect(container.textContent).toContain('Google Chrome');
+    expect(container.textContent).toContain('Microsoft Edge');
+    expect(container.textContent).toContain('Get started in 3 steps');
 
-    // Click Language Packs tab
+    // Click Web browser tab
     const buttons = Array.from(container.querySelectorAll('button'));
-    const packsTab = buttons.find((b) => b.textContent?.includes('Language Pack Governance'));
-    expect(packsTab).toBeDefined();
+    const webTab = buttons.find((b) => b.textContent?.includes('Web browser'));
+    expect(webTab).toBeDefined();
 
     await act(async () => {
-      packsTab?.click();
+      webTab?.click();
     });
 
-    // Check Cameroon isolation warning message
-    expect(container.textContent).toContain('Cameroon Low-Resource Language Isolation Policy');
-    expect(container.textContent).toContain('not_installed');
+    // Check web browser beta section
+    expect(container.textContent).toContain('Web access is coming');
   });
 
-  it('renders Landing Page with documentation portal and sandbox', async () => {
+  it('renders Landing Page with access CTA and financial safeguards', async () => {
     const root = createRoot(container);
     await act(async () => {
       root.render(<LandingPage />);
     });
 
-    expect(container.textContent).toContain('Bridging Languages, Securing Fintech');
-    expect(container.textContent).toContain('Financial Guard');
-    expect(container.textContent).toContain('Sub-ms Translation Memory');
-    expect(container.textContent).toContain('Live Financial Translation Sandbox');
-    expect(container.textContent).toContain('Quickstart Integration');
+    expect(container.textContent).toContain('Your money.');
+    expect(container.textContent).toContain('Your language.');
+    expect(container.textContent).toContain('Get the browser extension');
+    expect(container.textContent).toContain('FINANCIAL DATA SAFEGUARDS');
+    expect(container.textContent).toContain('SAFETY FIRST');
   });
 
   it('mounts and unmounts WidgetMount lifecycle correctly', async () => {

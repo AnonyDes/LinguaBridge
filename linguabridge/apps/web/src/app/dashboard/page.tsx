@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronRight, Download, ExternalLink, Globe2, Laptop, LockKeyhole, Puzzle, ShieldCheck, Smartphone, Wrench } from 'lucide-react';
 
