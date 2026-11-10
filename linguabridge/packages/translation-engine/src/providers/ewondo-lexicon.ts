@@ -2817,6 +2817,18 @@ export const FINANCIAL_GLOSSARY_ENTRIES: LexiconEntry[] = [
     "phonetic": "mó-ní mé-bèm-bá mé é-kó-bló"
   },
   {
+    "ewo": "Móni mébembá yá fakat tál",
+    "fra": "Frais de timbre fiscal",
+    "en": "Fiscal stamp fees",
+    "phonetic": "mó-ní mé-bèm-bá yá fa-kat tál"
+  },
+  {
+    "ewo": "Fakat tál",
+    "fra": "Timbre fiscal",
+    "en": "Fiscal stamp",
+    "phonetic": "fa-kat tál"
+  },
+  {
     "ewo": "Tégé móni mébembá",
     "fra": "Sans frais",
     "en": "Free of charge",
@@ -3345,6 +3357,13 @@ export const EXTENDED_BANKING_UI_LEXICON: Record<string, { ewo: string; phonetic
   'solde actuel': { ewo: 'Móni mí ne náná', phonetic: 'mó-ní mí né ná-ná' },
   'mon solde': { ewo: 'Móni mí ne', phonetic: 'mó-ní mí né' },
   'votre solde': { ewo: 'Móni mí ne wên', phonetic: 'mó-ní mí né wên' },
+  'votre solde est insuffisant': { ewo: 'Móni mí ne wên é ne tégué abui', phonetic: 'mó-ní mí né wên é né té-gé à-bùì' },
+  'solde est insuffisant': { ewo: 'Móni mí ne tégué abui', phonetic: 'mó-ní mí né té-gé à-bùì' },
+  'solde insuffisant': { ewo: 'Móni mí ne tégué abui', phonetic: 'mó-ní mí né té-gé à-bùì' },
+  'est insuffisant': { ewo: 'é ne tégué abui', phonetic: 'é né té-gé à-bùì' },
+  'insuffisant': { ewo: 'tégué abui', phonetic: 'té-gé à-bùì' },
+  'pour couvrir': { ewo: 'asú budi', phonetic: 'a-sú bu-di' },
+  'couvrir': { ewo: 'budi', phonetic: 'bu-di' },
   'consulter mon solde': { ewo: 'Yên móni mí ne', phonetic: 'yên mó-ní mí né' },
   'consulter mon compte': { ewo: 'Yên ékóbló dama', phonetic: 'yên é-kó-bló da-ma' },
   'consulter le solde': { ewo: 'Yên móni mí ne', phonetic: 'yên mó-ní mí né' },
@@ -3406,6 +3425,11 @@ export const EXTENDED_BANKING_UI_LEXICON: Record<string, { ewo: string; phonetic
   'frais de transfert': { ewo: 'Móni mébembá mé nlóm', phonetic: 'mó-ní mé-bèm-bá mé n-lóm' },
   'frais de tenue de compte': { ewo: 'Móni mébembá mé ékóbló', phonetic: 'mó-ní mé-bèm-bá mé é-kó-bló' },
   'frais de retrait': { ewo: 'Móni mébembá mé nnòng', phonetic: 'mó-ní mé-bèm-bá mé n-nòŋ' },
+  'frais de timbre fiscal': { ewo: 'Móni mébembá yá fakat tál', phonetic: 'mó-ní mé-bèm-bá yá fa-kat tál' },
+  'les frais de timbre fiscal': { ewo: 'Móni mébembá yá fakat tál', phonetic: 'mó-ní mé-bèm-bá yá fa-kat tál' },
+  'frais de timbre': { ewo: 'Móni mébembá yá fakat tál', phonetic: 'mó-ní mé-bèm-bá yá fa-kat tál' },
+  'timbre fiscal': { ewo: 'Fakat tál', phonetic: 'fa-kat tál' },
+  'timbre': { ewo: 'Fakat tál', phonetic: 'fa-kat tál' },
   'sans frais': { ewo: 'Tégé móni mébembá', phonetic: 'té-gé mó-ní mé-bèm-bá' },
   'gratuit': { ewo: 'Tégé móni mébembá', phonetic: 'té-gé mó-ní mé-bèm-bá' },
   'taux': { ewo: 'Abui', phonetic: 'à-bùì' },

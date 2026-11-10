@@ -727,4 +727,118 @@ describe('Chrome Extension Content Assistant', () => {
     // Verify precache was called on the visible headings/buttons
     expect(precacheSpy).toHaveBeenCalled();
   });
+
+  it('simulates SAFINUM Innovate Challenge jury scenario: dynamic alert injection, debounced MT, Δ=0 financial preservation, audio trigger, and clean restoration', async () => {
+    assistant = new ExtensionAssistant();
+    assistant.translateFullPage();
+    assistant.toggleTouchSpeakMode();
+
+    const host = document.getElementById('linguabridge-extension-root');
+    expect(host).not.toBeNull();
+
+    // 1. Inject dynamic alert element post-initial load (role="alert", class="popup-error")
+    const alertEl = document.createElement('div');
+    alertEl.setAttribute('role', 'alert');
+    alertEl.className = 'popup-error banner-alert';
+    alertEl.innerHTML = `Attention : votre solde est insuffisant pour couvrir les frais de timbre fiscal de <span class="amount">1 500 FCFA</span> sur le compte <strong class="account">CM21 1000 5001 2301 2345 6789 012</strong> (contact: <span class="phone">+237 699 001 122</span>)`;
+    document.body.appendChild(alertEl);
+
+    // 2. Await debounced MutationObserver (50ms debounce + translation execution)
+    await new Promise((resolve) => setTimeout(resolve, 80));
+
+    // 3. Assert translation into sovereign language (Ewondo) without text fragmentation
+    const translatedAlertText = alertEl.textContent || '';
+    expect(translatedAlertText).toContain('Tábé aí mesó');
+    expect(translatedAlertText).toContain('Móni mí ne wên é ne tégué abui');
+    expect(translatedAlertText).toContain('asú budi');
+    expect(translatedAlertText).toContain('Móni mébembá yá fakat tál');
+
+    // Assert that sensitive financial entities are preserved bit-for-bit (Δ = 0)
+    expect(alertEl.querySelector('.amount')?.textContent).toBe('1 500 FCFA');
+    expect(alertEl.querySelector('.account')?.textContent).toBe('CM21 1000 5001 2301 2345 6789 012');
+    expect(alertEl.querySelector('.phone')?.textContent).toBe('+237 699 001 122');
+    expect(translatedAlertText).toContain('1 500 FCFA');
+    expect(translatedAlertText).toContain('CM21 1000 5001 2301 2345 6789 012');
+    expect(translatedAlertText).toContain('+237 699 001 122');
+
+    // Verify absence of informal emojis (Nayokan design system compliance)
+    const emojiRegex = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
+    expect(emojiRegex.test(translatedAlertText)).toBe(false);
+
+    // 4. Assert Hover-to-Speak audio trigger activates on the dynamically injected element
+    alertEl.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, cancelable: true }));
+
+    // Before dwell timeout (<200ms), audio bar not yet active
+    const audioBar = host?.shadowRoot?.getElementById('audio-bar');
+    expect(audioBar?.style.display).toBeFalsy();
+
+    // Dwell for 260ms (>200ms debounce)
+    await new Promise((resolve) => setTimeout(resolve, 260));
+
+    expect(audioBar?.style.display).toBe('flex');
+    const spokenText = host?.shadowRoot?.getElementById('audio-spoken-text');
+    expect(spokenText?.textContent).toContain('Tábé aí mesó');
+    expect(spokenText?.textContent).toContain('1 500 FCFA');
+
+    const phoneticEl = host?.shadowRoot?.getElementById('audio-phonetic');
+    expect(phoneticEl?.textContent?.length).toBeGreaterThan(0);
+
+    // 5. Assert Click-to-Speak audio trigger activates instantly on dynamic alert
+    alertEl.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(audioBar?.style.display).toBe('flex');
+
+    // 6. Assert 100% reversible restoration with restorePage()
+    assistant.restorePage();
+    expect(alertEl.textContent).toBe('Attention : votre solde est insuffisant pour couvrir les frais de timbre fiscal de 1 500 FCFA sur le compte CM21 1000 5001 2301 2345 6789 012 (contact: +237 699 001 122)');
+    expect(alertEl.querySelector('.amount')?.textContent).toBe('1 500 FCFA');
+    expect(alertEl.querySelector('.account')?.textContent).toBe('CM21 1000 5001 2301 2345 6789 012');
+    expect(alertEl.querySelector('.phone')?.textContent).toBe('+237 699 001 122');
+  });
+
+  it('translates the SAFINUM jury sentence across all 5 sovereign languages with zero drift and full term coverage', () => {
+    const rawJurySentence = 'Attention : votre solde est insuffisant pour couvrir les frais de timbre fiscal de 1 500 FCFA sur le compte CM21 1000 5001 2301 2345 6789 012 (contact: +237 699 001 122)';
+
+    const expectedLanguageMarkers: Record<string, { attention: string; balanceWarning: string; fees: string }> = {
+      'ewo-CM': {
+        attention: 'Tábé aí mesó',
+        balanceWarning: 'Móni mí ne wên é ne tégué abui',
+        fees: 'Móni mébembá yá fakat tál',
+      },
+      'fuv-CM': {
+        attention: 'Reeno',
+        balanceWarning: 'Keɓal mooɗon heɓaay',
+        fees: 'Ceede laminol laamu',
+      },
+      'hau-CM': {
+        attention: 'Hattara',
+        balanceWarning: 'Ragowar kuɗinku bai isa ba',
+        fees: 'Kuɗin tambarin haraji',
+      },
+      'knc-CM': {
+        attention: 'Hangal',
+        balanceWarning: 'Liman kalinzə yeya ba',
+        fees: 'Hakki lamin jomiyabe',
+      },
+      'pcm-CM': {
+        attention: 'Look out',
+        balanceWarning: 'Ya Balance No reach',
+        fees: 'Tax stamp Charges',
+      },
+    };
+
+    for (const [lang, markers] of Object.entries(expectedLanguageMarkers)) {
+      const result = translateSentenceToSovereign(rawJurySentence, lang);
+      expect(result.status).toBe('success');
+
+      // Assert sovereign language vocabulary matches
+      expect(result.translatedText).toContain(markers.attention);
+      expect(result.translatedText).toContain(markers.balanceWarning);
+      expect(result.translatedText).toContain(markers.fees);
+
+      // Assert bit-for-bit financial entity preservation (Δ = 0)
+      expect(result.translatedText).toContain('1 500 FCFA');
+      expect(result.translatedText).toContain('CM21 1000 5001 2301 2345 6789 012');
+      expect(result.translatedText).toContain('+237 699 001 122');
+    }
+  });
 });

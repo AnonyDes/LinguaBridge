@@ -469,9 +469,10 @@ class ExtensionAssistant {
     'EM', 'STRONG', 'SPAN', 'B', 'I', 'U', 'A', 'SMALL', 'MARK', 'SUB', 'SUP', 'CODE', 'ABBR', 'CITE', 'TIME', 'BDO', 'BDI'
   ]);
   private static readonly CONTAINER_SELECTOR =
-    'h1, h2, h3, h4, h5, h6, p, li, button, label, dt, dd, td, th, blockquote, figcaption, summary, caption';
+    'h1, h2, h3, h4, h5, h6, p, li, button, label, dt, dd, td, th, blockquote, figcaption, summary, caption, [role="alert"], [role="dialog"], dialog, div.alert, div.modal, div.banner-alert, div.popup-error';
   private static readonly CONTAINER_BLOCK_TAGS = new Set([
-    'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'LI', 'BUTTON', 'LABEL', 'DT', 'DD', 'TD', 'TH', 'BLOCKQUOTE', 'FIGCAPTION', 'SUMMARY', 'CAPTION'
+    'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'LI', 'BUTTON', 'LABEL', 'DT', 'DD', 'TD', 'TH', 'BLOCKQUOTE', 'FIGCAPTION', 'SUMMARY', 'CAPTION',
+    'DIALOG', '[ROLE="ALERT"]', '[ROLE="DIALOG"]', 'DIV.ALERT', 'DIV.MODAL', 'DIV.BANNER-ALERT', 'DIV.POPUP-ERROR'
   ]);
   private originalAttrMap = new Map<
     Element,
@@ -621,7 +622,7 @@ class ExtensionAssistant {
 
     // 1. Look for closest semantic text or interactive element
     const semanticBlock = target.closest(
-      'h1, h2, h3, h4, h5, h6, p, button, a, li, td, th, label, dt, dd, summary, blockquote, figcaption, input, textarea, [role="button"], [role="link"], [role="heading"], [role="tab"], [role="menuitem"], [role="alert"]'
+      'h1, h2, h3, h4, h5, h6, p, button, a, li, td, th, label, dt, dd, summary, blockquote, figcaption, input, textarea, [role="button"], [role="link"], [role="heading"], [role="tab"], [role="menuitem"], [role="alert"], [role="dialog"], dialog, div.alert, div.modal, div.banner-alert, div.popup-error'
     ) as HTMLElement | null;
 
     if (semanticBlock && !this.isExtensionNode(semanticBlock)) {
@@ -646,8 +647,12 @@ class ExtensionAssistant {
       return null;
     }
 
-    // 3. If target has multiple block children, let the cursor hover the specific child
-    if (target.querySelectorAll && target.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, td, th, button, dt, dd').length > 0) {
+    // 3. If target has multiple block children, let the cursor hover the specific child (unless target is an alert or modal)
+    if (
+      target.querySelectorAll &&
+      target.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, td, th, button, dt, dd').length > 0 &&
+      !target.matches?.('[role="alert"], [role="dialog"], dialog, div.alert, div.modal, div.banner-alert, div.popup-error')
+    ) {
       return null;
     }
 
@@ -1117,6 +1122,9 @@ class ExtensionAssistant {
       for (const node of this.pendingMutations) {
         this.translateNodeSubtree(node);
       }
+      if (this.mutationObserver) {
+        this.mutationObserver.takeRecords();
+      }
     } finally {
       this.pendingMutations.clear();
       this.isTranslating = false;
@@ -1479,8 +1487,11 @@ class ExtensionAssistant {
       }
 
       const elTag = (el.tagName || '').toUpperCase();
+      const isContainerBlock =
+        ExtensionAssistant.CONTAINER_BLOCK_TAGS.has(elTag) ||
+        (typeof el.matches === 'function' && el.matches(ExtensionAssistant.CONTAINER_SELECTOR));
       if (
-        ExtensionAssistant.CONTAINER_BLOCK_TAGS.has(elTag) &&
+        isContainerBlock &&
         !el.querySelector?.(ExtensionAssistant.CONTAINER_SELECTOR)
       ) {
         const hasInline = Array.from(el.children).some((child) =>
@@ -1579,6 +1590,9 @@ class ExtensionAssistant {
 
       // Proactive zero-latency pre-caching: pre-fetch neural audio for top visible headings and key sections
       this.precacheVisibleSections();
+      if (this.mutationObserver) {
+        this.mutationObserver.takeRecords();
+      }
     } finally {
       this.isTranslating = false;
     }
@@ -1657,6 +1671,9 @@ class ExtensionAssistant {
       this.clearHoverState();
       this.speechPlayer.stop();
       this.render();
+      if (this.mutationObserver) {
+        this.mutationObserver.takeRecords();
+      }
     } finally {
       this.isTranslating = false;
     }
