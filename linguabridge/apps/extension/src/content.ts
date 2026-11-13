@@ -51,7 +51,7 @@ class AfricanSpeechPlayer {
   private activeUtterance: SpeechSynthesisUtterance | null = null;
   private audioBufferCache = new Map<string, AudioBuffer>();
 
-  constructor(private readonly onAvailability?: (available: boolean) => void) {
+  constructor(private readonly onAvailability?: (available: boolean, reason?: string) => void) {
     this.prewarm();
     if (typeof window !== 'undefined') {
       const unlock = () => {
@@ -174,8 +174,11 @@ class AfricanSpeechPlayer {
             this.onAvailability?.(true);
             await this.playNeuralAudio(res.result.audioUrl, thisId, clauseText, targetLang, cacheKey, onClauseEnd);
           } else {
-            this.onAvailability?.(false);
-            console.warn('[LinguaBridge Speech] African neural speech synthesis returned unavailable:', res?.error);
+            const reason = chrome.runtime.lastError
+              ? 'Extension rechargée. Actualisez cet onglet avant de réessayer.'
+              : typeof res?.error === 'string' ? res.error : 'La requête vocale n’a pas répondu.';
+            this.onAvailability?.(false, reason);
+            console.warn('[LinguaBridge Speech] Speech unavailable:', reason);
             onClauseEnd();
           }
         }
@@ -360,7 +363,7 @@ class AfricanSpeechPlayer {
 
       audio.onended = finish;
       audio.onerror = () => {
-        this.onAvailability?.(false);
+        this.onAvailability?.(false, 'Le fichier audio reçu ne peut pas être lu par Chrome.');
         if (onEnd) {
           onEnd();
         } else {
@@ -371,7 +374,7 @@ class AfricanSpeechPlayer {
       const playPromise = audio.play();
       if (playPromise && typeof playPromise.catch === 'function') {
         playPromise.catch(() => {
-          this.onAvailability?.(false);
+          this.onAvailability?.(false, 'Chrome a bloqué la lecture. Cliquez une fois sur la page, puis réessayez.');
           if (onEnd) {
             onEnd();
           } else {
@@ -380,6 +383,7 @@ class AfricanSpeechPlayer {
         });
       }
     } catch {
+      this.onAvailability?.(false, 'Chrome n’a pas pu démarrer la lecture audio.');
       if (onEnd) {
         onEnd();
       } else {
@@ -503,15 +507,17 @@ class ExtensionAssistant {
   private chatHistory: Array<{ role: 'user' | 'assistant'; text: string }> = [];
   private lastSelection = '';
   private isTouchSpeakEnabled = false;
-  private speechPlayer = new EwondoSpeechPlayer((available) => this.updateVoiceAvailability(available));
+  private speechPlayer = new EwondoSpeechPlayer((available, reason) => this.updateVoiceAvailability(available, reason));
   private voiceAvailable: boolean | null = null;
+  private voiceFailureReason: string | null = null;
 
-  private updateVoiceAvailability(available: boolean): void {
+  private updateVoiceAvailability(available: boolean, reason?: string): void {
     this.voiceAvailable = available;
+    this.voiceFailureReason = available ? null : reason || 'Voix indisponible. Vérifiez la clé API et le serveur.';
     const hint = this.shadow?.getElementById('voice-status');
     if (hint) hint.textContent = available
       ? 'Voix prête.'
-      : 'Voix indisponible pour cette langue ou service hors ligne. Vérifiez la clé API et choisissez Hausa ou Fulfulde pour la voix hébergée.';
+      : this.voiceFailureReason;
   }
 
   // Instant speech & phonetic cache to eliminate voice latency
@@ -744,6 +750,8 @@ class ExtensionAssistant {
           this.translateFullPage();
         } else if (msg.type === 'POPUP_SET_TARGET_LANGUAGE') {
           this.currentTargetLang = msg.targetLang || 'ewo-CM';
+          this.voiceAvailable = null;
+          this.voiceFailureReason = null;
           if (this.isPageTranslated) this.translateFullPage();
           else this.render();
         } else if (msg.type === 'POPUP_SET_ENHANCED_TRANSLATION') {
@@ -2170,6 +2178,11 @@ class ExtensionAssistant {
       </div>
     `;
 
+    if (this.voiceAvailable === false && this.voiceFailureReason) {
+      const voiceStatus = this.shadow.getElementById('voice-status');
+      if (voiceStatus) voiceStatus.textContent = this.voiceFailureReason;
+    }
+
     // Attach listeners
     this.shadow.getElementById('btn-toggle')?.addEventListener('click', () => {
       this.isOpen = !this.isOpen;
@@ -2205,6 +2218,7 @@ class ExtensionAssistant {
       chrome.storage?.local?.set({ linguabridgeTargetLang: this.currentTargetLang });
       this.translationSpeechCache.clear();
       this.voiceAvailable = null;
+      this.voiceFailureReason = null;
       this.stopSpeech();
       if (this.isPageTranslated) {
         this.translateFullPage();

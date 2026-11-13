@@ -8,6 +8,22 @@ const client = new LinguaBridgeClient({
 
 const africanVoiceProvider = new AfricanVoiceProvider();
 const audioPayloadCache = new Map<string, { audioBase64: string; engine: string }>();
+const DEFAULT_API_BASE_URL = 'https://api-production-72bac574.up.railway.app';
+
+class SpeechSetupError extends Error {}
+
+function speechFailureMessage(error: unknown): string {
+  if (error instanceof SpeechSetupError) return error.message;
+  const status = Number((error as { statusCode?: number })?.statusCode);
+  if (status === 401) return 'Clé LinguaBridge absente ou invalide. Ouvrez la fenêtre de l’extension et enregistrez le serveur.';
+  if (status === 403) return 'La clé LinguaBridge ne permet pas la synthèse vocale.';
+  if (status === 408) return 'La voix a dépassé le délai. Réessayez sur une phrase courte.';
+  if (status === 422) return 'La voix est indisponible pour cette langue ou ce passage.';
+  if (status === 429) return 'Limite de requêtes vocales atteinte. Réessayez plus tard.';
+  if (status === 0) return 'Connexion au serveur vocal impossible. Vérifiez Internet et l’autorisation Chrome.';
+  if (status >= 500) return 'Le serveur vocal est temporairement indisponible.';
+  return 'Réponse vocale invalide ou service local indisponible.';
+}
 
 // Setup context menus
 if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
@@ -229,14 +245,29 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
 
       chrome.storage.local.get(['linguabridgeApiBaseUrl', 'linguabridgeApiKey'])
         .then(async (settings) => {
-          const configured = String(settings.linguabridgeApiBaseUrl || '').replace(/\/$/, '');
-          const remote = configured.startsWith('https://');
+          const configured = String(settings.linguabridgeApiBaseUrl || DEFAULT_API_BASE_URL).trim().replace(/\/$/, '');
+          let apiUrl: URL;
+          try { apiUrl = new URL(configured); } catch {
+            throw new SpeechSetupError('Adresse du serveur vocal invalide. Enregistrez le serveur dans la fenêtre de l’extension.');
+          }
+          const remote = apiUrl.protocol === 'https:';
+          const local = apiUrl.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(apiUrl.hostname);
+          if (!remote && !local) throw new SpeechSetupError('Le serveur vocal doit utiliser HTTPS ou localhost.');
+          if (remote) {
+            if (!String(settings.linguabridgeApiKey || '').trim()) {
+              throw new SpeechSetupError('Clé LinguaBridge manquante. Ouvrez l’extension et cliquez sur « Enregistrer le serveur ».');
+            }
+            const permitted = await chrome.permissions.contains({ origins: [`${apiUrl.origin}/*`] });
+            if (!permitted) {
+              throw new SpeechSetupError('Accès au serveur non autorisé dans Chrome. Ouvrez l’extension et cliquez sur « Enregistrer le serveur ».');
+            }
+          }
           const cacheKey = `${remote ? configured : 'local'}:${normLang}:${text.trim()}`;
           const cached = audioPayloadCache.get(cacheKey);
           if (cached) return { ...cached, lang };
           const data = remote
             ? (await new LinguaBridgeClient({ baseUrl: configured, apiKey: settings.linguabridgeApiKey,
-              timeout: 15000, maxRetries: 0 }).synthesizeSpeech({ text, lang: normLang }) as any).data
+              timeout: 30000, maxRetries: 0 }).synthesizeSpeech({ text, lang: normLang }) as any).data
             : await tryFetch('http://127.0.0.1:3002').catch(() => tryFetch('http://localhost:3002'));
           if (typeof data?.audioBase64 !== 'string' || data.audioBase64.length <= 60 ||
             data.lang?.toLowerCase() !== normLang ||
@@ -260,8 +291,8 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             },
           });
         })
-        .catch(() => {
-          sendResponse({ success: false, error: 'Neural voice service unavailable' });
+        .catch((error: unknown) => {
+          sendResponse({ success: false, error: speechFailureMessage(error) });
         });
 
       return true;

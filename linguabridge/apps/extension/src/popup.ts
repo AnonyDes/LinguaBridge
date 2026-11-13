@@ -63,8 +63,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   enhancedToggle.setAttribute('aria-checked', String(saved.linguabridgeEnhancedTranslation === true));
   apiUrl.value = saved.linguabridgeApiBaseUrl || 'https://api-production-72bac574.up.railway.app';
   apiKey.value = saved.linguabridgeApiKey || '';
+  let serverKeySaved = Boolean(saved.linguabridgeApiKey);
   void refreshPageWorkload();
-  if (saved.linguabridgeAutoTranslate === true) showStatus('Traduction automatique active. Les passages inconnus restent dans la langue source.');
+  if (saved.linguabridgeAudioEnabled === true && !saved.linguabridgeApiKey && apiUrl.value.startsWith('https://')) {
+    showStatus('Lecture activée, mais aucune clé serveur enregistrée. Saisissez la clé LinguaBridge et cliquez sur « Enregistrer le serveur ».');
+  } else if (saved.linguabridgeAutoTranslate === true) {
+    showStatus('Traduction automatique active. Les passages inconnus restent dans la langue source.');
+  }
   $('tab-translate')?.addEventListener('click', () => showTab('translate'));
   $('tab-assistant')?.addEventListener('click', () => showTab('assistant'));
   select.addEventListener('change', async () => {
@@ -98,20 +103,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       showStatus('Utilisez HTTPS, ou localhost pour un serveur sur cet ordinateur.');
       return;
     }
+    if (url.protocol === 'https:' && !apiKey.value.trim()) {
+      showStatus('Ajoutez la clé LinguaBridge avant d’enregistrer le serveur vocal Railway.');
+      return;
+    }
     if (url.protocol === 'https:') {
       const granted = await chrome.permissions.request({ origins: [`${url.origin}/*`] });
       if (!granted) { showStatus('Accès au serveur non accordé.'); return; }
     }
     await chrome.storage.local.set({ linguabridgeApiBaseUrl: value.replace(/\/$/, ''), linguabridgeApiKey: apiKey.value.trim() });
+    serverKeySaved = Boolean(apiKey.value.trim());
     if (enhancedToggle.getAttribute('aria-checked') === 'true') {
       await activeTabMessage({ type: 'POPUP_SET_ENHANCED_TRANSLATION', enabled: true });
     }
     showStatus(enhancedToggle.getAttribute('aria-checked') === 'true'
-      ? 'Serveur enregistré. Traduction approfondie relancée.'
-      : 'Serveur enregistré. Activez la traduction approfondie pour l’utiliser.');
+      ? 'Serveur enregistré. Traduction approfondie et voix disponibles.'
+      : 'Serveur enregistré. La lecture vocale est prête si elle est activée.');
   });
   toggle.addEventListener('click', async () => {
     const enabled = toggle.getAttribute('aria-checked') !== 'true';
+    if (enabled && apiUrl.value.startsWith('https://') && !serverKeySaved) {
+      showStatus('Ajoutez la clé LinguaBridge, puis cliquez sur « Enregistrer le serveur » avant d’activer la voix.');
+      return;
+    }
     await chrome.storage.local.set({ linguabridgeAudioEnabled: enabled });
     toggle.setAttribute('aria-checked', String(enabled));
     await activeTabMessage({ type: 'POPUP_SET_SPEECH', enabled });

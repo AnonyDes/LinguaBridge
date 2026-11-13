@@ -60,6 +60,16 @@ describe('Chrome Extension Content Assistant', () => {
     expect(host?.shadowRoot?.getElementById('btn-toggle')).not.toBeNull();
   });
 
+  it('keeps the actual speech error visible after the panel rerenders', () => {
+    assistant = new ExtensionAssistant();
+    (assistant as any).updateVoiceAvailability(false, 'Clé LinguaBridge manquante.');
+    (assistant as any).render();
+    const text = document.getElementById('linguabridge-extension-root')?.shadowRoot
+      ?.getElementById('voice-status')?.textContent;
+    expect(text).toContain('Clé LinguaBridge manquante');
+    expect(text).not.toContain('choisissez Hausa ou Fulfulde');
+  });
+
   it('refreshes page size when content appears after the initial scan', () => {
     document.body.innerHTML = '<main id="late"></main>';
     assistant = new ExtensionAssistant();
