@@ -50,6 +50,71 @@ describe('Chrome Extension Content Assistant', () => {
     }
     document.body.innerHTML = '';
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it('does not create Web Audio until the page receives a user gesture', () => {
+    let creations = 0;
+    vi.stubGlobal('AudioContext', class {
+      state = 'suspended';
+      constructor() { creations++; }
+      resume = vi.fn().mockResolvedValue(undefined);
+      close = vi.fn().mockResolvedValue(undefined);
+    });
+    assistant = new ExtensionAssistant();
+    (assistant as any).speechPlayer.prewarm();
+    expect(creations).toBe(0);
+    window.dispatchEvent(new Event('pointerdown'));
+    expect((assistant as any).speechPlayer.audioCtx).not.toBeNull();
+    expect(creations).toBeGreaterThanOrEqual(1);
+  });
+
+  it('offers English and French and translates an English page into French with the model', async () => {
+    document.documentElement.lang = 'en';
+    document.body.innerHTML = '<p id="message">Open your account</p>';
+    (global as any).chrome.runtime.sendMessage = vi.fn((message, callback) => {
+      if (message.type === 'ENHANCED_TRANSLATE_BATCH') {
+        callback({ success: true, results: message.items.map((item: any) => ({
+          translatedText: 'Ouvrez votre compte', targetLang: item.targetLang,
+          provider: 'openrouter', status: 'success',
+        })) });
+      }
+    });
+    assistant = new ExtensionAssistant();
+    const selector = document.getElementById('linguabridge-extension-root')?.shadowRoot
+      ?.getElementById('target-lang') as HTMLSelectElement;
+    expect(Array.from(selector.options).map((option) => option.value)).toEqual(
+      expect.arrayContaining(['en', 'fr'])
+    );
+    selector.value = 'fr';
+    selector.dispatchEvent(new Event('change'));
+    assistant.translateFullPage();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    expect(document.getElementById('message')?.textContent).toBe('Ouvrez votre compte');
+    document.documentElement.lang = '';
+  });
+
+  it('uses a browser voice only for English and French', () => {
+    vi.stubGlobal('SpeechSynthesisUtterance', class {
+      lang = '';
+      voice: any = null;
+      onstart: any = null;
+      onend: any = null;
+      onerror: any = null;
+      constructor(public text: string) {}
+    });
+    const speak = vi.fn();
+    vi.stubGlobal('speechSynthesis', {
+      speak, cancel: vi.fn(), resume: vi.fn(), speaking: false,
+      getVoices: () => [{ lang: 'fr-FR', name: 'French voice' }],
+    });
+    assistant = new ExtensionAssistant();
+    const player = (assistant as any).speechPlayer;
+    player.speak('Bonjour', undefined, undefined, 'fr');
+    expect(speak).toHaveBeenCalledTimes(1);
+    expect(speak.mock.calls[0][0].lang).toBe('fr-FR');
+    player.speak('Mbolo', undefined, undefined, 'ewo-CM');
+    expect(speak).toHaveBeenCalledTimes(1);
   });
 
   it('attaches shadow DOM isolated widget host element', () => {

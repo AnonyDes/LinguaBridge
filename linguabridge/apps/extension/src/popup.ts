@@ -2,7 +2,7 @@ import { generateBankingResponse } from '../../../packages/widget/src/banking-en
 
 type Message = { type: string; [key: string]: unknown };
 const $ = (id: string) => document.getElementById(id);
-const supported = new Set(['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM']);
+const supported = new Set(['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM', 'en', 'fr']);
 
 async function activeTabMessage(message: Message): Promise<boolean> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const saved = await chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled', 'linguabridgeAutoTranslate', 'linguabridgeEnhancedTranslation', 'linguabridgeApiBaseUrl', 'linguabridgeApiKey']);
   select.value = supported.has(saved.linguabridgeTargetLang) ? saved.linguabridgeTargetLang : 'ewo-CM';
   toggle.setAttribute('aria-checked', String(saved.linguabridgeAudioEnabled === true));
-  enhancedToggle.setAttribute('aria-checked', String(saved.linguabridgeEnhancedTranslation === true));
+  enhancedToggle.setAttribute('aria-checked', String(saved.linguabridgeEnhancedTranslation === true || select.value === 'en' || select.value === 'fr'));
   apiUrl.value = saved.linguabridgeApiBaseUrl || 'https://api-production-72bac574.up.railway.app';
   apiKey.value = saved.linguabridgeApiKey || '';
   let serverKeySaved = Boolean(saved.linguabridgeApiKey);
@@ -73,11 +73,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('tab-translate')?.addEventListener('click', () => showTab('translate'));
   $('tab-assistant')?.addEventListener('click', () => showTab('assistant'));
   select.addEventListener('change', async () => {
-    await chrome.storage.local.set({ linguabridgeTargetLang: select.value });
+    const needsServer = select.value === 'en' || select.value === 'fr';
+    await chrome.storage.local.set({ linguabridgeTargetLang: select.value,
+      ...(needsServer ? { linguabridgeEnhancedTranslation: true } : {}) });
+    if (needsServer) {
+      enhancedToggle.setAttribute('aria-checked', 'true');
+      await activeTabMessage({ type: 'POPUP_SET_ENHANCED_TRANSLATION', enabled: true });
+    }
     await activeTabMessage({ type: 'POPUP_SET_TARGET_LANGUAGE', targetLang: select.value });
-    showStatus('Langue enregistrée.');
+    showStatus(needsServer
+      ? serverKeySaved
+        ? 'Langue enregistrée. La traduction EN/FR utilise le serveur configuré.'
+        : 'Langue enregistrée. Ajoutez la clé LinguaBridge et cliquez sur « Enregistrer le serveur » pour traduire en EN/FR.'
+      : 'Langue enregistrée.');
   });
   $('btn-trigger-page')?.addEventListener('click', async () => {
+    if ((select.value === 'en' || select.value === 'fr') && !serverKeySaved) {
+      showStatus('La traduction EN/FR nécessite la clé LinguaBridge. Enregistrez le serveur avant de traduire.');
+      return;
+    }
     await chrome.storage.local.set({ linguabridgeAutoTranslate: true });
     const ok = await activeTabMessage({ type: 'POPUP_TRANSLATE_PAGE', targetLang: select.value });
     showStatus(ok ? 'Traduction activée pour les pages suivantes. Le lexique local peut laisser des passages inchangés.' : 'Traduction activée, mais cette page ne permet pas l’injection de l’extension.');
@@ -90,6 +104,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   enhancedToggle.addEventListener('click', async () => {
     const enabled = enhancedToggle.getAttribute('aria-checked') !== 'true';
+    if (!enabled && (select.value === 'en' || select.value === 'fr')) {
+      showStatus('La traduction EN/FR nécessite la traduction approfondie et le serveur LinguaBridge.');
+      return;
+    }
     await chrome.storage.local.set({ linguabridgeEnhancedTranslation: enabled });
     enhancedToggle.setAttribute('aria-checked', String(enabled));
     await activeTabMessage({ type: 'POPUP_SET_ENHANCED_TRANSLATION', enabled });

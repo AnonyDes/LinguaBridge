@@ -44,24 +44,35 @@ function splitIntoAcousticClauses(text: string): string[] {
 class AfricanSpeechPlayer {
   private isPlaying = false;
   private audioCtx: AudioContext | null = null;
+  private audioUnlocked = false;
   private activeSource: AudioBufferSourceNode | null = null;
   private activeAudio: HTMLAudioElement | null = null;
   private onEndCallback: (() => void) | null = null;
   private currentUtteranceId = 0;
   private activeUtterance: SpeechSynthesisUtterance | null = null;
   private audioBufferCache = new Map<string, AudioBuffer>();
+  private readonly unlockAudio = () => {
+    this.audioUnlocked = true;
+    this.ensureAudioContext();
+  };
 
   constructor(private readonly onAvailability?: (available: boolean, reason?: string) => void) {
-    this.prewarm();
     if (typeof window !== 'undefined') {
-      const unlock = () => {
-        this.ensureAudioContext();
-      };
-      window.addEventListener('pointerdown', unlock, { capture: true, passive: true });
-      window.addEventListener('click', unlock, { capture: true, passive: true });
-      window.addEventListener('keydown', unlock, { capture: true, passive: true });
-      window.addEventListener('touchend', unlock, { capture: true, passive: true });
+      window.addEventListener('pointerdown', this.unlockAudio, { capture: true, passive: true });
+      window.addEventListener('click', this.unlockAudio, { capture: true, passive: true });
+      window.addEventListener('keydown', this.unlockAudio, { capture: true, passive: true });
+      window.addEventListener('touchend', this.unlockAudio, { capture: true, passive: true });
     }
+  }
+
+  public destroy(): void {
+    this.stop();
+    window.removeEventListener('pointerdown', this.unlockAudio, true);
+    window.removeEventListener('click', this.unlockAudio, true);
+    window.removeEventListener('keydown', this.unlockAudio, true);
+    window.removeEventListener('touchend', this.unlockAudio, true);
+    void this.audioCtx?.close?.();
+    this.audioCtx = null;
   }
 
   public prewarm(): void {
@@ -74,6 +85,8 @@ class AfricanSpeechPlayer {
   }
 
   public ensureAudioContext(): void {
+    // Chrome only permits Web Audio startup after a gesture in this page.
+    if (!this.audioUnlocked) return;
     try {
       const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtxClass) {
@@ -151,6 +164,10 @@ class AfricanSpeechPlayer {
     targetLang: string,
     onClauseEnd: () => void
   ): void {
+    if (targetLang === 'en' || targetLang === 'fr') {
+      this.playBrowserVoice(clauseText, targetLang, thisId, onClauseEnd);
+      return;
+    }
     const cacheKey = `${targetLang}:${clauseText.toLowerCase()}`;
 
     // 1. FAST PATH (<1ms): Instant playback from decoded AudioBuffer cache
@@ -218,7 +235,14 @@ class AfricanSpeechPlayer {
     }
 
     if (this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume().catch(() => {});
+      void this.audioCtx.resume().then(() => {
+        if (this.currentUtteranceId === thisId && this.audioCtx?.state === 'running') {
+          this.playBuffer(audioBuffer, thisId, onEnd);
+        } else {
+          this.onAvailability?.(false, 'Chrome a bloqué le son. Cliquez sur la page, puis réessayez.');
+        }
+      }).catch(() => this.onAvailability?.(false, 'Chrome a bloqué le son. Cliquez sur la page, puis réessayez.'));
+      return;
     }
 
     const source = this.audioCtx.createBufferSource();
@@ -268,7 +292,7 @@ class AfricanSpeechPlayer {
   }
 
   public async precache(text: string, targetLang = 'ewo-CM'): Promise<void> {
-    if (typeof window === 'undefined' || !text) return;
+    if (typeof window === 'undefined' || !text || targetLang === 'en' || targetLang === 'fr') return;
     const isEwondo = targetLang.startsWith('ewo');
     const spokenRaw = isEwondo ? getEwondoPhonetic(text) : text;
     const spokenText = spokenRaw.replace(/-/g, '').trim();
@@ -307,10 +331,9 @@ class AfricanSpeechPlayer {
     // Strategy 1: Decode base64 WAV into Web Audio buffer (bypasses CSP media-src blocks)
     try {
       const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioCtxClass && audioUrl.startsWith('data:audio/wav;base64,')) {
-        if (!this.audioCtx) {
-          this.audioCtx = new AudioCtxClass();
-        }
+      if (AudioCtxClass && this.audioUnlocked && audioUrl.startsWith('data:audio/wav;base64,')) {
+        this.ensureAudioContext();
+        if (!this.audioCtx) throw new Error('AudioContext unavailable');
         if (this.audioCtx.state === 'suspended') {
           await this.audioCtx.resume();
         }
@@ -392,10 +415,36 @@ class AfricanSpeechPlayer {
     }
   }
 
-  private playBrowserVoice(_text: string, _targetLang: string, thisId: number): void {
-    // Permanent Block: Google and European/Windows browser speech engines are strictly blocked.
-    // Only Meta MMS African neural engine is permitted.
-    this.finishUtterance(thisId);
+  private playBrowserVoice(text: string, targetLang: string, thisId: number, onEnd?: () => void): void {
+    // Browser voices are used only for English and French. African targets keep
+    // using the hosted voices so a European voice never reads those languages.
+    if ((targetLang !== 'en' && targetLang !== 'fr') || !window.speechSynthesis ||
+        typeof SpeechSynthesisUtterance === 'undefined') {
+      if (onEnd) onEnd();
+      else this.finishUtterance(thisId);
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = targetLang === 'fr' ? 'fr-FR' : 'en-US';
+    const voice = window.speechSynthesis.getVoices().find((item) => item.lang.toLowerCase().startsWith(targetLang));
+    if (voice) utterance.voice = voice;
+    this.activeUtterance = utterance;
+    utterance.onstart = () => { if (this.currentUtteranceId === thisId) this.isPlaying = true; };
+    utterance.onend = () => {
+      if (this.currentUtteranceId !== thisId) return;
+      this.isPlaying = false;
+      this.activeUtterance = null;
+      this.onAvailability?.(true);
+      if (onEnd) onEnd();
+      else this.finishUtterance(thisId);
+    };
+    utterance.onerror = () => {
+      if (this.currentUtteranceId !== thisId) return;
+      this.onAvailability?.(false, 'Voix du navigateur indisponible. Cliquez sur la page, puis réessayez.');
+      if (onEnd) onEnd();
+      else this.finishUtterance(thisId);
+    };
+    window.speechSynthesis.speak(utterance);
   }
 
   private finishUtterance(thisId: number): void {
@@ -550,6 +599,8 @@ class ExtensionAssistant {
 
   public getLangBadgeName(lang: string): string {
     switch (lang) {
+      case 'en': return 'EN English';
+      case 'fr': return 'FR Français';
       case 'ewo-CM': return '🇨🇲 Ewondo';
       case 'fuv-CM': return '🇨🇲 Fulfulde';
       case 'hau-CM': return '🇨🇲 Haoussa';
@@ -613,7 +664,8 @@ class ExtensionAssistant {
         chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled', 'linguabridgeAutoTranslate', 'linguabridgeEnhancedTranslation'], (settings) => {
           if (settings.linguabridgeTargetLang) this.currentTargetLang = settings.linguabridgeTargetLang;
           this.isTouchSpeakEnabled = settings.linguabridgeAudioEnabled === true;
-          this.enhancedEnabled = settings.linguabridgeEnhancedTranslation === true;
+          this.enhancedEnabled = settings.linguabridgeEnhancedTranslation === true ||
+            this.currentTargetLang === 'en' || this.currentTargetLang === 'fr';
           this.render();
           if (settings.linguabridgeAutoTranslate === true) this.translateFullPage();
         });
@@ -750,12 +802,13 @@ class ExtensionAssistant {
           this.translateFullPage();
         } else if (msg.type === 'POPUP_SET_TARGET_LANGUAGE') {
           this.currentTargetLang = msg.targetLang || 'ewo-CM';
+          if (this.currentTargetLang === 'en' || this.currentTargetLang === 'fr') this.enhancedEnabled = true;
           this.voiceAvailable = null;
           this.voiceFailureReason = null;
           if (this.isPageTranslated) this.translateFullPage();
           else this.render();
         } else if (msg.type === 'POPUP_SET_ENHANCED_TRANSLATION') {
-          this.enhancedEnabled = msg.enabled === true;
+          this.enhancedEnabled = msg.enabled === true || this.currentTargetLang === 'en' || this.currentTargetLang === 'fr';
           this.enhancedCache.clear();
           if (this.isPageTranslated && this.enhancedEnabled) this.scheduleEnhancedTranslation();
         } else if (msg.type === 'GET_PAGE_METRICS') {
@@ -1748,7 +1801,8 @@ class ExtensionAssistant {
   }
 
   private scheduleEnhancedTranslation(): void {
-    if (!this.enhancedEnabled || !this.isPageTranslated || !chrome.runtime?.sendMessage) return;
+    if (!this.enhancedEnabled || !this.isPageTranslated || !chrome.runtime?.sendMessage ||
+        this.currentSourceLang === this.currentTargetLang) return;
     if (this.enhancedTimer) clearTimeout(this.enhancedTimer);
     const generation = this.enhancedGeneration;
     this.enhancedTimer = setTimeout(() => {
@@ -1758,7 +1812,8 @@ class ExtensionAssistant {
   }
 
   private async translateWithServer(generation: number): Promise<void> {
-    if (generation !== this.enhancedGeneration || !this.isPageTranslated) return;
+    if (generation !== this.enhancedGeneration || !this.isPageTranslated ||
+        this.currentSourceLang === this.currentTargetLang) return;
     const groups = new Map<string, Array<(translated: string) => void>>();
     const sourceLang = this.currentSourceLang;
     const targetLang = this.currentTargetLang;
@@ -2123,13 +2178,15 @@ class ExtensionAssistant {
         <div style="margin-bottom: 8px;">
           <label style="font-weight: 600; font-size: 12px; color: #4b5563;">Langue maternelle :</label>
           <select id="target-lang" style="width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #d1d5db; margin-top: 4px; font-size: 13px; font-weight: 600; background: #ffffff;">
+            <option value="en" ${this.currentTargetLang === 'en' ? 'selected' : ''}>English (EN)</option>
+            <option value="fr" ${this.currentTargetLang === 'fr' ? 'selected' : ''}>Français (FR)</option>
             <option value="ewo-CM" ${this.currentTargetLang === 'ewo-CM' ? 'selected' : ''}>Ewondo (Centre, Sud, Est)</option>
             <option value="fuv-CM" ${this.currentTargetLang === 'fuv-CM' ? 'selected' : ''}>Fulfulde / Peul (Grand Nord, CEMAC)</option>
             <option value="hau-CM" ${this.currentTargetLang === 'hau-CM' ? 'selected' : ''}>Haoussa (Grand Nord, Corridors)</option>
             <option value="knc-CM" ${this.currentTargetLang === 'knc-CM' ? 'selected' : ''}>Kanuri (Extrême-Nord, Lac Tchad)</option>
             <option value="pcm-CM" ${this.currentTargetLang === 'pcm-CM' ? 'selected' : ''}>Pidgin English (NO, SO, Marchés)</option>
           </select>
-          <p style="font-size:11px;color:#667085;margin-top:9px;">Français et anglais détectés automatiquement. Le lexique local peut laisser des passages sans traduction. Vérifiez les montants avant une transaction.</p>
+          <p style="font-size:11px;color:#667085;margin-top:9px;">Langue source détectée automatiquement. EN/FR utilise le serveur configuré. Vérifiez les montants avant une transaction.</p>
         </div>
 
         <div style="margin-top: 10px;">
@@ -2146,7 +2203,7 @@ class ExtensionAssistant {
         </button>
 
         <div class="speak-hint">
-          <strong>Lecture au survol :</strong> Survolez ou cliquez sur une section. <span id="voice-status">${this.voiceAvailable === false ? 'Voix indisponible. Vérifiez la clé API, le service et le son du navigateur.' : this.voiceAvailable === true ? 'Voix prête.' : ['hau-CM', 'fuv-CM'].includes(this.currentTargetLang) ? 'Voix hébergée disponible avec une clé API. Un clic sur la page peut être nécessaire pour autoriser le son.' : 'Voix expérimentale en ligne avec une clé API ; prononciation non vérifiée.'}</span>
+          <strong>Lecture au survol :</strong> Survolez ou cliquez sur une section. <span id="voice-status">${this.voiceAvailable === false ? 'Voix indisponible. Vérifiez la clé API, le service et le son du navigateur.' : this.voiceAvailable === true ? 'Voix prête.' : ['en', 'fr'].includes(this.currentTargetLang) ? 'Voix du navigateur disponible après un clic sur la page.' : ['hau-CM', 'fuv-CM'].includes(this.currentTargetLang) ? 'Voix hébergée disponible avec une clé API. Un clic sur la page peut être nécessaire pour autoriser le son.' : 'Voix expérimentale en ligne avec une clé API ; prononciation non vérifiée.'}</span>
         </div>
 
         <div id="selection-preview" class="preview-box"></div>
@@ -2215,7 +2272,9 @@ class ExtensionAssistant {
     this.shadow.getElementById('target-lang')?.addEventListener('change', (e) => {
       this.currentTargetLang = (e.target as HTMLSelectElement).value;
       this.currentSourceLang = this.detectSourceLanguage();
-      chrome.storage?.local?.set({ linguabridgeTargetLang: this.currentTargetLang });
+      if (this.currentTargetLang === 'en' || this.currentTargetLang === 'fr') this.enhancedEnabled = true;
+      chrome.storage?.local?.set({ linguabridgeTargetLang: this.currentTargetLang,
+        ...((this.currentTargetLang === 'en' || this.currentTargetLang === 'fr') ? { linguabridgeEnhancedTranslation: true } : {}) });
       this.translationSpeechCache.clear();
       this.voiceAvailable = null;
       this.voiceFailureReason = null;
@@ -2271,6 +2330,7 @@ class ExtensionAssistant {
   public destroy(): void {
     document.documentElement.removeAttribute('data-linguabridge-extension');
     this.stopSpeech();
+    this.speechPlayer.destroy();
     if (this.isPageTranslated) {
       this.restorePage();
     }

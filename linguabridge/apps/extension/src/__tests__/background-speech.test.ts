@@ -62,4 +62,24 @@ describe('extension hosted speech configuration', () => {
     expect(result.result.engine).toBe('openrouter-gemini-tts-experimental');
     expect(fetchMock.mock.calls[0][0]).toBe('https://api-production-72bac574.up.railway.app/v1/speech/synthesize');
   });
+
+  it('accepts an English to French page translation batch', async () => {
+    settings = { linguabridgeEnhancedTranslation: true, linguabridgeApiKey: 'scoped-key' };
+    (globalThis as any).chrome.storage.local.get = vi.fn((_keys, callback) => {
+      if (callback) callback(settings);
+      return Promise.resolve(settings);
+    });
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      results: [{ translatedText: 'Ouvrez votre compte', targetLang: 'fr',
+        provider: 'openrouter', status: 'success' }],
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    const result = await new Promise<any>((resolve) => listener({
+      type: 'ENHANCED_TRANSLATE_BATCH',
+      items: [{ text: 'Open your account', sourceLang: 'en', targetLang: 'fr' }],
+    }, {}, resolve));
+    expect(result.success).toBe(true);
+    expect(result.results[0].translatedText).toBe('Ouvrez votre compte');
+    expect(fetchMock.mock.calls[0][0]).toBe('https://api-production-72bac574.up.railway.app/v1/translate/batch');
+  });
 });

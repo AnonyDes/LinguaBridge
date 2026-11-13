@@ -6,7 +6,7 @@ import { ChevronDown, ChevronRight, Download, ExternalLink, Globe2, Laptop, Lock
 
 type View = 'chrome' | 'edge' | 'android' | 'web' | 'other';
 const repo = 'https://github.com/AnonyDes/LinguaBridge';
-const extensionDownload = '/downloads/LinguaBridge-Extension-0.3.1.zip';
+const extensionDownload = '/downloads/LinguaBridge-Extension-0.3.2.zip';
 const androidDownload = '/downloads/LinguaBridge-Browser-Android-0.4.0-debug.apk';
 
 export default function DeveloperDashboard() {
@@ -54,16 +54,17 @@ export default function DeveloperDashboard() {
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#EAF8ED', color: '#08751A', borderRadius: 99, padding: '6px 12px', fontSize: 12, fontWeight: 700, marginBottom: 20 }}><ShieldCheck size={15}/> Desktop extension · Prototype</div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.1rem)', color: '#101828', letterSpacing: '-0.025em', marginBottom: 12 }}>LinguaBridge for {view === 'chrome' ? 'Google Chrome' : 'Microsoft Edge'}</h2>
               <p style={{ color: '#667085', lineHeight: 1.75, maxWidth: 720, marginBottom: 26 }}>Read balances, payment instructions, fees and security messages in a familiar language. The extension works alongside existing websites. Ewondo and other Cameroonian language packs are being tested and reviewed.</p>
-              <a href={extensionDownload} download className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, marginBottom: 24 }}><Download size={17}/> Download LinguaBridge 0.3.1 for {view === 'chrome' ? 'Chrome' : 'Edge'}</a>
+              <a href={extensionDownload} download className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, marginBottom: 24 }}><Download size={17}/> Download LinguaBridge 0.3.2 for {view === 'chrome' ? 'Chrome' : 'Edge'}</a>
               <p style={{ fontSize: 13, color: '#475467', marginBottom: 22 }}>The same Chromium extension ZIP works in Chrome and Edge. It is a test build; extract it before loading the unpacked extension.</p>
               <div style={{ border: '1px solid #EAECF0', borderRadius: 12, padding: '24px', marginTop: 8 }}>
                 <h3 style={{ fontSize: 17, fontWeight: 750, color: '#101828', marginBottom: 18 }}>Get started in 3 steps</h3>
                 <ol style={{ display: 'grid', gap: 16, paddingLeft: 22, color: '#475467', lineHeight: 1.65 }}>
-                  <li>Download the LinguaBridge 0.3.1 ZIP above, then extract it.</li>
+                  <li>Download the LinguaBridge 0.3.2 ZIP above, then extract it.</li>
                   <li>Open <code>{view === 'chrome' ? 'chrome://extensions' : 'edge://extensions'}</code>, enable Developer mode, then choose <strong>Load unpacked</strong> and select the extracted folder containing <code>manifest.json</code>. Remove any previous LinguaBridge version to avoid duplicates.</li>
                   <li>Open a financial website, click the LinguaBridge icon in the browser toolbar, select your target language and use the <strong>Traduction</strong> or <strong>Assistant</strong> tab. The source language is detected automatically. Check financial details against the original text before acting.</li>
                 </ol>
-                <p style={{ fontSize: 13, color: '#475467', marginTop: 18 }}>Already using an unpacked extension? Replace its files with version 0.3.1, click <strong>Reload</strong> at <code>{view === 'chrome' ? 'chrome://extensions' : 'edge://extensions'}</code>, then refresh the website tab. GitHub pushes do not update a locally loaded extension.</p>
+                <p style={{ fontSize: 13, color: '#475467', marginTop: 18 }}>Already using an unpacked extension? Replace its files with version 0.3.2, click <strong>Reload</strong> at <code>{view === 'chrome' ? 'chrome://extensions' : 'edge://extensions'}</code>, then refresh the website tab. GitHub pushes do not update a locally loaded extension.</p>
+                <p style={{ fontSize: 13, color: '#475467', marginTop: 12 }}>For EN/FR page translation and hosted African voices, open the toolbar popup, enter your LinguaBridge server key, and click <strong>Enregistrer le serveur</strong>. Choose English or Français as the target language. For audio, enable <strong>Lecture audio</strong>, click the website once to allow sound, then hover over text. English and French speech uses your browser voice.</p>
               </div>
               <p style={{ fontSize: 13, color: '#667085', lineHeight: 1.7, marginTop: 18 }}><LockKeyhole size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }}/>Prototype for testing. Not a Chrome Web Store or Edge Add-ons release. Do not enter sensitive credentials into demo fields.</p>
               <p style={{ marginTop: 12 }}><a href={repo + '/blob/main/linguabridge/apps/extension/EDGE_DESKTOP.md'} target="_blank" rel="noreferrer" style={{ color: '#08751A', fontWeight: 650 }}>Installation guide (Chrome and Edge) ↗</a></p>

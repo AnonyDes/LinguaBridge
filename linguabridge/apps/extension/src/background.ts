@@ -52,7 +52,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       const items = Array.isArray(message.items) ? message.items.slice(0, 20) : [];
       if (!items.length || items.some((item: any) => !item || typeof item.text !== 'string' ||
         item.text.length > 2000 || !['fr', 'en'].includes(item.sourceLang) ||
-        !['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM'].includes(item.targetLang))) {
+        !['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM', 'en', 'fr'].includes(item.targetLang))) {
         sendResponse({ success: false, error: 'Invalid page translation batch' });
         return;
       }
@@ -61,7 +61,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           sendResponse({ success: false, error: 'Enhanced translation disabled' });
           return;
         }
-        const configured = String(settings.linguabridgeApiBaseUrl || 'http://localhost:3001').replace(/\/$/, '');
+        const configured = String(settings.linguabridgeApiBaseUrl || DEFAULT_API_BASE_URL).replace(/\/$/, '');
         let url: URL;
         try { url = new URL(configured); } catch {
           sendResponse({ success: false, error: 'Invalid API URL' });
