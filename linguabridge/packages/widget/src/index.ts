@@ -11,6 +11,8 @@ export {
   filterVisibleLanguages,
   generateBankingResponse,
   speakAfricanText,
+  stopAfricanSpeech,
+  isAudioGloballyMuted,
   detectBankingIntent,
   extractFinancialEntities,
   type ActiveLanguage,

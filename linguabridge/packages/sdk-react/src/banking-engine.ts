@@ -385,6 +385,36 @@ export function generateBankingResponse(
 
 let sdkAudioCtx: AudioContext | null = null;
 const sdkAudioCache = new Map<string, AudioBuffer>();
+let sdkActiveSourceNode: AudioBufferSourceNode | null = null;
+
+export function isAudioGloballyMuted(): boolean {
+  if (typeof window === 'undefined') return false;
+  if ((window as any).__linguabridgeAudioMuted === true) return true;
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('linguabridge_audio_muted') === 'true') {
+      return true;
+    }
+  } catch {}
+  return false;
+}
+
+export function stopAfricanSpeech(): void {
+  if (sdkActiveSourceNode) {
+    try {
+      sdkActiveSourceNode.stop();
+      sdkActiveSourceNode.disconnect();
+    } catch {}
+    sdkActiveSourceNode = null;
+  }
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel();
+    } catch {}
+  }
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('linguabridge:speech-stopped', { bubbles: true }));
+  }
+}
 
 function getSdkAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
@@ -414,6 +444,13 @@ export function speakAfricanText(
 ): boolean {
   if (typeof window === 'undefined') return false;
 
+  // Global Mute Verification
+  if (isAudioGloballyMuted()) {
+    if (onStart) onStart();
+    if (onEnd) setTimeout(onEnd, 20);
+    return false;
+  }
+
   const event = new CustomEvent('linguabridge:speak', {
     detail: { text, phoneticText, lang },
     bubbles: true,
@@ -436,13 +473,21 @@ export function speakAfricanText(
   const ctx = getSdkAudioContext();
 
   const playBuffer = (buffer: AudioBuffer): boolean => {
-    if (!ctx) return false;
+    if (!ctx || isAudioGloballyMuted()) return false;
     try {
+      if (sdkActiveSourceNode) {
+        try {
+          sdkActiveSourceNode.stop();
+          sdkActiveSourceNode.disconnect();
+        } catch {}
+      }
       const source = ctx.createBufferSource();
+      sdkActiveSourceNode = source;
       source.buffer = buffer;
       source.connect(ctx.destination);
       if (onStart) onStart();
       source.onended = () => {
+        if (sdkActiveSourceNode === source) sdkActiveSourceNode = null;
         if (onEnd) onEnd();
       };
       source.start(0);

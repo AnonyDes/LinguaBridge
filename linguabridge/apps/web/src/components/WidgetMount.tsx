@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import Link from 'next/link';
-import { MessageCircle } from 'lucide-react';
 import { LinguaBridgeWidget } from '@linguabridge/widget';
 
 export function WidgetMount() {
@@ -34,13 +32,5 @@ export function WidgetMount() {
     return () => { mq.removeEventListener('change', sync); observer.disconnect(); window.clearInterval(timer); widget?.destroy(); };
   }, []);
 
-  return (
-    <>
-    <style>{`html[data-linguabridge-extension="active"] .lb-mobile-assistant-trigger { display: none !important; }`}</style>
-    <Link href="/assistant" className="lb-mobile-assistant-trigger" aria-label="Open LinguaBridge assistant">
-      <MessageCircle size={20} strokeWidth={2} />
-      <span>Assistant</span>
-    </Link>
-    </>
-  );
+  return null;
 }

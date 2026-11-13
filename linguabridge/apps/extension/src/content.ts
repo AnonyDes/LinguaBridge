@@ -847,6 +847,43 @@ class ExtensionAssistant {
       chrome.runtime.onMessage.addListener(this.onRuntimeMessageHandler);
     }
 
+    // Global speech control events from web pages (e.g. LinguaBridge mute button)
+    window.addEventListener('message', (event) => {
+      if (event?.data?.type === 'LINGUABRIDGE_STOP_VOICE') {
+        this.clearHoverState();
+        this.stopSpeech();
+        const bar = this.shadow?.getElementById('audio-bar');
+        if (bar) bar.style.display = 'none';
+      } else if (event?.data?.type === 'LINGUABRIDGE_MUTE_VOICE') {
+        const muted = !!event.data.muted;
+        this.userPausedVoice = muted;
+        if (muted) {
+          this.isTouchSpeakEnabled = false;
+          this.clearHoverState();
+          this.stopSpeech();
+          const bar = this.shadow?.getElementById('audio-bar');
+          if (bar) bar.style.display = 'none';
+        }
+        this.render();
+      }
+    });
+
+    window.addEventListener('linguabridge:stop-speech', () => {
+      this.clearHoverState();
+      this.stopSpeech();
+      const bar = this.shadow?.getElementById('audio-bar');
+      if (bar) bar.style.display = 'none';
+    });
+
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        this.clearHoverState();
+        this.stopSpeech();
+        const bar = this.shadow?.getElementById('audio-bar');
+        if (bar) bar.style.display = 'none';
+      }
+    });
+
     // Hover-to-speak: Automatically triggers speech in Kóbɔ́ Ewondo once upon dwelling on a section
     this.onMouseOverHandler = (e: MouseEvent) => {
       if (!this.isVoiceEnabled()) return;

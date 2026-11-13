@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Languages, Globe, ShieldCheck, Terminal, Cpu, Github, BookOpen, Sparkles, ArrowUpRight } from 'lucide-react';
 import { WidgetMount } from '@/components/WidgetMount';
+import { AudioMuteControl } from '@/components/AudioMuteControl';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -38,21 +39,23 @@ export default function RootLayout({
               <Link href="/documentation" className="lb-nav-item" style={{ fontWeight: 650 }}>
                 Documentation
               </Link>
-              <Link href="/assistant" className="lb-nav-item">Assistant</Link>
               <Link href="/dashboard" className="lb-nav-item">
-                <span className="lb-nav-full">Extension &amp; Démo</span>
-                <span className="lb-nav-short">Démo</span>
+                <span className="lb-nav-full">Extension</span>
+                <span className="lb-nav-short">Extension</span>
               </Link>
             </nav>
-            <a
-              className="lb-header-github"
-              href="https://github.com/AnonyDes/LinguaBridge"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="LinguaBridge sur GitHub"
-            >
-              <Github size={19} strokeWidth={2} />
-            </a>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto', zIndex: 2 }}>
+              <AudioMuteControl />
+              <a
+                className="lb-header-github"
+                href="https://github.com/AnonyDes/LinguaBridge"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="LinguaBridge sur GitHub"
+              >
+                <Github size={19} strokeWidth={2} />
+              </a>
+            </div>
           </div>
         </header>
 
@@ -162,12 +165,8 @@ export default function RootLayout({
                     Accueil
                   </Link>
 
-                  <Link href="/assistant" style={{ color: 'var(--ink)', textDecoration: 'none' }}>
-                    Assistant
-                  </Link>
-
                   <Link href="/dashboard" style={{ color: 'var(--ink)', textDecoration: 'none' }}>
-                    Démo &amp; Extension
+                    Extension
                   </Link>
 
                   {/* Prominent Link to Documentation */}

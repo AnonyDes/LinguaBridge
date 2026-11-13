@@ -79,66 +79,25 @@ export default function LandingPage() {
           et les langues nationales avec synthèse vocale neuronale et garantie stricte des montants.
         </p>
 
-        {/* Hero Actions: Extension CTA, Documentation link & GitHub */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-            gap: 14,
-            marginBottom: 'var(--s-7)',
-          }}
-        >
-          <Link
-            href="/dashboard"
-            className="btn btn-primary"
-            style={{
-              padding: '14px 26px',
-              fontSize: '1rem',
-              fontWeight: 700,
-              gap: 8,
-              boxShadow: '0 4px 14px rgba(18, 184, 42, 0.25)',
-            }}
-          >
-            <span>Get the browser extension</span>
-            <ArrowRight size={17} />
-          </Link>
-
-          <Link
-            href="/documentation"
-            className="btn btn-ghost"
-            style={{
-              padding: '14px 24px',
-              fontSize: '0.98rem',
-              fontWeight: 650,
-              border: '1px solid var(--line-strong)',
-              gap: 8,
-            }}
-          >
-            <BookOpen size={18} />
-            <span>Consulter la Documentation</span>
-          </Link>
-
+        {/* Hero Actions: Classic Mango Orange GitHub + Long Extension Button */}
+        <div className="lb-hero-actions">
           <a
             href="https://github.com/AnonyDes/LinguaBridge"
             target="_blank"
             rel="noreferrer"
-            className="btn btn-ghost"
-            style={{
-              padding: '14px 20px',
-              fontSize: '0.95rem',
-              fontWeight: 600,
-              border: '1px solid var(--line)',
-              gap: 8,
-              color: 'var(--ink)',
-            }}
-            aria-label="LinguaBridge sur GitHub"
+            className="lb-hero-github"
+            aria-label="Explore LinguaBridge on GitHub"
           >
-            <Github size={18} />
-            <span>GitHub</span>
-            <ArrowUpRight size={16} style={{ color: 'var(--muted)' }} />
+            <Github size={23} strokeWidth={2} />
+            <span>Explore on GitHub</span>
+            <span className="lb-hero-github-arrow">
+              <ArrowUpRight size={22} strokeWidth={2.5} />
+            </span>
           </a>
+          <Link href="/dashboard" className="lb-hero-extension">
+            <span>Get the browser extension</span>
+            <span className="lb-extension-triangle" aria-hidden="true" />
+          </Link>
         </div>
 
         {/* Sovereign Protocol Badges */}
@@ -459,59 +418,98 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* SECTION 3: LINGUISTIC SOVEREIGNTY & EWONDO */}
+      {/* SECTION 3: LINGUISTIC SOVEREIGNTY & 5 ACTIVE SOVEREIGN LANGUAGES */}
       <section style={{ marginBottom: 'clamp(64px, 8vw, 104px)' }}>
         <div className="section-header">
           <div>
-            <span className="meta-num">03 / LANGUES NATIONALES</span>
-            <h2>L&apos;Ewondo au coeur, les langues nationales en horizon</h2>
+            <span className="meta-num">03 / LANGUES NATIONALES SOUVERAINES</span>
+            <h2>5 Langues Nationales Actives &amp; Opérationnelles</h2>
           </div>
           <p className="lead">
-            Une traduction financière ne s&apos;improvise pas : elle s&apos;appuie sur des lexiques validés et une
-            synthèse neuronale respectueuse des subtilités tonales bantoues et sahéliennes.
+            L&apos;inclusion financière couvre l&apos;ensemble du Cameroun : lexiques financiers certifiés,
+            synthèse neuronale Meta MMS haute fidélité avec respect des tons bantous et sahéliens, et préservation stricte des montants.
           </p>
         </div>
 
-        <div className="grid-3" style={{ gap: 20 }}>
-          <div style={{ padding: 24, border: '1px solid var(--line)', borderRadius: 8, background: '#FFFFFF' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <Globe size={18} style={{ color: 'var(--brand-green)' }} />
-              <span className="meta" style={{ color: 'var(--brand-green-deep)', fontWeight: 700 }}>
-                LANGUE ACTIVE · EWONDO
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 20,
+          }}
+        >
+          {/* 1. Ewondo */}
+          <div style={{ padding: 24, border: '1px solid var(--line)', borderRadius: 10, background: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span className="meta" style={{ color: 'var(--brand-green-deep)', fontWeight: 800, fontSize: '0.74rem' }}>
+                LANGUE ACTIVE · CENTRE &amp; SUD
               </span>
+              <span style={{ fontSize: '1.25rem' }}>🇨🇲</span>
             </div>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: 10 }}>Ewondo (ewo-CM)</h3>
-            <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              Lexique de plus de 350 termes financiers de base (solde, virement, frais, compte, alerte).
-              Prononciation avec gestion des tons hauts et bas via le moteur vocal Meta MMS.
+            <h3 style={{ fontSize: '1.25rem', marginBottom: 8, fontWeight: 750 }}>Ewondo (ewo-CM)</h3>
+            <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>
+              Lexique souverain de plus de 350 termes financiers (solde, virement, frais, compte, sécurité).
+              Synthèse vocale neuronale Meta MMS avec restitution fidèle des tons hauts et bas.
             </p>
           </div>
 
-          <div style={{ padding: 24, border: '1px solid var(--line)', borderRadius: 8, background: '#FFFFFF' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <Volume2 size={18} style={{ color: '#946200' }} />
-              <span className="meta" style={{ color: '#946200', fontWeight: 700 }}>
-                FEUILLE DE ROUTE VALIDÉE
+          {/* 2. Fulfulde */}
+          <div style={{ padding: 24, border: '1px solid var(--line)', borderRadius: 10, background: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span className="meta" style={{ color: 'var(--brand-green-deep)', fontWeight: 800, fontSize: '0.74rem' }}>
+                LANGUE ACTIVE · GRAND NORD
               </span>
+              <span style={{ fontSize: '1.25rem' }}>🇨🇲</span>
             </div>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: 10 }}>Fulfulde, Haoussa &amp; Kanuri</h3>
-            <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              Packs terminologiques et acoustiques pour le Grand Nord Cameroun. Modèles de pitch accent
-              et cadences sahéliennes en phase de validation par locuteurs natifs.
+            <h3 style={{ fontSize: '1.25rem', marginBottom: 8, fontWeight: 750 }}>Fulfulde (fuv-CM)</h3>
+            <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>
+              Terminologie bancaire complète pour l&apos;Adamaoua, le Nord et l&apos;Extrême-Nord.
+              Moteur vocal Meta MMS respectant les cadences sahéliennes et les invariants monétaires.
             </p>
           </div>
 
-          <div style={{ padding: 24, border: '1px solid var(--line)', borderRadius: 8, background: '#FFFFFF' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <Volume2 size={18} style={{ color: '#946200' }} />
-              <span className="meta" style={{ color: '#946200', fontWeight: 700 }}>
-                EXPANSION CEMAC
+          {/* 3. Haoussa */}
+          <div style={{ padding: 24, border: '1px solid var(--line)', borderRadius: 10, background: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span className="meta" style={{ color: 'var(--brand-green-deep)', fontWeight: 800, fontSize: '0.74rem' }}>
+                LANGUE ACTIVE · MARCHÉS &amp; COMMERCE
               </span>
+              <span style={{ fontSize: '1.25rem' }}>🇨🇲</span>
             </div>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: 10 }}>Cameroon Pidgin &amp; Basaa</h3>
-            <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              Prosodie Kamtok pour les échanges informels et corpus académiques Basaa/Bulu en cours
-              de numérisation pour élargir l&apos;accessibilité à tout le territoire national.
+            <h3 style={{ fontSize: '1.25rem', marginBottom: 8, fontWeight: 750 }}>Haoussa (hau-CM)</h3>
+            <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>
+              Lexique transfrontalier pour le commerce et les échanges quotidiens en zone CEMAC.
+              Prononciation neuronale Meta MMS avec pitch accent naturel et intonation fluide.
+            </p>
+          </div>
+
+          {/* 4. Kanuri */}
+          <div style={{ padding: 24, border: '1px solid var(--line)', borderRadius: 10, background: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span className="meta" style={{ color: 'var(--brand-green-deep)', fontWeight: 800, fontSize: '0.74rem' }}>
+                LANGUE ACTIVE · BASSIN DU LAC TCHAD
+              </span>
+              <span style={{ fontSize: '1.25rem' }}>🇨🇲</span>
+            </div>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: 8, fontWeight: 750 }}>Kanuri (knc-CM)</h3>
+            <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>
+              Accessibilité financière pour les populations rurales et marchandes septentrionales.
+              Lexique financier adapté et synthèse neuronale Meta MMS optimisée.
+            </p>
+          </div>
+
+          {/* 5. Cameroon Pidgin English */}
+          <div style={{ padding: 24, border: '1px solid var(--line)', borderRadius: 10, background: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span className="meta" style={{ color: 'var(--brand-green-deep)', fontWeight: 800, fontSize: '0.74rem' }}>
+                LANGUE ACTIVE · LITTORAL &amp; ANGLOPHONE
+              </span>
+              <span style={{ fontSize: '1.25rem' }}>🇨🇲</span>
+            </div>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: 8, fontWeight: 750 }}>Cameroon Pidgin (pcm-CM)</h3>
+            <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>
+              Prosodie Kamtok naturelle pour les flux urbains et ruraux (Douala, Buea, Bamenda).
+              Compréhension instantanée des notifications de compte, frais de retrait et transferts.
             </p>
           </div>
         </div>
@@ -564,8 +562,7 @@ export default function LandingPage() {
             lineHeight: 1.65,
           }}
         >
-          Téléchargez l&apos;extension de test décompressée pour Chrome ou Edge, essayez notre assistant financier
-          ou consultez notre documentation technique d&apos;évaluation.
+          Téléchargez l&apos;extension de test décompressée pour Chrome ou Edge, ou consultez notre documentation technique d&apos;évaluation.
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 14 }}>
@@ -581,22 +578,6 @@ export default function LandingPage() {
           >
             <span>Accéder au portail extension</span>
             <ArrowRight size={17} />
-          </Link>
-
-          <Link
-            href="/assistant"
-            className="btn btn-ghost"
-            style={{
-              padding: '14px 24px',
-              fontSize: '0.98rem',
-              fontWeight: 650,
-              background: 'rgba(255, 255, 255, 0.1)',
-              color: '#FFFFFF',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
-              gap: 8,
-            }}
-          >
-            <span>Tester l&apos;Assistant Financier</span>
           </Link>
 
           <Link
