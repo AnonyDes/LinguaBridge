@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
 LinguaBridge Sovereign African Neural Voice Microservice
-Serves authentic Meta MMS VITS models for the 5 Sovereign Cameroonian Languages:
+Serves local Meta MMS VITS models for four supported languages:
   - 🇨🇲 Ewondo (ewo-CM)
   - 🇨🇲 Cameroon Pidgin (pcm-CM)
   - 🇨🇲 Haoussa (hau-CM)
   - 🇨🇲 Fulfulde (fuv-CM)
-  - 🇨🇲 Kanuri (knc-CM)
 Strict Duala Quarantine: dua-CM / dua is returned with HTTP 403 Forbidden.
 """
 import sys
@@ -62,11 +61,7 @@ def get_model_and_tokenizer(lang_norm: str):
     """Loads and caches VITS model and tokenizer on first demand."""
     model_dir = MODEL_PATHS.get(lang_norm)
     if not model_dir or not model_dir.exists():
-        # Fallback to ewo or pcm if available
-        model_dir = MODEL_PATHS.get("ewo") or MODEL_PATHS.get("pcm")
-
-    if not model_dir or not model_dir.exists():
-        raise RuntimeError(f"No local neural voice model found at {model_dir}")
+        raise RuntimeError(f"No local neural voice model found for {lang_norm}")
 
     cache_key = str(model_dir)
     if cache_key not in LOADED_MODELS:
