@@ -841,4 +841,165 @@ describe('Chrome Extension Content Assistant', () => {
       expect(result.translatedText).toContain('+237 699 001 122');
     }
   });
+
+  it('renders a non-empty vector icon inside #btn-toggle, supports dragging within viewport bounds without triggering click toggle, and allows disabling on the current website', () => {
+    assistant = new ExtensionAssistant();
+    const host = document.getElementById('linguabridge-extension-root') as HTMLElement;
+    const btnToggle = host?.shadowRoot?.getElementById('btn-toggle') as HTMLButtonElement;
+    expect(btnToggle).not.toBeNull();
+    expect(btnToggle.querySelector('svg')).not.toBeNull();
+
+    // Drag button by more than threshold (5px) and confirm position updates without opening card
+    btnToggle.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0, clientX: 900, clientY: 600 }));
+    window.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 720, clientY: 420 }));
+    window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: 720, clientY: 420 }));
+    expect(host.style.left).toMatch(/px$/);
+    expect(host.style.top).toMatch(/px$/);
+    expect(host.style.bottom).toBe('auto');
+
+    // Suppress accidental click right after drag, then allow click after timeout or reset
+    btnToggle.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    const cardAfterDrag = host?.shadowRoot?.querySelector('.card') as HTMLElement;
+    expect(getComputedStyle(cardAfterDrag).display).toBe('none');
+
+    // Disable extension on current site and confirm it hides & removes marker
+    const disableBtn = host?.shadowRoot?.getElementById('btn-disable-site') as HTMLButtonElement;
+    expect(disableBtn).not.toBeNull();
+    disableBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(host.style.display).toBe('none');
+    expect(document.documentElement.getAttribute('data-linguabridge-extension')).toBeNull();
+
+    // Re-enable site cleanly
+    assistant.enableOnCurrentSite();
+    expect(host.style.display).toBe('');
+    expect(document.documentElement.getAttribute('data-linguabridge-extension')).toBe('active');
+  });
+
+  it('activates voice automatically after translateFullPage() and articulates clicked labels without blocking page controls', () => {
+    document.body.innerHTML = '<form><label id="lbl-solde">Solde disponible</label><input id="inp-amt" placeholder="Montant" /></form>';
+    assistant = new ExtensionAssistant();
+    const host = document.getElementById('linguabridge-extension-root');
+
+    assistant.translateFullPage();
+    expect(assistant.isVoiceEnabled()).toBe(true);
+
+    const lbl = document.getElementById('lbl-solde');
+    lbl?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    const audioBar = host?.shadowRoot?.getElementById('audio-bar');
+    expect(audioBar?.style.display).toBe('flex');
+    expect(host?.shadowRoot?.getElementById('audio-spoken-text')?.textContent).toContain('Móni mí ne wá é bẽng');
+  });
+
+  it('strictly enforces lateral edge snapping: widget remains on left or right margin and clamps vertically', () => {
+    assistant = new ExtensionAssistant();
+    const host = document.getElementById('linguabridge-extension-root') as HTMLElement;
+    expect(host).not.toBeNull();
+    const btnToggle = host.shadowRoot?.getElementById('btn-toggle') as HTMLButtonElement;
+    expect(btnToggle).not.toBeNull();
+
+    const vw = window.innerWidth || 1024;
+    const vh = window.innerHeight || 768;
+    const leftMargin = 12;
+    const rightMargin = vw - 68;
+    const minTop = 12;
+    const maxTop = vh - 68;
+
+    // 1. Direct clampPosition checks across viewport
+    // Any point on left half snaps to leftMargin (12px)
+    expect(assistant.clampPosition(50, 200).left).toBe(leftMargin);
+    expect(assistant.clampPosition(250, 300).left).toBe(leftMargin);
+    expect(assistant.clampPosition(vw / 2 - 1, 400).left).toBe(leftMargin);
+
+    // Any point on right half snaps to rightMargin (vw - 68px)
+    expect(assistant.clampPosition(vw / 2, 200).left).toBe(rightMargin);
+    expect(assistant.clampPosition(vw / 2 + 50, 300).left).toBe(rightMargin);
+    expect(assistant.clampPosition(vw - 10, 400).left).toBe(rightMargin);
+
+    // Vertical bounds clamping
+    expect(assistant.clampPosition(100, -50).top).toBe(minTop);
+    expect(assistant.clampPosition(100, 10).top).toBe(minTop);
+    expect(assistant.clampPosition(100, 250).top).toBe(250);
+    expect(assistant.clampPosition(100, vh + 100).top).toBe(maxTop);
+
+    // 2. Drag to the left half of the screen
+    btnToggle.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0, clientX: 900, clientY: 500 }));
+    window.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 200, clientY: 300 }));
+    window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: 200, clientY: 300 }));
+
+    expect(host.style.left).toBe(`${leftMargin}px`);
+    expect(parseInt(host.style.top, 10)).toBeGreaterThanOrEqual(minTop);
+    expect(parseInt(host.style.top, 10)).toBeLessThanOrEqual(maxTop);
+
+    // 3. Drag back to the right half of the screen
+    btnToggle.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0, clientX: leftMargin, clientY: 300 }));
+    window.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 850, clientY: 450 }));
+    window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: 850, clientY: 450 }));
+
+    expect(host.style.left).toBe(`${rightMargin}px`);
+    expect(parseInt(host.style.top, 10)).toBeGreaterThanOrEqual(minTop);
+    expect(parseInt(host.style.top, 10)).toBeLessThanOrEqual(maxTop);
+  });
+
+  it('automatically closes/minimizes the popup card when clicking anywhere outside the container', () => {
+    assistant = new ExtensionAssistant();
+    const host = document.getElementById('linguabridge-extension-root') as HTMLElement;
+    expect(host).not.toBeNull();
+    const btnToggle = host.shadowRoot?.getElementById('btn-toggle') as HTMLButtonElement;
+    expect(btnToggle).not.toBeNull();
+
+    // 1. Open popup card
+    btnToggle.click();
+    expect(assistant.isCardOpen()).toBe(true);
+    let card = host.shadowRoot?.querySelector('.card') as HTMLElement;
+    expect(getComputedStyle(card).display).not.toBe('none');
+
+    // 2. Clicking inside widget (e.g. tabs or card itself) must NOT close card
+    const tabAssistant = host.shadowRoot?.getElementById('lb-tab-assistant');
+    tabAssistant?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(assistant.isCardOpen()).toBe(true);
+    expect(getComputedStyle(card).display).not.toBe('none');
+
+    card.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(assistant.isCardOpen()).toBe(true);
+    expect(getComputedStyle(card).display).not.toBe('none');
+
+    // 3. Clicking outside container on webpage closes card automatically
+    const pageDesc = document.getElementById('desc');
+    expect(pageDesc).not.toBeNull();
+    pageDesc?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    expect(assistant.isCardOpen()).toBe(false);
+    card = host.shadowRoot?.querySelector('.card') as HTMLElement;
+    expect(getComputedStyle(card).display).toBe('none');
+
+    // 4. Clicking outside again when already closed does not throw or change state
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(assistant.isCardOpen()).toBe(false);
+  });
+
+  it('provides quick action to toggle/disable on this domain on right-click contextmenu of #btn-toggle', () => {
+    assistant = new ExtensionAssistant();
+    const host = document.getElementById('linguabridge-extension-root') as HTMLElement;
+    expect(host).not.toBeNull();
+    const btnToggle = host.shadowRoot?.getElementById('btn-toggle') as HTMLButtonElement;
+    expect(btnToggle).not.toBeNull();
+
+    // Right-click (#btn-toggle contextmenu)
+    const contextEvt = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      button: 2,
+    });
+    btnToggle.dispatchEvent(contextEvt);
+
+    expect(contextEvt.defaultPrevented).toBe(true);
+    expect(host.style.display).toBe('none');
+    expect(document.documentElement.getAttribute('data-linguabridge-extension')).toBeNull();
+
+    // Re-enable cleanly
+    assistant.enableOnCurrentSite();
+    expect(host.style.display).toBe('');
+    expect(document.documentElement.getAttribute('data-linguabridge-extension')).toBe('active');
+  });
 });

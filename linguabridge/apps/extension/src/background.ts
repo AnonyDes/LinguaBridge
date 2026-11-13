@@ -8,13 +8,28 @@ const client = new LinguaBridgeClient({
 
 const africanVoiceProvider = new AfricanVoiceProvider();
 
+// Module-level audio payload cache so cached utterances persist across messages and tabs
+const AUDIO_PAYLOAD_CACHE = new Map<string, string>();
+
 // Setup context menus
 if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
   chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus?.create({
-      id: 'linguabridge-translate-selection',
-      title: 'Traduire "%s" en langue maternelle',
-      contexts: ['selection'],
+    chrome.contextMenus?.removeAll?.(() => {
+      chrome.contextMenus?.create({
+        id: 'linguabridge-translate-selection',
+        title: 'Traduire "%s" en langue maternelle',
+        contexts: ['selection'],
+      });
+      chrome.contextMenus?.create({
+        id: 'linguabridge-disable-site',
+        title: 'Désactiver LinguaBridge sur ce site',
+        contexts: ['action'],
+      });
+      chrome.contextMenus?.create({
+        id: 'linguabridge-enable-site',
+        title: 'Réactiver LinguaBridge sur ce site',
+        contexts: ['action'],
+      });
     });
   });
 
@@ -24,6 +39,31 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
         type: 'CONTEXT_MENU_TRANSLATE',
         text: info.selectionText,
       });
+      return;
+    }
+
+    if ((info.menuItemId === 'linguabridge-disable-site' || info.menuItemId === 'linguabridge-enable-site') && tab?.url) {
+      let host = '';
+      try {
+        const parsed = new URL(tab.url);
+        host = parsed.hostname || parsed.origin;
+      } catch {}
+      if (!host) return;
+
+      const disable = info.menuItemId === 'linguabridge-disable-site';
+      const data = await chrome.storage.local.get(['linguabridgeDisabledHosts']);
+      const list: string[] = Array.isArray(data.linguabridgeDisabledHosts) ? data.linguabridgeDisabledHosts : [];
+      const nextList = disable ? Array.from(new Set([...list, host])) : list.filter((h) => h !== host);
+      await chrome.storage.local.set({ linguabridgeDisabledHosts: nextList });
+
+      if (tab.id) {
+        try {
+          await chrome.tabs.sendMessage(tab.id, {
+            type: disable ? 'POPUP_DISABLE_SITE' : 'POPUP_ENABLE_SITE',
+            host,
+          });
+        } catch {}
+      }
     }
   });
 }
@@ -157,9 +197,6 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       return true;
     }
 
-// In-memory audio payload cache for instant 0ms responses across tabs and navigations
-const AUDIO_PAYLOAD_CACHE = new Map<string, string>();
-
     if (message.type === 'SYNTHESIZE_SPEECH') {
       const text = message.text || '';
       const lang = message.lang || targetLang;
@@ -184,36 +221,52 @@ const AUDIO_PAYLOAD_CACHE = new Map<string, string>();
         return true;
       }
 
-      // Direct ultra-fast fetch to running Python neural voice server
-      const tryFetch = async (host: string) => {
+      // Direct ultra-fast fetch to running Python neural voice server, with Fastify API proxy fallback
+      const tryDirectVoice = async (host: string) => {
         const url = `${host}/synthesize?lang=${encodeURIComponent(normLang)}&text=${encodeURIComponent(text)}`;
         const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json() as any;
         if (!data || !data.audioBase64) throw new Error('Missing audio payload');
-        return data;
+        return data.audioBase64 as string;
       };
 
-      tryFetch('http://127.0.0.1:3002')
-        .catch(() => tryFetch('http://localhost:3002'))
-        .then((data) => {
-          console.log(`[LinguaBridge SW] Synthesized neural audio successfully (${data.audioBase64.length} b64 chars)`);
+      const tryApiSpeech = async (host: string) => {
+        const r = await fetch(`${host}/v1/speech/synthesize`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, lang: normLang }),
+          signal: AbortSignal.timeout(10000),
+        });
+        if (!r.ok) throw new Error(`API HTTP ${r.status}`);
+        const data = await r.json() as any;
+        const b64 = data?.audioBase64 || (typeof data?.audioUrl === 'string' ? data.audioUrl.replace('data:audio/wav;base64,', '') : '');
+        if (!data?.available || !b64) throw new Error(data?.unavailableReason || 'API voice unavailable');
+        return b64;
+      };
+
+      tryDirectVoice('http://127.0.0.1:3002')
+        .catch(() => tryDirectVoice('http://localhost:3002'))
+        .catch(() => tryApiSpeech('http://127.0.0.1:3001'))
+        .catch(() => tryApiSpeech('http://localhost:3001'))
+        .then((audioBase64) => {
+          console.log(`[LinguaBridge SW] Synthesized neural audio successfully (${audioBase64.length} b64 chars)`);
           if (AUDIO_PAYLOAD_CACHE.size < 600) {
-            AUDIO_PAYLOAD_CACHE.set(cacheKey, data.audioBase64);
+            AUDIO_PAYLOAD_CACHE.set(cacheKey, audioBase64);
           }
           sendResponse({
             success: true,
             result: {
               available: true,
               lang,
-              audioBase64: data.audioBase64,
-              audioUrl: `data:audio/wav;base64,${data.audioBase64}`,
+              audioBase64,
+              audioUrl: `data:audio/wav;base64,${audioBase64}`,
               engine: 'meta-mms-neural-live',
             },
           });
         })
         .catch((fetchErr) => {
-          console.warn('[LinguaBridge SW] Microservice port 3002 fetch failed:', fetchErr?.message);
+          console.warn('[LinguaBridge SW] Microservice port 3002 & API 3001 fetch failed:', fetchErr?.message);
           // Absolute Zero-Noise Mandate: Stay silent if microservice unreachable
           sendResponse({ success: false, error: fetchErr?.message || 'Neural voice service unavailable' });
         });

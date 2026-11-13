@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import DeveloperDashboard from '../app/dashboard/page';
 import LandingPage from '../app/page';
+import DocumentationPage from '../app/documentation/page';
+import DocsRedirectPage from '../app/docs/page';
 import { WidgetMount } from '../components/WidgetMount';
 import { LinguaBridgeWidget } from '@linguabridge/widget';
 
@@ -111,5 +113,30 @@ describe('Web Application UI', () => {
     await act(async () => {
       root.unmount();
     });
+  });
+
+  it('renders Documentation Page with architecture, security invariant, and testing guides', async () => {
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<DocumentationPage />);
+    });
+
+    expect(container.textContent).toContain('Spécifications Techniques');
+    expect(container.textContent).toContain('SAFINUM INNOVATE CHALLENGE');
+    expect(container.textContent).toContain('Extension Web Chromium (Manifest V3)');
+    expect(container.textContent).toContain('LinguaBridge Browser (Bêta)');
+    expect(container.textContent).toContain('0.0000 FCFA');
+    expect(container.textContent).toContain('Ewondo (ewo-CM)');
+    expect(container.textContent).toContain('Meta MMS');
+  });
+
+  it('renders Docs Redirect Page linking to documentation', async () => {
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<DocsRedirectPage />);
+    });
+
+    expect(container.textContent).toContain('Redirection vers la documentation');
+    expect(container.textContent).toContain('Accéder directement à la documentation');
   });
 });

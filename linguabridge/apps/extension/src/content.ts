@@ -49,6 +49,7 @@ class AfricanSpeechPlayer {
   private currentUtteranceId = 0;
   private activeUtterance: SpeechSynthesisUtterance | null = null;
   private audioBufferCache = new Map<string, AudioBuffer>();
+  public onUnavailableCallback: ((reason: string) => void) | null = null;
 
   constructor() {
     this.prewarm();
@@ -159,42 +160,61 @@ class AfricanSpeechPlayer {
       return;
     }
 
-    // Direct background service worker synthesis
-    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-      chrome.runtime.sendMessage(
-        {
-          type: 'SYNTHESIZE_SPEECH',
-          text: clauseText,
-          lang: targetLang,
-        },
-        async (res: any) => {
+    const tryDirectFetch = () => {
+      return fetch(`http://127.0.0.1:3002/synthesize?lang=${encodeURIComponent(targetLang)}&text=${encodeURIComponent(clauseText)}`)
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+        .catch(() =>
+          fetch('http://127.0.0.1:3001/v1/speech/synthesize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: clauseText, lang: targetLang }),
+          }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`API HTTP ${r.status}`))))
+        )
+        .then(async (data: any) => {
           if (this.currentUtteranceId !== thisId) return;
-          if (res?.success && res.result?.audioUrl) {
-            await this.playNeuralAudio(res.result.audioUrl, thisId, clauseText, targetLang, cacheKey, onClauseEnd);
+          const b64 = data?.audioBase64 || (typeof data?.audioUrl === 'string' ? data.audioUrl.replace('data:audio/wav;base64,', '') : '');
+          if (b64) {
+            const audioUrl = `data:audio/wav;base64,${b64}`;
+            await this.playNeuralAudio(audioUrl, thisId, clauseText, targetLang, cacheKey, onClauseEnd);
           } else {
-            console.warn('[LinguaBridge Speech] African neural speech synthesis returned unavailable:', res?.error);
+            this.onUnavailableCallback?.('Serveur vocal (:3002) indisponible');
             onClauseEnd();
           }
-        }
-      );
+        })
+        .catch(() => {
+          if (this.currentUtteranceId !== thisId) return;
+          this.onUnavailableCallback?.('Serveur vocal (:3002) hors ligne');
+          onClauseEnd();
+        });
+    };
+
+    // Direct background service worker synthesis
+    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+      try {
+        chrome.runtime.sendMessage(
+          {
+            type: 'SYNTHESIZE_SPEECH',
+            text: clauseText,
+            lang: targetLang,
+          },
+          async (res: any) => {
+            if (this.currentUtteranceId !== thisId) return;
+            const runtimeErr = chrome.runtime?.lastError;
+            if (!runtimeErr && res?.success && res.result?.audioUrl) {
+              await this.playNeuralAudio(res.result.audioUrl, thisId, clauseText, targetLang, cacheKey, onClauseEnd);
+            } else {
+              tryDirectFetch();
+            }
+          }
+        );
+      } catch {
+        tryDirectFetch();
+      }
       return;
     }
 
-    // Fallback if running outside extension environment (e.g. standalone test page)
-    fetch(`http://127.0.0.1:3002/synthesize?lang=${encodeURIComponent(targetLang)}&text=${encodeURIComponent(clauseText)}`)
-      .then((r) => r.json())
-      .then(async (data: any) => {
-        if (this.currentUtteranceId !== thisId) return;
-        if (data?.audioBase64) {
-          const audioUrl = `data:audio/wav;base64,${data.audioBase64}`;
-          await this.playNeuralAudio(audioUrl, thisId, clauseText, targetLang, cacheKey, onClauseEnd);
-        } else {
-          onClauseEnd();
-        }
-      })
-      .catch(() => {
-        onClauseEnd();
-      });
+    // Fallback when running outside extension messaging runtime
+    tryDirectFetch();
   }
 
   private playBuffer(audioBuffer: AudioBuffer, thisId: number, onEnd?: () => void): void {
@@ -307,7 +327,13 @@ class AfricanSpeechPlayer {
           this.audioCtx = new AudioCtxClass();
         }
         if (this.audioCtx.state === 'suspended') {
-          await this.audioCtx.resume();
+          await Promise.race([
+            this.audioCtx.resume(),
+            new Promise<void>((resolve) => setTimeout(resolve, 180)),
+          ]);
+        }
+        if (this.audioCtx.state === 'suspended') {
+          throw new Error('AudioContext suspended');
         }
 
         const base64Data = audioUrl.replace('data:audio/wav;base64,', '');
@@ -486,11 +512,17 @@ class ExtensionAssistant {
   }
 
   private currentSourceLang = typeof document !== 'undefined' && document.documentElement?.lang?.toLowerCase().startsWith('en') ? 'en' : 'fr';
-  private isOpen = false;
+  public isOpen = false;
+  public isCardOpen(): boolean { return this.isOpen; }
   private activePanel: 'translate' | 'assistant' = 'translate';
   private chatHistory: Array<{ role: 'user' | 'assistant'; text: string }> = [];
   private lastSelection = '';
   private isTouchSpeakEnabled = false;
+  private userPausedVoice = false;
+  private isSiteDisabled = false;
+  public customPos: { left: number; top: number } | null = null;
+  private dragSuppressClick = false;
+  private activeBarState = { visible: false, text: '', phonetic: '' };
   private speechPlayer = new EwondoSpeechPlayer();
 
   // Instant speech & phonetic cache to eliminate voice latency
@@ -515,9 +547,54 @@ class ExtensionAssistant {
   private onClickElementHandler: ((e: MouseEvent) => void) | null = null;
   private onTouchEndHandler: ((e: TouchEvent) => void) | null = null;
   private onFirstInteractionHandler: (() => void) | null = null;
+  private onDragMoveHandler: ((e: MouseEvent) => void) | null = null;
+  private onDragEndHandler: ((e: MouseEvent) => void) | null = null;
+  private onClickOutsideHandler: ((e: MouseEvent) => void) | null = null;
 
   constructor() {
+    this.speechPlayer.onUnavailableCallback = (reason: string) => {
+      const phonEl = this.shadow?.getElementById('audio-phonetic');
+      if (phonEl) {
+        phonEl.textContent = reason;
+        phonEl.style.color = '#fbbf24';
+      }
+    };
     this.init();
+  }
+
+  private getCurrentHost(): string {
+    if (typeof window === 'undefined' || !window.location) return '';
+    return window.location.hostname || window.location.origin || '';
+  }
+
+  public clampPosition(left: number, top: number): { left: number; top: number } {
+    if (typeof window === 'undefined') return { left, top };
+    const vw = window.innerWidth || 1024;
+    const vh = window.innerHeight || 768;
+    const minTop = 12;
+    const maxTop = Math.max(minTop, vh - 68);
+    const leftEdge = 12;
+    const rightEdge = Math.max(leftEdge, vw - 68);
+
+    // Lateral border snap: strictly snap to left edge (12px) or right edge (vw - 68px)
+    const midX = vw / 2;
+    const snappedLeft = left < midX ? leftEdge : rightEdge;
+    const clampedTop = Math.max(minTop, Math.min(maxTop, Math.round(top)));
+
+    return {
+      left: snappedLeft,
+      top: clampedTop,
+    };
+  }
+
+  public applyContainerPosition(left: number, top: number): void {
+    if (!this.container) return;
+    const clamped = this.clampPosition(left, top);
+    this.customPos = clamped;
+    this.container.style.bottom = 'auto';
+    this.container.style.right = 'auto';
+    this.container.style.left = `${clamped.left}px`;
+    this.container.style.top = `${clamped.top}px`;
   }
 
   public getLangBadgeName(lang: string): string {
@@ -542,7 +619,8 @@ class ExtensionAssistant {
   }
 
   public isVoiceEnabled(): boolean {
-    return this.isTouchSpeakEnabled;
+    if (this.isSiteDisabled) return false;
+    return this.isTouchSpeakEnabled || (this.isPageTranslated && !this.userPausedVoice);
   }
 
   public stopSpeech(): void {
@@ -574,16 +652,44 @@ class ExtensionAssistant {
       this.container.style.zIndex = '2147483646';
 
       this.shadow = this.container.attachShadow({ mode: 'open' });
+      const markInside = (e: Event) => {
+        (e as any).__lbInside = true;
+      };
+      this.shadow.addEventListener('click', markInside, true);
+      this.container.addEventListener('click', markInside, true);
       this.render();
       target.appendChild(this.container);
       // Notify the LinguaBridge website to hide its separate assistant launcher.
       document.documentElement.setAttribute('data-linguabridge-extension', 'active');
       if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-        chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled'], (settings) => {
-          if (settings.linguabridgeTargetLang) this.currentTargetLang = settings.linguabridgeTargetLang;
-          this.isTouchSpeakEnabled = settings.linguabridgeAudioEnabled === true;
-          this.render();
-        });
+        const host = this.getCurrentHost();
+        chrome.storage.local.get(
+          ['linguabridgeTargetLang', 'linguabridgeAudioEnabled', 'linguabridgeDisabledHosts', 'linguabridgeWidgetPos'],
+          (settings) => {
+            const disabledHosts: string[] = Array.isArray(settings.linguabridgeDisabledHosts)
+              ? settings.linguabridgeDisabledHosts
+              : [];
+            if (host && disabledHosts.includes(host)) {
+              this.disableOnCurrentSite(false);
+              return;
+            }
+            if (settings.linguabridgeTargetLang) this.currentTargetLang = settings.linguabridgeTargetLang;
+            if (settings.linguabridgeAudioEnabled === true) {
+              this.isTouchSpeakEnabled = true;
+              this.userPausedVoice = false;
+            } else if (settings.linguabridgeAudioEnabled === false) {
+              this.isTouchSpeakEnabled = false;
+            }
+            if (
+              settings.linguabridgeWidgetPos &&
+              typeof settings.linguabridgeWidgetPos.left === 'number' &&
+              typeof settings.linguabridgeWidgetPos.top === 'number'
+            ) {
+              this.applyContainerPosition(settings.linguabridgeWidgetPos.left, settings.linguabridgeWidgetPos.top);
+            }
+            this.render();
+          }
+        );
       }
 
       this.setupListeners();
@@ -720,8 +826,14 @@ class ExtensionAssistant {
           this.render();
         } else if (msg.type === 'POPUP_SET_SPEECH') {
           this.isTouchSpeakEnabled = msg.enabled === true;
-          if (!this.isTouchSpeakEnabled) this.clearHoverState();
+          this.userPausedVoice = !this.isTouchSpeakEnabled;
+          if (this.isTouchSpeakEnabled) this.speechPlayer.prewarm();
+          if (!this.isVoiceEnabled()) this.clearHoverState();
           this.render();
+        } else if (msg.type === 'POPUP_DISABLE_SITE') {
+          this.disableOnCurrentSite(false);
+        } else if (msg.type === 'POPUP_ENABLE_SITE') {
+          this.enableOnCurrentSite();
         } else if (msg.type === 'POPUP_STOP_SPEECH') {
           this.clearHoverState();
           const bar = this.shadow?.getElementById('audio-bar');
@@ -869,8 +981,9 @@ class ExtensionAssistant {
           section.getAttribute('title')?.trim();
       if (!text || text.length < 1) return;
 
-      // Never intercept a banking site's normal click action.
-      if (target.closest('button, a, input, select, textarea, label, [role="button"], [contenteditable]')) return;
+      // Skip editable form controls so typing/selecting is uninterrupted, while speaking labels/links/buttons without preventDefault
+      if (target.closest('input:not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea, [contenteditable="true"]')) return;
+      this.speechPlayer.prewarm();
       this.stopSpeech();
       this.lastSpokenEl = section;
       this.speakTextSection(text, section);
@@ -900,8 +1013,9 @@ class ExtensionAssistant {
           section.getAttribute('title')?.trim();
       if (!text || text.length < 1) return;
 
-      // Preserve native touch interactions on financial forms and controls.
-      if (target.closest('button, a, input, select, textarea, label, [role="button"], [contenteditable]')) return;
+      // Preserve native touch on editable inputs while articulating readable labels/buttons/text
+      if (target.closest('input:not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea, [contenteditable="true"]')) return;
+      this.speechPlayer.prewarm();
       this.stopSpeech();
       this.lastSpokenEl = section;
       this.speakTextSection(text, section);
@@ -913,17 +1027,78 @@ class ExtensionAssistant {
     document.addEventListener('pointerout', this.onMouseOutHandler as any, true);
     document.addEventListener('click', this.onClickElementHandler, true);
     document.addEventListener('touchend', this.onTouchEndHandler, { capture: true, passive: false });
+
+    // Click outside container auto-closes popup card
+    this.onClickOutsideHandler = (e: MouseEvent) => {
+      if (!this.isOpen) return;
+      if (this.dragSuppressClick) return;
+      if (this.isEventInsideWidget(e)) return;
+
+      const selection = typeof window.getSelection === 'function' ? window.getSelection() : null;
+      if (selection && selection.toString().trim().length >= 2) return;
+
+      this.isOpen = false;
+      this.render();
+    };
+    document.addEventListener('click', this.onClickOutsideHandler);
   }
 
   public toggleTouchSpeakMode(): void {
     this.isTouchSpeakEnabled = !this.isTouchSpeakEnabled;
-    if (typeof chrome !== 'undefined' && chrome.storage?.local) chrome.storage.local.set({ linguabridgeAudioEnabled: this.isTouchSpeakEnabled });
+    this.userPausedVoice = !this.isTouchSpeakEnabled;
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      chrome.storage.local.set({ linguabridgeAudioEnabled: this.isTouchSpeakEnabled });
+    }
     if (this.isTouchSpeakEnabled) this.speechPlayer.prewarm();
     if (!this.isVoiceEnabled()) {
       this.clearHoverState();
       this.speechPlayer.stop();
+      this.activeBarState = { visible: false, text: '', phonetic: '' };
       const bar = this.shadow?.getElementById('audio-bar');
       if (bar) bar.style.display = 'none';
+    }
+    this.render();
+  }
+
+  public disableOnCurrentSite(persist = true): void {
+    this.isSiteDisabled = true;
+    this.isOpen = false;
+    this.stopSpeech();
+    this.clearHoverState();
+    if (this.isPageTranslated) {
+      this.restorePage();
+    }
+    document.documentElement.removeAttribute('data-linguabridge-extension');
+    if (this.container) {
+      this.container.style.display = 'none';
+    }
+    if (persist && typeof chrome !== 'undefined' && chrome.storage?.local) {
+      const host = this.getCurrentHost();
+      if (host) {
+        chrome.storage.local.get(['linguabridgeDisabledHosts'], (data) => {
+          const list: string[] = Array.isArray(data?.linguabridgeDisabledHosts) ? data.linguabridgeDisabledHosts : [];
+          if (!list.includes(host)) {
+            chrome.storage.local.set({ linguabridgeDisabledHosts: [...list, host] });
+          }
+        });
+      }
+    }
+  }
+
+  public enableOnCurrentSite(): void {
+    this.isSiteDisabled = false;
+    document.documentElement.setAttribute('data-linguabridge-extension', 'active');
+    if (this.container) {
+      this.container.style.display = '';
+    }
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      const host = this.getCurrentHost();
+      if (host) {
+        chrome.storage.local.get(['linguabridgeDisabledHosts'], (data) => {
+          const list: string[] = Array.isArray(data?.linguabridgeDisabledHosts) ? data.linguabridgeDisabledHosts : [];
+          chrome.storage.local.set({ linguabridgeDisabledHosts: list.filter((h) => h !== host) });
+        });
+      }
     }
     this.render();
   }
@@ -973,6 +1148,7 @@ class ExtensionAssistant {
   }
 
   private showAudioFloatingBar(text: string, phonetic: string): void {
+    this.activeBarState = { visible: true, text, phonetic };
     const bar = this.shadow?.getElementById('audio-bar');
     if (!bar) return;
 
@@ -980,7 +1156,10 @@ class ExtensionAssistant {
     const textEl = this.shadow?.getElementById('audio-spoken-text');
     const phonEl = this.shadow?.getElementById('audio-phonetic');
     if (textEl) textEl.textContent = text;
-    if (phonEl) phonEl.textContent = phonetic ? `[${phonetic}]` : '';
+    if (phonEl) {
+      phonEl.style.color = '#86efac';
+      phonEl.textContent = phonetic ? `[${phonetic}]` : '';
+    }
   }
 
   public async translateSelectedText(text: string): Promise<void> {
@@ -1082,6 +1261,33 @@ class ExtensionAssistant {
       subtree: true,
       characterData: true,
     });
+  }
+
+  public isEventInsideWidget(e: Event): boolean {
+    if ((e as any).__lbInside) return true;
+    if (!this.container) return false;
+
+    if (typeof (e as any).composedPath === 'function') {
+      const path = (e as any).composedPath();
+      if (Array.isArray(path)) {
+        if (path.includes(this.container) || (this.shadow && path.includes(this.shadow))) {
+          return true;
+        }
+      }
+    }
+
+    const target = e.target as Node | null;
+    if (!target) return false;
+
+    if (target === this.container) return true;
+    if (this.container.contains(target)) return true;
+    if (this.shadow && this.shadow.contains(target)) return true;
+    if (typeof (target as any).getRootNode === 'function' && target.getRootNode() === this.shadow) {
+      return true;
+    }
+    if (this.isExtensionNode(target)) return true;
+
+    return false;
   }
 
   private isExtensionNode(node: Node | null): boolean {
@@ -1682,37 +1888,105 @@ class ExtensionAssistant {
   private render() {
     if (!this.shadow) return;
 
+    const vw = typeof window !== 'undefined' ? window.innerWidth || 1024 : 1024;
+    const vh = typeof window !== 'undefined' ? window.innerHeight || 768 : 768;
+    const openDownward = this.customPos ? this.customPos.top < vh / 2 : false;
+    const openRightward = this.customPos ? this.customPos.left < vw / 2 : false;
+    const voiceActive = this.isVoiceEnabled();
+
+    const launcherIconSvg = voiceActive
+      ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6be18c" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>'
+      : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6" stroke="#6be18c"/></svg>';
+
     this.shadow.innerHTML = `
       <style>
         .assistant-btn {
+          position: relative;
           width: 52px;
           height: 52px;
           border-radius: 14px;
-          background: #111;
+          background: #111111;
           color: #ffffff;
-          border: 1px solid #15803d;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          cursor: pointer;
+          border: 1.5px solid ${voiceActive ? '#22c55e' : '#15803d'};
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+          cursor: grab;
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 22px;
+          user-select: none;
+          touch-action: none;
           transition: background 0.15s ease, transform 0.15s ease;
+        }
+        .assistant-btn:active {
+          cursor: grabbing;
         }
         .assistant-btn:hover {
           transform: scale(1.04);
-          background: #292929;
+          background: #1f2937;
         }
         .assistant-btn.active-speak {
-          background: #292929;
-          border: 2px solid #ffffff;
-          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+          background: #0f291a;
+          border: 2px solid #22c55e;
+          box-shadow: 0 4px 16px rgba(21, 128, 61, 0.35);
+        }
+        .voice-dot {
+          position: absolute;
+          top: 5px;
+          right: 5px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: ${voiceActive ? '#22c55e' : 'transparent'};
+          box-shadow: ${voiceActive ? '0 0 6px #22c55e' : 'none'};
+        }
+        .drag-grip {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          cursor: grab;
+          user-select: none;
+          touch-action: none;
+          padding: 4px 6px;
+          margin: -6px -4px 8px;
+          border-radius: 6px;
+          color: #6b7280;
+          font-size: 11px;
+          font-weight: 600;
+        }
+        .drag-grip:hover {
+          background: #f3f4f6;
+          color: #111827;
+        }
+        .drag-grip:active {
+          cursor: grabbing;
+        }
+        .btn-disable-site {
+          width: 100%;
+          margin-top: 10px;
+          padding: 7px 10px;
+          border-radius: 6px;
+          border: 1px dashed #d1d5db;
+          background: transparent;
+          color: #4b5563;
+          font-size: 11px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
+        .btn-disable-site:hover {
+          background: #fef2f2;
+          border-color: #fca5a5;
+          color: #b91c1c;
         }
         .card {
           display: ${this.isOpen ? 'block' : 'none'};
           position: absolute;
-          bottom: 64px;
-          right: 0;
+          ${openDownward ? 'top: 64px; bottom: auto;' : 'bottom: 64px; top: auto;'}
+          ${openRightward ? 'left: 0; right: auto;' : 'right: 0; left: auto;'}
           width: min(360px, calc(100vw - 48px));
           background: #ffffff;
           border-radius: 8px;
@@ -1772,12 +2046,12 @@ class ExtensionAssistant {
           background: #292929;
         }
         .btn-action.speak-toggle {
-          background: ${this.isTouchSpeakEnabled ? '#15803d' : '#f9fafb'};
-          color: ${this.isTouchSpeakEnabled ? '#ffffff' : '#111827'};
-          border-color: ${this.isTouchSpeakEnabled ? '#15803d' : '#d1d5db'};
+          background: ${voiceActive ? '#15803d' : '#f9fafb'};
+          color: ${voiceActive ? '#ffffff' : '#111827'};
+          border-color: ${voiceActive ? '#15803d' : '#d1d5db'};
         }
         .speak-hint {
-          display: ${this.isTouchSpeakEnabled ? 'block' : 'none'};
+          display: ${voiceActive ? 'block' : 'none'};
           margin-top: 8px;
           padding: 8px;
           background: #f0fdf4;
@@ -1838,6 +2112,13 @@ class ExtensionAssistant {
       </style>
 
       <div class="card">
+        <div class="drag-grip" id="lb-drag-handle" title="Glisser pour déplacer LinguaBridge">
+          <span style="display:inline-flex;align-items:center;gap:5px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+            Déplacer l'assistant
+          </span>
+          <span style="font-size:10px;color:#9ca3af;">glisser</span>
+        </div>
         <div style="display:flex;gap:5px;background:#f3f4f6;padding:4px;border-radius:10px;margin-bottom:14px;">
           <button id="lb-tab-translate" style="flex:1;border:0;padding:10px;border-radius:8px;background:${this.activePanel === 'translate' ? '#fff' : 'transparent'};cursor:pointer;font-weight:650;">Traduction</button>
           <button id="lb-tab-assistant" style="flex:1;border:0;padding:10px;border-radius:8px;background:${this.activePanel === 'assistant' ? '#fff' : 'transparent'};cursor:pointer;font-weight:650;">Assistant</button>
@@ -1881,6 +2162,10 @@ class ExtensionAssistant {
         </div>
 
         <div id="selection-preview" class="preview-box"></div>
+        <button type="button" class="btn-disable-site" id="btn-disable-site" title="Masquer et désactiver LinguaBridge sur ce site">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+          Désactiver sur ce site
+        </button>
         </div>
         <div style="display:${this.activePanel === 'assistant' ? 'block' : 'none'};">
           <div class="header"><span>Assistant financier</span><button id="lb-close-chat" style="border:0;background:transparent;cursor:pointer;">Fermer</button></div>
@@ -1892,16 +2177,17 @@ class ExtensionAssistant {
         </div>
       </div>
 
-      <button class="assistant-btn ${this.isTouchSpeakEnabled ? 'active-speak' : ''}" id="btn-toggle" title="LinguaBridge - Accessibilité en Langue Maternelle">
-
+      <button class="assistant-btn ${voiceActive ? 'active-speak' : ''}" id="btn-toggle" title="LinguaBridge - Glisser pour déplacer, clic gauche pour ouvrir, clic droit pour désactiver sur ce site">
+        ${launcherIconSvg}
+        <span class="voice-dot"></span>
       </button>
 
       <!-- Bottom floating speech indicator bar -->
-      <div id="audio-bar" class="audio-bar">
+      <div id="audio-bar" class="audio-bar" style="${this.activeBarState.visible ? 'display:flex;' : ''}">
         <span style="font-size: 16px;"></span>
         <div style="max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-          <div id="audio-spoken-text" style="font-weight: 700; font-size: 13px; color: #ffffff;"></div>
-          <div id="audio-phonetic" style="font-size: 11px; color: #86efac; font-style: italic;"></div>
+          <div id="audio-spoken-text" style="font-weight: 700; font-size: 13px; color: #ffffff;">${this.activeBarState.visible ? this.activeBarState.text : ''}</div>
+          <div id="audio-phonetic" style="font-size: 11px; color: #86efac; font-style: italic;">${this.activeBarState.visible && this.activeBarState.phonetic ? `[${this.activeBarState.phonetic}]` : ''}</div>
         </div>
         <button class="audio-btn" id="audio-replay">Rejouer</button>
         <button class="audio-btn stop-btn" id="audio-stop">Arrêter</button>
@@ -1910,7 +2196,77 @@ class ExtensionAssistant {
     `;
 
     // Attach listeners
-    this.shadow.getElementById('btn-toggle')?.addEventListener('click', () => {
+    const btnToggle = this.shadow.getElementById('btn-toggle');
+    const dragHandle = this.shadow.getElementById('lb-drag-handle');
+
+    const startDrag = (e: MouseEvent) => {
+      if (e.button !== 0 || !this.container) return;
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const rect = this.container.getBoundingClientRect();
+      const origLeft = this.customPos ? this.customPos.left : (rect.left || (typeof window !== 'undefined' ? window.innerWidth - 76 : 900));
+      const origTop = this.customPos ? this.customPos.top : (rect.top || (typeof window !== 'undefined' ? window.innerHeight - 76 : 600));
+      let moved = false;
+
+      if (this.onDragMoveHandler) window.removeEventListener('mousemove', this.onDragMoveHandler);
+      if (this.onDragEndHandler) window.removeEventListener('mouseup', this.onDragEndHandler);
+
+      this.onDragMoveHandler = (moveEvt: MouseEvent) => {
+        const dx = moveEvt.clientX - startX;
+        const dy = moveEvt.clientY - startY;
+        if (!moved && Math.hypot(dx, dy) < 5) return;
+        moved = true;
+        this.applyContainerPosition(origLeft + dx, origTop + dy);
+      };
+
+      this.onDragEndHandler = (endEvt?: MouseEvent) => {
+        if (this.onDragMoveHandler) {
+          window.removeEventListener('mousemove', this.onDragMoveHandler);
+          this.onDragMoveHandler = null;
+        }
+        if (this.onDragEndHandler) {
+          window.removeEventListener('mouseup', this.onDragEndHandler);
+          this.onDragEndHandler = null;
+        }
+        if (moved) {
+          if (endEvt && typeof endEvt.clientX === 'number') {
+            const dx = endEvt.clientX - startX;
+            const dy = endEvt.clientY - startY;
+            this.applyContainerPosition(origLeft + dx, origTop + dy);
+          }
+          this.dragSuppressClick = true;
+          setTimeout(() => { this.dragSuppressClick = false; }, 60);
+          if (this.customPos && typeof chrome !== 'undefined' && chrome.storage?.local) {
+            chrome.storage.local.set({ linguabridgeWidgetPos: this.customPos });
+          }
+          this.render();
+        }
+      };
+
+      window.addEventListener('mousemove', this.onDragMoveHandler);
+      window.addEventListener('mouseup', this.onDragEndHandler);
+    };
+
+    btnToggle?.addEventListener('mousedown', startDrag);
+    dragHandle?.addEventListener('mousedown', startDrag);
+
+    btnToggle?.addEventListener('contextmenu', (e: MouseEvent) => {
+      e.preventDefault();
+      if (this.isSiteDisabled) {
+        this.enableOnCurrentSite();
+      } else {
+        this.disableOnCurrentSite(true);
+      }
+    });
+
+    btnToggle?.addEventListener('click', (e: MouseEvent) => {
+      (e as any).__lbInside = true;
+      e.stopPropagation();
+      if (this.dragSuppressClick) {
+        this.dragSuppressClick = false;
+        return;
+      }
+      this.speechPlayer.prewarm();
       this.isOpen = !this.isOpen;
       this.render();
     });
@@ -1921,6 +2277,7 @@ class ExtensionAssistant {
     });
 
     this.shadow.getElementById('btn-translate-page')?.addEventListener('click', () => {
+      this.speechPlayer.prewarm();
       this.translateFullPage();
     });
 
@@ -1929,7 +2286,12 @@ class ExtensionAssistant {
     });
 
     this.shadow.getElementById('btn-toggle-speak')?.addEventListener('click', () => {
+      this.speechPlayer.prewarm();
       this.toggleTouchSpeakMode();
+    });
+
+    this.shadow.getElementById('btn-disable-site')?.addEventListener('click', () => {
+      this.disableOnCurrentSite(true);
     });
 
 
@@ -1983,6 +2345,7 @@ class ExtensionAssistant {
 
     this.shadow.getElementById('audio-close')?.addEventListener('click', () => {
       this.stopSpeech();
+      this.activeBarState = { visible: false, text: '', phonetic: '' };
       const bar = this.shadow?.getElementById('audio-bar');
       if (bar) bar.style.display = 'none';
     });
@@ -2003,6 +2366,10 @@ class ExtensionAssistant {
     if (this.onMouseUpHandler) {
       document.removeEventListener('mouseup', this.onMouseUpHandler);
       this.onMouseUpHandler = null;
+    }
+    if (this.onClickOutsideHandler) {
+      document.removeEventListener('click', this.onClickOutsideHandler);
+      this.onClickOutsideHandler = null;
     }
     if (this.onRuntimeMessageHandler && typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       chrome.runtime.onMessage.removeListener(this.onRuntimeMessageHandler);
@@ -2030,6 +2397,14 @@ class ExtensionAssistant {
       window.removeEventListener('pointerdown', this.onFirstInteractionHandler);
       window.removeEventListener('keydown', this.onFirstInteractionHandler);
       this.onFirstInteractionHandler = null;
+    }
+    if (this.onDragMoveHandler) {
+      window.removeEventListener('mousemove', this.onDragMoveHandler);
+      this.onDragMoveHandler = null;
+    }
+    if (this.onDragEndHandler) {
+      window.removeEventListener('mouseup', this.onDragEndHandler);
+      this.onDragEndHandler = null;
     }
     if (this.mutationObserver) {
       this.mutationObserver.disconnect();

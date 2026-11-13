@@ -12,10 +12,16 @@ async function activeTabMessage(message: Message): Promise<boolean> {
     return true;
   } catch {
     try {
-      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['dist/content.js'] });
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] });
       await chrome.tabs.sendMessage(tab.id, message);
       return true;
-    } catch { return false; }
+    } catch {
+      try {
+        await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['dist/content.js'] });
+        await chrome.tabs.sendMessage(tab.id, message);
+        return true;
+      } catch { return false; }
+    }
   }
 }
 function showStatus(text: string) { const el = $('popup-status'); if (el) el.textContent = text; }
@@ -29,7 +35,28 @@ function showTab(tab: 'translate' | 'assistant') {
 document.addEventListener('DOMContentLoaded', async () => {
   const select = $('popup-target-lang') as HTMLSelectElement;
   const toggle = $('btn-speech-toggle') as HTMLButtonElement;
-  const saved = await chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled']);
+  const siteToggle = $('btn-site-toggle') as HTMLButtonElement | null;
+  const siteLabel = $('site-host-label');
+
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let currentHost = '';
+  try {
+    if (tab?.url) {
+      const parsed = new URL(tab.url);
+      currentHost = parsed.hostname || parsed.origin;
+    }
+  } catch {}
+  if (siteLabel && currentHost) {
+    siteLabel.textContent = currentHost;
+  }
+
+  const saved = await chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled', 'linguabridgeDisabledHosts']);
+  const disabledHosts: string[] = Array.isArray(saved.linguabridgeDisabledHosts) ? saved.linguabridgeDisabledHosts : [];
+  const isSiteDisabled = Boolean(currentHost && disabledHosts.includes(currentHost));
+  if (siteToggle) {
+    siteToggle.setAttribute('aria-checked', String(!isSiteDisabled));
+  }
+
   select.value = supported.has(saved.linguabridgeTargetLang) ? saved.linguabridgeTargetLang : 'ewo-CM';
   toggle.setAttribute('aria-checked', String(saved.linguabridgeAudioEnabled === true));
   $('tab-translate')?.addEventListener('click', () => showTab('translate'));
@@ -53,6 +80,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     toggle.setAttribute('aria-checked', String(enabled));
     await activeTabMessage({ type: 'POPUP_SET_SPEECH', enabled });
     showStatus(enabled ? 'Lecture sur demande activée.' : 'Lecture désactivée.');
+  });
+  siteToggle?.addEventListener('click', async () => {
+    if (!currentHost) return;
+    const enableSite = siteToggle.getAttribute('aria-checked') !== 'true';
+    const data = await chrome.storage.local.get(['linguabridgeDisabledHosts']);
+    const list: string[] = Array.isArray(data.linguabridgeDisabledHosts) ? data.linguabridgeDisabledHosts : [];
+    const nextList = enableSite
+      ? list.filter((h) => h !== currentHost)
+      : Array.from(new Set([...list, currentHost]));
+    await chrome.storage.local.set({ linguabridgeDisabledHosts: nextList });
+    siteToggle.setAttribute('aria-checked', String(enableSite));
+    await activeTabMessage({ type: enableSite ? 'POPUP_ENABLE_SITE' : 'POPUP_DISABLE_SITE', host: currentHost });
+    showStatus(enableSite ? `Extension réactivée sur ${currentHost}.` : `Extension masquée et désactivée sur ${currentHost}.`);
   });
   $('btn-stop-speech')?.addEventListener('click', async () => {
     await activeTabMessage({ type: 'POPUP_STOP_SPEECH' });
