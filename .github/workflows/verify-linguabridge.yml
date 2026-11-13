@@ -51,7 +51,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
       - run: bash gradlew --no-daemon :app:assembleDebug :app:lintDebug
         working-directory: linguabridge/apps/browser-android
       - uses: actions/upload-artifact@v4
