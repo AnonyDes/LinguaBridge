@@ -22,6 +22,7 @@ export interface PageTranslationSettings {
   target?: 'ewo-CM' | 'fuv-CM' | 'hau-CM' | 'knc-CM' | 'pcm-CM';
 }
 export type PageTranslationStatus = 'original' | 'translating' | 'translated' | 'partial' | 'unavailable' | 'protected';
+export type RemotePageTranslation = (items: Array<{ text: string; source: 'fr' | 'en'; target: NonNullable<PageTranslationSettings['target']> }>) => Promise<Array<string | null>>;
 
 type Slot = { node: Text; original: string; applied: string };
 type AttributeSlot = { element: Element; attribute: string; original: string; applied: string };
@@ -52,7 +53,7 @@ function translateLocalSegment(text: string, source: 'fr' | 'en', target: NonNul
   return match[1] + result.translatedText + match[3];
 }
 
-export function createPageTranslator(report: (status: PageTranslationStatus) => void) {
+export function createPageTranslator(report: (status: PageTranslationStatus) => void, remote?: RemotePageTranslation) {
   const written = new Map<Text, Slot>();
   const attributes = new Map<Element, Map<string, AttributeSlot>>();
   let settings: PageTranslationSettings = { enabled: false, source: 'auto' };
@@ -61,6 +62,7 @@ export function createPageTranslator(report: (status: PageTranslationStatus) => 
   let pageUrl = location.href;
   let generation = 0;
   let status: PageTranslationStatus | undefined;
+  const remoteCache = new Map<string, string | null>();
 
   function setStatus(next: PageTranslationStatus) {
     if (status === next) return;
@@ -150,6 +152,17 @@ export function createPageTranslator(report: (status: PageTranslationStatus) => 
       },
     });
     const pending: Array<Slot | AttributeSlot> = [];
+    const remotePending: Array<{ slot: Slot | AttributeSlot; source: 'fr' | 'en'; key: string }> = [];
+
+    function queueRemote(slot: Slot | AttributeSlot, localSource: 'fr' | 'en' | null) {
+      if (!remote || !localSource || slot.original.length > 420 || !/\p{L}/u.test(slot.original)) return;
+      const key = `${localSource}:${settings.target || 'ewo-CM'}:${slot.original}`;
+      const cached = remoteCache.get(key);
+      if (cached) {
+        slot.applied = cached;
+        pending.push(slot);
+      } else if (cached === undefined) remotePending.push({ slot, source: localSource, key });
+    }
 
     function sourceFor(element: Element) {
       if (settings.source !== 'auto') return source;
@@ -165,7 +178,10 @@ export function createPageTranslator(report: (status: PageTranslationStatus) => 
         const localSource = sourceFor(element);
         const translated = localSource && translateLocalSegment(node.data, localSource, settings.target || 'ewo-CM');
         if (translated) pending.push({ node, original: node.data, applied: translated });
-        else if (!/\p{N}/u.test(node.data)) untranslated++;
+        else {
+          if (!/\p{N}/u.test(node.data)) untranslated++;
+          queueRemote({ node, original: node.data, applied: '' }, localSource);
+        }
       } else if (node instanceof Element && eligible(node)) {
         const localSource = sourceFor(node);
         for (const attribute of labels) {
@@ -174,7 +190,10 @@ export function createPageTranslator(report: (status: PageTranslationStatus) => 
           if (attributes.get(node)?.has(attribute)) { applied++; continue; }
           const translated = localSource && translateLocalSegment(original, localSource, settings.target || 'ewo-CM');
           if (translated) pending.push({ element: node, attribute, original, applied: translated });
-          else untranslated++;
+          else {
+            untranslated++;
+            queueRemote({ element: node, attribute, original, applied: '' }, localSource);
+          }
         }
       }
     }
@@ -207,7 +226,47 @@ export function createPageTranslator(report: (status: PageTranslationStatus) => 
         timer = setTimeout(step, 0);
       } else {
         timer = undefined;
-        setStatus(applied ? (untranslated ? 'partial' : 'translated') : 'unavailable');
+        setStatus(remotePending.length ? 'translating' : applied ? (untranslated ? 'partial' : 'translated') : 'unavailable');
+        if (remotePending.length && remote) {
+          const target = settings.target || 'ewo-CM';
+          const batches = [];
+          for (let i = 0; i < remotePending.length; i += 15) batches.push(remotePending.slice(i, i + 15));
+          void (async () => {
+            let remoteApplied = 0;
+            for (const batch of batches) {
+              if (current !== generation || !settings.enabled || pageUrl !== location.href || pageIsProtected()) return;
+              let results: Array<string | null>;
+              try {
+                results = await remote(batch.map(({ slot, source }) => ({ text: slot.original, source, target })));
+              } catch { results = []; }
+              for (let i = 0; i < batch.length; i++) {
+                const { slot, key } = batch[i];
+                const translated = results[i];
+                const safe = typeof translated === 'string' && translated !== slot.original &&
+                  extractor.compare(extractor.extract(slot.original), extractor.extract(translated)).safe;
+                remoteCache.set(key, safe ? translated : null);
+                if (!safe || current !== generation || !settings.enabled || pageUrl !== location.href || pageIsProtected()) continue;
+                if ('node' in slot) {
+                  if (!slot.node.isConnected || slot.node.data !== slot.original || !slot.node.parentElement || !eligible(slot.node.parentElement)) continue;
+                  slot.node.data = translated;
+                  slot.applied = translated;
+                  written.set(slot.node, slot);
+                } else {
+                  if (!slot.element.isConnected || slot.element.getAttribute(slot.attribute) !== slot.original || !eligible(slot.element)) continue;
+                  slot.element.setAttribute(slot.attribute, translated);
+                  slot.applied = translated;
+                  let slots = attributes.get(slot.element);
+                  if (!slots) attributes.set(slot.element, slots = new Map());
+                  slots.set(slot.attribute, slot);
+                }
+                remoteApplied++;
+              }
+            }
+            if (current === generation && settings.enabled && !pageIsProtected()) {
+              setStatus(applied + remoteApplied ? (untranslated > remoteApplied ? 'partial' : 'translated') : 'unavailable');
+            }
+          })();
+        }
         if (needsRescan) {
           needsRescan = false;
           schedule();
@@ -278,6 +337,7 @@ export function createPageTranslator(report: (status: PageTranslationStatus) => 
       }
       reset();
       settings = next;
+      remoteCache.clear();
       setStatus(next.enabled ? 'translating' : 'original');
       schedule();
     },

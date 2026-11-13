@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   select.value = supported.has(saved.linguabridgeTargetLang) ? saved.linguabridgeTargetLang : 'ewo-CM';
   toggle.setAttribute('aria-checked', String(saved.linguabridgeAudioEnabled === true));
   enhancedToggle.setAttribute('aria-checked', String(saved.linguabridgeEnhancedTranslation === true));
-  apiUrl.value = saved.linguabridgeApiBaseUrl || '';
+  apiUrl.value = saved.linguabridgeApiBaseUrl || 'https://api-production-72bac574.up.railway.app';
   apiKey.value = saved.linguabridgeApiKey || '';
   void refreshPageWorkload();
   if (saved.linguabridgeAutoTranslate === true) showStatus('Traduction automatique active. Les passages inconnus restent dans la langue source.');
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showStatus(enabled ? 'Traduction approfondie activée. Le texte de la page peut être envoyé au serveur configuré.' : 'Traduction approfondie désactivée.');
   });
   $('btn-save-server')?.addEventListener('click', async () => {
-    const value = apiUrl.value.trim() || 'http://localhost:3001';
+    const value = apiUrl.value.trim() || 'https://api-production-72bac574.up.railway.app';
     let url: URL;
     try { url = new URL(value); } catch { showStatus('Adresse du serveur invalide.'); return; }
     if (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))) {

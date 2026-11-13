@@ -20,7 +20,8 @@ Do not describe this as complete translation of every site or verified linguisti
 - API: `https://api-production-72bac574.up.railway.app` (Fastify Docker service on Railway).
 - Model: `openai/gpt-6-luna` through OpenRouter. The provider key is configured only on Railway and in the ignored local API environment.
 - Extension: enter the Railway API origin and the limited `EXTENSION_API_KEY` from the ignored local API `.env` in its server settings, then enable enhanced translation. Never enter the administrator `API_KEY` in a browser.
-- Android APK: the current pilot uses the bundled offline lexicon for five target languages. It does not yet call the Railway API, so broad model translation is currently available in the desktop extension, not in the Android browser.
+- Android APK: the pilot uses the bundled offline lexicon for five target languages and sends eligible unknown visible phrases to the Railway API when the user configures a scoped key. Hausa and Fulfulde support long-press hosted speech after a scoped key is set; other target voices remain unavailable.
+- Voice: set `ENABLE_OPENROUTER_SPEECH=true` on Railway to enable the tested Hausa and Fulfulde OpenRouter TTS pilot. This uses a separate Gemini TTS model; GPT-6 Luna remains the text translation model. See [voice model audit](../architecture/VOICE_MODEL_AUDIT.md) before demonstrating any other target voice.
 
 Railway is configured with a separate extension key, `REQUIRE_API_KEY=true`, a production environment, and CORS restricted to the web origin. The quota counters are process-local. A public multi-instance release needs durable key and quota storage, cost controls, and native-speaker validation. The web API console accepts a user's scoped key for protected routes and reports real HTTP failures. The page widget stays hidden in production unless a public key or safer web proxy is deliberately configured.
 
@@ -69,4 +70,4 @@ Pushing this repository to GitHub does **not** update an unpacked extension. Reb
 - Durable authentication, quotas, observability and cost controls for a hosted model gateway.
 - Per-language native review and model selection; external-model fallback only handles errors, not incorrect or incomplete translations.
 
-See [the architecture audit](../architecture/translation-coverage-audit.md) for the confirmed limits and voice-service findings.
+See [the architecture audit](../architecture/translation-coverage-audit.md) and [voice model audit](../architecture/VOICE_MODEL_AUDIT.md) for confirmed limits.

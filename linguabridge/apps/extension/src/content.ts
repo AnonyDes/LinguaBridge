@@ -51,7 +51,7 @@ class AfricanSpeechPlayer {
   private activeUtterance: SpeechSynthesisUtterance | null = null;
   private audioBufferCache = new Map<string, AudioBuffer>();
 
-  constructor() {
+  constructor(private readonly onAvailability?: (available: boolean) => void) {
     this.prewarm();
     if (typeof window !== 'undefined') {
       const unlock = () => {
@@ -171,8 +171,10 @@ class AfricanSpeechPlayer {
         async (res: any) => {
           if (this.currentUtteranceId !== thisId) return;
           if (res?.success && res.result?.audioUrl) {
+            this.onAvailability?.(true);
             await this.playNeuralAudio(res.result.audioUrl, thisId, clauseText, targetLang, cacheKey, onClauseEnd);
           } else {
+            this.onAvailability?.(false);
             console.warn('[LinguaBridge Speech] African neural speech synthesis returned unavailable:', res?.error);
             onClauseEnd();
           }
@@ -358,6 +360,7 @@ class AfricanSpeechPlayer {
 
       audio.onended = finish;
       audio.onerror = () => {
+        this.onAvailability?.(false);
         if (onEnd) {
           onEnd();
         } else {
@@ -368,6 +371,7 @@ class AfricanSpeechPlayer {
       const playPromise = audio.play();
       if (playPromise && typeof playPromise.catch === 'function') {
         playPromise.catch(() => {
+          this.onAvailability?.(false);
           if (onEnd) {
             onEnd();
           } else {
@@ -499,7 +503,16 @@ class ExtensionAssistant {
   private chatHistory: Array<{ role: 'user' | 'assistant'; text: string }> = [];
   private lastSelection = '';
   private isTouchSpeakEnabled = false;
-  private speechPlayer = new EwondoSpeechPlayer();
+  private speechPlayer = new EwondoSpeechPlayer((available) => this.updateVoiceAvailability(available));
+  private voiceAvailable: boolean | null = null;
+
+  private updateVoiceAvailability(available: boolean): void {
+    this.voiceAvailable = available;
+    const hint = this.shadow?.getElementById('voice-status');
+    if (hint) hint.textContent = available
+      ? 'Voix prête.'
+      : 'Voix indisponible pour cette langue ou service hors ligne. Vérifiez la clé API et choisissez Hausa ou Fulfulde pour la voix hébergée.';
+  }
 
   // Instant speech & phonetic cache to eliminate voice latency
   private translationSpeechCache = new Map<string, { spokenTranslation: string; phonetic: string }>();
@@ -2125,7 +2138,7 @@ class ExtensionAssistant {
         </button>
 
         <div class="speak-hint">
-          <strong>Mode vocal actif :</strong> Survolez, touchez ou cliquez sur n'importe quelle section pour l'écouter en langue maternelle.
+          <strong>Lecture au survol :</strong> Survolez ou cliquez sur une section. <span id="voice-status">${this.voiceAvailable === false ? 'Voix indisponible pour cette langue ou service hors ligne. Vérifiez la clé API et choisissez Hausa ou Fulfulde pour la voix hébergée.' : this.voiceAvailable === true ? 'Voix prête.' : 'Un clic sur la page peut être nécessaire pour autoriser le son.'}</span>
         </div>
 
         <div id="selection-preview" class="preview-box"></div>

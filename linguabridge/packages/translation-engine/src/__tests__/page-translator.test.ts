@@ -63,4 +63,17 @@ describe('offline page translation', () => {
     translator.configure({ enabled: false, source: 'auto', target: 'hau-CM' });
     expect(title.textContent).toBe('Bienvenue');
   });
+
+  it('fills unknown visible text from the cloud and restores it afterward', async () => {
+    translator.destroy();
+    document.body.innerHTML = '<p>La station interplanétaire est en orbite.</p><input value="Do not send me">';
+    const remote = vi.fn(async (items: Array<{ text: string }>) => items.map(() => 'La station est en orbite.'));
+    translator = createPageTranslator(report, remote);
+    translator.configure({ enabled: true, source: 'fr', target: 'ewo-CM' });
+    await vi.waitFor(() => expect(document.querySelector('p')?.textContent).toBe('La station est en orbite.'));
+    expect(remote).toHaveBeenCalled();
+    expect(remote.mock.calls.flatMap(([items]) => items.map((item) => item.text))).not.toContain('Do not send me');
+    translator.configure({ enabled: false, source: 'fr', target: 'ewo-CM' });
+    expect(document.querySelector('p')?.textContent).toBe('La station interplanétaire est en orbite.');
+  });
 });

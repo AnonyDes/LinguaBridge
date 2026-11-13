@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """
 LinguaBridge Sovereign African Neural Voice Microservice
-Serves local Meta MMS VITS models for four configured language slots:
-  - 🇨🇲 Ewondo (ewo-CM)
-  - 🇨🇲 Cameroon Pidgin (pcm-CM)
-  - 🇨🇲 Haoussa (hau-CM)
-  - 🇨🇲 Fulfulde (fuv-CM)
+Serves locally installed Meta MMS VITS research models for Hausa and Fulfulde.
+The old Ewondo slot points to an unlicensed community checkpoint, and the
+old Pidgin slot points to Nigerian Pidgin; neither is served as Cameroon speech.
 Strict Duala Quarantine: dua-CM / dua is returned with HTTP 403 Forbidden.
 """
 import sys
@@ -36,10 +34,6 @@ def add_cors_headers(response):
 
 # Model directories mapping
 MODEL_PATHS = {
-    "ewo": MODELS_BASE / "mms-tts-ewo",
-    "ewo-cm": MODELS_BASE / "mms-tts-ewo",
-    "pcm": MODELS_BASE / "mms-tts-pcm",
-    "pcm-cm": MODELS_BASE / "mms-tts-pcm",
     "hau": MODELS_BASE / "mms-tts-hau",
     "hau-cm": MODELS_BASE / "mms-tts-hau",
     "fuv": MODELS_BASE / "mms-tts-ful",
@@ -319,10 +313,8 @@ def preload_core_models():
     """Preloads ALL 5 sovereign models into RAM with fast 1-sentence warmup so server is ready in < 10s."""
     print("🚀 Preloading ALL sovereign African voice models...", flush=True)
     warmup_phrases = {
-        "ewo-cm": "Mbólo, móni wá á ne mvaé",
         "hau-cm": "Sannu, kudi ya shiga lami lafiya",
         "fuv-cm": "Jam waali, seede maada yottake",
-        "pcm-cm": "Welcome, transfer don complete fine",
     }
     for lang, phrase in warmup_phrases.items():
         try:
@@ -335,12 +327,12 @@ def preload_core_models():
 
 @app.route("/health", methods=["GET"])
 def health():
-    available = [lang for lang in ("ewo-CM", "pcm-CM", "hau-CM", "fuv-CM")
+    available = [lang for lang in ("hau-CM", "fuv-CM")
                  if MODEL_PATHS[lang.lower()].exists()]
     return jsonify({
         "status": "healthy" if available else "degraded",
         "service": "LinguaBridge African Neural Voice Engine",
-        "supported_languages": ["ewo-CM", "pcm-CM", "hau-CM", "fuv-CM"],
+        "supported_languages": ["hau-CM", "fuv-CM"],
         "available_languages": available,
         "quarantined": ["dua-CM"],
         "loaded_models": list(LOADED_MODELS.keys())

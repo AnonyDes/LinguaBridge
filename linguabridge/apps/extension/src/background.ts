@@ -7,7 +7,7 @@ const client = new LinguaBridgeClient({
 });
 
 const africanVoiceProvider = new AfricanVoiceProvider();
-const audioPayloadCache = new Map<string, string>();
+const audioPayloadCache = new Map<string, { audioBase64: string; engine: string }>();
 
 // Setup context menus
 if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
@@ -233,17 +233,18 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           const remote = configured.startsWith('https://');
           const cacheKey = `${remote ? configured : 'local'}:${normLang}:${text.trim()}`;
           const cached = audioPayloadCache.get(cacheKey);
-          if (cached) return { audioBase64: cached, lang, engine: 'meta-mms-neural-live' };
+          if (cached) return { ...cached, lang };
           const data = remote
             ? (await new LinguaBridgeClient({ baseUrl: configured, apiKey: settings.linguabridgeApiKey,
               timeout: 15000, maxRetries: 0 }).synthesizeSpeech({ text, lang: normLang }) as any).data
             : await tryFetch('http://127.0.0.1:3002').catch(() => tryFetch('http://localhost:3002'));
           if (typeof data?.audioBase64 !== 'string' || data.audioBase64.length <= 60 ||
-            data.lang?.toLowerCase() !== normLang || data.engine !== 'meta-mms-neural-live') {
+            data.lang?.toLowerCase() !== normLang ||
+            !['meta-mms-neural-live', 'openrouter-gemini-tts'].includes(data.engine)) {
             throw new Error('Missing audio for the requested language');
           }
           if (audioPayloadCache.size < 40 && data.audioBase64.length <= 400000) {
-            audioPayloadCache.set(cacheKey, data.audioBase64);
+            audioPayloadCache.set(cacheKey, { audioBase64: data.audioBase64, engine: data.engine });
           }
           return data;
         })
@@ -255,7 +256,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               lang,
               audioBase64: data.audioBase64,
               audioUrl: `data:audio/wav;base64,${data.audioBase64}`,
-              engine: 'meta-mms-neural-live',
+              engine: data.engine,
             },
           });
         })

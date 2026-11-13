@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """
 LinguaBridge Sovereign African Live Voice Downloader
-Downloads Meta MMS (Massively Multilingual Speech) VITS neural voice checkpoints
-for configured languages when matching checkpoints are available:
-  - 🇨🇲 Ewondo (facebook/mms-tts-ewo)
-  - 🇨🇲 Fulfulde (facebook/mms-tts-ful)
-  - 🇨🇲 Haoussa (facebook/mms-tts-hau)
-  - 🇨🇲 Kanuri (facebook/mms-tts-knc)
-  - 🇨🇲 Cameroon Pidgin (facebook/mms-tts-pcm)
+Downloads available Meta MMS VITS checkpoints for research only.
+There is no verified facebook/mms-tts-ewo or facebook/mms-tts-knc repository.
+facebook/mms-tts-pcm is Nigerian Pidgin, not Cameroon Pidgin.
+The available Meta checkpoints have a CC-BY-NC-4.0 license.
 
 Architecture: End-to-end VITS (Variational Inference with Adversarial Learning for End-to-End Text-to-Speech)
 Checkpoint availability and voice quality must be verified before release.
@@ -29,13 +26,6 @@ MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 SOVEREIGN_VOICES = [
     {
-        "name": "Ewondo",
-        "code": "ewo-CM",
-        "repo": "facebook/mms-tts-ewo",
-        "dir": MODELS_DIR / "mms-tts-ewo",
-        "region": "Centre / Sud / Est"
-    },
-    {
         "name": "Fulfulde",
         "code": "fuv-CM",
         "repo": "facebook/mms-tts-ful",
@@ -48,20 +38,6 @@ SOVEREIGN_VOICES = [
         "repo": "facebook/mms-tts-hau",
         "dir": MODELS_DIR / "mms-tts-hau",
         "region": "Grand-Nord / Carrefours Commerciaux"
-    },
-    {
-        "name": "Kanuri",
-        "code": "knc-CM",
-        "repo": "facebook/mms-tts-knc",
-        "dir": MODELS_DIR / "mms-tts-knc",
-        "region": "Extrême-Nord / Bassin du Lac Tchad"
-    },
-    {
-        "name": "Cameroon Pidgin",
-        "code": "pcm-CM",
-        "repo": "facebook/mms-tts-pcm",
-        "dir": MODELS_DIR / "mms-tts-pcm",
-        "region": "Nord-Ouest / Sud-Ouest / Littoral"
     },
 ]
 
@@ -103,9 +79,9 @@ def download_voice(voice: dict):
 
 def main():
     print("==================================================================")
-    print("🇨🇲 LINGUABRIDGE — TÉLÉCHARGEMENT DES 5 VOIX AFRICAINES SOUVERAINES")
-    print("   Meta MMS VITS (Massively Multilingual Speech) Checkpoints")
-    print("   * Duala (dua-CM) est strictement sous quarantaine")
+    print("LINGUABRIDGE — RESEARCH-ONLY META MMS CHECKPOINTS")
+    print("   Hausa and Fulfulde model files only; CC-BY-NC-4.0.")
+    print("   Ewondo, Central Kanuri and Cameroon Pidgin voice models are not verified here.")
     print("==================================================================")
 
     results = []

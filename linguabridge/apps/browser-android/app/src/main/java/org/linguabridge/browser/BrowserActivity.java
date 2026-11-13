@@ -13,9 +13,11 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -53,14 +55,22 @@ import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
 import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class BrowserActivity extends Activity {
     private static final int INK = 0xff0a0a0a;
@@ -73,6 +83,11 @@ public final class BrowserActivity extends Activity {
     private static final int WHITE = Color.WHITE;
     private static final String DEMO = "https://appassets.androidplatform.net/assets/demo.html";
     private static final String BRIDGE = "linguaBridgeNative";
+    private static final String TRANSLATE_URL = "https://api-production-72bac574.up.railway.app/v1/translate/batch";
+    private final ExecutorService translationJobs = Executors.newSingleThreadExecutor();
+    private final ExecutorService speechJobs = Executors.newSingleThreadExecutor();
+    private MediaPlayer speechPlayer;
+    private File speechFile;
 
     private SharedPreferences preferences;
     private WebView web;
@@ -409,7 +424,7 @@ public final class BrowserActivity extends Activity {
             currentSite == null || !currentSite.equals(siteOf(origin.toString())) ||
             !currentSite.equals(siteOf(view.getUrl())) || message.getType() != WebMessageCompat.TYPE_STRING) return;
         String payload = message.getData();
-        if (payload == null || payload.length() > 256) return;
+        if (payload == null || payload.length() > 12000) return;
         try {
             JSONObject event = new JSONObject(payload);
             String id = event.optString("documentId");
@@ -421,11 +436,157 @@ public final class BrowserActivity extends Activity {
                 reply = sender;
                 sendSettings();
             } else if ("status".equals(type) && id.equals(documentId)) {
+                if (payload.length() > 256) return;
                 updateStatus(event.optString("status"));
+            } else if ("translate".equals(type) && id.equals(documentId) && shouldTranslate()) {
+                receiveTranslationRequest(event, id, sender);
+            } else if ("speak".equals(type) && id.equals(documentId) && shouldTranslate() &&
+                preferences.getBoolean("speechEnabled", false) && !preferences.getString("cloudApiKey", "").isEmpty()) {
+                String text = event.optString("text");
+                String lang = event.optString("lang");
+                if (!text.isBlank() && text.length() <= 240 && lang.equals(targetLanguage) &&
+                    ("hau-CM".equals(lang) || "fuv-CM".equals(lang))) speak(text, lang);
             }
         } catch (JSONException ignored) {
             // Messages are limited to the browser translation status protocol.
         }
+    }
+
+    private void receiveTranslationRequest(JSONObject event, String id, JavaScriptReplyProxy sender) {
+        int requestId = event.optInt("requestId", -1);
+        JSONArray items = event.optJSONArray("items");
+        if (requestId < 1 || items == null || items.length() < 1 || items.length() > 15) return;
+        JSONArray requests = new JSONArray();
+        try {
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject item = items.getJSONObject(i);
+                String text = item.getString("text");
+                String source = item.getString("source");
+                String target = item.getString("target");
+                if (text.isBlank() || text.length() > 420 ||
+                    !("fr".equals(source) || "en".equals(source)) || !targetLanguage.equals(target)) return;
+                requests.put(new JSONObject()
+                    .put("sourceText", text).put("sourceLang", source).put("targetLang", target)
+                    .put("domain", "general").put("privacyPolicy", "allow_external")
+                    .put("providerPreference", "openrouter").put("maxLatencyMs", 15000));
+            }
+        } catch (JSONException ignored) { return; }
+        String key = preferences.getString("cloudApiKey", "").trim();
+        if (key.isEmpty()) {
+            sendTranslationResult(id, requestId, sender, new JSONArray());
+            return;
+        }
+        translationJobs.execute(() -> {
+            JSONArray translated = new JSONArray();
+            HttpURLConnection connection = null;
+            try {
+                connection = (HttpURLConnection) new URL(TRANSLATE_URL).openConnection();
+                connection.setRequestMethod("POST");
+                connection.setConnectTimeout(8000);
+                connection.setReadTimeout(18000);
+                connection.setDoOutput(true);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("X-API-Key", key);
+                byte[] body = new JSONObject().put("requests", requests).toString().getBytes(StandardCharsets.UTF_8);
+                try (OutputStream output = connection.getOutputStream()) { output.write(body); }
+                if (connection.getResponseCode() == 200) {
+                    try (InputStream input = connection.getInputStream()) {
+                        byte[] response = readLimited(input, 200000);
+                        JSONArray results = new JSONObject(new String(response, StandardCharsets.UTF_8)).getJSONArray("results");
+                        for (int i = 0; i < results.length(); i++) {
+                            JSONObject result = results.getJSONObject(i);
+                            String status = result.optString("status");
+                            String value = result.optString("translatedText");
+                            translated.put(("success".equals(status) || "partial".equals(status)) && !value.isBlank()
+                                ? value : JSONObject.NULL);
+                        }
+                    }
+                }
+            } catch (IOException | JSONException ignored) {
+                // The bundled lexicon remains available when cloud translation fails.
+            } finally {
+                if (connection != null) connection.disconnect();
+            }
+            JSONArray result = translated;
+            runOnUiThread(() -> sendTranslationResult(id, requestId, sender, result));
+        });
+    }
+
+    private void sendTranslationResult(String id, int requestId, JavaScriptReplyProxy sender, JSONArray results) {
+        if (!id.equals(documentId) || sender != reply || !shouldTranslate()) return;
+        try {
+            sender.postMessage(new JSONObject().put("type", "translationResult").put("documentId", id)
+                .put("requestId", requestId).put("results", results).toString());
+        } catch (JSONException | IllegalStateException ignored) { }
+    }
+
+    private void speak(String text, String lang) {
+        String key = preferences.getString("cloudApiKey", "").trim();
+        speechJobs.execute(() -> {
+            HttpURLConnection connection = null;
+            try {
+                connection = (HttpURLConnection) new URL("https://api-production-72bac574.up.railway.app/v1/speech/synthesize").openConnection();
+                connection.setRequestMethod("POST");
+                connection.setConnectTimeout(8000);
+                connection.setReadTimeout(20000);
+                connection.setDoOutput(true);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("X-API-Key", key);
+                byte[] body = new JSONObject().put("text", text).put("lang", lang).toString().getBytes(StandardCharsets.UTF_8);
+                try (OutputStream output = connection.getOutputStream()) { output.write(body); }
+                if (connection.getResponseCode() != 200) throw new IOException("Voice unavailable");
+                byte[] response;
+                try (InputStream input = connection.getInputStream()) { response = readLimited(input, 4_000_000); }
+                JSONObject result = new JSONObject(new String(response, StandardCharsets.UTF_8)).getJSONObject("data");
+                if (!result.optBoolean("available") || !lang.equalsIgnoreCase(result.optString("lang"))) throw new IOException("Voice mismatch");
+                byte[] audio = Base64.decode(result.getString("audioBase64"), Base64.DEFAULT);
+                if (audio.length < 100 || audio.length > 2_500_000 ||
+                    audio[0] != 'R' || audio[1] != 'I' || audio[2] != 'F' || audio[3] != 'F') throw new IOException("Invalid audio");
+                runOnUiThread(() -> playSpeech(audio));
+            } catch (IOException | JSONException | IllegalArgumentException ignored) {
+                runOnUiThread(() -> message("Voice unavailable. Check your cloud key and connection."));
+            } finally {
+                if (connection != null) connection.disconnect();
+            }
+        });
+    }
+
+    private void playSpeech(byte[] audio) {
+        stopSpeech();
+        try {
+            speechFile = new File(getCacheDir(), "linguabridge-voice.wav");
+            try (FileOutputStream output = new FileOutputStream(speechFile)) { output.write(audio); }
+            speechPlayer = new MediaPlayer();
+            speechPlayer.setDataSource(speechFile.getAbsolutePath());
+            speechPlayer.setOnCompletionListener(player -> stopSpeech());
+            speechPlayer.prepare();
+            speechPlayer.start();
+        } catch (IOException | IllegalStateException ignored) {
+            stopSpeech();
+            message("Could not play the voice on this device.");
+        }
+    }
+
+    private void stopSpeech() {
+        if (speechPlayer != null) {
+            speechPlayer.release();
+            speechPlayer = null;
+        }
+        if (speechFile != null) {
+            speechFile.delete();
+            speechFile = null;
+        }
+    }
+
+    private static byte[] readLimited(InputStream input, int limit) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int count;
+        while ((count = input.read(buffer)) != -1) {
+            if (output.size() + count > limit) throw new IOException("Response too large");
+            output.write(buffer, 0, count);
+        }
+        return output.toByteArray();
     }
 
     private void sendSettings() {
@@ -436,6 +597,9 @@ public final class BrowserActivity extends Activity {
             message.put("enabled", shouldTranslate());
             message.put("source", sourceLanguage);
             message.put("target", targetLanguage);
+            message.put("speech", preferences.getBoolean("speechEnabled", false) &&
+                !preferences.getString("cloudApiKey", "").isEmpty() &&
+                ("hau-CM".equals(targetLanguage) || "fuv-CM".equals(targetLanguage)));
             reply.postMessage(message.toString());
         } catch (JSONException | IllegalStateException ignored) {
             reply = null;
@@ -475,7 +639,7 @@ public final class BrowserActivity extends Activity {
         menu.getMenu().add(autoTranslate ? "Turn off auto-translate" : "Turn on auto-translate").setOnMenuItemClickListener(item -> {
             if (autoTranslate) setAutoTranslate(false);
             else new AlertDialog.Builder(this).setTitle("Automatically translate pages?")
-                .setMessage("LinguaBridge translates supported French and English phrases on your device. You can pause translation for any site.")
+                .setMessage("LinguaBridge translates supported phrases on your device. When you add a cloud key, eligible visible page text is also sent to the LinguaBridge API and OpenRouter. Protected pages and editable fields are excluded.")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Turn on", (dialog, which) -> setAutoTranslate(true)).show();
             return true;
@@ -508,6 +672,36 @@ public final class BrowserActivity extends Activity {
                 }).setNegativeButton("Cancel", null).show();
             return true;
         });
+        menu.getMenu().add(preferences.getString("cloudApiKey", "").isEmpty() ? "Set cloud translation key" : "Change cloud translation key")
+            .setOnMenuItemClickListener(item -> {
+                EditText input = new EditText(this);
+                input.setSingleLine(true);
+                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                input.setHint("Scoped LinguaBridge API key");
+                input.setText(preferences.getString("cloudApiKey", ""));
+                new AlertDialog.Builder(this).setTitle("Cloud translation")
+                    .setMessage("Visible text on eligible pages is sent to the LinguaBridge Railway API and OpenRouter. Clear the key to use only the offline lexicon.")
+                    .setView(input).setNegativeButton("Cancel", null)
+                    .setPositiveButton("Save", (dialog, which) -> {
+                        preferences.edit().putString("cloudApiKey", input.getText().toString().trim()).apply();
+                        if (web.getUrl() != null && shouldTranslate()) web.reload();
+                    }).show();
+                return true;
+            });
+        boolean speechEnabled = preferences.getBoolean("speechEnabled", false);
+        menu.getMenu().add(speechEnabled ? "Turn off long-press speech" : "Turn on long-press speech")
+            .setOnMenuItemClickListener(item -> {
+                if (!("hau-CM".equals(targetLanguage) || "fuv-CM".equals(targetLanguage))) {
+                    message("Hosted speech is available for Hausa and Fulfulde.");
+                } else if (preferences.getString("cloudApiKey", "").isEmpty()) {
+                    message("Set a cloud translation key first.");
+                } else {
+                    preferences.edit().putBoolean("speechEnabled", !speechEnabled).apply();
+                    sendSettings();
+                    message(!speechEnabled ? "Long press page text to hear it." : "Long-press speech off.");
+                }
+                return true;
+            });
         if (currentSite != null && home.getVisibility() != View.VISIBLE) {
             String key = "paused:" + currentSite;
             boolean paused = preferences.getBoolean(key, false);
@@ -632,6 +826,7 @@ public final class BrowserActivity extends Activity {
 
     @Override protected void onStop() {
         activityVisible = false;
+        stopSpeech();
         sendSettings();
         super.onStop();
     }
@@ -645,6 +840,9 @@ public final class BrowserActivity extends Activity {
     @Override protected void onDestroy() {
         committed = false;
         reply = null;
+        translationJobs.shutdownNow();
+        speechJobs.shutdownNow();
+        stopSpeech();
         content.removeView(web);
         web.destroy();
         super.onDestroy();

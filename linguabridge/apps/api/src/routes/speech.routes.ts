@@ -159,7 +159,12 @@ export const speechRoutes: FastifyPluginAsync = async (fastify) => {
         installed = new Set((health.available_languages || []).map((code) => code.toLowerCase()));
       }
     } catch { /* Voice availability is reported as unavailable below. */ }
-    const status = (code: string) => installed.has(code.toLowerCase()) ? 'model_installed_unverified' : 'unavailable';
+    const status = (code: string) => {
+      if (installed.has(code.toLowerCase())) return 'model_installed_unverified';
+      if (process.env.ENABLE_OPENROUTER_SPEECH === 'true' && process.env.OPENROUTER_API_KEY &&
+        ['fuv-CM', 'hau-CM'].includes(code)) return 'hosted_voice_unverified';
+      return 'unavailable';
+    };
     return reply.status(200).send({
       languages: [
         { code: 'ewo-CM', name: 'Ewondo', family: 'Bantu', status: status('ewo-CM') },
