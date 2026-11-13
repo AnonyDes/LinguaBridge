@@ -173,7 +173,7 @@ export const ApiConnectorDoc: React.FC = () => {
               maxWidth: '680px',
             }}
           >
-            Connectez n'importe quelle application bancaire, ERP ou service backend à l'intégralité du moteur LinguaBridge : Traduction, Synthèse Vocale TTS, Garde-fou AST et Registre des Langues.
+            Connectez n&apos;importe quelle application bancaire, ERP ou service backend à l&apos;intégralité du moteur LinguaBridge : Traduction, Synthèse Vocale TTS, Garde-fou AST et Registre des Langues.
           </p>
         </div>
         <div style={{ textAlign: 'right' }}>
@@ -273,7 +273,7 @@ export const ApiConnectorDoc: React.FC = () => {
                 color: 'var(--ink, #0A0A0A)',
               }}
             >
-              Philosophie de Conception : "Accès Total"
+              Philosophie de Conception : &quot;Accès Total&quot;
             </h4>
             <p
               style={{
@@ -283,7 +283,7 @@ export const ApiConnectorDoc: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              L'API LinguaBridge ne bride aucune fonctionnalité. Dès qu'un développeur branche son système via notre API REST, il obtient un accès direct et sans restriction à la traduction financière contextuelle, à la synthèse vocale d'appoint en langues camerounaises (avec respect des contours tonals), et à l'analyseur d'invariance d'entités financières (Zéro Dérive).
+              L&apos;API LinguaBridge ne bride aucune fonctionnalité. Dès qu&apos;un développeur branche son système via notre API REST, il obtient un accès direct et sans restriction à la traduction financière contextuelle, à la synthèse vocale d&apos;appoint en langues camerounaises (avec respect des contours tonals), et à l&apos;analyseur d&apos;invariance d&apos;entités financières (Zéro Dérive).
             </p>
           </div>
 
@@ -330,7 +330,7 @@ export const ApiConnectorDoc: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                Chaque phrase traduite fait l'objet d'une extraction d'entités (montants, devises, téléphones). Aucune divergence n'est tolérée.
+                Chaque phrase traduite fait l&apos;objet d&apos;une extraction d&apos;entités (montants, devises, téléphones). Aucune divergence n&apos;est tolérée.
               </p>
             </div>
 
@@ -376,7 +376,7 @@ export const ApiConnectorDoc: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                Génération de guides tonals et fichiers audio pour l'alphabétisation financière et l'accessibilité vocale des populations.
+                Génération de guides tonals et fichiers audio pour l&apos;alphabétisation financière et l&apos;accessibilité vocale des populations.
               </p>
             </div>
 
@@ -458,7 +458,7 @@ export const ApiConnectorDoc: React.FC = () => {
                 lineHeight: 1.5,
               }}
             >
-              Toutes les requêtes vers l'API de production doivent inclure votre clé d'API secrète dans l'en-tête <code>Authorization</code> ou <code>x-api-key</code> :
+              Toutes les requêtes vers l&apos;API de production doivent inclure votre clé d&apos;API secrète dans l&apos;en-tête <code>Authorization</code> ou <code>x-api-key</code> :
             </p>
             <div
               style={{

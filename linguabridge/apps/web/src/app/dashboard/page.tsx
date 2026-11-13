@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronRight, Download, ExternalLink, Globe2, Laptop, LockKeyhole, Puzzle, ShieldCheck, Smartphone, Wrench } from 'lucide-react';
 
-type View = 'chrome' | 'edge' | 'web' | 'other';
+type View = 'chrome' | 'edge' | 'android' | 'web' | 'other';
 const repo = 'https://github.com/AnonyDes/LinguaBridge';
 const build = repo + '/actions/workflows/build-edge-extension.yml';
 const chromeBuild = build;
@@ -28,7 +28,7 @@ export default function DeveloperDashboard() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ color: '#08751A', fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', marginBottom: 10 }}>LINGUABRIDGE / ACCESS</div>
           <h1 style={{ fontSize: 'clamp(1.9rem, 3.5vw, 2.8rem)', letterSpacing: '-0.035em', fontWeight: 800, color: '#101828', marginBottom: 12 }}>Access LinguaBridge</h1>
-          <p style={{ color: '#667085', maxWidth: 680, lineHeight: 1.65 }}>Start with the browser extension. Translate financial interfaces into Cameroonian languages without changing the website's source code.</p>
+          <p style={{ color: '#667085', maxWidth: 680, lineHeight: 1.65 }}>Translate financial interfaces into Cameroonian languages using the desktop extension or Android browser.</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(205px, 240px) minmax(0, 1fr)', gap: 'clamp(20px, 4vw, 56px)', alignItems: 'start' }} className="lb-access-grid">
           <aside aria-label="Access methods" style={{ border: '1px solid #EAECF0', borderRadius: 12, padding: 12, background: '#fff' }}>
@@ -41,6 +41,7 @@ export default function DeveloperDashboard() {
               {navigation('edge', 'Microsoft Edge')}
               {navigation('web', 'Web browser', true)}
             </div>}
+            {navigation('android', 'Android browser')}
             <div style={{ borderTop: '1px solid #EAECF0', margin: '12px 0 6px' }}/>
             <button type="button" onClick={() => setOtherOpen(!otherOpen)} aria-expanded={otherOpen}
               style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 9, padding: '12px 10px', background: 'none', border: 0, fontWeight: 650, color: '#475467', cursor: 'pointer', textAlign: 'left' }}>
@@ -66,16 +67,26 @@ export default function DeveloperDashboard() {
               <p style={{ fontSize: 13, color: '#667085', lineHeight: 1.7, marginTop: 18 }}><LockKeyhole size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }}/>Prototype for testing. Not a Chrome Web Store or Edge Add-ons release. Do not enter sensitive credentials into demo fields.</p>
               <p style={{ marginTop: 12 }}><a href={repo + '/blob/main/linguabridge/apps/extension/EDGE_DESKTOP.md'} target="_blank" rel="noreferrer" style={{ color: '#08751A', fontWeight: 650 }}>Installation guide (Chrome and Edge) ↗</a></p>
             </>}
+            {view === 'android' && <>
+              <h2 style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.1rem)', marginBottom: 12 }}>LinguaBridge Browser for Android</h2>
+              <p style={{ color: '#475467', lineHeight: 1.75, maxWidth: 690, marginBottom: 24 }}>
+                The internal pilot translates supported French and English phrases into Ewondo as you browse. Translation runs on your device. Open the bundled demo to try it offline.
+              </p>
+              <a href={repo + '/blob/main/linguabridge/apps/browser-android/README.md'} className="btn btn-primary"
+                target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}>
+                <Smartphone size={17} aria-hidden="true" /> Android build and install guide <ExternalLink size={14} aria-hidden="true" />
+              </a>
+            </>}
             {view === 'web' && <>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#FFF3D6', color: '#8A5B00', borderRadius: 99, padding: '6px 12px', fontSize: 12, fontWeight: 700, marginBottom: 20 }}>BÊTA · In development</div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.1rem)', marginBottom: 12, color: '#101828' }}>Web access is coming</h2>
-              <p style={{ color: '#667085', lineHeight: 1.75, maxWidth: 690 }}>We're working toward access directly from the browser, including mobile-friendly experiences, without installing a desktop extension. This connection method is not available yet.</p>
+              <p style={{ color: '#667085', lineHeight: 1.75, maxWidth: 690 }}>We&apos;re working toward access directly from a web page without installing an extension or app.</p>
               <div style={{ marginTop: 28, padding: 24, border: '1px solid #EAECF0', borderRadius: 12, display: 'flex', gap: 14, alignItems: 'center' }}><Smartphone size={26} color="#08751A"/><div><strong style={{ color: '#101828' }}>Mobile and desktop</strong><p style={{ color: '#667085', fontSize: 14, marginTop: 4 }}>Planned access. No release date announced.</p></div></div>
             </>}
             {view === 'other' && <>
               <div style={{ display: 'inline-flex', background: '#F2F4F7', borderRadius: 99, padding: '6px 12px', fontSize: 12, fontWeight: 700, color: '#475467', marginBottom: 20 }}>OPTIONAL · FOR DEVELOPERS</div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.1rem)', marginBottom: 12, color: '#101828' }}>Other ways to connect</h2>
-              <p style={{ color: '#667085', lineHeight: 1.75, maxWidth: 690 }}>The browser extension is the recommended starting point. Teams building their own products can also explore LinguaBridge's API, SDK and integration packages. These are complementary developer options, not required for using the extension.</p>
+              <p style={{ color: '#667085', lineHeight: 1.75, maxWidth: 690 }}>Teams building their own products can explore the LinguaBridge API, SDK and integration packages.</p>
               <div style={{ border: '1px solid #EAECF0', borderRadius: 12, padding: 24, marginTop: 26 }}>
                 <h3 style={{ marginBottom: 12, color: '#101828' }}>Developer resources</h3>
                 <p style={{ color: '#667085', lineHeight: 1.7 }}>Source code and integration documentation are available in the repository. Availability and deployment requirements vary by connector.</p>

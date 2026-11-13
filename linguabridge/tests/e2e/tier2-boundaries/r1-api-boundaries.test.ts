@@ -1,3 +1,4 @@
+import { ApiKeyService } from '../../../apps/api/src/services/api-key-service';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../../../apps/api/src/app';
@@ -9,10 +10,12 @@ import { verifyHmacSignature } from '../helpers/test-utils';
  */
 describe('Tier 2: Boundary & Corner Cases — R1 API Gateway', () => {
   let app: FastifyInstance;
+  const apiKeyService = new ApiKeyService();
+  const adminToken = apiKeyService.createKey({ name: 'Test admin', permissions: ['admin', 'translate:webhook'] }).key!;
   const validApiKey = 'lb_demo_key_2026';
 
   beforeAll(async () => {
-    app = await buildApp({ enableLogging: false });
+    app = await buildApp({ enableLogging: false, apiKeyService });
     await app.ready();
   });
 
@@ -109,6 +112,7 @@ describe('Tier 2: Boundary & Corner Cases — R1 API Gateway', () => {
     const res = await app.inject({
       method: 'PATCH',
       url: '/v1/packs/duala/status',
+        headers: { 'x-api-key': adminToken },
       payload: { status: 'production_approved' },
     });
 

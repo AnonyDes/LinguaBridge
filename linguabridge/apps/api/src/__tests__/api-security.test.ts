@@ -1,19 +1,28 @@
+import { ApiKeyService } from '../services/api-key-service';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../app';
-import { TranslationPipeline, type TranslationProvider } from '@linguabridge/translation-engine';
-import type { TranslationRequest, TranslationResult, ProviderHealth } from '@linguabridge/shared-types';
+import type { TranslationProvider, TranslationRequest, TranslationResult, ProviderHealth } from '@linguabridge/shared-types';
 
 describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () => {
   let app: FastifyInstance;
+  const apiKeyService = new ApiKeyService();
+  const adminToken = apiKeyService.createKey({ name: 'Test admin', permissions: ['admin', 'translate:webhook'] }).key!;
 
   beforeAll(async () => {
-    app = await buildApp({ enableLogging: false });
+    app = await buildApp({ enableLogging: false, apiKeyService });
     await app.ready();
   });
 
   afterAll(async () => {
     await app.close();
+  });
+
+  it('rejects admin calls without an administrative scope', async () => {
+    const anonymous = await app.inject({ method: 'GET', url: '/v1/keys' });
+    expect(anonymous.statusCode).toBe(401);
+    const demo = await app.inject({ method: 'GET', url: '/api/v1/keys', headers: { 'x-api-key': 'lb_demo_key_2026' } });
+    expect(demo.statusCode).toBe(403);
   });
 
   // --------------------------------------------------------------------------
@@ -27,6 +36,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       const response = await app.inject({
         method: 'POST',
         url: '/v1/keys',
+        headers: { 'x-api-key': adminToken },
         payload: {
           name: 'Penetration-Test-Key',
           permissions: ['translate:read', 'translate:batch'],
@@ -54,6 +64,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       const response = await app.inject({
         method: 'GET',
         url: '/v1/keys',
+        headers: { 'x-api-key': adminToken },
       });
 
       expect(response.statusCode).toBe(200);
@@ -93,6 +104,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       const response = await app.inject({
         method: 'POST',
         url: `/v1/keys/${createdKeyId}/revoke`,
+        headers: { 'x-api-key': adminToken },
       });
 
       expect(response.statusCode).toBe(200);
@@ -149,6 +161,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       const createRes = await app.inject({
         method: 'POST',
         url: '/v1/keys',
+        headers: { 'x-api-key': adminToken },
         payload: { name: 'Temporary-Key-For-Delete' },
       });
       const keyData = JSON.parse(createRes.body);
@@ -157,6 +170,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       const deleteRes = await app.inject({
         method: 'DELETE',
         url: `/v1/keys/${keyData.id}`,
+        headers: { 'x-api-key': adminToken },
       });
       expect(deleteRes.statusCode).toBe(200);
 
@@ -217,61 +231,57 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       expect(detailResponse.statusCode).toBe(404);
     });
 
-    it('translates financial terms and preserves exact FCFA amounts across all 5 languages', async () => {
-      const testCases = [
-        {
-          lang: 'ewo-CM',
-          source: 'Solde disponible: 25 000 FCFA',
-          expectedTerm: 'Móni mí ne wá é bẽng',
-          amount: '25 000 FCFA',
+    it.each([
+      {
+        lang: 'ewo-CM',
+        source: 'Solde disponible: 25 000 FCFA',
+        expectedTerm: 'Móni mí ne wá é bẽng',
+        amount: '25 000 FCFA',
+      },
+      {
+        lang: 'fuv-CM',
+        source: 'Solde disponible: 25 000 FCFA',
+        expectedTerm: 'Shede woodiide',
+        amount: '25 000 FCFA',
+      },
+      {
+        lang: 'hau-CM',
+        source: 'Solde disponible: 25 000 FCFA',
+        expectedTerm: 'Ragowar kuɗi',
+        amount: '25 000 FCFA',
+      },
+      {
+        lang: 'knc-CM',
+        source: 'Solde disponible: 25 000 FCFA',
+        expectedTerm: 'Kəla kəlabe mbeji',
+        amount: '25 000 FCFA',
+      },
+      {
+        lang: 'pcm-CM',
+        source: 'Solde disponible: 25 000 FCFA',
+        expectedTerm: 'Money wey dey available',
+        amount: '25 000 FCFA',
+      },
+    ])('preserves exact FCFA amounts when translating to $lang', async (tc) => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/v1/translate',
+        headers: { 'x-api-key': 'lb_demo_key_2026' },
+        payload: {
+          sourceText: tc.source,
+          sourceLang: 'fr',
+          targetLang: tc.lang,
+          domain: 'financial',
         },
-        {
-          lang: 'fuv-CM',
-          source: 'Solde disponible: 25 000 FCFA',
-          expectedTerm: 'Shede woodiide',
-          amount: '25 000 FCFA',
-        },
-        {
-          lang: 'hau-CM',
-          source: 'Solde disponible: 25 000 FCFA',
-          expectedTerm: 'Ragowar kuɗi',
-          amount: '25 000 FCFA',
-        },
-        {
-          lang: 'knc-CM',
-          source: 'Solde disponible: 25 000 FCFA',
-          expectedTerm: 'Kəla kəlabe mbeji',
-          amount: '25 000 FCFA',
-        },
-        {
-          lang: 'pcm-CM',
-          source: 'Solde disponible: 25 000 FCFA',
-          expectedTerm: 'Money wey dey available',
-          amount: '25 000 FCFA',
-        },
-      ];
+      });
 
-      for (const tc of testCases) {
-        const response = await app.inject({
-          method: 'POST',
-          url: '/v1/translate',
-          headers: { 'x-api-key': 'lb_demo_key_2026' },
-          payload: {
-            sourceText: tc.source,
-            sourceLang: 'fr',
-            targetLang: tc.lang,
-            domain: 'financial',
-          },
-        });
-
-        expect(response.statusCode).toBe(200);
-        const result = JSON.parse(response.body);
-        expect(result.status).toBe('success');
-        expect(result.targetLang).toBe(tc.lang);
-        // Financial invariant: Amount 25 000 FCFA MUST be preserved identically!
-        expect(result.translatedText).toContain(tc.amount);
-        expect(result.translatedText).toContain(tc.expectedTerm);
-      }
+      expect(response.statusCode).toBe(200);
+      const result = JSON.parse(response.body);
+      expect(result.status).toBe('success');
+      expect(result.targetLang).toBe(tc.lang);
+      // Financial invariant: Amount 25 000 FCFA MUST be preserved identically!
+      expect(result.translatedText).toContain(tc.amount);
+      expect(result.translatedText).toContain(tc.expectedTerm);
     });
 
     it('preserves mobile phone numbers (+237 699 123 456) across translations', async () => {
@@ -301,6 +311,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       const response = await app.inject({
         method: 'GET',
         url: '/v1/logs?limit=10',
+        headers: { 'x-api-key': adminToken },
       });
 
       expect(response.statusCode).toBe(200);
@@ -320,6 +331,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       const response = await app.inject({
         method: 'GET',
         url: '/v1/dashboard/stats',
+        headers: { 'x-api-key': adminToken },
       });
 
       expect(response.statusCode).toBe(200);
@@ -475,6 +487,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
             cacheStatus: 'miss',
             warnings: [],
             latencyMs: 1,
+            speechAvailable: false,
           });
         }
         translateBatch(reqs: TranslationRequest[]) { return Promise.all(reqs.map((r) => this.translate(r))); }
@@ -484,6 +497,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       const driftApp = await buildApp({
         enableLogging: false,
         providers: [new AdversarialTamperingProvider()],
+        apiKeyService,
       });
       await driftApp.ready();
 
@@ -512,6 +526,7 @@ describe('LinguaBridge API Security, Sovereign Routing & Penetration Suite', () 
       const statsRes = await driftApp.inject({
         method: 'GET',
         url: '/v1/dashboard/stats',
+        headers: { 'x-api-key': adminToken },
       });
       const stats = JSON.parse(statsRes.body);
       expect(stats.driftAlerts).toBeGreaterThanOrEqual(1);

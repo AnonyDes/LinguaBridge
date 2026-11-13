@@ -91,7 +91,7 @@ export const WebhooksConnectorDoc: React.FC = () => {
                 letterSpacing: '-0.02em',
               }}
             >
-              Webhooks Bancaires & Bus d'Événements d'Entreprise
+              Webhooks Bancaires & Bus d&apos;Événements d&apos;Entreprise
             </h2>
             <span
               className="ax-pill ax-pill--active"
@@ -112,7 +112,7 @@ export const WebhooksConnectorDoc: React.FC = () => {
               maxWidth: '680px',
             }}
           >
-            Flux d'événements transactionnels bancaires en temps réel : notifications sécurisées, audits d'invariance et intégration Core Banking asynchrone.
+            Flux d&apos;événements transactionnels bancaires en temps réel : notifications sécurisées, audits d&apos;invariance et intégration Core Banking asynchrone.
           </p>
         </div>
       </div>
@@ -194,7 +194,7 @@ export const WebhooksConnectorDoc: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              Les Webhooks d'entreprise LinguaBridge permettent à vos systèmes Core Banking (Amphora, Delta Bank, Sopra) et applications partenaires de réagir instantanément aux événements de traitement linguistique, de validation d'intégrité financière et d'audit sans polling répété.
+              Les Webhooks d&apos;entreprise LinguaBridge permettent à vos systèmes Core Banking (Amphora, Delta Bank, Sopra) et applications partenaires de réagir instantanément aux événements de traitement linguistique, de validation d&apos;intégrité financière et d&apos;audit sans polling répété.
             </p>
           </div>
 
@@ -287,7 +287,7 @@ export const WebhooksConnectorDoc: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                En cas d'échec de réception côté banque, 5 tentatives automatiques sont échelonnées avec backoff exponentiel.
+                En cas d&apos;échec de réception côté banque, 5 tentatives automatiques sont échelonnées avec backoff exponentiel.
               </p>
             </div>
 
@@ -323,7 +323,7 @@ export const WebhooksConnectorDoc: React.FC = () => {
                   color: 'var(--ink, #0A0A0A)',
                 }}
               >
-                Piste d'Audit Immuable
+                Piste d&apos;Audit Immuable
               </h5>
               <p
                 style={{
@@ -333,7 +333,7 @@ export const WebhooksConnectorDoc: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                Chaque dispatch consigne l'identifiant d'événement, les latences d'accusé de réception et le statut HTTP dans la base Supabase.
+                Chaque dispatch consigne l&apos;identifiant d&apos;événement, les latences d&apos;accusé de réception et le statut HTTP dans la base Supabase.
               </p>
             </div>
           </div>
@@ -571,7 +571,7 @@ export const WebhooksConnectorDoc: React.FC = () => {
                 }}
               >
                 <Send size={12} strokeWidth={2} />
-                Déclencher l'Événement Signé
+                Déclencher l&apos;Événement Signé
               </button>
             </div>
           </div>

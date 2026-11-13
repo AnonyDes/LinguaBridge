@@ -74,6 +74,16 @@ describe('Chrome Extension Content Assistant', () => {
     expect(p?.textContent).toBe('Frais de transfert: 150 FCFA');
   });
 
+  it('resumes translation on a newly loaded document after the user enables it', () => {
+    (global as any).chrome.storage = {
+      local: {
+        get: vi.fn((_keys, callback) => callback({ linguabridgeAutoTranslate: true, linguabridgeTargetLang: 'ewo-CM' })),
+      },
+    };
+    assistant = new ExtensionAssistant();
+    expect(document.querySelector('h1')?.textContent).toBe('Tóbó móni yá 15000 FCFA');
+  });
+
   it('re-translating does not corrupt original source text with previous translation', () => {
     assistant = new ExtensionAssistant();
 
@@ -516,6 +526,54 @@ describe('Chrome Extension Content Assistant', () => {
     expect(wcShadow.querySelector('button')?.textContent).toBe('Confirmer le transfert');
   });
 
+  it('keeps translating new and changed content inside an open shadow root', async () => {
+    const host = document.createElement('div');
+    const shadow = host.attachShadow({ mode: 'open' });
+    shadow.innerHTML = '<h2>Solde disponible</h2>';
+    document.body.appendChild(host);
+
+    assistant = new ExtensionAssistant();
+    assistant.translateFullPage();
+    expect(shadow.querySelector('h2')?.textContent).toBe('Móni mí ne wá é bẽng');
+
+    const button = document.createElement('button');
+    button.textContent = 'Confirmer le transfert';
+    shadow.appendChild(button);
+    await new Promise((resolve) => setTimeout(resolve, 80));
+    expect(button.textContent).toBe('Tíbíli tóbó nlóm');
+
+    shadow.querySelector('h2')!.textContent = 'Envoyer de l\'argent';
+    await new Promise((resolve) => setTimeout(resolve, 80));
+    expect(shadow.querySelector('h2')?.textContent).toBe('Lóm móni');
+
+    assistant.restorePage();
+    expect(button.textContent).toBe('Confirmer le transfert');
+    expect(shadow.querySelector('h2')?.textContent).toBe('Envoyer de l\'argent');
+  });
+
+  it('translates site-updated label attributes and restores the latest source', async () => {
+    document.body.innerHTML = '<input id="account" placeholder="Entrez le numéro de compte">';
+    assistant = new ExtensionAssistant();
+    assistant.translateFullPage();
+    const input = document.getElementById('account') as HTMLInputElement;
+
+    input.setAttribute('placeholder', 'Solde disponible');
+    await new Promise((resolve) => setTimeout(resolve, 80));
+    expect(input.placeholder).toBe('Móni mí ne wá é bẽng');
+
+    assistant.restorePage();
+    expect(input.placeholder).toBe('Solde disponible');
+  });
+
+  it('leaves editable or hidden inline content untouched', () => {
+    document.body.innerHTML = '<p>Solde disponible <strong contenteditable="true">Confirmer le transfert</strong></p><div hidden title="Solde disponible">Confirmer le transfert</div>';
+    assistant = new ExtensionAssistant();
+    assistant.translateFullPage();
+    expect(document.querySelector('strong')?.textContent).toBe('Confirmer le transfert');
+    expect(document.querySelector('div[hidden]')?.textContent).toBe('Confirmer le transfert');
+    expect(document.querySelector('div[hidden]')?.getAttribute('title')).toBe('Solde disponible');
+  });
+
   it('translates arbitrary sentences crossing multiple inline tags (em, strong, span, a, code) and preserves nested tag hierarchy and attributes', () => {
     document.body.innerHTML = `
       <div id="inline-test">
@@ -723,8 +781,10 @@ describe('Chrome Extension Content Assistant', () => {
     (assistant as any).speechPlayer.precache = precacheSpy;
 
     assistant.translateFullPage();
+    expect(precacheSpy).not.toHaveBeenCalled();
 
-    // Verify precache was called on the visible headings/buttons
+    assistant.toggleTouchSpeakMode();
+    assistant.translateFullPage();
     expect(precacheSpy).toHaveBeenCalled();
   });
 

@@ -222,8 +222,10 @@ export function registerTools(server: McpServer, config?: McpServerConfig): void
         const guard = extractor.compare(sourceEntities, translatedEntities);
         const violations = guard.violations.map((v) => v.issue);
 
-        const safe = guard.safe && result.status !== 'unsafe';
-        const status: TranslateToolOutput['status'] = safe ? 'completed' : 'unsafe';
+        const unsafe = !guard.safe || result.status === 'unsafe';
+        const completed = ['success', 'fixture', 'memory_hit'].includes(result.status);
+        const safe = !unsafe && completed;
+        const status: TranslateToolOutput['status'] = unsafe ? 'unsafe' : completed ? 'completed' : 'failed';
 
         const output: TranslateToolOutput = {
           sourceText: text,

@@ -105,16 +105,18 @@ export class AfricanVoiceProvider implements SpeechProvider {
         };
       }
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 6000);
-      const res = await fetch(`http://127.0.0.1:3002/synthesize?lang=${encodeURIComponent(norm)}&text=${encodeURIComponent(trimmed)}`, {
-        signal: controller.signal,
+      const voiceUrl = typeof process !== 'undefined' ? process.env?.VOICE_SERVICE_URL : undefined;
+      const res = await fetch(`${voiceUrl || 'http://127.0.0.1:3002'}/synthesize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang: norm, text: trimmed }),
+        signal: AbortSignal.timeout(6000),
       }).catch(() => null);
-      clearTimeout(timeout);
 
       if (res && res.ok) {
         const data = await res.json() as any;
-        if (data?.audioBase64) {
+        if (typeof data?.audioBase64 === 'string' && data.audioBase64.length > 60 &&
+          data.lang?.toLowerCase() === norm && data.engine === 'meta-mms-neural-live') {
           return {
             available: true,
             lang,

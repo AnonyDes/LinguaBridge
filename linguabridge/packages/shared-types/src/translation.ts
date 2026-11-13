@@ -65,6 +65,7 @@ export interface TranslationResult {
 export interface TranslationProvider {
   id: string;
   name: string;
+  isLocal?: boolean;
   translate(request: TranslationRequest): Promise<TranslationResult>;
   translateBatch(requests: TranslationRequest[]): Promise<TranslationResult[]>;
   healthCheck(): Promise<ProviderHealth>;

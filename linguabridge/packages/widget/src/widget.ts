@@ -637,7 +637,7 @@ export class LinguaBridgeWidget {
       for (let i = 0; i < compositeItems.length; i++) {
         const item = compositeItems[i];
         const res = results[cursor++];
-        if (res?.translatedText) {
+        if (res?.translatedText && ['success', 'memory_hit', 'fixture'].includes(res.status)) {
           const fullTranslated = (item.leading || '') + res.translatedText + (item.trailing || '');
           const newFragment = this.reassembleTranslatedSentence(fullTranslated, item.inlineElements);
           while (item.container.firstChild) item.container.removeChild(item.container.firstChild);
@@ -649,7 +649,7 @@ export class LinguaBridgeWidget {
       for (let i = 0; i < attrItems.length; i++) {
         const item = attrItems[i];
         const res = results[cursor++];
-        if (res?.translatedText) {
+        if (res?.translatedText && ['success', 'memory_hit', 'fixture'].includes(res.status)) {
           const val = res.translatedText;
           if (item.type === 'placeholder') (item.el as any).placeholder = val;
           else if (item.type === 'value') (item.el as any).value = val;
@@ -663,7 +663,7 @@ export class LinguaBridgeWidget {
       for (let i = 0; i < textNodeItems.length; i++) {
         const item = textNodeItems[i];
         const res = results[cursor++];
-        if (res?.translatedText) {
+        if (res?.translatedText && ['success', 'memory_hit', 'fixture'].includes(res.status)) {
           item.node.textContent = item.leading + res.translatedText + item.trailing;
         }
       }
@@ -718,7 +718,11 @@ export class LinguaBridgeWidget {
       const selectionBox = this.shadow?.getElementById('selection-box');
       if (selectionBox) {
         selectionBox.style.display = 'block';
-        selectionBox.innerHTML = `<strong>Selected:</strong> "${text}"<br/><em>Translating...</em>`;
+        const selected = document.createElement('div');
+        selected.textContent = text;
+        const result = document.createElement('div');
+        result.textContent = 'Translating…';
+        selectionBox.replaceChildren(selected, result);
 
         try {
           const res = await this.client.translate({
@@ -727,13 +731,17 @@ export class LinguaBridgeWidget {
             targetLang: this.currentTargetLang,
             domain: 'financial',
           });
-          selectionBox.innerHTML = `
-            <div style="margin-bottom:4px;"><strong>Selected:</strong> "${text}"</div>
-            <div style="color:#047857;font-weight:600;">"${res.translatedText}"</div>
-            ${res.warnings.length > 0 ? `<div style="color:#b45309;font-size:11px;margin-top:4px;">⚠️ ${res.warnings[0]}</div>` : ''}
-          `;
-        } catch (err: any) {
-          selectionBox.innerHTML = `<span style="color:#dc2626;">Translation error: ${err.message}</span>`;
+          if (!selectionBox.contains(result)) return;
+          result.textContent = ['success', 'memory_hit', 'fixture'].includes(res.status)
+            ? res.translatedText : 'Translation unavailable';
+          result.style.color = '#08751A';
+          if (res.warnings.length > 0) {
+            const warning = document.createElement('div');
+            warning.textContent = res.warnings[0];
+            selectionBox.append(warning);
+          }
+        } catch {
+          result.textContent = 'Translation unavailable';
         }
       }
     });

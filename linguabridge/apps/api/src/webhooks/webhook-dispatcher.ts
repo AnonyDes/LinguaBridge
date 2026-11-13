@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID as uuidv4 } from 'node:crypto';
 import type {
   WebhookPayload,
   WebhookEventType,
@@ -10,7 +10,7 @@ import type {
   FinancialDriftWebhookData,
 } from './webhook-types';
 
-export const DEFAULT_WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'lb_webhook_secret_2026';
+export const DEFAULT_WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
 /**
  * Computes an HMAC SHA-256 hex digest for a raw webhook payload string.
@@ -55,9 +55,9 @@ export function verifyWebhookSignature(
 }
 
 export class WebhookDispatcher {
-  private defaultSecret: string;
+  private defaultSecret?: string;
 
-  constructor(defaultSecret: string = DEFAULT_WEBHOOK_SECRET) {
+  constructor(defaultSecret = DEFAULT_WEBHOOK_SECRET) {
     this.defaultSecret = defaultSecret;
   }
 
@@ -69,13 +69,21 @@ export class WebhookDispatcher {
       url,
       event,
       data,
-      secret = this.defaultSecret,
+      secret = this.defaultSecret ?? process.env.WEBHOOK_SECRET,
       maxRetries = 3,
       initialDelayMs = 100,
       timeoutMs = 5000,
     } = options;
 
     const eventId = uuidv4();
+    if (!secret?.trim() || !url.startsWith('https://')) {
+      return {
+        success: false,
+        attempts: 0,
+        error: 'HTTPS destination and signing secret required',
+        payload: { id: eventId, event, timestamp: new Date().toISOString(), attempt: 0, data },
+      };
+    }
     let attempt = 0;
     let lastError: string | undefined;
     let statusCode: number | undefined;
@@ -95,9 +103,6 @@ export class WebhookDispatcher {
       const signatureHeader = `sha256=${signatureHex}`;
 
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -108,11 +113,12 @@ export class WebhookDispatcher {
             'User-Agent': 'LinguaBridge-Webhook-Dispatcher/1.0',
           },
           body: payloadString,
-          signal: controller.signal,
+          redirect: 'error',
+          signal: AbortSignal.timeout(timeoutMs),
         });
 
-        clearTimeout(timeoutId);
         statusCode = response.status;
+        await response.body?.cancel();
 
         if (response.ok) {
           return {
@@ -138,13 +144,13 @@ export class WebhookDispatcher {
     return {
       success: false,
       statusCode,
-      attempts: attempt - 1,
+      attempts: attempt,
       error: lastError,
       payload: {
         id: eventId,
         event,
         timestamp: new Date().toISOString(),
-        attempt: attempt - 1,
+        attempt,
         data,
       },
     };

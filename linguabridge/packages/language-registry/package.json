@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@linguabridge/shared-types": "workspace:*",
-    "zod": "^3.23.0"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "tsup": "^8.0.0",

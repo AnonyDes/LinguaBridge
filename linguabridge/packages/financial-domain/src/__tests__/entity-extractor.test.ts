@@ -63,6 +63,18 @@ describe('FinancialEntityExtractor', () => {
     expect(result.safe).toBe(false);
   });
 
+  it('preserves repeated occurrences and signed amounts', () => {
+    const source = extractor.extract('Solde: −5 000 FCFA. Plafond: 5 000 FCFA. Réserve: 5 000 FCFA.');
+    expect(source.map((entity) => entity.normalized)).toEqual(['-5000_FCFA', '5000_FCFA', '5000_FCFA']);
+    expect(extractor.compare(source, extractor.extract('Balance: 5 000 FCFA. Limit: 5 000 FCFA.')).safe).toBe(false);
+  });
+
+  it('reports newly introduced protected amounts', () => {
+    const result = extractor.compare([], extractor.extract('Frais: 200 FCFA.'));
+    expect(result.safe).toBe(false);
+    expect(result.violations[0].issue).toContain('ENTITY_INTRODUCED');
+  });
+
   it('extracts Cameroonian phone numbers', () => {
     const entities = extractor.extract('Envoyer à +237 655 123 456');
     expect(entities.some((e) => e.type === 'phone')).toBe(true);

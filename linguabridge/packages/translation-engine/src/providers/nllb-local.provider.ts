@@ -178,6 +178,7 @@ for (const [key, val] of Object.entries(NLLB_FINANCIAL_CACHE)) {
 
 export class NllbLocalProvider implements TranslationProvider {
   id = 'nllb-local';
+  isLocal = true;
   name = 'Meta NLLB-200 Sovereign Local Provider';
 
   private supportedTargets = new Set([

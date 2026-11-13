@@ -10,13 +10,14 @@ export class PipelineContext {
   startTime: number;
 
   constructor(request: TranslationRequest) {
-    this.request = request;
+    this.request = { ...request };
     this.startTime = Date.now();
     this.result = {
       id: request.id,
       originalText: request.sourceText,
       sourceLang: request.sourceLang,
       targetLang: request.targetLang,
+      provider: '',
       status: 'pending',
       cacheStatus: 'miss',
       warnings: [],

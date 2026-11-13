@@ -32,8 +32,8 @@ export interface BatchFailedWebhookData {
 
 export interface FinancialDriftWebhookData {
   translationId: string;
-  sourceText: string;
-  translatedText: string;
+  sourceText?: string;
+  translatedText?: string;
   sourceLang: string;
   targetLang: string;
   domain?: string;

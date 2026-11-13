@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">LinguaBridge Browser</string>
+    <style name="BrowserTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#08751A</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">#F3F6F3</item>
+    </style>
+</resources>

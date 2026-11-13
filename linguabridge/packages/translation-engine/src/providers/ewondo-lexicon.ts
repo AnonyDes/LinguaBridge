@@ -4159,6 +4159,14 @@ function extractAndGuardEntities(text: string): { guardedText: string; entities:
   return { guardedText: result, entities };
 }
 
+const phrasePatterns = [...new Set([...frToEwoMap.keys(), ...enToEwoMap.keys()])]
+  .filter((key) => key.includes(' ') || key.includes("'"))
+  .sort((a, b) => b.length - a.length)
+  .map((phrase) => ({
+    pattern: new RegExp(`(?:^|([^\\p{L}\\p{N}]))${escapeRegExp(phrase)}(?=[^\\p{L}\\p{N}]|$)`, 'giu'),
+    replacement: frToEwoMap.get(phrase) || enToEwoMap.get(phrase)!,
+  }));
+
 export function translateSentenceToEwondo(text: string): string {
   const trimmed = text.trim();
   if (!trimmed) return text;
@@ -4183,22 +4191,8 @@ export function translateSentenceToEwondo(text: string): string {
 
   // 3. Multi-word phrases with Unicode boundary matching (sorted by descending length)
   let workingText = guardedText;
-  const multiWordKeys = [
-    ...Array.from(frToEwoMap.keys()),
-    ...Array.from(enToEwoMap.keys()),
-  ]
-    .filter((k) => k.includes(' ') || k.includes("'"))
-    .sort((a, b) => b.length - a.length);
-
-  for (const phrase of multiWordKeys) {
-    const escaped = escapeRegExp(phrase);
-    const regex = new RegExp(`(?:^|([^\\p{L}\\p{N}]))${escaped}(?=[^\\p{L}\\p{N}]|$)`, 'giu');
-    if (regex.test(workingText)) {
-      const repl = frToEwoMap.get(phrase) || enToEwoMap.get(phrase)!;
-      workingText = workingText.replace(regex, (_m, p1 = '') => {
-        return p1 + repl;
-      });
-    }
+  for (const { pattern, replacement } of phrasePatterns) {
+    workingText = workingText.replace(pattern, (_match, prefix = '') => prefix + replacement);
   }
 
   // 4. Token-by-token replacement & French elision handling

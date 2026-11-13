@@ -70,7 +70,9 @@ export function generateOrangeMoneyReceipt(
     `Frais: ${formattedFee}`,
     `Telephone: ${event.customerPhone}`,
     `Transaction: ${event.transactionId}`,
+    `Order: ${event.orderId}`,
     `Date: ${dateStr}`,
+    ...(event.merchantId ? [`Merchant: ${event.merchantId}`] : []),
   ].join('\n');
 
   // Verify Zero-Drift AST integrity

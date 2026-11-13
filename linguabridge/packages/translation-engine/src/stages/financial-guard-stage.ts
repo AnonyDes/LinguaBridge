@@ -7,7 +7,9 @@ export class FinancialGuardStage implements PipelineStage {
   private extractor = new FinancialEntityExtractor();
 
   shouldSkip(ctx: PipelineContext): boolean {
-    return ctx.request.domain !== 'financial' || !ctx.result.translatedText;
+    const { domain, contentType } = ctx.request;
+    return (domain !== 'financial' && contentType !== 'financial_confirmation' && contentType !== 'financial_amount') ||
+      !ctx.result.translatedText;
   }
 
   async execute(ctx: PipelineContext): Promise<PipelineContext> {
@@ -16,19 +18,18 @@ export class FinancialGuardStage implements PipelineStage {
 
     ctx.extractedEntities = sourceEntities;
 
-    if (sourceEntities.length === 0) {
-      return ctx; // No financial entities to guard
-    }
-
     const guardResult = this.extractor.compare(sourceEntities, translatedEntities);
 
-    if (!guardResult.safe) {
+    const orderChanged = guardResult.safe && sourceEntities.some((entity, index) =>
+      entity.type !== translatedEntities[index]?.type || entity.normalized !== translatedEntities[index]?.normalized);
+    if (!guardResult.safe || orderChanged) {
       ctx.result.status = 'unsafe';
       ctx.result.translatedText = ctx.request.sourceText; // Revert to original
       ctx.result.warnings = [
         ...(ctx.result.warnings || []),
         'FINANCIAL_ENTITY_MISMATCH',
-        ...guardResult.violations.map((v) => v.issue),
+        ...(orderChanged ? ['FINANCIAL_ENTITY_ORDER_CHANGED'] : []),
+        ...guardResult.violations.map((v) => v.issue.split(':', 1)[0]),
       ];
     }
 

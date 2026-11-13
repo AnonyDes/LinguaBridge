@@ -15,18 +15,19 @@ export class ProviderExecutorStage implements PipelineStage {
   }
 
   private selectProvider(ctx: PipelineContext): TranslationProvider | null {
-    const { sourceLang, targetLang, providerPreference } = ctx.request;
+    const { sourceLang, targetLang, providerPreference, privacyPolicy, contentType } = ctx.request;
+    const localOnly = privacyPolicy === 'no_external' || contentType === 'financial_confirmation' || contentType === 'financial_amount';
+    const candidates = this.providers.filter((provider) =>
+      (!localOnly || provider.isLocal === true) && provider.supports(sourceLang, targetLang));
 
     // Try preferred provider first
     if (providerPreference) {
-      const preferred = this.providers.find(
-        (p) => p.id === providerPreference && p.supports(sourceLang, targetLang)
-      );
+      const preferred = candidates.find((p) => p.id === providerPreference);
       if (preferred) return preferred;
     }
 
     // Fall back to first available
-    return this.providers.find((p) => p.supports(sourceLang, targetLang)) || null;
+    return candidates[0] || null;
   }
 
   async execute(ctx: PipelineContext): Promise<PipelineContext> {
@@ -44,18 +45,29 @@ export class ProviderExecutorStage implements PipelineStage {
     }
 
     try {
-      const result = await provider.translate(ctx.request);
+      const maxLatencyMs = ctx.request.maxLatencyMs ?? 10000;
+      const remaining = Math.max(1, Math.floor(maxLatencyMs - (Date.now() - ctx.startTime)));
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+      const result = await Promise.race([
+        provider.translate({ ...ctx.request, maxLatencyMs: remaining }),
+        new Promise<never>((_, reject) => {
+          timeout = setTimeout(() => reject(new Error('Translation deadline exceeded')), remaining);
+        }),
+      ]).finally(() => clearTimeout(timeout));
+      if (typeof result.translatedText !== 'string' || !result.translatedText.trim()) {
+        throw new Error('Empty translation');
+      }
       ctx.result.translatedText = result.translatedText;
       ctx.result.provider = result.provider;
       ctx.result.status = result.status;
       ctx.result.warnings = [...(ctx.result.warnings || []), ...(result.warnings || [])];
       ctx.selectedProvider = provider.id;
-    } catch (err) {
+    } catch {
       ctx.result.status = 'failed';
       ctx.result.translatedText = ctx.request.sourceText;
       ctx.result.warnings = [
         ...(ctx.result.warnings || []),
-        `PROVIDER_ERROR: ${(err as Error).message}`,
+        'PROVIDER_ERROR',
       ];
     }
 

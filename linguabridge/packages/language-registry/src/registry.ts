@@ -9,7 +9,7 @@ export class LanguageRegistry {
     if (!validation.success) {
       return { valid: false, errors: validation.error.issues.map((i) => i.message) };
     }
-    this.packs.set(manifest.id, manifest);
+    this.packs.set(manifest.id, validation.data);
     return { valid: true };
   }
 

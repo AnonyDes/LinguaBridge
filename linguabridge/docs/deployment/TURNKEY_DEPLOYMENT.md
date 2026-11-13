@@ -1,10 +1,7 @@
-# LinguaBridge Turnkey Deployment Guide (100% Ready)
+# LinguaBridge deployment guide
 **SAFINUM Innovate Challenge 2026 — Digital Financial Inclusion for Central Africa**
 
-LinguaBridge is fully built, tested, and pre-configured to run out-of-the-box locally with zero configuration. For production cloud deployment, **only three external elements are needed**:
-1. **Supabase PostgreSQL** (`DATABASE_URL`)
-2. **OpenRouter API Key** (`OPENROUTER_API_KEY`)
-3. **Vercel Web Deployment** (1-Click Next.js Import)
+Use the local workspace for development and the static export for the public showcase. An API deployment needs scoped credentials and a reachable HTTPS endpoint. PostgreSQL, OpenRouter and the voice service are optional integrations.
 
 ---
 
@@ -82,3 +79,8 @@ Visit [http://localhost:3000/cameropay](http://localhost:3000/cameropay) to expe
 - Real-time **Financial Guard** with SHA-256 entity fingerprinting
 - Audio pronunciation guide for Ewondo financial terms
 - Live translation sandbox connected to the API gateway
+# Current API deployment settings
+
+Set a unique `API_KEY` for bootstrap administration and set `CORS_ORIGINS` to the comma-separated HTTPS origins of trusted web clients. Production translation and speech require scoped keys. Admin routes always require an admin key. Key and quota state is process-local. Keep the API on a single instance for development and pilot deployments that depend on in-process key provisioning.
+
+The API uses a bounded in-memory cache. For an existing Supabase deployment, apply [the translation-memory privacy migration](../../infrastructure/migrations/20261113-private-translation-memory.sql) before enabling any public access. The Android pilot does its translation on-device and needs no API deployment.

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LinguaBridge Demo</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6f3;color:#0a0a0a;font:16px/1.55 system-ui,sans-serif}
+main{max-width:620px;margin:auto;padding:40px 24px}header{margin-bottom:28px;border-top:4px solid #12b82a;padding-top:24px}
+h1{font-size:38px;line-height:1.1;margin:0 0 12px}section{background:white;border:1px solid #d4ddd4;border-radius:8px;padding:20px;margin-bottom:12px}
+h2,p{margin:0}h2{font-size:20px}p{margin-top:5px;color:#384638}button{margin-top:16px;padding:12px 16px;min-height:48px;background:#08751a;color:white;border:0;border-radius:6px;font:inherit}
+</style>
+</head>
+<body><main>
+<header><h1>Bienvenue</h1><p>Bienvenue sur votre espace bancaire</p></header>
+<section><h2>Solde</h2><p>50 000 FCFA</p></section>
+<section><h2>Frais</h2><p>150 FCFA</p></section>
+<section id="help"><h2>Aide</h2><button id="show" type="button">Afficher</button></section>
+</main><script>
+document.querySelector('#show').addEventListener('click', (event) => {
+  const note = document.createElement('p');
+  note.textContent = 'Merci';
+  document.querySelector('#help').append(note);
+  event.currentTarget.disabled = true;
+});
+</script></body>
+</html>

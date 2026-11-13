@@ -1,8 +1,18 @@
 import type { PipelineStage } from '../pipeline-stage';
 import type { PipelineContext } from '../pipeline-context';
 
-// Simple heuristic language detector
-// In production: use a proper library like franc or langdetect
+export function detectFrenchOrEnglish(text: string): 'fr' | 'en' | null {
+  const tokens = text.toLowerCase().match(/\p{L}+/gu) ?? [];
+  let french = 0;
+  let english = 0;
+  for (const token of tokens) {
+    if (/^(?:le|la|les|des|vous|votre|pour|avec|compte|solde|frais|envoyer|bienvenue|merci|bonjour|aide)$/.test(token)) french++;
+    if (/^(?:the|your|account|balance|fees|send|transfer|with|from|payment|welcome|thank|hello|help)$/.test(token)) english++;
+  }
+  if (french === english) return null;
+  return french > english ? 'fr' : 'en';
+}
+
 export class LanguageDetector implements PipelineStage {
   name = 'language-detector';
 
@@ -11,12 +21,17 @@ export class LanguageDetector implements PipelineStage {
   }
 
   async execute(ctx: PipelineContext): Promise<PipelineContext> {
-    // Basic detection: if source is 'auto', try to detect
-    // For now, default to 'fr' for Cameroon context
-    if (ctx.request.sourceLang === 'auto') {
-      ctx.request.sourceLang = 'fr'; // Will be replaced with real detector
-      ctx.result.warnings = [...(ctx.result.warnings || []), 'LANG_AUTO_DETECTED_HEURISTIC'];
+    const detected = detectFrenchOrEnglish(ctx.request.sourceText);
+    if (!detected) {
+      ctx.result.status = 'unverified';
+      ctx.result.translatedText = ctx.request.sourceText;
+      ctx.result.warnings = ['SOURCE_LANGUAGE_UNCERTAIN'];
+      ctx.shouldStop = true;
+      return ctx;
     }
+    ctx.request.sourceLang = detected;
+    ctx.result.sourceLang = detected;
+    ctx.result.warnings = ['LANG_AUTO_DETECTED_HEURISTIC'];
     return ctx;
   }
 }

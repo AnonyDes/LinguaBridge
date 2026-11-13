@@ -116,14 +116,12 @@ ALTER TABLE language_packs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE translation_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE speech_jobs ENABLE ROW LEVEL SECURITY;
 
--- Allow read access to public language packs and public translation memory
+-- Allow read access to public language packs. Translation memory is service-only.
 CREATE POLICY "Public read certified language packs"
     ON language_packs FOR SELECT
     USING (status = 'production_approved' OR status = 'installed');
 
-CREATE POLICY "Public read certified translation memory"
-    ON translation_memory FOR SELECT
-    USING (review_status = 'certified' OR review_status = 'approved');
+DROP POLICY IF EXISTS "Public read certified translation memory" ON translation_memory;
 
 -- Allow service role full access to all tables
 CREATE POLICY "Service role full access tenants"

@@ -3,12 +3,12 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 /**
  * Validates Orange Money webhook HMAC-SHA256 signatures with timing-safe comparison.
  *
- * @param payload The raw request body string or parsed JSON object
+ * @param payload The exact request body as bytes or a UTF-8 string
  * @param signature The signature from the X-Orange-Signature or Authorization header
  * @param secret The shared webhook secret / signing key
  */
 export function validateOrangeMoneySignature(
-  payload: string | Record<string, unknown>,
+  payload: string | Buffer,
   signature: string,
   secret: string
 ): boolean {
@@ -16,21 +16,13 @@ export function validateOrangeMoneySignature(
     return false;
   }
 
-  // Canonical string representation
-  let raw: string;
-  if (typeof payload === 'string') {
-    raw = payload;
-  } else {
-    // Deterministic string serialization
-    raw = JSON.stringify(payload);
-  }
-
   // Clean provided signature
   const cleanSignature = signature.trim().replace(/^sha256=/i, '');
+  if (!/^[a-f0-9]{64}$/i.test(cleanSignature)) return false;
 
   // Compute expected HMAC-SHA256 hex digest
   const hmac = createHmac('sha256', secret);
-  hmac.update(raw, 'utf8');
+  hmac.update(typeof payload === 'string' ? Buffer.from(payload, 'utf8') : payload);
   const expectedSignature = hmac.digest('hex');
 
   // Convert to buffers for timing-safe comparison

@@ -20,23 +20,13 @@ if (fs.existsSync(rootManifestPath)) {
   manifest.background = {
     service_worker: 'background.js'
   };
-  manifest.content_scripts = [
-    {
-      matches: ['<all_urls>'],
-      js: ['content.js'],
-      run_at: 'document_idle'
-    }
-  ];
+  for (const script of manifest.content_scripts) {
+    script.js = script.js.map((file) => file.replace(/^dist\//, ''));
+  }
   manifest.action = {
     default_popup: 'popup.html',
     default_title: 'LinguaBridge Assistant'
   };
-  manifest.web_accessible_resources = [
-    {
-      resources: ['*.js', '*.css'],
-      matches: ['<all_urls>']
-    }
-  ];
 
   fs.writeFileSync(path.resolve(distDir, 'manifest.json'), JSON.stringify(manifest, null, 2), 'utf8');
   console.log('[postbuild] Created dist/manifest.json');

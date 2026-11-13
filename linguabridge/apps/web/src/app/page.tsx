@@ -109,7 +109,7 @@ export default function LandingPage() {
           <article className="card" style={{ padding: 'var(--s-6)', border: '1px solid var(--line)', background: '#fff', minWidth: 0 }}>
             <span className="meta-num" style={{ color: 'var(--brand-green-deep)' }}>AVAILABLE FOR TESTING</span>
             <h3 style={{ margin: '14px 0' }}>Desktop extension</h3>
-            <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>Install on Chrome or Edge, open a financial website, and choose a national language. No changes to the bank's website are required.</p>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>Install on Chrome or Edge, open a financial website, and choose a national language. No changes to the bank&apos;s website are required.</p>
             <Link href="/dashboard" style={{ display: 'inline-block', marginTop: 18, color: 'var(--brand-green-deep)', fontWeight: 700 }}>Explore the extension →</Link>
           </article>
           <article className="card" style={{ padding: 'var(--s-6)', border: '1px solid var(--line)', background: '#fff', minWidth: 0 }}>

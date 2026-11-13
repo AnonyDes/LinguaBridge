@@ -458,13 +458,17 @@ export function speakAfricanText(
   }
 
   const baseVoiceUrl = voiceUrl || 'http://127.0.0.1:3002';
-  fetch(`${baseVoiceUrl}/synthesize?lang=${encodeURIComponent(lang)}&text=${encodeURIComponent(cleanText)}`, {
+  fetch(`${baseVoiceUrl}/synthesize`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lang, text: cleanText }),
     signal: AbortSignal.timeout(8000),
   })
     .then(async (res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (data?.audioBase64 && ctx) {
+      if (data?.audioBase64?.length > 60 && data.lang?.toLowerCase() === lang.toLowerCase() &&
+        data.engine === 'meta-mms-neural-live' && ctx) {
         const base64Data = data.audioBase64.replace(/^data:audio\/wav;base64,/, '');
         const binaryStr = atob(base64Data);
         const len = binaryStr.length;

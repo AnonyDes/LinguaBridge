@@ -14,6 +14,9 @@ const manifest = JSON.parse(fs.readFileSync(path.join(distPath, 'manifest.json')
 console.log('✓ Manifest version:', manifest.manifest_version);
 console.log('✓ Content script file:', manifest.content_scripts[0].js);
 console.log('✓ Permissions:', manifest.permissions);
+if (manifest.content_scripts[0].all_frames !== true || manifest.content_scripts[0].match_about_blank !== true) {
+  throw new Error('Content script must cover matching child frames and about:blank frames');
+}
 
 // 2. Read content.js
 const contentJs = fs.readFileSync(path.join(distPath, 'content.js'), 'utf8');
@@ -58,6 +61,9 @@ globalThis.document = document;
 globalThis.chrome = window.chrome;
 globalThis.NodeFilter = window.NodeFilter;
 globalThis.Node = window.Node;
+globalThis.ShadowRoot = window.ShadowRoot;
+globalThis.Element = window.Element;
+globalThis.DocumentFragment = window.DocumentFragment;
 globalThis.MutationObserver = window.MutationObserver;
 
 // 4. Execute content.js directly using Function
@@ -145,6 +151,7 @@ if (!submitBtn.value.includes('Tíbíli tóbó nlóm')) {
 }
 
 // 8. Test Hover-to-Speak ("survoler une section ça parle seul, une fois")
+messageListener({ type: 'POPUP_SET_SPEECH', enabled: true }, {}, () => {});
 const balanceEl = window.document.getElementById('balance');
 const audioBar = shadow.getElementById('audio-bar');
 const spokenTextEl = shadow.getElementById('audio-spoken-text');
@@ -230,7 +237,7 @@ setTimeout(() => {
     const duaBalance = window.document.getElementById('balance').textContent;
     console.log('✓ Duala strictly quarantined (untranslated / protected):', duaBalance);
 
-    console.log('🎉 ALL LIVE IN-PAGE TRANSLATION & HOVER-TO-SPEAK CHECKS PASSED PERFECTLY ACROSS ALL 5 LANGUAGES!');
+    console.log('Built extension synthetic-page translation and speech checks passed.');
     process.exit(0);
   }, 260);
 }, 260);

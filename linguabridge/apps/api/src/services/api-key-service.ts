@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 export interface ApiKeyRecord {
   id: string;
@@ -35,7 +35,8 @@ export interface KeyValidationResult {
 
 export class ApiKeyService {
   private keysById: Map<string, ApiKeyRecord> = new Map();
-  private keysByRawToken: Map<string, string> = new Map(); // rawKey -> id
+  private keysByDigest = new Map<string, string>();
+  private usage = new Map<string, { minute: number; minuteCount: number; day: number; dayCount: number }>();
 
   constructor() {
     this.seedDefaultKeys();
@@ -60,11 +61,13 @@ export class ApiKeyService {
       lastUsedAt: null,
       tenantId: 'tenant-demo-sovereign',
     };
-    this.keysById.set(demoId, demoRecord);
-    this.keysByRawToken.set(demoRawKey, demoId);
+    if (process.env.NODE_ENV !== 'production') {
+      this.keysById.set(demoId, { ...demoRecord, permissions: ['translate:read', 'translate:batch'] });
+      this.keysByDigest.set(this.digest(demoRawKey), demoId);
+    }
 
     // 2. Environment API Key if configured
-    if (process.env.API_KEY && process.env.API_KEY !== demoRawKey) {
+    if (process.env.API_KEY?.trim() && process.env.API_KEY.trim() !== demoRawKey) {
       const envRawKey = process.env.API_KEY.trim();
       const envId = 'env-api-key-prod';
       const envRecord: ApiKeyRecord = {
@@ -82,7 +85,7 @@ export class ApiKeyService {
         lastUsedAt: null,
       };
       this.keysById.set(envId, envRecord);
-      this.keysByRawToken.set(envRawKey, envId);
+      this.keysByDigest.set(this.digest(envRawKey), envId);
     }
   }
 
@@ -122,7 +125,7 @@ export class ApiKeyService {
     };
 
     this.keysById.set(id, record);
-    this.keysByRawToken.set(rawKey, id);
+    this.keysByDigest.set(this.digest(rawKey), id);
 
     // Return representation including rawKey on creation ONLY
     return {
@@ -161,6 +164,7 @@ export class ApiKeyService {
 
     record.isActive = false;
     record.revokedAt = new Date().toISOString();
+    this.usage.delete(id);
 
     const { key: _unused, ...safeRecord } = record as any;
     return safeRecord;
@@ -176,17 +180,9 @@ export class ApiKeyService {
     }
 
     const clean = rawKey.trim();
-    const id = this.keysByRawToken.get(clean);
+    const id = this.keysByDigest.get(this.digest(clean));
 
     if (!id) {
-      // Check legacy demo keys fallback
-      if (clean === 'lb_demo_key_2026') {
-        const demoRecord = this.keysById.get('demo-api-key-default');
-        if (demoRecord && demoRecord.isActive) {
-          demoRecord.lastUsedAt = new Date().toISOString();
-          return { valid: true, key: demoRecord };
-        }
-      }
       return { valid: false, reason: 'invalid' };
     }
 
@@ -201,6 +197,22 @@ export class ApiKeyService {
 
     record.lastUsedAt = new Date().toISOString();
     return { valid: true, key: record };
+  }
+
+  private digest(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+  }
+
+  consumeQuota(key: ApiKeyRecord): boolean {
+    const minute = Math.floor(Date.now() / 60000);
+    const day = Math.floor(minute / 1440);
+    const last = this.usage.get(key.id);
+    const minuteCount = last?.minute === minute ? last.minuteCount : 0;
+    const dayCount = last?.day === day ? last.dayCount : 0;
+    if (minuteCount >= (key.quota.requestsPerMinute ?? Infinity) ||
+      dayCount >= (key.quota.requestsPerDay ?? Infinity)) return false;
+    this.usage.set(key.id, { minute, minuteCount: minuteCount + 1, day, dayCount: dayCount + 1 });
+    return true;
   }
 
   getActiveCount(): number {
