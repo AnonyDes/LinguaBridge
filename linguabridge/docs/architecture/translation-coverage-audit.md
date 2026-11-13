@@ -23,6 +23,8 @@ The extension measures the **current document**, including open shadow roots tha
 | The provider named `NllbLocalProvider` is a phrase cache, not an NLLB inference runtime | Open | It cannot supply open-domain coverage; rename or replace it before claiming neural translation. |
 | Pack manifests claim production approval and parallel corpora, while this checkout contains dictionaries but no matching parallel corpora or evaluation set | Open | Treat the registry labels as unsubstantiated until provenance, licensing, and native-speaker benchmarks are assembled. |
 
+The four non-Ewondo local dictionaries contain roughly 350 keys each, including numbers and UI labels. This explains why a page can show some translated words while much of its meaning remains in the source language.
+
 ## Deployment shape
 
 1. Deploy the Fastify API as a thin authenticated gateway. Vercel is possible for that layer. Set `OPENROUTER_API_KEY`, `ENABLE_LLM_TRANSLATION=true`, and a tested `OPENROUTER_MODEL` for enhanced text translation. Configure `CORS_ORIGINS` for the extension origin and issue scoped user API credentials. Do not place a provider secret in the extension.
