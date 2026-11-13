@@ -16,16 +16,10 @@ function toBase64(bytes: Uint8Array): string {
 }
 
 /**
- * Native African & Cameroonian Neural Voice Provider (Meta MMS VITS / Piper / Acoustic Formant architecture)
- *
- * Delivers ultra-low latency (< 80ms, RTF < 0.1) authentic African speech synthesis for:
- *  - 🇨🇲 Ewondo (ewo-CM / ewo) - Bantu tonal resonance
- *  - 🇨🇲 Fulfulde (fuv-CM / fuv) - Senegambian melodic pitch-accent
- *  - 🇨🇲 Haoussa (hau-CM / hau) - Chadic bitonal register
- *  - 🇨🇲 Kanuri (knc-CM / knc) - Sahalian tonal cadence
- *  - 🇨🇲 Cameroon Pidgin (pcm-CM / pcm) - Kamtok expressive prosody
- *
- * Strict Quarantine: Duala (dua-CM / dua) is completely refused with HTTP 403 / available: false.
+ * Delegates speech requests to the separately deployed voice service.
+ * Recognizing a language code does not mean that a matching, reviewed voice
+ * model is installed. The service must return matching audio for availability.
+ * Duala remains quarantined.
  */
 export class AfricanVoiceProvider implements SpeechProvider {
   public id = 'african-neural-mms';

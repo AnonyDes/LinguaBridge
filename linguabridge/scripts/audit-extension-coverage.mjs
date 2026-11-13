@@ -20,8 +20,14 @@ if (urls.length === 0) {
       .filter((el) => !el.closest('script,style,[hidden],[inert],[translate="no"]') && !el.querySelector(selector))
       .map((el) => el.textContent.replace(/\s+/g, ' ').trim())
       .filter((text) => text.length >= 3 && text.length <= 300);
-    const unchanged = segments.filter((text) => translateLocalText(text, sourceLang, 'ewo-CM').translatedText === text);
-    console.log(JSON.stringify({ url, sourceLang, staticSegments: segments.length, unchanged: unchanged.length, examples: unchanged.slice(0, 8) }, null, 2));
+    const languages = ['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM'];
+    const coverage = Object.fromEntries(languages.map((lang) => {
+      const unchanged = segments.filter((text) => translateLocalText(text, sourceLang, lang).translatedText === text);
+      return [lang, { unchanged: unchanged.length, changed: segments.length - unchanged.length,
+        unchangedExamples: unchanged.slice(0, 5) }];
+    }));
+    console.log(JSON.stringify({ url, sourceLang, staticSegments: segments.length,
+      characters: segments.reduce((total, text) => total + text.length, 0), coverage }, null, 2));
     page.close();
   }
 }

@@ -1,6 +1,7 @@
 import type { TranslationResult } from '@linguabridge/shared-types';
 import { generateBankingResponse } from '../../../packages/widget/src/banking-engine';
 import { translateLocalText, getEwondoPhonetic } from '@linguabridge/translation-engine';
+import { estimateSitePages, type SiteSizeEstimate } from './site-size';
 
 function splitIntoAcousticClauses(text: string): string[] {
   const clean = text.trim();
@@ -464,6 +465,7 @@ class ExtensionAssistant {
   private shadow: ShadowRoot | null = null;
   private originalTextMap = new Map<Node, string>();
   private originalChildNodesMap = new Map<HTMLElement, Node[]>();
+  private compositeSourceMap = new Map<HTMLElement, string>();
   private static readonly INLINE_TAGS = new Set([
     'EM', 'STRONG', 'SPAN', 'B', 'I', 'U', 'A', 'SMALL', 'MARK', 'SUB', 'SUP', 'CODE', 'ABBR', 'CITE', 'TIME', 'BDO', 'BDI'
   ]);
@@ -479,6 +481,13 @@ class ExtensionAssistant {
   >();
   private isPageTranslated = false;
   private currentTargetLang = 'ewo-CM';
+  private enhancedEnabled = false;
+  private enhancedGeneration = 0;
+  private enhancedTimer: ReturnType<typeof setTimeout> | null = null;
+  private enhancedCache = new Map<string, string>();
+  private enhancedInFlight = new Set<string>();
+  private pageWorkload = { segments: 0, characters: 0, linkedPages: 0 };
+  private siteSizePromise: Promise<SiteSizeEstimate> | null = null;
 
   private translateLocal(text: string): string {
     return translateLocalText(text, this.currentSourceLang, this.currentTargetLang).translatedText;
@@ -509,7 +518,7 @@ class ExtensionAssistant {
   private isTranslating = false;
 
   private onMouseUpHandler: (() => void) | null = null;
-  private onRuntimeMessageHandler: ((msg: any) => void) | null = null;
+  private onRuntimeMessageHandler: ((msg: any, sender?: any, sendResponse?: (response: any) => void) => boolean | void) | null = null;
   private onMouseOverHandler: ((e: MouseEvent) => void) | null = null;
   private onMouseOutHandler: ((e: MouseEvent) => void) | null = null;
   private onClickElementHandler: ((e: MouseEvent) => void) | null = null;
@@ -580,10 +589,12 @@ class ExtensionAssistant {
         target.appendChild(this.container);
         document.documentElement.setAttribute('data-linguabridge-extension', 'active');
       }
+      this.pageWorkload = this.measurePageWorkload();
       if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-        chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled', 'linguabridgeAutoTranslate'], (settings) => {
+        chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled', 'linguabridgeAutoTranslate', 'linguabridgeEnhancedTranslation'], (settings) => {
           if (settings.linguabridgeTargetLang) this.currentTargetLang = settings.linguabridgeTargetLang;
           this.isTouchSpeakEnabled = settings.linguabridgeAudioEnabled === true;
+          this.enhancedEnabled = settings.linguabridgeEnhancedTranslation === true;
           this.render();
           if (settings.linguabridgeAutoTranslate === true) this.translateFullPage();
         });
@@ -707,7 +718,7 @@ class ExtensionAssistant {
 
     // Listen for background & popup messages
     if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
-      this.onRuntimeMessageHandler = (msg: any) => {
+      this.onRuntimeMessageHandler = (msg: any, _sender?: any, sendResponse?: (response: any) => void) => {
         if (msg.type === 'CONTEXT_MENU_TRANSLATE' && msg.text) {
           this.isOpen = true;
           this.render();
@@ -722,6 +733,20 @@ class ExtensionAssistant {
           this.currentTargetLang = msg.targetLang || 'ewo-CM';
           if (this.isPageTranslated) this.translateFullPage();
           else this.render();
+        } else if (msg.type === 'POPUP_SET_ENHANCED_TRANSLATION') {
+          this.enhancedEnabled = msg.enabled === true;
+          this.enhancedCache.clear();
+          if (this.isPageTranslated && this.enhancedEnabled) this.scheduleEnhancedTranslation();
+        } else if (msg.type === 'GET_PAGE_METRICS') {
+          const latest = this.measurePageWorkload();
+          if (latest.linkedPages !== this.pageWorkload.linkedPages) this.siteSizePromise = null;
+          this.pageWorkload = latest;
+          sendResponse?.(this.pageWorkload);
+        } else if (msg.type === 'GET_SITE_SIZE' && window === window.top) {
+          this.pageWorkload = this.measurePageWorkload();
+          this.siteSizePromise ||= estimateSitePages(location.href, this.pageWorkload.linkedPages);
+          void this.siteSizePromise.then((estimate) => sendResponse?.(estimate));
+          return true;
         } else if (msg.type === 'POPUP_SET_SPEECH') {
           this.isTouchSpeakEnabled = msg.enabled === true;
           if (!this.isTouchSpeakEnabled) this.clearHoverState();
@@ -1188,6 +1213,7 @@ class ExtensionAssistant {
       this.pendingMutations.clear();
       this.isTranslating = false;
     }
+    this.scheduleEnhancedTranslation();
   }
 
   private translateElementAttributes(el: HTMLElement): void {
@@ -1459,6 +1485,7 @@ class ExtensionAssistant {
     const trimmed = wsMatch ? wsMatch[2] : '';
     const trailing = wsMatch ? wsMatch[3] : '';
     if (!trimmed) return false;
+    this.compositeSourceMap.set(container, trimmed);
 
     const translated = this.translateLocal(trimmed);
     if (!translated || translated === trimmed) return false;
@@ -1643,6 +1670,10 @@ class ExtensionAssistant {
   }
 
   public translateFullPage(): void {
+    this.enhancedGeneration++;
+    if (this.enhancedTimer) clearTimeout(this.enhancedTimer);
+    this.pageWorkload = this.measurePageWorkload();
+    this.siteSizePromise = null;
     this.isTranslating = true;
     try {
       this.currentSourceLang = this.detectSourceLanguage();
@@ -1658,6 +1689,155 @@ class ExtensionAssistant {
       }
     } finally {
       this.isTranslating = false;
+    }
+    this.scheduleEnhancedTranslation();
+  }
+
+  private measurePageWorkload(): { segments: number; characters: number; linkedPages: number } {
+    let segments = 0;
+    let characters = 0;
+    const visit = (root: ParentNode) => {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let node: Node | null;
+      while ((node = walker.nextNode())) {
+        const parent = node.parentElement;
+        const value = node.textContent?.trim();
+        if (!parent || !value || this.isExtensionNode(parent) || this.isProtectedElement(parent)) continue;
+        segments++;
+        characters += value.length;
+      }
+      for (const el of root.querySelectorAll<HTMLElement>('*')) {
+        if (this.isExtensionNode(el) || this.isProtectedElement(el)) continue;
+        for (const name of ['placeholder', 'title', 'aria-label', 'alt']) {
+          const value = el.getAttribute(name)?.trim();
+          if (value) { segments++; characters += value.length; }
+        }
+        if (el.shadowRoot) visit(el.shadowRoot);
+      }
+    };
+    if (document.body) visit(document.body);
+    const links = new Set<string>();
+    for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href]')) {
+      try {
+        const url = new URL(link.href);
+        if (url.origin === location.origin) links.add(url.href.split('#')[0]);
+      } catch { /* Ignore malformed links. */ }
+    }
+    return { segments, characters, linkedPages: links.size };
+  }
+
+  private scheduleEnhancedTranslation(): void {
+    if (!this.enhancedEnabled || !this.isPageTranslated || !chrome.runtime?.sendMessage) return;
+    if (this.enhancedTimer) clearTimeout(this.enhancedTimer);
+    const generation = this.enhancedGeneration;
+    this.enhancedTimer = setTimeout(() => {
+      this.enhancedTimer = null;
+      void this.translateWithServer(generation).catch(() => {});
+    }, 150);
+  }
+
+  private async translateWithServer(generation: number): Promise<void> {
+    if (generation !== this.enhancedGeneration || !this.isPageTranslated) return;
+    const groups = new Map<string, Array<(translated: string) => void>>();
+    const sourceLang = this.currentSourceLang;
+    const targetLang = this.currentTargetLang;
+    const add = (source: string, apply: (translated: string) => void) => {
+      const text = source.trim();
+      if (text.length < 2 || text.length > 2000 || !/\p{L}/u.test(text)) return;
+      const letters = text.match(/\p{L}/gu) || [];
+      const latin = text.match(/\p{Script=Latin}/gu) || [];
+      if (latin.length < letters.length * 0.8) return;
+      const callbacks = groups.get(text) || [];
+      callbacks.push(apply);
+      groups.set(text, callbacks);
+    };
+    const compositeContainers = [...this.compositeSourceMap.keys()].filter((el) => el.isConnected);
+    for (const [node, source] of this.originalTextMap) {
+      const parent = node.parentElement;
+      if (!node.isConnected || !parent || this.isExtensionNode(parent) || this.isProtectedElement(parent)) continue;
+      if (compositeContainers.some((container) => container.contains(node))) continue;
+      add(source, (translation) => {
+        if (!node.isConnected || generation !== this.enhancedGeneration || !this.isPageTranslated) return;
+        const expected = this.translateLocal(source.trim());
+        if (node.textContent?.trim() !== expected && node.textContent?.trim() !== source.trim()) return;
+        const match = source.match(/^(\s*)([\s\S]*?)(\s*)$/);
+        node.textContent = `${match?.[1] || ''}${translation}${match?.[3] || ''}`;
+      });
+    }
+    for (const container of compositeContainers) {
+      const source = this.compositeSourceMap.get(container)!;
+      add(source, (translation) => {
+        if (!container.isConnected || generation !== this.enhancedGeneration || !this.isPageTranslated) return;
+        const markers = source.match(/<\/?t\d+>/g) || [];
+        if (markers.some((marker) => translation.split(marker).length !== source.split(marker).length) ||
+          (translation.match(/<\/?t\d+>/g) || []).length !== markers.length) return;
+        this.restoreSingleCompositeContainer(container);
+        this.saveElementChildrenRecursively(container);
+        const inlineElements: HTMLElement[] = [];
+        if (this.buildMaskedSentence(container, inlineElements).trim() !== source) return;
+        const fragment = this.reassembleTranslatedSentence(translation, inlineElements);
+        container.replaceChildren(fragment);
+      });
+    }
+    for (const [el, originals] of this.originalAttrMap) {
+      if (!el.isConnected || this.isExtensionNode(el) || this.isProtectedElement(el)) continue;
+      for (const [key, name] of Object.entries({ placeholder: 'placeholder', value: 'value', title: 'title', ariaLabel: 'aria-label', alt: 'alt' })) {
+        const source = originals[key as keyof typeof originals];
+        if (!source || (key === 'value' && !['button', 'submit', 'reset'].includes((el as HTMLInputElement).type))) continue;
+        add(source, (translation) => {
+          if (!el.isConnected || generation !== this.enhancedGeneration || !this.isPageTranslated) return;
+          const current = key === 'value' ? (el as HTMLInputElement).value : el.getAttribute(name);
+          if (current !== this.translateLocal(source.trim()) && current !== source) return;
+          if (key === 'value') (el as HTMLInputElement).value = translation;
+          else el.setAttribute(name, translation);
+        });
+      }
+    }
+    const texts = [...groups.keys()];
+    this.isTranslating = true;
+    try {
+      for (const text of texts) {
+        const cached = this.enhancedCache.get(`${sourceLang}:${targetLang}:${text}`);
+        if (cached) for (const apply of groups.get(text) || []) apply(cached);
+      }
+      this.mutationObserver?.takeRecords();
+    } finally {
+      this.isTranslating = false;
+    }
+    const uncachedTexts = texts.filter((text) => {
+      const key = `${sourceLang}:${targetLang}:${text}`;
+      return !this.enhancedCache.has(key) && !this.enhancedInFlight.has(key);
+    });
+    for (let offset = 0; offset < uncachedTexts.length; offset += 20) {
+      if (generation !== this.enhancedGeneration || !this.isPageTranslated) return;
+      const batch = uncachedTexts.slice(offset, offset + 20);
+      for (const text of batch) this.enhancedInFlight.add(`${sourceLang}:${targetLang}:${text}`);
+      const response = await new Promise<any>((resolve) => {
+        const timeout = setTimeout(() => resolve(null), 18000);
+        try {
+          chrome.runtime.sendMessage({ type: 'ENHANCED_TRANSLATE_BATCH',
+            items: batch.map((text) => ({ text, sourceLang, targetLang })) },
+          (value: any) => { clearTimeout(timeout); resolve(chrome.runtime.lastError ? null : value); });
+        } catch { clearTimeout(timeout); resolve(null); }
+      });
+      for (const text of batch) this.enhancedInFlight.delete(`${sourceLang}:${targetLang}:${text}`);
+      if (!response?.success || !Array.isArray(response.results)) return;
+      this.isTranslating = true;
+      try {
+        for (let i = 0; i < batch.length; i++) {
+          const result = response.results[i];
+          const translated = result?.translatedText?.trim();
+          if (!['success', 'memory_hit'].includes(result?.status) || result?.provider === 'fixture' ||
+            result?.targetLang !== targetLang || !translated || translated === batch[i] ||
+            translated.length > batch[i].length * 4 + 200) continue;
+          const key = `${sourceLang}:${targetLang}:${batch[i]}`;
+          this.enhancedCache.set(key, translated);
+          for (const apply of groups.get(batch[i]) || []) apply(translated);
+        }
+        this.mutationObserver?.takeRecords();
+      } finally {
+        this.isTranslating = false;
+      }
     }
   }
 
@@ -1695,6 +1875,8 @@ class ExtensionAssistant {
   }
 
   public restorePage(): void {
+    this.enhancedGeneration++;
+    if (this.enhancedTimer) clearTimeout(this.enhancedTimer);
     this.isTranslating = true;
     try {
       // 1. Restore composite containers with inline tags to pristine DOM child node order
@@ -1732,6 +1914,7 @@ class ExtensionAssistant {
 
       this.isPageTranslated = false;
       this.originalTextMap.clear();
+      this.compositeSourceMap.clear();
       this.originalAttrMap.clear();
       this.clearHoverState();
       this.speechPlayer.stop();

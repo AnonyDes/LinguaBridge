@@ -110,6 +110,9 @@ export interface BatchTranslateItem {
   targetLang: string;
   domain?: string;
   context?: string;
+  providerPreference?: string;
+  privacyPolicy?: 'no_external' | 'allow_external';
+  maxLatencyMs?: number;
 }
 
 export class LinguaBridgeClient {
@@ -267,6 +270,9 @@ export class LinguaBridgeClient {
       targetLang: item.targetLang,
       domain: (item.domain as any) || 'general',
       context: item.context,
+      providerPreference: item.providerPreference,
+      privacyPolicy: item.privacyPolicy,
+      maxLatencyMs: item.maxLatencyMs,
     }));
 
     const results: TranslationResult[] = [];

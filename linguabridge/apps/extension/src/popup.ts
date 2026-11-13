@@ -21,6 +21,29 @@ async function activeTabMessage(message: Message): Promise<boolean> {
   }
 }
 function showStatus(text: string) { const el = $('popup-status'); if (el) el.textContent = text; }
+async function refreshPageWorkload() {
+  const el = $('page-workload');
+  if (!el) return;
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const metrics = tab?.id ? await chrome.tabs.sendMessage(tab.id, { type: 'GET_PAGE_METRICS' }) : null;
+    if (!metrics || typeof metrics.segments !== 'number') {
+      el.textContent = 'Cette page ne permet pas l’analyse.';
+      return;
+    }
+    const size = metrics.characters > 25000 ? 'grande' : metrics.characters > 5000 ? 'moyenne' : 'petite';
+    const pageLabel = `Page ${size} · ${metrics.segments.toLocaleString('fr')} segments · ${metrics.characters.toLocaleString('fr')} caractères`;
+    el.textContent = pageLabel;
+    if (tab?.id) {
+      void chrome.tabs.sendMessage(tab.id, { type: 'GET_SITE_SIZE' }).then((site) => {
+        if (!site || typeof site.pages !== 'number') return;
+        if (el.textContent !== pageLabel) return;
+        const label = site.source === 'sitemap' ? 'pages identifiées via sitemap et liens' : 'liens internes trouvés sur cette page';
+        el.textContent += ` · ${site.pages.toLocaleString('fr')} ${label}${site.complete ? '' : ' (estimation partielle)'}`;
+      }).catch(() => {});
+    }
+  } catch { el.textContent = 'Cette page ne permet pas l’analyse.'; }
+}
 function showTab(tab: 'translate' | 'assistant') {
   for (const name of ['translate', 'assistant']) {
     $('tab-' + name)?.setAttribute('aria-selected', String(name === tab));
@@ -31,9 +54,16 @@ function showTab(tab: 'translate' | 'assistant') {
 document.addEventListener('DOMContentLoaded', async () => {
   const select = $('popup-target-lang') as HTMLSelectElement;
   const toggle = $('btn-speech-toggle') as HTMLButtonElement;
-  const saved = await chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled', 'linguabridgeAutoTranslate']);
+  const enhancedToggle = $('btn-enhanced-toggle') as HTMLButtonElement;
+  const apiUrl = $('api-url') as HTMLInputElement;
+  const apiKey = $('api-key') as HTMLInputElement;
+  const saved = await chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled', 'linguabridgeAutoTranslate', 'linguabridgeEnhancedTranslation', 'linguabridgeApiBaseUrl', 'linguabridgeApiKey']);
   select.value = supported.has(saved.linguabridgeTargetLang) ? saved.linguabridgeTargetLang : 'ewo-CM';
   toggle.setAttribute('aria-checked', String(saved.linguabridgeAudioEnabled === true));
+  enhancedToggle.setAttribute('aria-checked', String(saved.linguabridgeEnhancedTranslation === true));
+  apiUrl.value = saved.linguabridgeApiBaseUrl || '';
+  apiKey.value = saved.linguabridgeApiKey || '';
+  void refreshPageWorkload();
   if (saved.linguabridgeAutoTranslate === true) showStatus('Traduction automatique active. Les passages inconnus restent dans la langue source.');
   $('tab-translate')?.addEventListener('click', () => showTab('translate'));
   $('tab-assistant')?.addEventListener('click', () => showTab('assistant'));
@@ -46,11 +76,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     await chrome.storage.local.set({ linguabridgeAutoTranslate: true });
     const ok = await activeTabMessage({ type: 'POPUP_TRANSLATE_PAGE', targetLang: select.value });
     showStatus(ok ? 'Traduction activée pour les pages suivantes. Le lexique local peut laisser des passages inchangés.' : 'Traduction activée, mais cette page ne permet pas l’injection de l’extension.');
+    setTimeout(() => void refreshPageWorkload(), 350);
   });
   $('btn-restore-page')?.addEventListener('click', async () => {
     await chrome.storage.local.set({ linguabridgeAutoTranslate: false });
     const ok = await activeTabMessage({ type: 'POPUP_RESTORE_PAGE' });
     showStatus(ok ? 'Texte original restauré.' : 'Page non accessible.');
+  });
+  enhancedToggle.addEventListener('click', async () => {
+    const enabled = enhancedToggle.getAttribute('aria-checked') !== 'true';
+    await chrome.storage.local.set({ linguabridgeEnhancedTranslation: enabled });
+    enhancedToggle.setAttribute('aria-checked', String(enabled));
+    await activeTabMessage({ type: 'POPUP_SET_ENHANCED_TRANSLATION', enabled });
+    showStatus(enabled ? 'Traduction approfondie activée. Le texte de la page peut être envoyé au serveur configuré.' : 'Traduction approfondie désactivée.');
+  });
+  $('btn-save-server')?.addEventListener('click', async () => {
+    const value = apiUrl.value.trim() || 'http://localhost:3001';
+    let url: URL;
+    try { url = new URL(value); } catch { showStatus('Adresse du serveur invalide.'); return; }
+    if (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))) {
+      showStatus('Utilisez HTTPS, ou localhost pour un serveur sur cet ordinateur.');
+      return;
+    }
+    if (url.protocol === 'https:') {
+      const granted = await chrome.permissions.request({ origins: [`${url.origin}/*`] });
+      if (!granted) { showStatus('Accès au serveur non accordé.'); return; }
+    }
+    await chrome.storage.local.set({ linguabridgeApiBaseUrl: value.replace(/\/$/, ''), linguabridgeApiKey: apiKey.value.trim() });
+    if (enhancedToggle.getAttribute('aria-checked') === 'true') {
+      await activeTabMessage({ type: 'POPUP_SET_ENHANCED_TRANSLATION', enabled: true });
+    }
+    showStatus(enhancedToggle.getAttribute('aria-checked') === 'true'
+      ? 'Serveur enregistré. Traduction approfondie relancée.'
+      : 'Serveur enregistré. Activez la traduction approfondie pour l’utiliser.');
   });
   toggle.addEventListener('click', async () => {
     const enabled = toggle.getAttribute('aria-checked') !== 'true';

@@ -2,15 +2,15 @@
 """
 LinguaBridge Sovereign African Live Voice Downloader
 Downloads Meta MMS (Massively Multilingual Speech) VITS neural voice checkpoints
-for the 5 sovereign Cameroonian languages:
+for configured languages when matching checkpoints are available:
   - 🇨🇲 Ewondo (facebook/mms-tts-ewo)
-  - 🇨🇲 Fulfulde (facebook/mms-tts-fuv)
+  - 🇨🇲 Fulfulde (facebook/mms-tts-ful)
   - 🇨🇲 Haoussa (facebook/mms-tts-hau)
   - 🇨🇲 Kanuri (facebook/mms-tts-knc)
   - 🇨🇲 Cameroon Pidgin (facebook/mms-tts-pcm)
 
 Architecture: End-to-end VITS (Variational Inference with Adversarial Learning for End-to-End Text-to-Speech)
-Inference latency: < 80ms on CPU (RTF < 0.1). Duala is strictly quarantined.
+Checkpoint availability and voice quality must be verified before release.
 """
 import os
 import sys
@@ -24,8 +24,8 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-MODELS_DIR = ROOT_DIR / "models"
-MODELS_DIR.mkdir(exist_ok=True)
+MODELS_DIR = ROOT_DIR / "models" / "african-tts"
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 SOVEREIGN_VOICES = [
     {
@@ -38,8 +38,8 @@ SOVEREIGN_VOICES = [
     {
         "name": "Fulfulde",
         "code": "fuv-CM",
-        "repo": "facebook/mms-tts-fuv",
-        "dir": MODELS_DIR / "mms-tts-fuv",
+        "repo": "facebook/mms-tts-ful",
+        "dir": MODELS_DIR / "mms-tts-ful",
         "region": "Grand-Nord / Adamaoua / Nord"
     },
     {
@@ -91,7 +91,6 @@ def download_voice(voice: dict):
         snapshot_download(
             repo_id=voice["repo"],
             local_dir=str(voice["dir"]),
-            resume_download=True,
         )
         duration = time.time() - start_time
         total_size = get_dir_size(voice["dir"])
@@ -99,7 +98,7 @@ def download_voice(voice: dict):
         return True
     except Exception as e:
         print(f"⚠️ Note : Téléchargement direct HuggingFace en attente réseau ({e})", flush=True)
-        print(f"ℹ️ Le moteur speech-engine utilisera l'émulateur neural MMS haute fidélité intégré.", flush=True)
+        print("ℹ️ Cette voix reste indisponible tant qu'un modèle validé n'est pas installé.", flush=True)
         return False
 
 def main():
@@ -117,7 +116,7 @@ def main():
     print("\n==================================================================")
     print("📊 RÉSUMÉ DES VOIX AFRICAINES CAMEROUNAISES :")
     for name, code, ok in results:
-        status = "Prêt (Fichiers locaux)" if ok else "Prêt (Acoustique MMS Intégrée)"
+        status = "Fichiers téléchargés, validation requise" if ok else "Indisponible"
         print(f"  - {name} [{code}]: {status}")
     print("==================================================================")
 

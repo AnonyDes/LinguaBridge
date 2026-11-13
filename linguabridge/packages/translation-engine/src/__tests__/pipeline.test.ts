@@ -16,6 +16,32 @@ class MockCache implements CacheStore {
 }
 
 describe('TranslationPipeline', () => {
+  it('tries a configured provider when the local lexicon leaves text unchanged', async () => {
+    const model: TranslationProvider = {
+      id: 'model', name: 'Test model',
+      supports: () => true,
+      healthCheck: async () => ({ healthy: true, latencyMs: 0 }),
+      translate: async (request) => ({
+        id: request.id || 'model-result', originalText: request.sourceText,
+        translatedText: 'Model translated text', sourceLang: request.sourceLang,
+        targetLang: request.targetLang, provider: 'model', status: 'success',
+        cacheStatus: 'miss', warnings: [], latencyMs: 1, speechAvailable: false,
+      }),
+      translateBatch: async (requests) => Promise.all(requests.map((request) => model.translate(request))),
+    };
+    const pipeline = new TranslationPipeline({ providers: [new FixtureProvider(), model], cache: new MockCache() });
+    const request: TranslationRequest = {
+      id: 'fallback', sourceText: 'Quasar nebula', sourceLang: 'en', targetLang: 'hau-CM',
+    };
+    const result = await pipeline.process(request);
+    expect(result.translatedText).toBe('Model translated text');
+    expect(result.provider).toBe('model');
+
+    const privateResult = await pipeline.process({ ...request, id: 'private', privacyPolicy: 'no_external' });
+    expect(privateResult.translatedText).toBe(request.sourceText);
+    expect(privateResult.status).toBe('unverified');
+  });
+
   it('translates successfully using FixtureProvider', async () => {
     const cache = new MockCache();
     const pipeline = new TranslationPipeline({
@@ -182,7 +208,7 @@ describe('TranslationPipeline', () => {
     provider.translate = async (request) => ({
       ...await translate(request),
       status: 'success',
-      translatedText: request.sourceText,
+      translatedText: `Translated: ${request.sourceText}`,
     });
     const pipeline = new TranslationPipeline({ providers: [provider], cache: new MockCache() });
     const first: TranslationRequest = {

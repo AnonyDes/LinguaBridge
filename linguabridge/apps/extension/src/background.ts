@@ -32,6 +32,44 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
 // Background message dispatcher supporting all 5 Sovereign Cameroonian Languages
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (message.type === 'ENHANCED_TRANSLATE_BATCH') {
+      const items = Array.isArray(message.items) ? message.items.slice(0, 20) : [];
+      if (!items.length || items.some((item: any) => !item || typeof item.text !== 'string' ||
+        item.text.length > 2000 || !['fr', 'en'].includes(item.sourceLang) ||
+        !['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM'].includes(item.targetLang))) {
+        sendResponse({ success: false, error: 'Invalid page translation batch' });
+        return;
+      }
+      chrome.storage.local.get(['linguabridgeEnhancedTranslation', 'linguabridgeApiBaseUrl', 'linguabridgeApiKey'], async (settings) => {
+        if (settings.linguabridgeEnhancedTranslation !== true) {
+          sendResponse({ success: false, error: 'Enhanced translation disabled' });
+          return;
+        }
+        const configured = String(settings.linguabridgeApiBaseUrl || 'http://localhost:3001').replace(/\/$/, '');
+        let url: URL;
+        try { url = new URL(configured); } catch {
+          sendResponse({ success: false, error: 'Invalid API URL' });
+          return;
+        }
+        if (url.protocol !== 'https:' && !(url.protocol === 'http:' &&
+          ['localhost', '127.0.0.1'].includes(url.hostname))) {
+          sendResponse({ success: false, error: 'API URL requires HTTPS' });
+          return;
+        }
+        try {
+          const pageClient = new LinguaBridgeClient({ baseUrl: configured, apiKey: settings.linguabridgeApiKey,
+            timeout: 15000, maxRetries: 0 });
+          const results = await pageClient.translateBatch(items.map((item: any) => ({
+            sourceText: item.text, sourceLang: item.sourceLang, targetLang: item.targetLang,
+            domain: 'financial', privacyPolicy: 'allow_external', providerPreference: 'openrouter', maxLatencyMs: 15000,
+          })));
+          sendResponse({ success: true, results });
+        } catch {
+          sendResponse({ success: false, error: 'Translation service unavailable' });
+        }
+      });
+      return true;
+    }
     if (message.type === 'BROADCAST_PAGE_ACTION' && _sender.tab?.id) {
       const action = message.action === 'restore' ? 'POPUP_RESTORE_PAGE' : 'POPUP_TRANSLATE_PAGE';
       chrome.tabs.sendMessage(_sender.tab.id, { type: action, targetLang: message.targetLang })
@@ -173,25 +211,6 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         sendResponse({ success: false, error: 'Voice unavailable for this request' });
         return;
       }
-      const cacheKey = `${normLang}:${text.trim()}`;
-
-      // 1. FAST PATH (<1ms): Check background in-memory cache
-      const cachedB64 = audioPayloadCache.get(cacheKey);
-      if (cachedB64) {
-        sendResponse({
-          success: true,
-          result: {
-            available: true,
-            lang,
-            audioBase64: cachedB64,
-            audioUrl: `data:audio/wav;base64,${cachedB64}`,
-            engine: 'meta-mms-neural-live',
-          },
-        });
-        return true;
-      }
-
-      // Direct ultra-fast fetch to running Python neural voice server
       const tryFetch = async (host: string) => {
         const r = await fetch(`${host}/synthesize`, {
           method: 'POST',
@@ -208,12 +227,27 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         return data;
       };
 
-      tryFetch('http://127.0.0.1:3002')
-        .catch(() => tryFetch('http://localhost:3002'))
-        .then((data) => {
+      chrome.storage.local.get(['linguabridgeApiBaseUrl', 'linguabridgeApiKey'])
+        .then(async (settings) => {
+          const configured = String(settings.linguabridgeApiBaseUrl || '').replace(/\/$/, '');
+          const remote = configured.startsWith('https://');
+          const cacheKey = `${remote ? configured : 'local'}:${normLang}:${text.trim()}`;
+          const cached = audioPayloadCache.get(cacheKey);
+          if (cached) return { audioBase64: cached, lang, engine: 'meta-mms-neural-live' };
+          const data = remote
+            ? (await new LinguaBridgeClient({ baseUrl: configured, apiKey: settings.linguabridgeApiKey,
+              timeout: 15000, maxRetries: 0 }).synthesizeSpeech({ text, lang: normLang }) as any).data
+            : await tryFetch('http://127.0.0.1:3002').catch(() => tryFetch('http://localhost:3002'));
+          if (typeof data?.audioBase64 !== 'string' || data.audioBase64.length <= 60 ||
+            data.lang?.toLowerCase() !== normLang || data.engine !== 'meta-mms-neural-live') {
+            throw new Error('Missing audio for the requested language');
+          }
           if (audioPayloadCache.size < 40 && data.audioBase64.length <= 400000) {
             audioPayloadCache.set(cacheKey, data.audioBase64);
           }
+          return data;
+        })
+        .then((data) => {
           sendResponse({
             success: true,
             result: {

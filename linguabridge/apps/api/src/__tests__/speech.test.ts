@@ -107,7 +107,7 @@ describe('African Live Voice & Speech Streaming API', () => {
   });
 
   describe('GET /v1/speech/languages', () => {
-    it('returns verified African voice languages and marks Duala as quarantined', async () => {
+    it('reports African voice languages without claiming unavailable models are verified', async () => {
       const response = await app.inject({
         method: 'GET',
         url: '/v1/speech/languages',
@@ -123,6 +123,7 @@ describe('African Live Voice & Speech Streaming API', () => {
       expect(codes).toContain('pcm-CM');
       expect(codes).not.toContain('dua-CM');
       expect(body.quarantined).toContain('dua-CM');
+      expect(body.languages.find((language: any) => language.code === 'knc-CM').status).toBe('unavailable');
     });
   });
 });

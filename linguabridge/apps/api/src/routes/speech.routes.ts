@@ -150,15 +150,25 @@ export const speechRoutes: FastifyPluginAsync = async (fastify) => {
 
   // 3. Supported speech languages
   fastify.get('/v1/speech/languages', async (_request, reply) => {
+    const voiceServiceUrl = process.env.VOICE_SERVICE_URL || 'http://127.0.0.1:3002';
+    let installed = new Set<string>();
+    try {
+      const response = await fetch(`${voiceServiceUrl}/health`, { signal: AbortSignal.timeout(1500) });
+      if (response.ok) {
+        const health = await response.json() as { available_languages?: string[] };
+        installed = new Set((health.available_languages || []).map((code) => code.toLowerCase()));
+      }
+    } catch { /* Voice availability is reported as unavailable below. */ }
+    const status = (code: string) => installed.has(code.toLowerCase()) ? 'model_installed_unverified' : 'unavailable';
     return reply.status(200).send({
       languages: [
-        { code: 'ewo-CM', name: 'Ewondo', family: 'Bantu', tonality: 'High/Low/Falling', status: 'verified' },
-        { code: 'fuv-CM', name: 'Fulfulde', family: 'Senegambian', tonality: 'Pitch-accent', status: 'verified' },
-        { code: 'hau-CM', name: 'Haoussa', family: 'Chadic', tonality: 'High/Low tonal', status: 'verified' },
-        { code: 'knc-CM', name: 'Kanuri', family: 'Saharan', tonality: 'Register tonal', status: 'verified' },
-        { code: 'pcm-CM', name: 'Cameroon Pidgin', family: 'Creole', tonality: 'Expressive intonation', status: 'verified' },
-        { code: 'fr-CM', name: 'French (Cameroon)', family: 'Romance', status: 'verified' },
-        { code: 'en-CM', name: 'English (Cameroon)', family: 'Germanic', status: 'verified' },
+        { code: 'ewo-CM', name: 'Ewondo', family: 'Bantu', status: status('ewo-CM') },
+        { code: 'fuv-CM', name: 'Fulfulde', family: 'Senegambian', status: status('fuv-CM') },
+        { code: 'hau-CM', name: 'Haoussa', family: 'Chadic', status: status('hau-CM') },
+        { code: 'knc-CM', name: 'Kanuri', family: 'Saharan', status: 'unavailable' },
+        { code: 'pcm-CM', name: 'Cameroon Pidgin', family: 'Creole', status: status('pcm-CM') },
+        { code: 'fr-CM', name: 'French (Cameroon)', family: 'Romance', status: 'unavailable' },
+        { code: 'en-CM', name: 'English (Cameroon)', family: 'Germanic', status: 'unavailable' },
       ],
       quarantined: ['dua-CM'],
     });

@@ -43,6 +43,7 @@ Rules:
 - Preserve all numbers, amounts, dates, and identifiers exactly
 - Do not add or remove information
 - Do not translate proper names unless they have established translations
+- Preserve every <tN> and </tN> inline marker exactly once and keep the tags balanced
 
 Text to translate:
 ${request.sourceText}

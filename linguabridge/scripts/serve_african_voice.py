@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 LinguaBridge Sovereign African Neural Voice Microservice
-Serves local Meta MMS VITS models for four supported languages:
+Serves local Meta MMS VITS models for four configured language slots:
   - 🇨🇲 Ewondo (ewo-CM)
   - 🇨🇲 Cameroon Pidgin (pcm-CM)
   - 🇨🇲 Haoussa (hau-CM)
@@ -61,7 +61,7 @@ def get_model_and_tokenizer(lang_norm: str):
     """Loads and caches VITS model and tokenizer on first demand."""
     model_dir = MODEL_PATHS.get(lang_norm)
     if not model_dir or not model_dir.exists():
-        raise RuntimeError(f"No local neural voice model found for {lang_norm}")
+        raise FileNotFoundError(f"No local neural voice model found for {lang_norm}")
 
     cache_key = str(model_dir)
     if cache_key not in LOADED_MODELS:
@@ -335,10 +335,13 @@ def preload_core_models():
 
 @app.route("/health", methods=["GET"])
 def health():
+    available = [lang for lang in ("ewo-CM", "pcm-CM", "hau-CM", "fuv-CM")
+                 if MODEL_PATHS[lang.lower()].exists()]
     return jsonify({
-        "status": "healthy",
+        "status": "healthy" if available else "degraded",
         "service": "LinguaBridge African Neural Voice Engine",
         "supported_languages": ["ewo-CM", "pcm-CM", "hau-CM", "fuv-CM"],
+        "available_languages": available,
         "quarantined": ["dua-CM"],
         "loaded_models": list(LOADED_MODELS.keys())
     })
@@ -382,6 +385,8 @@ def synthesize():
             "audioUrl": f"data:audio/wav;base64,{b64}",
             "engine": "meta-mms-neural-live"
         })
+    except FileNotFoundError as e:
+        return jsonify({"error": "VOICE_UNAVAILABLE", "message": str(e)}), 422
     except Exception as e:
         print(f"⚠️ Synthesis error: {e}", flush=True)
         return jsonify({"error": "SYNTHESIS_ERROR", "message": str(e)}), 500
@@ -420,6 +425,8 @@ def stream():
                 "Content-Disposition": "inline; filename=speech.wav"
             }
         )
+    except FileNotFoundError as e:
+        return jsonify({"error": "VOICE_UNAVAILABLE", "message": str(e)}), 422
     except Exception as e:
         print(f"⚠️ Stream error: {e}", flush=True)
         return jsonify({"error": "STREAM_ERROR", "message": str(e)}), 500

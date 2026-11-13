@@ -17,6 +17,7 @@
     "http://localhost:3000/*",
     "http://127.0.0.1:3000/*"
   ],
+  "optional_host_permissions": ["https://*/*"],
   "action": {
     "default_popup": "popup.html",
     "default_title": "LinguaBridge Assistant"

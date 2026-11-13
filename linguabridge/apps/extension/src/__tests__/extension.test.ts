@@ -60,6 +60,16 @@ describe('Chrome Extension Content Assistant', () => {
     expect(host?.shadowRoot?.getElementById('btn-toggle')).not.toBeNull();
   });
 
+  it('refreshes page size when content appears after the initial scan', () => {
+    document.body.innerHTML = '<main id="late"></main>';
+    assistant = new ExtensionAssistant();
+    document.getElementById('late')!.textContent = 'A later paragraph with useful page content';
+    let metrics: any;
+    (messageListener as any)?.({ type: 'GET_PAGE_METRICS' }, null, (value: any) => { metrics = value; });
+    expect(metrics.segments).toBe(1);
+    expect(metrics.characters).toBeGreaterThan(30);
+  });
+
   it('translates full page and restores original text', () => {
     assistant = new ExtensionAssistant();
     assistant.translateFullPage();
@@ -72,6 +82,35 @@ describe('Chrome Extension Content Assistant', () => {
     assistant.restorePage();
     expect(h1?.textContent).toBe('Paiement de 15000 FCFA');
     expect(p?.textContent).toBe('Frais de transfert: 150 FCFA');
+  });
+
+  it('measures the page and applies model translations without losing inline markup', async () => {
+    document.body.innerHTML = '<p id="plain">Quasar nebula</p><p id="inline">Quasar <strong>nebula</strong> orbit</p>';
+    (global as any).chrome.storage = {
+      local: { get: vi.fn((_keys, callback) => callback({
+        linguabridgeEnhancedTranslation: true, linguabridgeTargetLang: 'hau-CM',
+      })) },
+    };
+    (global as any).chrome.runtime.sendMessage = vi.fn((message, callback) => {
+      if (message.type === 'ENHANCED_TRANSLATE_BATCH') {
+        callback({ success: true, results: message.items.map((item: any) => ({
+          translatedText: item.text.includes('<t0>') ? 'Samaniya <t0>taurari</t0> zagaye' : 'Samaniya taurari',
+          targetLang: item.targetLang, provider: 'model', status: 'success',
+        })) });
+      }
+    });
+    assistant = new ExtensionAssistant();
+    assistant.translateFullPage();
+    let metrics: any;
+    (messageListener as any)?.({ type: 'GET_PAGE_METRICS' }, null, (value: any) => { metrics = value; });
+    expect(metrics.segments).toBeGreaterThanOrEqual(3);
+    expect(metrics.characters).toBeGreaterThan(20);
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    expect(document.getElementById('plain')?.textContent).toBe('Samaniya taurari');
+    expect(document.getElementById('inline')?.querySelector('strong')?.textContent).toBe('taurari');
+    assistant.restorePage();
+    expect(document.getElementById('plain')?.textContent).toBe('Quasar nebula');
+    expect(document.getElementById('inline')?.textContent).toBe('Quasar nebula orbit');
   });
 
   it('resumes translation on a newly loaded document after the user enables it', () => {
