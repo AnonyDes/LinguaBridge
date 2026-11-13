@@ -15,6 +15,7 @@ export interface OpenRouterConfig {
   apiKey: string;
   baseUrl?: string;
   model?: string;
+  fallbackModels?: string[];
 }
 
 export class OpenRouterProvider implements TranslationProvider {
@@ -23,19 +24,27 @@ export class OpenRouterProvider implements TranslationProvider {
   private apiKey: string;
   private baseUrl: string;
   private model: string;
+  private fallbackModels: string[];
 
   constructor(config: OpenRouterConfig) {
     this.apiKey = config.apiKey;
     this.baseUrl = config.baseUrl || 'https://openrouter.ai/api/v1';
     this.model = config.model || 'mistralai/mistral-7b-instruct';
+    this.fallbackModels = (config.fallbackModels || []).map((model) => model.trim())
+      .filter((model) => model && model !== this.model);
   }
 
   private buildPrompt(request: TranslationRequest): string {
+    const languages: Record<string, string> = {
+      fr: 'French', en: 'English', 'ewo-CM': 'Ewondo (Cameroon)',
+      'fuv-CM': 'Fulfulde (Cameroon)', 'hau-CM': 'Hausa (Cameroon)',
+      'knc-CM': 'Kanuri (Cameroon)', 'pcm-CM': 'Cameroon Pidgin English',
+    };
     const domainContext = request.domain === 'financial'
       ? 'This is a financial text. CRITICAL: You MUST preserve all monetary amounts, percentages, account numbers, and transaction IDs exactly as they appear in the source. Do NOT modify any numbers.'
       : '';
 
-    return `You are a professional translator. Translate the following text from ${request.sourceLang} to ${request.targetLang}.
+    return `You are a professional translator. Translate the following text from ${languages[request.sourceLang] || request.sourceLang} to ${languages[request.targetLang] || request.targetLang}.
 ${domainContext}
 
 Rules:
@@ -64,8 +73,9 @@ Translation:`;
       },
       body: JSON.stringify({
         model: this.model,
+        ...(this.fallbackModels.length ? { models: [this.model, ...this.fallbackModels] } : {}),
         messages: [{ role: 'user', content: this.buildPrompt(request) }],
-        max_tokens: 1000,
+        max_completion_tokens: Math.min(4096, Math.max(1024, request.sourceText.length * 2)),
         temperature: 0.1, // Low temperature for deterministic translation
       }),
       signal: AbortSignal.timeout(request.maxLatencyMs || 30000),
@@ -77,10 +87,12 @@ Translation:`;
     }
 
     const data = await response.json() as {
-      choices: Array<{ message: { content: string } }>;
+      choices: Array<{ message: { content: string }; finish_reason?: string }>;
     };
 
     const translatedText = data.choices[0]?.message?.content?.trim() || '';
+    const finishReason = data.choices[0]?.finish_reason;
+    const complete = !!translatedText && (!finishReason || finishReason === 'stop');
 
     return {
       id: request.id || generateUUID(),
@@ -89,9 +101,10 @@ Translation:`;
       sourceLang: request.sourceLang,
       targetLang: request.targetLang,
       provider: this.id,
-      status: 'success',
+      status: complete ? 'success' : 'unverified',
       cacheStatus: 'miss',
-      warnings: ['LLM_TRANSLATION — Subject to financial guard validation'],
+      warnings: ['LLM_TRANSLATION — Subject to financial guard validation',
+        ...(complete ? [] : ['INCOMPLETE_MODEL_OUTPUT'])],
       latencyMs: Date.now() - startTime,
       speechAvailable: false,
     };

@@ -17,6 +17,7 @@ The extension measures the **current document**, including open shadow roots tha
 | Local DOM translation still runs synchronously on the entire document | Open | Very large pages can pause the UI. The measured workload should drive incremental local traversal and a visible progress counter in a later pass. |
 | Closed shadow roots, canvas, text embedded in images, PDFs, video captions, and inaccessible frames cannot be read as ordinary DOM text | Open | OCR, document translation, caption support, and host-specific integrations are separate features. Sites can also block injection. |
 | Remote output can be inaccurate even when its provider returns `success` | Open | The financial guard preserves detected amounts and identifiers, but linguistic accuracy requires native-speaker evaluation. Inline markers are validated before applying a model result. |
+| OpenRouter output could be truncated but reported as successful | Fixed | Truncated or empty completions are unverified. The provider now names the target language explicitly and can use configured model fallbacks for provider errors. These checks do not establish linguistic correctness. |
 | Voice model downloader wrote to a directory different from the server and used the wrong Fulfulde checkpoint ID | Fixed | Downloads now use `models/african-tts` and `facebook/mms-tts-ful`. Missing models return unavailable rather than another language's voice. |
 | Voice availability and language variety were overstated | Open | Current workspace has no voice model files. The linked `facebook/mms-tts-pcm` checkpoint is **Nigerian Pidgin**, so it must not be treated as verified Cameroon Pidgin speech without a review. Kanuri and Ewondo need matching, validated checkpoints or new recordings. |
 | Speech language endpoint marked every language `verified` even with no model installed | Fixed | It now checks the voice service's installed model list and reports unavailable or installed but unverified. The test-mode silent WAV is not a speech quality test. |
@@ -26,6 +27,8 @@ The extension measures the **current document**, including open shadow roots tha
 The four non-Ewondo local dictionaries contain roughly 350 keys each, including numbers and UI labels. This explains why a page can show some translated words while much of its meaning remains in the source language.
 
 ## Deployment shape
+
+For commands, secrets, extension update steps, and release prerequisites, see [the full-page translation setup](../deployment/FULL_TRANSLATION_SETUP.md). The repository's current Vercel configuration builds the web app, not the API.
 
 1. Deploy the Fastify API as a thin authenticated gateway. Vercel is possible for that layer. Set `OPENROUTER_API_KEY`, `ENABLE_LLM_TRANSLATION=true`, and a tested `OPENROUTER_MODEL` for enhanced text translation. Configure `CORS_ORIGINS` for the extension origin and issue scoped user API credentials. Do not place a provider secret in the extension.
 2. Run the voice model service in a persistent container or managed inference endpoint. Set the API's `VOICE_SERVICE_URL` to its private HTTPS address. The API already exposes `/v1/speech/synthesize`; the extension now uses that route when configured for a remote HTTPS API.
