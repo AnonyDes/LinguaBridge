@@ -39,6 +39,14 @@ export class TranslationPipeline {
   }
 
   async processBatch(requests: TranslationRequest[]): Promise<TranslationResult[]> {
-    return Promise.all(requests.map((r) => this.process(r)));
+    const results = new Array<TranslationResult>(requests.length);
+    let next = 0;
+    await Promise.all(Array.from({ length: Math.min(4, requests.length) }, async () => {
+      while (next < requests.length) {
+        const index = next++;
+        results[index] = await this.process(requests[index]);
+      }
+    }));
+    return results;
   }
 }

@@ -1,0 +1,42 @@
+plugins {
+    id 'com.android.application' version '8.13.2'
+}
+
+android {
+    namespace 'org.linguabridge.browser'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'org.linguabridge.browser'
+        minSdk 24
+        targetSdk 36
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/translator'))
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.16.0'
+}
+
+tasks.register('bundleTranslator', Exec) {
+    def source = rootProject.file('translator')
+    def workspace = rootProject.file('../..')
+    def output = layout.buildDirectory.file('generated/translator/page-translator.js')
+    inputs.dir(source)
+    inputs.dir(new File(workspace, 'packages/translation-engine/src'))
+    inputs.dir(new File(workspace, 'packages/financial-domain/src'))
+    inputs.file(new File(workspace, 'pnpm-lock.yaml'))
+    outputs.file(output)
+    workingDir(rootProject.projectDir)
+    commandLine('node', 'translator/build.mjs', output.get().asFile.absolutePath)
+}
+
+tasks.named('preBuild') { dependsOn('bundleTranslator') }

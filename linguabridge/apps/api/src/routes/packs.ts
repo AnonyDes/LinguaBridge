@@ -1,5 +1,4 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { z } from 'zod';
 import type { LanguageRegistry } from '@linguabridge/language-registry';
 import { LanguagePackStatusSchema } from '@linguabridge/language-registry';
 import {
@@ -19,10 +18,6 @@ import {
 export interface PacksRouteOptions {
   registry: LanguageRegistry;
 }
-
-const UpdateStatusSchema = z.object({
-  status: LanguagePackStatusSchema,
-});
 
 export const packRoutes: FastifyPluginAsync<PacksRouteOptions> = async (fastify, opts) => {
   const getPacksSchema = {
@@ -141,7 +136,7 @@ export const packRoutes: FastifyPluginAsync<PacksRouteOptions> = async (fastify,
 
   const patchPackStatusHandler = async (request: any, reply: any) => {
     const { id } = request.params as { id: string };
-    const parseResult = UpdateStatusSchema.safeParse(request.body);
+    const parseResult = LanguagePackStatusSchema.safeParse(request.body?.status);
 
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -151,7 +146,7 @@ export const packRoutes: FastifyPluginAsync<PacksRouteOptions> = async (fastify,
       });
     }
 
-    const { status } = parseResult.data;
+    const status = parseResult.data;
 
     try {
       const updated = opts.registry.updatePackStatus(id, status);

@@ -1556,7 +1556,7 @@ export function translateSentenceToSovereign(
 
   return {
     translatedText: finalWorking,
-    status: matched || entities.length > 0 ? 'success' : 'unverified',
+    status: matched ? 'success' : 'unverified',
     warnings: matched ? [] : ['NO_DIRECT_TERM_MATCH'],
   };
 }

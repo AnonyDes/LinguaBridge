@@ -53,6 +53,7 @@ describe('Web Application UI', () => {
       container.parentNode.removeChild(container);
     }
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   it('renders Developer Dashboard / Access Portal with browser extension options', async () => {
@@ -94,6 +95,7 @@ describe('Web Application UI', () => {
   });
 
   it('mounts and unmounts WidgetMount lifecycle correctly', async () => {
+    vi.stubEnv('NEXT_PUBLIC_API_URL', 'https://api.example.test');
     const initSpy = vi.spyOn(LinguaBridgeWidget, 'init');
     const root = createRoot(container);
 

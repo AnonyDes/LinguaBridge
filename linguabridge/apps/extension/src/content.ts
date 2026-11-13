@@ -298,7 +298,6 @@ class AfricanSpeechPlayer {
     cacheKey?: string,
     onEnd?: () => void
   ): Promise<void> {
-    console.log(`[LinguaBridge Speech] playNeuralAudio received payload (${audioUrl.length} chars) for "${spokenText.substring(0, 30)}"`);
     // Strategy 1: Decode base64 WAV into Web Audio buffer (bypasses CSP media-src blocks)
     try {
       const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -504,6 +503,7 @@ class ExtensionAssistant {
 
   // Lightweight debounced MutationObserver for dynamic SPA banking portals (Afriland, BICEC, Ecobank, UBA, Orange Money)
   private mutationObserver: MutationObserver | null = null;
+  private observedRoots = new WeakSet<Node>();
   private mutationDebounceTimeout: any = null;
   private pendingMutations: Set<Node> = new Set();
   private isTranslating = false;
@@ -536,8 +536,8 @@ class ExtensionAssistant {
     if (declared.startsWith('fr')) return 'fr';
     if (declared.startsWith('en')) return 'en';
     const sample = (document.body?.innerText || '').slice(0, 5000).toLowerCase();
-    const french = (sample.match(/\\b(le|la|les|des|vous|votre|pour|avec|compte|solde|frais|envoyer)\\b/g) || []).length;
-    const english = (sample.match(/\\b(the|your|account|balance|fees|send|transfer|with|from|payment)\\b/g) || []).length;
+    const french = (sample.match(/\b(le|la|les|des|vous|votre|pour|avec|compte|solde|frais|envoyer)\b/g) || []).length;
+    const english = (sample.match(/\b(the|your|account|balance|fees|send|transfer|with|from|payment)\b/g) || []).length;
     return english > french ? 'en' : 'fr';
   }
 
@@ -565,24 +565,27 @@ class ExtensionAssistant {
       const target = document.body || document.documentElement;
       if (!target) return;
 
-      this.container = document.createElement('div');
-      this.container.id = 'linguabridge-extension-root';
-      this.container.style.all = 'initial';
-      this.container.style.position = 'fixed';
-      this.container.style.bottom = '24px';
-      this.container.style.right = '24px';
-      this.container.style.zIndex = '2147483646';
+      // Every matching frame translates its own DOM; only the top frame owns the UI.
+      if (window === window.top) {
+        this.container = document.createElement('div');
+        this.container.id = 'linguabridge-extension-root';
+        this.container.style.all = 'initial';
+        this.container.style.position = 'fixed';
+        this.container.style.bottom = '24px';
+        this.container.style.right = '24px';
+        this.container.style.zIndex = '2147483646';
 
-      this.shadow = this.container.attachShadow({ mode: 'open' });
-      this.render();
-      target.appendChild(this.container);
-      // Notify the LinguaBridge website to hide its separate assistant launcher.
-      document.documentElement.setAttribute('data-linguabridge-extension', 'active');
+        this.shadow = this.container.attachShadow({ mode: 'open' });
+        this.render();
+        target.appendChild(this.container);
+        document.documentElement.setAttribute('data-linguabridge-extension', 'active');
+      }
       if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-        chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled'], (settings) => {
+        chrome.storage.local.get(['linguabridgeTargetLang', 'linguabridgeAudioEnabled', 'linguabridgeAutoTranslate'], (settings) => {
           if (settings.linguabridgeTargetLang) this.currentTargetLang = settings.linguabridgeTargetLang;
           this.isTouchSpeakEnabled = settings.linguabridgeAudioEnabled === true;
           this.render();
+          if (settings.linguabridgeAutoTranslate === true) this.translateFullPage();
         });
       }
 
@@ -717,7 +720,8 @@ class ExtensionAssistant {
           this.translateFullPage();
         } else if (msg.type === 'POPUP_SET_TARGET_LANGUAGE') {
           this.currentTargetLang = msg.targetLang || 'ewo-CM';
-          this.render();
+          if (this.isPageTranslated) this.translateFullPage();
+          else this.render();
         } else if (msg.type === 'POPUP_SET_SPEECH') {
           this.isTouchSpeakEnabled = msg.enabled === true;
           if (!this.isTouchSpeakEnabled) this.clearHoverState();
@@ -1061,13 +1065,28 @@ class ExtensionAssistant {
           for (let j = 0; j < m.addedNodes.length; j++) {
             const node = m.addedNodes[j];
             if (this.isExtensionNode(node)) continue;
+            this.observeOpenShadowRoots(node);
             this.pendingMutations.add(node);
             hasRelevantMutations = true;
           }
         } else if (m.type === 'characterData') {
           const target = m.target;
           if (this.isExtensionNode(target)) continue;
+          const text = this.originalTextMap.get(target);
+          if (text !== undefined && target.textContent !== this.translateLocal(text)) {
+            this.originalTextMap.set(target, target.textContent ?? '');
+          }
           this.pendingMutations.add(target);
+          hasRelevantMutations = true;
+        } else if (m.type === 'attributes') {
+          const el = m.target as HTMLElement;
+          if (this.isExtensionNode(el)) continue;
+          const key = ({ 'aria-label': 'ariaLabel' } as Record<string, string>)[m.attributeName || ''] || m.attributeName;
+          const original = this.originalAttrMap.get(el);
+          if (original && key && Object.prototype.hasOwnProperty.call(original, key)) {
+            this.originalAttrMap.set(el, { ...original, [key]: el.getAttribute(m.attributeName!) ?? '' });
+          }
+          this.pendingMutations.add(el);
           hasRelevantMutations = true;
         }
       }
@@ -1077,15 +1096,44 @@ class ExtensionAssistant {
       }
     });
 
-    this.mutationObserver.observe(document.body, {
+    this.observeRoot(document.body);
+    this.observeOpenShadowRoots(document.body);
+  }
+
+  private observeRoot(root: Node): void {
+    if (!this.mutationObserver || this.observedRoots.has(root) || this.isExtensionNode(root)) return;
+    this.mutationObserver.observe(root, {
       childList: true,
       subtree: true,
       characterData: true,
+      attributes: true,
+      attributeFilter: ['placeholder', 'value', 'title', 'aria-label', 'alt'],
     });
+    this.observedRoots.add(root);
+  }
+
+  private observeOpenShadowRoots(root: Node): void {
+    if (this.isExtensionNode(root)) return;
+    if (root.nodeType === Node.ELEMENT_NODE) {
+      const shadow = (root as Element).shadowRoot;
+      if (shadow) {
+        this.observeRoot(shadow);
+        this.observeOpenShadowRoots(shadow);
+      }
+    }
+    if (root instanceof Element || root instanceof DocumentFragment) {
+      root.querySelectorAll('*').forEach((el) => {
+        if (el.shadowRoot && !this.isExtensionNode(el)) {
+          this.observeRoot(el.shadowRoot);
+          this.observeOpenShadowRoots(el.shadowRoot);
+        }
+      });
+    }
   }
 
   private isExtensionNode(node: Node | null): boolean {
     if (!node) return false;
+    if (node instanceof ShadowRoot) return this.isExtensionNode(node.host);
     if (node.nodeType === 1) { // Node.ELEMENT_NODE
       const el = node as HTMLElement;
       if (el.id === 'linguabridge-extension-root' || el.closest?.('#linguabridge-extension-root')) {
@@ -1098,6 +1146,17 @@ class ExtensionAssistant {
       ) {
         return true;
       }
+    }
+    return false;
+  }
+
+  private isProtectedElement(el: Element): boolean {
+    const selector = 'script,style,code,pre,noscript,svg,[contenteditable],[hidden],[inert],[translate="no"],[aria-hidden="true"],input[type="password"]';
+    if (el.closest(selector)) return true;
+    let root: Node = el.getRootNode();
+    while (root instanceof ShadowRoot) {
+      if (root.host.closest(selector)) return true;
+      root = root.host.getRootNode();
     }
     return false;
   }
@@ -1132,7 +1191,7 @@ class ExtensionAssistant {
   }
 
   private translateElementAttributes(el: HTMLElement): void {
-    if (!el || typeof (el as any).getAttribute !== 'function' || this.isExtensionNode(el)) return;
+    if (!el || typeof (el as any).getAttribute !== 'function' || this.isExtensionNode(el) || this.isProtectedElement(el)) return;
     const tag = (el.tagName || '').toLowerCase();
 
     // 1. Placeholder translation on inputs and textareas
@@ -1386,6 +1445,7 @@ class ExtensionAssistant {
   }
 
   private translateCompositeContainer(container: HTMLElement): boolean {
+    if (this.isProtectedElement(container) || container.querySelector('code,pre,[contenteditable],[hidden],[inert],[translate="no"],[aria-hidden="true"]')) return false;
     if (this.originalChildNodesMap.has(container)) {
       this.restoreSingleCompositeContainer(container);
     }
@@ -1437,6 +1497,7 @@ class ExtensionAssistant {
       const el = rootNode as HTMLElement;
       const tag = el.tagName?.toLowerCase();
       if (['script', 'style', 'code', 'pre', 'noscript'].includes(tag)) return;
+      if (rootNode.nodeType === 1 && this.isProtectedElement(el)) return;
 
       // Translate attributes on el itself (placeholders, button values, title, aria-label, alt)
       if (rootNode.nodeType === 1) {
@@ -1471,7 +1532,7 @@ class ExtensionAssistant {
         const candidateContainers = el.querySelectorAll<HTMLElement>(ExtensionAssistant.CONTAINER_SELECTOR);
         for (let i = 0; i < candidateContainers.length; i++) {
           const c = candidateContainers[i];
-          if (this.isExtensionNode(c)) continue;
+          if (this.isExtensionNode(c) || this.isProtectedElement(c)) continue;
           if (c.querySelector(ExtensionAssistant.CONTAINER_SELECTOR)) continue;
 
           const hasInline = Array.from(c.children).some((child) =>
@@ -1510,7 +1571,7 @@ class ExtensionAssistant {
         const candidateLinks = el.querySelectorAll<HTMLElement>('a');
         for (let i = 0; i < candidateLinks.length; i++) {
           const a = candidateLinks[i];
-          if (this.isExtensionNode(a)) continue;
+          if (this.isExtensionNode(a) || this.isProtectedElement(a)) continue;
           if (a.closest(ExtensionAssistant.CONTAINER_SELECTOR)) continue;
           const hasInline = Array.from(a.children).some((child) =>
             ExtensionAssistant.INLINE_TAGS.has((child.tagName || '').toUpperCase())
@@ -1534,7 +1595,7 @@ class ExtensionAssistant {
           if (['script', 'style', 'code', 'pre', 'noscript'].includes(parentTag)) {
             return NodeFilter.FILTER_REJECT;
           }
-          if (this.isExtensionNode(parent)) return NodeFilter.FILTER_REJECT;
+           if (this.isExtensionNode(parent) || this.isProtectedElement(parent)) return NodeFilter.FILTER_REJECT;
 
           for (const tc of translatedContainers) {
             if (tc.contains(node)) return NodeFilter.FILTER_REJECT;
@@ -1553,6 +1614,7 @@ class ExtensionAssistant {
   }
 
   private translateSingleTextNode(node: Node): void {
+    if (!node.parentElement || this.isProtectedElement(node.parentElement) || node.parentElement.closest('textarea')) return;
     if (!this.originalTextMap.has(node)) {
       this.originalTextMap.set(node, node.textContent || '');
     }
@@ -1583,6 +1645,7 @@ class ExtensionAssistant {
   public translateFullPage(): void {
     this.isTranslating = true;
     try {
+      this.currentSourceLang = this.detectSourceLanguage();
       this.speechPlayer.prewarm();
       this.translateNodeSubtree(document.body);
       this.isPageTranslated = true;
@@ -1600,7 +1663,7 @@ class ExtensionAssistant {
 
   private precacheVisibleSections(): void {
     try {
-      if (typeof window === 'undefined' || !document.body) return;
+      if (!this.isVoiceEnabled() || typeof window === 'undefined' || !document.body) return;
       const elements = Array.from(
         document.querySelectorAll('h1, h2, h3, button, [role="button"]')
       ) as HTMLElement[];
@@ -1668,6 +1731,8 @@ class ExtensionAssistant {
       }
 
       this.isPageTranslated = false;
+      this.originalTextMap.clear();
+      this.originalAttrMap.clear();
       this.clearHoverState();
       this.speechPlayer.stop();
       this.render();
@@ -1860,14 +1925,14 @@ class ExtensionAssistant {
             <option value="knc-CM" ${this.currentTargetLang === 'knc-CM' ? 'selected' : ''}>Kanuri (Extrême-Nord, Lac Tchad)</option>
             <option value="pcm-CM" ${this.currentTargetLang === 'pcm-CM' ? 'selected' : ''}>Pidgin English (NO, SO, Marchés)</option>
           </select>
-          <p style="font-size:11px;color:#667085;margin-top:9px;">Français et anglais détectés automatiquement. Vérifiez les montants avant une transaction.</p>
+          <p style="font-size:11px;color:#667085;margin-top:9px;">Français et anglais détectés automatiquement. Le lexique local peut laisser des passages sans traduction. Vérifiez les montants avant une transaction.</p>
         </div>
 
         <div style="margin-top: 10px;">
           ${
             this.isPageTranslated
               ? `<button class="btn-action" id="btn-restore"><span></span><span>Restaurer le texte d'origine</span></button>`
-              : `<button class="btn-action primary" id="btn-translate-page"><span></span><span>Traduire toute la page</span></button>`
+               : `<button class="btn-action primary" id="btn-translate-page"><span></span><span>Activer la traduction automatique</span></button>`
           }
         </div>
 
@@ -1921,11 +1986,15 @@ class ExtensionAssistant {
     });
 
     this.shadow.getElementById('btn-translate-page')?.addEventListener('click', () => {
+      chrome.storage?.local?.set({ linguabridgeAutoTranslate: true });
       this.translateFullPage();
+      chrome.runtime?.sendMessage?.({ type: 'BROADCAST_PAGE_ACTION', action: 'translate', targetLang: this.currentTargetLang });
     });
 
     this.shadow.getElementById('btn-restore')?.addEventListener('click', () => {
+      chrome.storage?.local?.set({ linguabridgeAutoTranslate: false });
       this.restorePage();
+      chrome.runtime?.sendMessage?.({ type: 'BROADCAST_PAGE_ACTION', action: 'restore' });
     });
 
     this.shadow.getElementById('btn-toggle-speak')?.addEventListener('click', () => {

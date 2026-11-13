@@ -113,22 +113,22 @@ function sha256(str: string): string {
 
 const AMOUNT_PATTERNS = [
   // FCFA/XAF amounts with currency: 50 000 FCFA, 50,000 XAF, 50.000 CFA, 15000frs, 15000f, 15k cfa
-  /\b(\d[\d\s,\.]*(?:\s*\d{3})*|\d+(?:[.,]\d+)?\s*k)\s*(FCFA|XAF|CFA|EUR|USD|GBP|NGN|GHS|FRS|F)\b/gi,
+  /(?<![\w])([+−-]?(?:\d+(?:[.,]\d+)?[ \u00a0\u202f]*k|(?:\d{1,3}(?:[ \u00a0\u202f.,]\d{3})+|\d+)(?:[.,]\d+)?))\s*(FCFA|XAF|CFA|EUR|USD|GBP|NGN|GHS|FRS|F)\b/gi,
   // Standalone large numbers in financial context (thousands separated)
-  /\b(\d{1,3}(?:[\s,\.]\d{3})+)(?:\s*(FCFA|XAF|CFA|EUR|USD|GBP|FRS|F))?\b/gi,
+  /(?<![\w])([+−-]?\d{1,3}(?:[ \u00a0\u202f,.]\d{3})+)(?!\d)(?:\s*(FCFA|XAF|CFA|EUR|USD|GBP|NGN|GHS|FRS|F))?\b/gi,
 ];
 
-const PERCENTAGE_PATTERN = /\b(\d+(?:[.,]\d+)?)\s*(?:%|pour\s*cent\b|percent\b)/gi;
+const PERCENTAGE_PATTERN = /(?<![\w])([+−-]?\d+(?:[.,]\d+)?)\s*(?:%|pour\s*cent\b|percent\b)/gi;
 const IBAN_PATTERN = /\b[A-Z]{2}\d{2}(?:[\s-]?[A-Z0-9]{4}){2,7}(?:[\s-]?[A-Z0-9]{1,4})?\b|\b[A-Z]{2}\d{2}[A-Z0-9]{10,30}\b/gi;
 const PHONE_PATTERN = /(?:^|[^\w+])((?:\+237|00237|237)?[\s-]?[6-9](?:[\s-]?\d){8})\b/g;
 const DATE_PATTERN = /\b(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})\b/g;
 const TRANSACTION_ID_PATTERN = /\b(?:TXN|REF|ID|ORDER|TX-)[A-Z0-9\-]{4,25}\b/gi;
 
 export function normalizeAmount(raw: string): string {
-  const trimmed = raw.trim();
+  const trimmed = raw.trim().replace(/^−/, '-').replace(/^\+/, '');
 
   // Handle 'k' multiplier (e.g. 15k -> 15000, 2.5k -> 2500)
-  const kMatch = trimmed.match(/^(\d+(?:[.,]\d+)?)\s*k$/i);
+  const kMatch = trimmed.match(/^(-?\d+(?:[.,]\d+)?)\s*k$/i);
   if (kMatch) {
     const val = parseFloat(kMatch[1].replace(',', '.'));
     return String(Math.round(val * 1000));
@@ -188,8 +188,6 @@ export function computeEntityFingerprint(entities: FinancialEntity[]): string {
 export class FinancialEntityExtractor {
   extract(text: string): FinancialEntity[] {
     const entities: FinancialEntity[] = [];
-    const seen = new Set<string>();
-
     const addEntity = (
       type: FinancialEntity['type'],
       raw: string,
@@ -197,19 +195,18 @@ export class FinancialEntityExtractor {
       start: number,
       end: number
     ) => {
-      const key = `${type}:${normalized}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        entities.push({ type, raw, normalized, position: { start, end } });
-      }
+      entities.push({ type, raw, normalized, position: { start, end } });
     };
 
     // Extract monetary amounts
-    for (const pattern of AMOUNT_PATTERNS) {
+    for (const [index, pattern] of AMOUNT_PATTERNS.entries()) {
       const regex = new RegExp(pattern.source, pattern.flags);
       let match;
       while ((match = regex.exec(text)) !== null) {
         const raw = match[0];
+        const start = match.index;
+        if (index > 0 && entities.some((entity) =>
+          entity.position.start < start + raw.length && start < entity.position.end)) continue;
         let currency = match[2] ? match[2].toUpperCase() : '';
         // Canonicalize CEMAC currency names to FCFA
         if (currency === 'F' || currency === 'FRS' || currency === 'CFA' || currency === 'XAF') {
@@ -227,7 +224,7 @@ export class FinancialEntityExtractor {
     let match;
     while ((match = percentRegex.exec(text)) !== null) {
       const raw = match[0];
-      const normalized = match[1].replace(',', '.');
+      const normalized = normalizeAmount(match[1]);
       addEntity('percentage', raw, normalized, match.index, match.index + raw.length);
     }
 
@@ -272,12 +269,15 @@ export class FinancialEntityExtractor {
     const sourceFingerprint = computeEntityFingerprint(sourceEntities);
     const translatedFingerprint = computeEntityFingerprint(translatedEntities);
 
+    const remaining = [...translatedEntities];
     for (const sourceEntity of sourceEntities) {
-      const match = translatedEntities.find(
+      const matchIndex = remaining.findIndex(
         (te) => te.type === sourceEntity.type && te.normalized === sourceEntity.normalized
       );
 
-      if (!match) {
+      if (matchIndex >= 0) {
+        remaining.splice(matchIndex, 1);
+      } else {
         const sameType = translatedEntities.filter((te) => te.type === sourceEntity.type);
 
         if (sameType.length > 0) {
@@ -295,6 +295,15 @@ export class FinancialEntityExtractor {
           });
         }
       }
+    }
+
+    for (const entity of remaining) {
+      violations.push({
+        entity,
+        issue: `ENTITY_INTRODUCED: ${entity.type}`,
+        sourceValue: '',
+        translatedValue: entity.normalized,
+      });
     }
 
     return {

@@ -15,12 +15,7 @@
     "http://localhost:3001/*",
     "http://127.0.0.1:3001/*",
     "http://localhost:3000/*",
-    "http://127.0.0.1:3000/*",
-    "http://localhost:*/*",
-    "http://127.0.0.1:*/*",
-    "https://*/*",
-    "http://*/*",
-    "<all_urls>"
+    "http://127.0.0.1:3000/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -31,15 +26,11 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["https://*/*", "http://*/*"],
       "js": ["dist/content.js"],
-      "run_at": "document_idle"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["dist/*", "*.css"],
-      "matches": ["<all_urls>"]
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
     }
   ]
 }

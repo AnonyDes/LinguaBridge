@@ -13,7 +13,7 @@ LinguaBridge helps people understand banking, mobile-money and payment interface
 | Chrome desktop extension | Prototype / testing | Load an unpacked Manifest V3 extension and translate visible interface text |
 | Microsoft Edge desktop extension | Prototype / testing | Same Chromium extension code; see installation guide |
 | Direct web access | **Beta / in development** | Planned browser-based access without installing the desktop extension |
-| Mobile experience | **Planned** | Not a released mobile extension or app |
+| LinguaBridge Browser for Android | **Internal pilot** | Standalone HTTPS browsing with opt-in on-device French/English → Ewondo phrase translation. [Build and try the demo](apps/browser-android/README.md). |
 | API, JavaScript SDK, React SDK and embeddable widget | Complementary developer tools | Available as source modules; require their own integration and/or backend configuration |
 
 The GitHub Pages website is a **static showcase**. It does not by itself host the translation API. An interactive translation request can fail when no reachable API has been configured; the interface should not fabricate a result.

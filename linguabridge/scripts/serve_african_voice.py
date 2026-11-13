@@ -45,8 +45,6 @@ MODEL_PATHS = {
     "hau-cm": MODELS_BASE / "mms-tts-hau",
     "fuv": MODELS_BASE / "mms-tts-ful",
     "fuv-cm": MODELS_BASE / "mms-tts-ful",
-    "knc": MODELS_BASE / "mms-tts-hau",  # Sahelian tone register
-    "knc-cm": MODELS_BASE / "mms-tts-hau",
 }
 
 import torch
@@ -329,7 +327,6 @@ def preload_core_models():
         "ewo-cm": "Mbólo, móni wá á ne mvaé",
         "hau-cm": "Sannu, kudi ya shiga lami lafiya",
         "fuv-cm": "Jam waali, seede maada yottake",
-        "knc-cm": "Wushe, kəla kəji ro lewono",
         "pcm-cm": "Welcome, transfer don complete fine",
     }
     for lang, phrase in warmup_phrases.items():
@@ -346,7 +343,7 @@ def health():
     return jsonify({
         "status": "healthy",
         "service": "LinguaBridge African Neural Voice Engine",
-        "supported_languages": ["ewo-CM", "pcm-CM", "hau-CM", "fuv-CM", "knc-CM"],
+        "supported_languages": ["ewo-CM", "pcm-CM", "hau-CM", "fuv-CM"],
         "quarantined": ["dua-CM"],
         "loaded_models": list(LOADED_MODELS.keys())
     })
@@ -361,6 +358,8 @@ def synthesize():
         text = request.args.get("text", "")
         lang = request.args.get("lang", "ewo-CM")
 
+    if not isinstance(lang, str):
+        return jsonify({"error": "INVALID_LANGUAGE"}), 400
     norm_lang = lang.strip().lower()
 
     # Strict Duala Quarantine
@@ -370,19 +369,15 @@ def synthesize():
             "message": "Duala (dua-CM) is strictly quarantined and excluded from active voice synthesis."
         }), 403
 
-    if not text or not text.strip():
-        silent_bytes = create_silent_wav_bytes()
-        b64 = base64.b64encode(silent_bytes).decode("ascii")
-        return jsonify({
-            "success": True,
-            "lang": lang,
-            "audioBase64": b64,
-            "audioUrl": f"data:audio/wav;base64,{b64}",
-            "engine": "defensive-silence"
-        })
+    if norm_lang not in MODEL_PATHS:
+        return jsonify({"error": "VOICE_UNAVAILABLE"}), 422
+    if not isinstance(text, str) or not text.strip() or len(text) > 2000:
+        return jsonify({"error": "INVALID_TEXT"}), 400
 
     try:
         wav_bytes = synthesize_wav_bytes(text, norm_lang)
+        if len(wav_bytes) <= 44:
+            return jsonify({"error": "VOICE_UNAVAILABLE"}), 422
         b64 = base64.b64encode(wav_bytes).decode("ascii")
 
         return jsonify({
@@ -396,10 +391,13 @@ def synthesize():
         print(f"⚠️ Synthesis error: {e}", flush=True)
         return jsonify({"error": "SYNTHESIS_ERROR", "message": str(e)}), 500
 
-@app.route("/stream", methods=["GET"])
+@app.route("/stream", methods=["GET", "POST"])
 def stream():
-    text = request.args.get("text", "")
-    lang = request.args.get("lang", "ewo-CM")
+    data = (request.get_json(silent=True) or {}) if request.method == "POST" else request.args
+    text = data.get("text", "")
+    lang = data.get("lang", "ewo-CM")
+    if not isinstance(lang, str):
+        return jsonify({"error": "INVALID_LANGUAGE"}), 400
     norm_lang = lang.strip().lower()
 
     # Strict Duala Quarantine
@@ -409,20 +407,15 @@ def stream():
             "message": "Duala (dua-CM) is strictly quarantined and excluded from active voice streaming."
         }), 403
 
-    if not text or not text.strip():
-        silent_bytes = create_silent_wav_bytes()
-        return Response(
-            silent_bytes,
-            mimetype="audio/wav",
-            headers={
-                "X-Speech-Engine": "defensive-silence",
-                "X-Voice-Lang": lang,
-                "Content-Disposition": "inline; filename=speech.wav"
-            }
-        )
+    if norm_lang not in MODEL_PATHS:
+        return jsonify({"error": "VOICE_UNAVAILABLE"}), 422
+    if not isinstance(text, str) or not text.strip() or len(text) > 2000:
+        return jsonify({"error": "INVALID_TEXT"}), 400
 
     try:
         wav_bytes = synthesize_wav_bytes(text, norm_lang)
+        if len(wav_bytes) <= 44:
+            return jsonify({"error": "VOICE_UNAVAILABLE"}), 422
         return Response(
             wav_bytes,
             mimetype="audio/wav",

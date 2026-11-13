@@ -1,3 +1,4 @@
+import { ApiKeyService } from '../services/api-key-service';
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../app';
@@ -9,9 +10,11 @@ import {
 
 describe('R1: OpenAPI 3.1 & Interactive Documentation Gateway', () => {
   let app: FastifyInstance;
+  const apiKeyService = new ApiKeyService();
+  const adminToken = apiKeyService.createKey({ name: 'Test admin', permissions: ['admin', 'translate:webhook'] }).key!;
 
   beforeAll(async () => {
-    app = await buildApp({ enableLogging: false });
+    app = await buildApp({ enableLogging: false, apiKeyService, webhookDestinations: ['https://fintech.example.com/webhook-callback'] });
     await app.ready();
   });
 
@@ -271,8 +274,8 @@ describe('R1: OpenAPI 3.1 & Interactive Documentation Gateway', () => {
     });
 
     it('executes packs queries via /api/v1/packs and /v1/packs', async () => {
-      const resApi = await app.inject({ method: 'GET', url: '/api/v1/packs' });
-      const resLegacy = await app.inject({ method: 'GET', url: '/v1/packs' });
+      const resApi = await app.inject({ method: 'GET', url: '/api/v1/packs', headers: { 'x-api-key': adminToken } });
+      const resLegacy = await app.inject({ method: 'GET', url: '/v1/packs', headers: { 'x-api-key': adminToken } });
 
       expect(resApi.statusCode).toBe(200);
       expect(resLegacy.statusCode).toBe(200);
@@ -284,8 +287,8 @@ describe('R1: OpenAPI 3.1 & Interactive Documentation Gateway', () => {
     });
 
     it('executes pack detail via /api/v1/packs/:id and /v1/packs/:id', async () => {
-      const resApi = await app.inject({ method: 'GET', url: '/api/v1/packs/ewondo' });
-      const resLegacy = await app.inject({ method: 'GET', url: '/v1/packs/ewondo' });
+      const resApi = await app.inject({ method: 'GET', url: '/api/v1/packs/ewondo', headers: { 'x-api-key': adminToken } });
+      const resLegacy = await app.inject({ method: 'GET', url: '/v1/packs/ewondo', headers: { 'x-api-key': adminToken } });
 
       expect(resApi.statusCode).toBe(200);
       expect(resLegacy.statusCode).toBe(200);
@@ -350,6 +353,7 @@ describe('R1: OpenAPI 3.1 & Interactive Documentation Gateway', () => {
       const response = await app.inject({
         method: 'PATCH',
         url: '/api/v1/packs/duala/status',
+        headers: { 'x-api-key': adminToken },
         payload: {
           status: 'production_approved',
         },
@@ -432,15 +436,17 @@ describe('R1: OpenAPI 3.1 & Interactive Documentation Gateway', () => {
     });
 
     it('handles async batch translation endpoint (/api/v1/translate/async)', async () => {
+      const delivery = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(null, { status: 200 }));
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/translate/async',
-        headers: { 'x-api-key': 'lb_demo_key_2026' },
+        headers: { 'x-api-key': adminToken },
         payload: {
           requests: [
-            { sourceText: 'Bonjour', sourceLang: 'fr', targetLang: 'en' },
+            { sourceText: 'Bonjour', sourceLang: 'fr', targetLang: 'en', domain: 'general', privacyPolicy: 'allow_external' },
           ],
           webhookUrl: 'https://fintech.example.com/webhook-callback',
+          webhookSecret: secret,
         },
       });
 
@@ -450,6 +456,8 @@ describe('R1: OpenAPI 3.1 & Interactive Documentation Gateway', () => {
       expect(data.batchId).toBeDefined();
       expect(data.totalCount).toBe(1);
       expect(data.webhookUrl).toBe('https://fintech.example.com/webhook-callback');
+      await vi.waitFor(() => expect(delivery).toHaveBeenCalledTimes(1));
+      delivery.mockRestore();
     });
 
     it('dispatches financial drift alert on entity tampering detection', async () => {

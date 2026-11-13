@@ -1,12 +1,15 @@
+import { ApiKeyService } from '../services/api-key-service';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../app';
 
 describe('LinguaBridge API Integration', () => {
   let app: FastifyInstance;
+  const apiKeyService = new ApiKeyService();
+  const adminToken = apiKeyService.createKey({ name: 'Test admin', permissions: ['admin', 'translate:webhook'] }).key!;
 
   beforeAll(async () => {
-    app = await buildApp({ enableLogging: false });
+    app = await buildApp({ enableLogging: false, apiKeyService });
     await app.ready();
   });
 
@@ -212,6 +215,7 @@ describe('LinguaBridge API Integration', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/v1/packs',
+        headers: { 'x-api-key': adminToken },
       });
 
       expect(response.statusCode).toBe(200);
@@ -224,6 +228,7 @@ describe('LinguaBridge API Integration', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/v1/packs/ewondo',
+        headers: { 'x-api-key': adminToken },
       });
 
       expect(response.statusCode).toBe(200);
@@ -236,6 +241,7 @@ describe('LinguaBridge API Integration', () => {
       const response = await app.inject({
         method: 'PATCH',
         url: '/v1/packs/duala/status',
+        headers: { 'x-api-key': adminToken },
         payload: {
           status: 'under_review',
         },
@@ -250,6 +256,7 @@ describe('LinguaBridge API Integration', () => {
       const response = await app.inject({
         method: 'PATCH',
         url: '/v1/packs/duala/status',
+        headers: { 'x-api-key': adminToken },
         payload: {
           status: 'production_approved',
         },

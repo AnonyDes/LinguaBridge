@@ -39,8 +39,10 @@ export function useTranslate(text: string, options: UseTranslateOptions = {}): U
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [result, setResult] = useState<TranslationResult | null>(null);
+  const requestVersion = useRef(0);
 
   const fetchTranslation = useCallback(async () => {
+    const version = ++requestVersion.current;
     if (!text || options.skip || sourceLang === targetLang) {
       setTranslatedText(text);
       setLoading(false);
@@ -59,18 +61,22 @@ export function useTranslate(text: string, options: UseTranslateOptions = {}): U
         domain: options.domain,
         context: options.context,
       });
-      setTranslatedText(res.translatedText);
+      if (version !== requestVersion.current) return;
+      setTranslatedText(['success', 'memory_hit', 'fixture'].includes(res.status) ? res.translatedText : text);
       setResult(res);
     } catch (err) {
+      if (version !== requestVersion.current) return;
       setError(err as Error);
+      setResult(null);
       setTranslatedText(text); // Fallback to original text on failure
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   }, [client, text, sourceLang, targetLang, options.domain, options.context, options.skip]);
 
   useEffect(() => {
-    fetchTranslation();
+    void fetchTranslation();
+    return () => { requestVersion.current++; };
   }, [fetchTranslation]);
 
   return {

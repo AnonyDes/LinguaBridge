@@ -517,7 +517,7 @@ export const FinancialDriftWebhookPayloadSchema = {
     attempt: { type: 'number', example: 1 },
     data: {
       type: 'object',
-      required: ['translationId', 'sourceText', 'translatedText', 'sourceLang', 'targetLang', 'violations', 'detectedAt'],
+      required: ['translationId', 'sourceLang', 'targetLang', 'violations', 'detectedAt'],
       properties: {
         translationId: { type: 'string', format: 'uuid', example: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d' },
         sourceText: { type: 'string', example: 'Solde de 50 000 FCFA' },

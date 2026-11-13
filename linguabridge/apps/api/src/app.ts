@@ -13,9 +13,9 @@ import {
 } from '@linguabridge/translation-engine';
 import type { TranslationProvider } from '@linguabridge/shared-types';
 import { MemoryCacheStore } from './cache/memory-cache';
-import { HybridCacheStore } from './cache/hybrid-cache';
-import { apiKeyService as defaultApiKeyService, ApiKeyService } from './services/api-key-service';
-import { auditLogger as defaultAuditLogger, AuditLoggerService } from './services/audit-logger-service';
+import { ApiKeyService } from './services/api-key-service';
+import { authorize } from './services/authorization';
+import { AuditLoggerService } from './services/audit-logger-service';
 import { healthRoutes } from './routes/health';
 import { translateRoutes } from './routes/translate';
 import { languageRoutes } from './routes/languages';
@@ -164,7 +164,7 @@ const kanuriPack = {
   capabilities: {
     hasDictionary: true,
     hasParallelCorpus: true,
-    hasSpeech: true,
+    hasSpeech: false,
     hasPronunciation: true,
     hasGlossary: true,
   },
@@ -276,6 +276,7 @@ export interface AppOptions {
   registry?: LanguageRegistry;
   apiKeyService?: ApiKeyService;
   auditLogger?: AuditLoggerService;
+  webhookDestinations?: readonly string[];
 }
 
 export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> {
@@ -288,8 +289,8 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
     },
   });
 
-  const apiKeyService = opts.apiKeyService || defaultApiKeyService;
-  const auditLogger = opts.auditLogger || defaultAuditLogger;
+  const apiKeyService = opts.apiKeyService || new ApiKeyService();
+  const auditLogger = opts.auditLogger || new AuditLoggerService();
 
   // Security headers
   await fastify.register(helmet, {
@@ -298,7 +299,9 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
 
   // CORS
   await fastify.register(cors, {
-    origin: true,
+    origin: process.env.NODE_ENV === 'production'
+      ? (process.env.CORS_ORIGINS ?? '').split(',').map((origin) => origin.trim()).filter(Boolean)
+      : true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   });
 
@@ -309,7 +312,7 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
   });
 
   // Schema error handler
-  fastify.setErrorHandler((error, _request, reply) => {
+  fastify.setErrorHandler<import('fastify').FastifyError>((error, _request, reply) => {
     if (error.validation) {
       return reply.status(400).send({
         error: 'Bad Request',
@@ -319,7 +322,7 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
     }
     return reply.status(error.statusCode || 500).send({
       error: error.name || 'Internal Server Error',
-      message: error.message || 'An unexpected server error occurred',
+      message: (error.statusCode ?? 500) >= 500 ? 'An unexpected server error occurred' : error.message,
     });
   });
 
@@ -332,10 +335,10 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
     const startTime = (request.raw as any)._startTime || Date.now();
     const latencyMs = Math.max(1, Date.now() - startTime);
     const auditMeta = (request as any).auditMetadata || {};
-    const keyInfo = (request as any).apiKey;
+    const keyInfo = request.apiKey;
 
     auditLogger.log({
-      apiKey: keyInfo?.prefix || (request.headers['x-api-key'] as string)?.slice(0, 12),
+      apiKey: keyInfo?.prefix,
       keyId: keyInfo?.id,
       method: request.method,
       route: request.url.split('?')[0],
@@ -351,8 +354,7 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
   });
 
   // Automated OpenAPI 3.1 Documentation Generation
-  await fastify.register(swagger, {
-    openapi: {
+  const openapi = {
       openapi: '3.1.0',
       info: {
         title: 'LinguaBridge API Gateway',
@@ -524,7 +526,10 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
           },
         },
       },
-    },
+  } as const;
+  await fastify.register(swagger, {
+    // The shared JSON schema constants use readonly arrays. Swagger receives a mutable copy.
+    openapi: structuredClone(openapi) as unknown as import('@fastify/swagger').FastifyDynamicSwaggerOptions['openapi'],
   });
 
   // Swagger UI Interactive Documentation Gateway
@@ -550,7 +555,7 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
   }
 
   // Translation Providers setup
-  const providers: TranslationProvider[] = opts.providers || [];
+  const providers: TranslationProvider[] = opts.providers?.slice() || [];
   if (providers.length === 0) {
     // 1. Fixture & National Lexicon Provider (always available)
     providers.push(new FixtureProvider());
@@ -564,8 +569,8 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
       })
     );
 
-    // 3. OpenRouter Provider (auto-activated whenever OPENROUTER_API_KEY is supplied)
-    if (process.env.OPENROUTER_API_KEY && process.env.ENABLE_LLM_TRANSLATION !== 'false') {
+    // 3. OpenRouter is an explicitly enabled external provider.
+    if (process.env.OPENROUTER_API_KEY && process.env.ENABLE_LLM_TRANSLATION === 'true') {
       providers.push(
         new OpenRouterProvider({
           apiKey: process.env.OPENROUTER_API_KEY,
@@ -576,9 +581,8 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
     }
   }
 
-  // Hybrid Cache: automatically connects to Supabase/PostgreSQL when DATABASE_URL is present,
-  // with zero-friction fallback to high-speed in-memory cache.
-  const cache = new HybridCacheStore();
+  // Request-derived translations stay transient and never enter reviewed translation memory.
+  const cache = new MemoryCacheStore();
   const pipeline = new TranslationPipeline({
     providers,
     cache,
@@ -586,13 +590,22 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
 
   // Register Routes
   await fastify.register(healthRoutes, { providers });
-  await fastify.register(translateRoutes, { pipeline, apiKeyService });
+  await fastify.register(translateRoutes, {
+    pipeline, apiKeyService, webhookDestinations: opts.webhookDestinations,
+    canTranslateTo: (target) => registry.canTranslateTo(target),
+  });
   await fastify.register(languageRoutes, { registry });
-  await fastify.register(packRoutes, { registry });
-  await fastify.register(keysRoutes, { apiKeyService });
-  await fastify.register(logsRoutes, { auditLogger });
-  await fastify.register(dashboardRoutes, { auditLogger, apiKeyService });
-  await fastify.register(speechRoutes);
+  await fastify.register(async (admin) => {
+    admin.addHook('onRequest', authorize(apiKeyService, 'admin'));
+    await admin.register(packRoutes, { registry });
+    await admin.register(keysRoutes, { apiKeyService });
+    await admin.register(logsRoutes, { auditLogger });
+    await admin.register(dashboardRoutes, { auditLogger, apiKeyService });
+  });
+  await fastify.register(async (speech) => {
+    speech.addHook('onRequest', authorize(apiKeyService, 'speech:write', () => process.env.NODE_ENV !== 'production'));
+    await speech.register(speechRoutes);
+  });
 
   return fastify;
 }

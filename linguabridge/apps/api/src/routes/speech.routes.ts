@@ -94,13 +94,16 @@ export const speechRoutes: FastifyPluginAsync = async (fastify) => {
     // Attempt to proxy to the sovereign neural voice microservice (port 3002)
     const voiceServiceUrl = process.env.VOICE_SERVICE_URL || 'http://127.0.0.1:3002';
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
-      const url = `${voiceServiceUrl}/stream?lang=${encodeURIComponent(normLang)}&text=${encodeURIComponent(text)}`;
-      const neuralRes = await fetch(url, { signal: controller.signal }).catch(() => null);
-      clearTimeout(timeout);
+      const neuralRes = await fetch(`${voiceServiceUrl}/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang: normLang, text }),
+        signal: AbortSignal.timeout(5000),
+      }).catch(() => null);
 
-      if (neuralRes && neuralRes.ok && neuralRes.body) {
+      if (neuralRes?.ok && neuralRes.body &&
+        neuralRes.headers.get('X-Voice-Lang')?.toLowerCase() === normLang &&
+        neuralRes.headers.get('X-Speech-Engine') === 'meta-mms-neural-live') {
         reply.raw.setHeader('Content-Type', 'audio/wav');
         reply.raw.setHeader('Transfer-Encoding', 'chunked');
         reply.raw.setHeader('X-Speech-Engine', 'african-neural-mms');

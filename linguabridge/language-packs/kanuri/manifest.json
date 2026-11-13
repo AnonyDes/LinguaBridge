@@ -10,7 +10,7 @@
   "capabilities": {
     "hasDictionary": true,
     "hasParallelCorpus": true,
-    "hasSpeech": true,
+    "hasSpeech": false,
     "hasPronunciation": true,
     "hasGlossary": true
   },

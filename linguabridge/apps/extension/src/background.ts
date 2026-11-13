@@ -7,6 +7,7 @@ const client = new LinguaBridgeClient({
 });
 
 const africanVoiceProvider = new AfricanVoiceProvider();
+const audioPayloadCache = new Map<string, string>();
 
 // Setup context menus
 if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
@@ -31,6 +32,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
 // Background message dispatcher supporting all 5 Sovereign Cameroonian Languages
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (message.type === 'BROADCAST_PAGE_ACTION' && _sender.tab?.id) {
+      const action = message.action === 'restore' ? 'POPUP_RESTORE_PAGE' : 'POPUP_TRANSLATE_PAGE';
+      chrome.tabs.sendMessage(_sender.tab.id, { type: action, targetLang: message.targetLang })
+        .then(() => sendResponse({ success: true }))
+        .catch(() => sendResponse({ success: false }));
+      return true;
+    }
     const targetLang = message.targetLang || 'ewo-CM';
     const isEwondo = targetLang.includes('ewo');
     const local = (text: string, sourceLang?: string) =>
@@ -45,7 +53,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           domain: message.domain || 'financial',
         })
         .then((result) => {
-          if (!result.translatedText || result.translatedText === message.text) {
+          if (result.status !== 'unsafe' && (!result.translatedText || result.translatedText === message.text)) {
             const localRes = local(message.text, message.sourceLang);
             sendResponse({
               success: true,
@@ -96,7 +104,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         .then((results) => {
           const processed = results.map((r, idx) => {
             const item = message.items[idx];
-            if (!r.translatedText || r.translatedText === item?.text) {
+            if (r.status !== 'unsafe' && (!r.translatedText || r.translatedText === item?.text)) {
               const localRes = local(item?.text || '', item?.sourceLang);
               return {
                 ...r,
@@ -147,7 +155,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               { code: 'ewo-CM', name: 'Ewondo (Langue Maternelle)', nativeName: 'Kóbɔ́ Ewondo', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
               { code: 'fuv-CM', name: 'Fulfulde / Peul', nativeName: 'Pulaar / Fulfulde', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
               { code: 'hau-CM', name: 'Haoussa', nativeName: 'Harshen Hausa', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
-              { code: 'knc-CM', name: 'Kanuri', nativeName: 'Kànurí', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
+              { code: 'knc-CM', name: 'Kanuri', nativeName: 'Kànurí', speechAvailable: false, packStatus: 'production_approved', isAvailable: true },
               { code: 'pcm-CM', name: 'Cameroon Pidgin', nativeName: 'Kamtok', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
               { code: 'fr', name: 'Français', nativeName: 'Français', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
               { code: 'en', name: 'English', nativeName: 'English', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
@@ -157,20 +165,19 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       return true;
     }
 
-// In-memory audio payload cache for instant 0ms responses across tabs and navigations
-const AUDIO_PAYLOAD_CACHE = new Map<string, string>();
-
     if (message.type === 'SYNTHESIZE_SPEECH') {
       const text = message.text || '';
       const lang = message.lang || targetLang;
       const normLang = (lang || 'ewo-CM').trim().toLowerCase();
-      const cacheKey = `${normLang}:${text.trim().toLowerCase()}`;
-      console.log(`[LinguaBridge SW] SYNTHESIZE_SPEECH request: lang=${lang} (norm=${normLang}), text="${text.substring(0, 40)}"`);
+      if (!africanVoiceProvider.isLanguageSupported(normLang) || !text.trim() || text.length > 2000) {
+        sendResponse({ success: false, error: 'Voice unavailable for this request' });
+        return;
+      }
+      const cacheKey = `${normLang}:${text.trim()}`;
 
       // 1. FAST PATH (<1ms): Check background in-memory cache
-      const cachedB64 = AUDIO_PAYLOAD_CACHE.get(cacheKey);
+      const cachedB64 = audioPayloadCache.get(cacheKey);
       if (cachedB64) {
-        console.log(`[LinguaBridge SW] Instant 0ms cache hit for "${text.substring(0, 30)}"`);
         sendResponse({
           success: true,
           result: {
@@ -186,20 +193,26 @@ const AUDIO_PAYLOAD_CACHE = new Map<string, string>();
 
       // Direct ultra-fast fetch to running Python neural voice server
       const tryFetch = async (host: string) => {
-        const url = `${host}/synthesize?lang=${encodeURIComponent(normLang)}&text=${encodeURIComponent(text)}`;
-        const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        const r = await fetch(`${host}/synthesize`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lang: normLang, text }),
+          signal: AbortSignal.timeout(15000),
+        });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json() as any;
-        if (!data || !data.audioBase64) throw new Error('Missing audio payload');
+        if (typeof data?.audioBase64 !== 'string' || data.audioBase64.length <= 60 ||
+          data.lang?.toLowerCase() !== normLang || data.engine !== 'meta-mms-neural-live') {
+          throw new Error('Missing audio for the requested language');
+        }
         return data;
       };
 
       tryFetch('http://127.0.0.1:3002')
         .catch(() => tryFetch('http://localhost:3002'))
         .then((data) => {
-          console.log(`[LinguaBridge SW] Synthesized neural audio successfully (${data.audioBase64.length} b64 chars)`);
-          if (AUDIO_PAYLOAD_CACHE.size < 600) {
-            AUDIO_PAYLOAD_CACHE.set(cacheKey, data.audioBase64);
+          if (audioPayloadCache.size < 40 && data.audioBase64.length <= 400000) {
+            audioPayloadCache.set(cacheKey, data.audioBase64);
           }
           sendResponse({
             success: true,
@@ -212,10 +225,8 @@ const AUDIO_PAYLOAD_CACHE = new Map<string, string>();
             },
           });
         })
-        .catch((fetchErr) => {
-          console.warn('[LinguaBridge SW] Microservice port 3002 fetch failed:', fetchErr?.message);
-          // Absolute Zero-Noise Mandate: Stay silent if microservice unreachable
-          sendResponse({ success: false, error: fetchErr?.message || 'Neural voice service unavailable' });
+        .catch(() => {
+          sendResponse({ success: false, error: 'Neural voice service unavailable' });
         });
 
       return true;

@@ -166,7 +166,7 @@ export const McpConnectorDoc: React.FC = () => {
               maxWidth: '680px',
             }}
           >
-            Permettez à vos agents d'IA (Cursor, Claude Desktop, Antigravity) de traduire des transactions, de vérifier l'invariance financière et de synthétiser des voix africaines en direct.
+            Permettez à vos agents d&apos;IA (Cursor, Claude Desktop, Antigravity) de traduire des transactions, de vérifier l&apos;invariance financière et de synthétiser des voix africaines en direct.
           </p>
         </div>
       </div>
@@ -248,7 +248,7 @@ export const McpConnectorDoc: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              Le serveur MCP de LinguaBridge expose les capacités linguistiques et vocales camerounaises directement aux LLMs sans intermédiaire. Grâce au protocole ouvert d'Anthropic (Model Context Protocol), votre assistant IA devient capable de raisonner, traduire et prononcer les phrases bancaires en respectant rigoureusement les montants financiers.
+              Le serveur MCP de LinguaBridge expose les capacités linguistiques et vocales camerounaises directement aux LLMs sans intermédiaire. Grâce au protocole ouvert d&apos;Anthropic (Model Context Protocol), votre assistant IA devient capable de raisonner, traduire et prononcer les phrases bancaires en respectant rigoureusement les montants financiers.
             </p>
           </div>
 
@@ -295,7 +295,7 @@ export const McpConnectorDoc: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                L'IA ne peut jamais altérer une valeur monétaire ou inventer un compte : l'arbre syntaxique abstrait (AST) valide chaque caractère.
+                L&apos;IA ne peut jamais altérer une valeur monétaire ou inventer un compte : l&apos;arbre syntaxique abstrait (AST) valide chaque caractère.
               </p>
             </div>
 
@@ -341,7 +341,7 @@ export const McpConnectorDoc: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                L'outil <code>synthesize_speech</code> permet à l'agent IA d'obtenir le guide tonal et le flux audio pour accompagner ses réponses d'une voix parlée.
+                L&apos;outil <code>synthesize_speech</code> permet à l&apos;agent IA d&apos;obtenir le guide tonal et le flux audio pour accompagner ses réponses d&apos;une voix parlée.
               </p>
             </div>
 
@@ -387,7 +387,7 @@ export const McpConnectorDoc: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                Fonctionne nativement avec Cursor, Claude Desktop, Antigravity CLI et n'importe quel client compatible MCP.
+                Fonctionne nativement avec Cursor, Claude Desktop, Antigravity CLI et n&apos;importe quel client compatible MCP.
               </p>
             </div>
           </div>
@@ -618,7 +618,7 @@ export const McpConnectorDoc: React.FC = () => {
                 }}
               >
                 <Play size={12} strokeWidth={2.5} />
-                Exécuter l'Outil MCP
+                Exécuter l&apos;Outil MCP
               </button>
             </div>
 
@@ -768,7 +768,7 @@ export const McpConnectorDoc: React.FC = () => {
                 lineHeight: 1.5,
               }}
             >
-              Idéal pour connecter des agents distants ou des services d'orchestration dans le cloud via HTTP streaming.
+              Idéal pour connecter des agents distants ou des services d&apos;orchestration dans le cloud via HTTP streaming.
             </p>
             <div
               style={{

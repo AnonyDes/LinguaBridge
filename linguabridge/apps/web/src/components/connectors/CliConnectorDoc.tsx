@@ -131,7 +131,7 @@ export const CliConnectorDoc: React.FC = () => {
               maxWidth: '680px',
             }}
           >
-            Binaire autonome et scriptable pour les développeurs, pipelines d'intégration continue CI/CD et audits d'invariance en pré-déploiement.
+            Binaire autonome et scriptable pour les développeurs, pipelines d&apos;intégration continue CI/CD et audits d&apos;invariance en pré-déploiement.
           </p>
         </div>
       </div>
@@ -203,7 +203,7 @@ export const CliConnectorDoc: React.FC = () => {
                 color: 'var(--ink, #0A0A0A)',
               }}
             >
-              Le Couteau Suisse de l'Ingénieur Bancaire
+              Le Couteau Suisse de l&apos;Ingénieur Bancaire
             </h4>
             <p
               style={{
@@ -213,7 +213,7 @@ export const CliConnectorDoc: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              Le CLI <code>lb</code> (ou <code>linguabridge</code>) permet de valider les traductions en ligne de commande, d'auditer l'isolation des packs linguistiques, de tester l'invariance financière avant toute mise en production et de lancer un mock local hors-ligne.
+              Le CLI <code>lb</code> (ou <code>linguabridge</code>) permet de valider les traductions en ligne de commande, d&apos;auditer l&apos;isolation des packs linguistiques, de tester l&apos;invariance financière avant toute mise en production et de lancer un mock local hors-ligne.
             </p>
           </div>
         </div>

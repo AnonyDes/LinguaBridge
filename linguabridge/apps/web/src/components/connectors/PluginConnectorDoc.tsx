@@ -83,7 +83,7 @@ export const PluginConnectorDoc: React.FC = () => {
               maxWidth: '680px',
             }}
           >
-            Assistant d'accessibilité bancaire universel injecté dans les portails Web Banking marchands : prononciation vocale instantanée au survol et traduction DOM intégrale.
+            Assistant d&apos;accessibilité bancaire universel injecté dans les portails Web Banking marchands : prononciation vocale instantanée au survol et traduction DOM intégrale.
           </p>
         </div>
       </div>
@@ -165,7 +165,7 @@ export const PluginConnectorDoc: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              L'extension Chrome Manifest V3 de LinguaBridge comble le fossé linguistique pour les millions de citoyens camerounais utilisant les services bancaires en ligne. Elle s'injecte de façon isolée et sécurisée dans les pages web, analyse le DOM sans perturber le code bancaire, et offre un survol vocal immédiat pour que chaque opération financière soit comprise.
+              L&apos;extension Chrome Manifest V3 de LinguaBridge comble le fossé linguistique pour les millions de citoyens camerounais utilisant les services bancaires en ligne. Elle s&apos;injecte de façon isolée et sécurisée dans les pages web, analyse le DOM sans perturber le code bancaire, et offre un survol vocal immédiat pour que chaque opération financière soit comprise.
             </p>
           </div>
 
@@ -258,7 +258,7 @@ export const PluginConnectorDoc: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                Aucune fuite de données : l'extension ne transmet aucune donnée sensible ou identifiant bancaire vers l'extérieur.
+                Aucune fuite de données : l&apos;extension ne transmet aucune donnée sensible ou identifiant bancaire vers l&apos;extérieur.
               </p>
             </div>
 
@@ -304,7 +304,7 @@ export const PluginConnectorDoc: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                Traduit non seulement les paragraphes mais aussi les boutons d'action, tableaux d'amortissement, inputs placeholders et Shadow DOMs.
+                Traduit non seulement les paragraphes mais aussi les boutons d&apos;action, tableaux d&apos;amortissement, inputs placeholders et Shadow DOMs.
               </p>
             </div>
           </div>
@@ -413,7 +413,7 @@ export const PluginConnectorDoc: React.FC = () => {
               >
                 <Volume2 size={16} strokeWidth={2} style={{ color: 'var(--green-glow, #4FE066)', flexShrink: 0 }} />
                 <span>
-                  Synthèse Vocale Active : <strong style={{ color: 'var(--green-glow, #4FE066)' }}>"{spokenText}"</strong>
+                  Synthèse Vocale Active : <strong style={{ color: 'var(--green-glow, #4FE066)' }}>&quot;{spokenText}&quot;</strong>
                 </span>
               </div>
             )}
@@ -451,7 +451,7 @@ export const PluginConnectorDoc: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              L'extension parcourt l'arbre DOM selon une stratégie récursive avec <code>TreeWalker</code> filtrant les scripts, styles et iframes tierces.
+              L&apos;extension parcourt l&apos;arbre DOM selon une stratégie récursive avec <code>TreeWalker</code> filtrant les scripts, styles et iframes tierces.
             </p>
             <ul
               style={{
@@ -464,7 +464,7 @@ export const PluginConnectorDoc: React.FC = () => {
             >
               <li><strong>Nœuds textuels</strong> (H1-H6, P, SPAN, TD, TH, LI, A, DIV).</li>
               <li><strong>Éléments interactifs</strong> (BUTTON, INPUT submit/button, labels de formulaire).</li>
-              <li><strong>Attributs d'accessibilité</strong> (<code>placeholder</code>, <code>title</code>, <code>aria-label</code>, <code>alt</code>).</li>
+              <li><strong>Attributs d&apos;accessibilité</strong> (<code>placeholder</code>, <code>title</code>, <code>aria-label</code>, <code>alt</code>).</li>
               <li><strong>Composants Web & Shadow DOM</strong> (Traversée récursive transparente des nœuds <code>shadowRoot</code> en mode open).</li>
             </ul>
           </div>
@@ -501,7 +501,7 @@ export const PluginConnectorDoc: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              Les institutions bancaires partenaires (ex: Afriland First Bank, Société Générale Cameroun, CCA Bank) peuvent intégrer l'extension LinguaBridge comme module certifié sur leurs portails e-banking ou distribuer le bundle préconfiguré à leurs clients entreprises et particuliers.
+              Les institutions bancaires partenaires (ex: Afriland First Bank, Société Générale Cameroun, CCA Bank) peuvent intégrer l&apos;extension LinguaBridge comme module certifié sur leurs portails e-banking ou distribuer le bundle préconfiguré à leurs clients entreprises et particuliers.
             </p>
           </div>
         </div>
@@ -527,7 +527,7 @@ export const PluginConnectorDoc: React.FC = () => {
                 color: 'var(--ink, #0A0A0A)',
               }}
             >
-              Charger l'Extension Non Emballée (Developer Mode)
+              Charger l&apos;Extension Non Emballée (Developer Mode)
             </h4>
             <ol
               style={{
@@ -539,10 +539,10 @@ export const PluginConnectorDoc: React.FC = () => {
               }}
             >
               <li>Ouvrez Google Chrome, Brave ou Microsoft Edge et accédez à <code>chrome://extensions</code>.</li>
-              <li>Activez l'interrupteur <strong>Mode développeur</strong> en haut à droite.</li>
-              <li>Cliquez sur le bouton <strong>Charger l'extension non emballée</strong> (Load unpacked).</li>
+              <li>Activez l&apos;interrupteur <strong>Mode développeur</strong> en haut à droite.</li>
+              <li>Cliquez sur le bouton <strong>Charger l&apos;extension non emballée</strong> (Load unpacked).</li>
               <li>Sélectionnez le dossier de distribution : <code>c:\Users\LENOVO\Documents\antigravity\focused-maxwell\linguabridge\apps\extension\dist</code>.</li>
-              <li>L'icône LinguaBridge apparaît instantanément dans votre barre d'extensions prête à l'emploi !</li>
+              <li>L&apos;icône LinguaBridge apparaît instantanément dans votre barre d&apos;extensions prête à l&apos;emploi !</li>
             </ol>
           </div>
         </div>

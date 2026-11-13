@@ -1,0 +1,61 @@
+name: Verify LinguaBridge
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: linguabridge
+
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: linguabridge/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm lint
+      - run: pnpm exec tsc -p apps/api/tsconfig.json --noEmit
+      - run: pnpm exec tsc -p apps/extension/tsconfig.json --noEmit
+      - run: pnpm exec turbo test --concurrency=3 -- --maxWorkers=2 --minWorkers=1
+      - run: pnpm exec vitest run -c tests/e2e/vitest.config.ts --maxWorkers=2 --minWorkers=1
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: linguabridge/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - run: bash gradlew --no-daemon :app:assembleDebug :app:lintDebug
+        working-directory: linguabridge/apps/browser-android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LinguaBridge-Browser-Android
+          path: linguabridge/apps/browser-android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

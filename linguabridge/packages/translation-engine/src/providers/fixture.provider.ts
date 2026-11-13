@@ -250,6 +250,7 @@ for (const [key, val] of Object.entries(FIXTURES)) {
 
 export class FixtureProvider implements TranslationProvider {
   id = 'fixture';
+  isLocal = true;
   name = 'Fixture & National Lexicon Provider';
 
   translate(request: TranslationRequest): Promise<TranslationResult> {

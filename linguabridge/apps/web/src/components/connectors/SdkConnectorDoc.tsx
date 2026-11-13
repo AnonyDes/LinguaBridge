@@ -97,7 +97,7 @@ export const SdkConnectorDoc: React.FC = () => {
               maxWidth: '680px',
             }}
           >
-            Bibliothèques typées de production pour intégrer la traduction souveraine, la synthèse vocale et les composants conversationnels d'IA bancaire dans vos applications Web et React.
+            Bibliothèques typées de production pour intégrer la traduction souveraine, la synthèse vocale et les composants conversationnels d&apos;IA bancaire dans vos applications Web et React.
           </p>
         </div>
       </div>
@@ -587,7 +587,7 @@ export default function App() {
                 color: 'var(--ink, #0A0A0A)',
               }}
             >
-              Intégration d'un Guichet Bancaire en Ligne (Next.js 14 App Router)
+              Intégration d&apos;un Guichet Bancaire en Ligne (Next.js 14 App Router)
             </h4>
             <pre
               style={{

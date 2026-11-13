@@ -10,20 +10,21 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.15",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@linguabridge/shared-types": "workspace:*",
+    "@linguabridge/financial-domain": "workspace:*",
     "@linguabridge/sdk-js": "workspace:*",
     "@linguabridge/sdk-react": "workspace:*",
+    "@linguabridge/shared-types": "workspace:*",
     "@linguabridge/widget": "workspace:*",
-    "@linguabridge/financial-domain": "workspace:*",
-    "lucide-react": "^0.460.0"
+    "lucide-react": "^0.460.0",
+    "next": "15.5.29",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "eslint-config-next": "15.5.29",
     "typescript": "^5.5.0",
     "vitest": "^2.0.0"
   }

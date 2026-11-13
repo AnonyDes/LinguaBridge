@@ -1,16 +1,21 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../app';
+import { ApiKeyService } from '../services/api-key-service';
 
 describe('CHALLENGER 2: API Speech Streaming Resilience & Defensive Silence', () => {
   let app: FastifyInstance;
   const originalEnv = process.env.NODE_ENV;
   const originalVoiceUrl = process.env.VOICE_SERVICE_URL;
+  const apiKeyService = new ApiKeyService();
+  const speechToken = apiKeyService.createKey({
+    name: 'Speech test', permissions: ['speech:write'], quota: { requestsPerMinute: 200 },
+  }).key!;
 
   beforeAll(async () => {
     // Direct voice service to an offline port to strictly simulate microservice downtime
     process.env.VOICE_SERVICE_URL = 'http://127.0.0.1:59999';
-    app = await buildApp({ enableLogging: false });
+    app = await buildApp({ enableLogging: false, apiKeyService });
     await app.ready();
   });
 
@@ -131,6 +136,7 @@ describe('CHALLENGER 2: API Speech Streaming Resilience & Defensive Silence', ()
 
       const response = await app.inject({
         method: 'GET',
+        headers: { 'x-api-key': speechToken },
         url: '/v1/speech/stream?text=Mb%C3%B3lo%20Kam%C9%99r%C3%BAn&lang=ewo-CM',
       });
 
@@ -153,6 +159,7 @@ describe('CHALLENGER 2: API Speech Streaming Resilience & Defensive Silence', ()
       for (const lang of sovereignCodes) {
         const response = await app.inject({
           method: 'GET',
+          headers: { 'x-api-key': speechToken },
           url: `/v1/speech/stream?text=FinancialBalance5000&lang=${lang}`,
         });
 
@@ -218,6 +225,7 @@ describe('CHALLENGER 2: API Speech Streaming Resilience & Defensive Silence', ()
       const requests = Array.from({ length: 50 }, (_, i) =>
         app.inject({
           method: 'GET',
+          headers: { 'x-api-key': speechToken },
           url: `/v1/speech/stream?text=ConcurrentStream_${i}&lang=ewo-CM`,
         })
       );

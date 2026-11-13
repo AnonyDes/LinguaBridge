@@ -226,9 +226,11 @@ export class LinguaBridgeClient {
     useCache?: boolean;
     strictZeroDrift?: boolean;
   }): Promise<TranslationResult> {
-    const cacheKey = `${params.sourceLang}:${params.targetLang}:${params.text}`;
-    if (params.useCache !== false && this.memoryCache.has(cacheKey)) {
-      return this.memoryCache.get(cacheKey)!;
+    const cacheKey = JSON.stringify([params.sourceLang, params.targetLang, params.domain, params.context, params.text]);
+    const cached = params.useCache === false ? undefined : this.memoryCache.get(cacheKey);
+    if (cached) {
+      if (params.strictZeroDrift) this.verifyZeroDrift(params.text, cached.translatedText, { throwOnError: true });
+      return cached;
     }
 
     const result = await this.request<TranslationResult>('/v1/translate', {
@@ -246,7 +248,11 @@ export class LinguaBridgeClient {
       this.verifyZeroDrift(params.text, result.translatedText, { throwOnError: true });
     }
 
-    if (params.useCache !== false && result.status !== 'failed') {
+    if (params.useCache !== false && ['success', 'memory_hit', 'fixture'].includes(result.status)) {
+      if (this.memoryCache.size >= 256) {
+        const oldest = this.memoryCache.keys().next().value;
+        if (oldest !== undefined) this.memoryCache.delete(oldest);
+      }
       this.memoryCache.set(cacheKey, result);
     }
 
@@ -263,12 +269,17 @@ export class LinguaBridgeClient {
       context: item.context,
     }));
 
-    const response = await this.request<{ results: TranslationResult[] }>('/v1/translate/batch', {
-      method: 'POST',
-      body: JSON.stringify({ requests }),
-    });
-
-    return response.results;
+    const results: TranslationResult[] = [];
+    for (let offset = 0; offset < requests.length; offset += 50) {
+      const batch = requests.slice(offset, offset + 50);
+      const response = await this.request<{ results: TranslationResult[] }>('/v1/translate/batch', {
+        method: 'POST',
+        body: JSON.stringify({ requests: batch }),
+      });
+      if (response.results.length !== batch.length) throw new ValidationError('Incomplete translation batch', 502);
+      results.push(...response.results);
+    }
+    return results;
   }
 
   verifyZeroDrift(

@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { TranslationPipeline } from '../pipeline';
 import { FixtureProvider } from '../providers/fixture.provider';
-import type { CacheStore } from '../stages/cache-lookup';
+import { translationCacheKey, type CacheStore } from '../stages/cache-lookup';
+import { PipelineContext } from '../pipeline-context';
 import type { TranslationRequest, TranslationProvider, TranslationResult } from '@linguabridge/shared-types';
 
 class MockCache implements CacheStore {
@@ -51,10 +52,12 @@ describe('TranslationPipeline', () => {
     };
 
     // Pre-populate cache
-    const key = `tm:fr:en:general:default:${Buffer.from('Bonjour').toString('base64').substring(0, 32)}`;
+    const key = await translationCacheKey(new PipelineContext(request));
     await cache.set(key, JSON.stringify({
       translatedText: 'Hello from cache',
       provider: 'cached-provider',
+      status: 'success',
+      warnings: [],
     }));
 
     const result = await pipeline.process(request);
@@ -168,7 +171,41 @@ describe('TranslationPipeline', () => {
     const result = await pipeline.process(request);
     expect(result.status).toBe('success');
     expect(result.translatedText).toBe('Balance');
+    expect(result.sourceLang).toBe('fr');
+    expect(request.sourceLang).toBe('auto');
     expect(result.warnings.some((w) => w.includes('LANG_AUTO_DETECTED_HEURISTIC'))).toBe(true);
+  });
+
+  it('uses distinct cache entries for full text and verified tenant', async () => {
+    const provider = new FixtureProvider();
+    const translate = provider.translate.bind(provider);
+    provider.translate = async (request) => ({
+      ...await translate(request),
+      status: 'success',
+      translatedText: request.sourceText,
+    });
+    const pipeline = new TranslationPipeline({ providers: [provider], cache: new MockCache() });
+    const first: TranslationRequest = {
+      id: 'a', sourceText: 'The first twenty-four bytes are identical. First',
+      sourceLang: 'en', targetLang: 'fr', tenantId: 'tenant-a',
+    };
+    expect((await pipeline.process(first)).cacheStatus).toBe('miss');
+    expect((await pipeline.process({ ...first, tenantId: 'tenant-b' })).cacheStatus).toBe('miss');
+    expect((await pipeline.process({ ...first, sourceText: first.sourceText.replace('First', 'Second') })).cacheStatus).toBe('miss');
+    expect((await pipeline.process(first)).cacheStatus).toBe('hit');
+  });
+
+  it('selects only explicitly local providers for private text', async () => {
+    const remote = new FixtureProvider();
+    remote.id = 'remote';
+    remote.isLocal = false;
+    remote.translate = async () => { throw new Error('This provider should not receive the request'); };
+    const pipeline = new TranslationPipeline({ providers: [remote, new FixtureProvider()], cache: new MockCache() });
+    const result = await pipeline.process({
+      id: 'private', sourceText: 'Bonjour', sourceLang: 'fr', targetLang: 'en',
+      privacyPolicy: 'no_external', providerPreference: 'remote',
+    });
+    expect(result.provider).toBe('fixture');
   });
 
   it('processes batch translations correctly', async () => {

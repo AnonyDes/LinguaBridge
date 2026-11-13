@@ -1,7 +1,7 @@
 export { TranslationPipeline, type PipelineConfig } from './pipeline';
 export { PipelineContext } from './pipeline-context';
 export type { PipelineStage } from './pipeline-stage';
-export { LanguageDetector } from './stages/language-detector';
+export { LanguageDetector, detectFrenchOrEnglish } from './stages/language-detector';
 export { FinancialGuardStage } from './stages/financial-guard-stage';
 export { CacheLookupStage, type CacheStore } from './stages/cache-lookup';
 export { CacheWriterStage } from './stages/cache-writer';
@@ -13,3 +13,4 @@ export { OpenRouterProvider, type OpenRouterConfig } from './providers/openroute
 export * from './providers/ewondo-lexicon';
 export { translateSentenceToSovereign, SOVEREIGN_DICTIONARIES } from './providers/sovereign-lexicon';
 export { lookupDualaResearchSentence, translateLocalText } from './providers/duala-research';
+export { createPageTranslator, translateEwondoSegment, type PageTranslationSettings, type PageTranslationStatus } from './page-translator';
