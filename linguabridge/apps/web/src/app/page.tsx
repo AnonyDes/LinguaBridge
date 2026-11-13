@@ -46,7 +46,7 @@ export default function LandingPage() {
             lineHeight: 1.6,
           }}
         >
-          Financial services should be understandable to everyone. LinguaBridge helps translate banking, mobile money and payment interfaces from French or English into Ewondo, Fulfulde, Haoussa, Kanuri and Cameroon Pidgin, starting with a desktop browser extension. Our goal is to make the same accessibility available on mobile and through the web.
+          Financial services should be understandable to everyone. LinguaBridge helps translate banking, mobile money and payment interfaces from French or English into Ewondo, Fulfulde, Haoussa, Kanuri and Cameroon Pidgin using a desktop extension or Android browser pilot.
         </p>
 
         <div className="lb-hero-actions">
@@ -96,6 +96,13 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section style={{ marginBottom: 'clamp(56px, 8vw, 96px)' }} aria-label="Voice samples">
+        <div className="section-header">
+          <div><span className="meta-num">VOICE LAB</span><h2>Listen to five local voice samples</h2></div>
+          <p className="lead">Hear Ewondo, Fulfulde, Hausa, Manga Kanuri and Nigerian Pidgin research recordings. Each sample shows its model and exact variety.</p>
+        </div>
+        <Link href="/voices" className="btn btn-primary">Play voice samples</Link>
+      </section>
       {/* SAFINUM user journey and delivery roadmap */}
       <section style={{ marginBottom: 'clamp(56px, 8vw, 96px)' }} aria-label="How LinguaBridge works">
         <div className="section-header">
@@ -103,7 +110,7 @@ export default function LandingPage() {
             <span className="meta-num">01 / ACCESS FOR EVERYONE</span>
             <h2>One solution, built for desktop and mobile</h2>
           </div>
-          <p className="lead">Our first delivery is a browser extension. Direct web access and a mobile-friendly experience are next steps, clearly marked as in development.</p>
+          <p className="lead">Try the desktop extension or Android browser pilot. Direct web browsing without either app is still in development.</p>
         </div>
         <div className="grid-3">
           <article className="card" style={{ padding: 'var(--s-6)', border: '1px solid var(--line)', background: '#fff', minWidth: 0 }}>
@@ -118,9 +125,9 @@ export default function LandingPage() {
             <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>Our goal is to offer an accessible web experience without requiring a desktop extension. This option is not available yet.</p>
           </article>
           <article className="card" style={{ padding: 'var(--s-6)', border: '1px solid var(--line)', background: '#fff', minWidth: 0 }}>
-            <span className="meta-num" style={{ color: '#946200' }}>PLANNED</span>
+            <span className="meta-num" style={{ color: 'var(--brand-green-deep)' }}>ANDROID PILOT</span>
             <h3 style={{ margin: '14px 0' }}>Mobile accessibility</h3>
-            <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>We are working toward phone-friendly access so people can understand digital financial services on the devices they already use.</p>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.65 }}>Install the Android browser APK to translate supported pages and hear hosted AI speech on long press. It is a test build distributed outside the Play Store.</p>
           </article>
         </div>
       </section>
@@ -182,7 +189,7 @@ export default function LandingPage() {
             </h2>
           </div>
           <p className="lead" style={{ fontSize: '0.98rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            Our current approach is a desktop browser extension for Chrome and Edge. We are also working toward direct web access and mobile compatibility. API and SDK connections remain optional for developers.
+            Download the desktop extension for Chrome or Edge, or install the Android browser pilot. API and SDK connections remain optional for developers.
           </p>
         </div>
         <div className="grid-2" style={{ gap: 'var(--s-6)' }}>
@@ -190,7 +197,7 @@ export default function LandingPage() {
             <span className="meta-num">01 / INSTALL</span>
             <h3 style={{ marginTop: 'var(--s-3)', marginBottom: 'var(--s-3)' }}>Add LinguaBridge to your browser</h3>
             <p style={{ color: 'var(--muted)', lineHeight: 1.6 }}>
-              Download the current prototype build from GitHub Actions. Extract the archive,
+              Download the current prototype ZIP from the access page. Extract the archive,
               then open <code>chrome://extensions</code> or <code>edge://extensions</code>,
               enable Developer mode and select “Load unpacked”.
             </p>
@@ -199,7 +206,7 @@ export default function LandingPage() {
               Explore extension access
             </a>
             <p style={{ color: 'var(--muted)', fontSize: '0.78rem', marginTop: 'var(--s-3)' }}>
-              Desktop Chrome and Edge prototype. Web and mobile access are planned, not yet released.
+              Desktop Chrome and Edge prototype. The Android browser is also available as a test APK.
             </p>
           </div>
           <div className="card" style={{ padding: 'var(--s-6)', background: 'var(--paper)', border: '1px solid var(--line)' }}>

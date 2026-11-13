@@ -36,6 +36,7 @@ export default function RootLayout({
             <nav className="lb-header-nav" aria-label="Main navigation">
               <Link href="/" className="lb-nav-item">Home</Link>
               <Link href="/dashboard" className="lb-nav-item"><span className="lb-nav-full">Get the extension</span><span className="lb-nav-short">Extension</span></Link>
+              <Link href="/voices" className="lb-nav-item">Voices</Link>
             </nav>
             <a className="lb-header-github" href="https://github.com/AnonyDes/LinguaBridge" target="_blank" rel="noreferrer" aria-label="LinguaBridge on GitHub">
               <Github size={19} strokeWidth={2} />

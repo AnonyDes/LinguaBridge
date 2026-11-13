@@ -128,7 +128,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               cacheStatus: 'miss',
               warnings: localRes.warnings,
               latencyMs: 1,
-              speechAvailable: true,
+              speechAvailable: false,
               phonetic: isEwondo ? getEwondoPhonetic(localRes.translatedText) : undefined,
             },
           });
@@ -173,7 +173,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               cacheStatus: 'miss',
               warnings: localRes.warnings,
               latencyMs: 1,
-              speechAvailable: true,
+              speechAvailable: false,
               phonetic: isEwondo ? getEwondoPhonetic(localRes.translatedText) : undefined,
             };
           });
@@ -190,13 +190,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           sendResponse({
             success: true,
             languages: [
-              { code: 'ewo-CM', name: 'Ewondo (Langue Maternelle)', nativeName: 'Kóbɔ́ Ewondo', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
-              { code: 'fuv-CM', name: 'Fulfulde / Peul', nativeName: 'Pulaar / Fulfulde', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
-              { code: 'hau-CM', name: 'Haoussa', nativeName: 'Harshen Hausa', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
+              { code: 'ewo-CM', name: 'Ewondo (Langue Maternelle)', nativeName: 'Kóbɔ́ Ewondo', speechAvailable: false, packStatus: 'production_approved', isAvailable: true },
+              { code: 'fuv-CM', name: 'Fulfulde / Peul', nativeName: 'Pulaar / Fulfulde', speechAvailable: false, packStatus: 'production_approved', isAvailable: true },
+              { code: 'hau-CM', name: 'Haoussa', nativeName: 'Harshen Hausa', speechAvailable: false, packStatus: 'production_approved', isAvailable: true },
               { code: 'knc-CM', name: 'Kanuri', nativeName: 'Kànurí', speechAvailable: false, packStatus: 'production_approved', isAvailable: true },
-              { code: 'pcm-CM', name: 'Cameroon Pidgin', nativeName: 'Kamtok', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
-              { code: 'fr', name: 'Français', nativeName: 'Français', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
-              { code: 'en', name: 'English', nativeName: 'English', speechAvailable: true, packStatus: 'production_approved', isAvailable: true },
+              { code: 'pcm-CM', name: 'Cameroon Pidgin', nativeName: 'Kamtok', speechAvailable: false, packStatus: 'production_approved', isAvailable: true },
+              { code: 'fr', name: 'Français', nativeName: 'Français', speechAvailable: false, packStatus: 'production_approved', isAvailable: true },
+              { code: 'en', name: 'English', nativeName: 'English', speechAvailable: false, packStatus: 'production_approved', isAvailable: true },
             ],
           });
         });
@@ -240,7 +240,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             : await tryFetch('http://127.0.0.1:3002').catch(() => tryFetch('http://localhost:3002'));
           if (typeof data?.audioBase64 !== 'string' || data.audioBase64.length <= 60 ||
             data.lang?.toLowerCase() !== normLang ||
-            !['meta-mms-neural-live', 'openrouter-gemini-tts'].includes(data.engine)) {
+            !['meta-mms-neural-live', 'openrouter-gemini-tts', 'openrouter-gemini-tts-experimental'].includes(data.engine)) {
             throw new Error('Missing audio for the requested language');
           }
           if (audioPayloadCache.size < 40 && data.audioBase64.length <= 400000) {

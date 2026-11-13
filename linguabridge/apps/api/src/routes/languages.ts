@@ -14,6 +14,16 @@ export interface LanguageRouteOptions {
 }
 
 export const languageRoutes: FastifyPluginAsync<LanguageRouteOptions> = async (fastify, opts) => {
+  const activeLanguages = () => opts.registry.getAvailableLanguages().map((language) => ({
+    ...language,
+    // A pack's speech capability is not evidence that a matching voice is running.
+    speechAvailable: process.env.ENABLE_OPENROUTER_SPEECH === 'true' &&
+      Boolean(process.env.OPENROUTER_API_KEY) && (
+        ['hau-CM', 'fuv-CM'].includes(language.code) ||
+        (process.env.ENABLE_EXPERIMENTAL_SPEECH === 'true' &&
+          ['ewo-CM', 'knc-CM', 'pcm-CM'].includes(language.code))
+      ),
+  }));
   const languagesListSchema = {
     tags: ['Languages'],
     summary: 'List all certified production languages',
@@ -61,7 +71,7 @@ export const languageRoutes: FastifyPluginAsync<LanguageRouteOptions> = async (f
   };
 
   const getLanguagesHandler = async (_request: any, reply: any) => {
-    const languages = opts.registry.getAvailableLanguages();
+    const languages = activeLanguages();
     return reply.status(200).send({
       languages,
       count: languages.length,
@@ -70,7 +80,7 @@ export const languageRoutes: FastifyPluginAsync<LanguageRouteOptions> = async (f
 
   const getLanguageDetailHandler = async (request: any, reply: any) => {
     const { code } = request.params as { code: string };
-    const languages = opts.registry.getAvailableLanguages();
+    const languages = activeLanguages();
     const lang = languages.find((l) => l.code === code || l.iso639_3 === code);
 
     if (!lang) {

@@ -5,6 +5,7 @@ node_modules/
 .agents/
 dist/
 .next/
+.vercel/
 *.log
 .turbo/
 pgdata/
@@ -18,3 +19,4 @@ logs/
 __pycache__/
 *.pyc
 
+.vercel

@@ -445,7 +445,7 @@ public final class BrowserActivity extends Activity {
                 String text = event.optString("text");
                 String lang = event.optString("lang");
                 if (!text.isBlank() && text.length() <= 240 && lang.equals(targetLanguage) &&
-                    ("hau-CM".equals(lang) || "fuv-CM".equals(lang))) speak(text, lang);
+                    isVoiceTarget(lang)) speak(text, lang);
             }
         } catch (JSONException ignored) {
             // Messages are limited to the browser translation status protocol.
@@ -599,7 +599,7 @@ public final class BrowserActivity extends Activity {
             message.put("target", targetLanguage);
             message.put("speech", preferences.getBoolean("speechEnabled", false) &&
                 !preferences.getString("cloudApiKey", "").isEmpty() &&
-                ("hau-CM".equals(targetLanguage) || "fuv-CM".equals(targetLanguage)));
+                isVoiceTarget(targetLanguage));
             reply.postMessage(message.toString());
         } catch (JSONException | IllegalStateException ignored) {
             reply = null;
@@ -691,14 +691,18 @@ public final class BrowserActivity extends Activity {
         boolean speechEnabled = preferences.getBoolean("speechEnabled", false);
         menu.getMenu().add(speechEnabled ? "Turn off long-press speech" : "Turn on long-press speech")
             .setOnMenuItemClickListener(item -> {
-                if (!("hau-CM".equals(targetLanguage) || "fuv-CM".equals(targetLanguage))) {
-                    message("Hosted speech is available for Hausa and Fulfulde.");
+                if (!isVoiceTarget(targetLanguage)) {
+                    message("Speech is not configured for this language.");
                 } else if (preferences.getString("cloudApiKey", "").isEmpty()) {
                     message("Set a cloud translation key first.");
                 } else {
                     preferences.edit().putBoolean("speechEnabled", !speechEnabled).apply();
                     sendSettings();
-                    message(!speechEnabled ? "Long press page text to hear it." : "Long-press speech off.");
+                    message(!speechEnabled ?
+                        (("hau-CM".equals(targetLanguage) || "fuv-CM".equals(targetLanguage)) ?
+                            "Long press page text to hear it." :
+                            "Experimental voice: long press text. Pronunciation is unreviewed.") :
+                        "Long-press speech off.");
                 }
                 return true;
             });
@@ -714,6 +718,12 @@ public final class BrowserActivity extends Activity {
             });
         }
         menu.show();
+    }
+
+    private boolean isVoiceTarget(String language) {
+        return "ewo-CM".equals(language) || "fuv-CM".equals(language) ||
+            "hau-CM".equals(language) || "knc-CM".equals(language) ||
+            "pcm-CM".equals(language);
     }
 
     private void setAutoTranslate(boolean enabled) {

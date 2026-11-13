@@ -144,10 +144,14 @@ export class AfricanVoiceProvider implements SpeechProvider {
       // Ignored
     }
 
-    // Gemini's documented TTS languages include Hausa and Nigerian Fulfulde.
-    // Other LinguaBridge targets require a reviewed matching voice model.
+    // Gemini documents Hausa and Nigerian Fulfulde. The other three targets
+    // are optional, explicitly experimental speech: an audio response does not
+    // establish correct pronunciation or the Cameroonian language variety.
+    const documentedHosted = ['hau', 'hau-cm', 'fuv', 'fuv-cm', 'fub', 'fub-cm'].includes(norm);
+    const experimentalHosted = process.env.ENABLE_EXPERIMENTAL_SPEECH === 'true' &&
+      ['ewo', 'ewo-cm', 'knc', 'knc-cm', 'pcm', 'pcm-cm'].includes(norm);
     if (process.env.ENABLE_OPENROUTER_SPEECH === 'true' && process.env.OPENROUTER_API_KEY &&
-      ['hau', 'hau-cm', 'fuv', 'fuv-cm', 'fub', 'fub-cm'].includes(norm)) {
+      (documentedHosted || experimentalHosted)) {
       try {
         const response = await fetch('https://openrouter.ai/api/v1/audio/speech', {
           method: 'POST',
@@ -173,7 +177,7 @@ export class AfricanVoiceProvider implements SpeechProvider {
               lang,
               audioBase64,
               audioUrl: `data:audio/wav;base64,${audioBase64}`,
-              engine: 'openrouter-gemini-tts',
+              engine: experimentalHosted ? 'openrouter-gemini-tts-experimental' : 'openrouter-gemini-tts',
               fallbackLang: null,
             };
           }

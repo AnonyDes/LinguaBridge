@@ -6,7 +6,7 @@ Use **Translate → Turn on auto-translate**, then **Open translation demo**. Th
 
 The shared translator works through visible text as you scroll and observes changes within the main document. Unknown text stays in the source language when the cloud key is missing or the API cannot translate it. It leaves editable controls, protected routes, password forms and cross-origin frames alone. The isolated script sends short eligible text batches to native Android code, which calls the Railway API. The scoped API key stays in the app's private preferences; never put the OpenRouter key into the app. Cloud coverage and language quality still vary by site and need review.
 
-For a speech demo, select **Hausa** or **Fulfulde**, add the scoped key, and turn on **Translate → Turn on long-press speech**. Long press a translated page section to request AI audio from the Railway API. Hausa and Nigerian Fulfulde are supported by the hosted TTS model; Cameroonian pronunciation still needs native-speaker review. Ewondo, Kanuri, and Cameroon Pidgin speech are unavailable until matching voices are validated. The browser does not claim that a silent response is spoken audio.
+For a speech demo, select a target, add the scoped key, and turn on **Translate → Turn on long-press speech**. Long press a translated page section to request AI audio from the Railway API. Hausa and Nigerian Fulfulde are listed by the hosted TTS model; Ewondo, Kanuri, and Cameroon Pidgin use an experimental mode that returned audio in probes but has not been assessed for pronunciation or variety. The browser does not claim that a silent response is spoken audio.
 
 ## Build and install
 

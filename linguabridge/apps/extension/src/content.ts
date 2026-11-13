@@ -2138,7 +2138,7 @@ class ExtensionAssistant {
         </button>
 
         <div class="speak-hint">
-          <strong>Lecture au survol :</strong> Survolez ou cliquez sur une section. <span id="voice-status">${this.voiceAvailable === false ? 'Voix indisponible pour cette langue ou service hors ligne. Vérifiez la clé API et choisissez Hausa ou Fulfulde pour la voix hébergée.' : this.voiceAvailable === true ? 'Voix prête.' : 'Un clic sur la page peut être nécessaire pour autoriser le son.'}</span>
+          <strong>Lecture au survol :</strong> Survolez ou cliquez sur une section. <span id="voice-status">${this.voiceAvailable === false ? 'Voix indisponible. Vérifiez la clé API, le service et le son du navigateur.' : this.voiceAvailable === true ? 'Voix prête.' : ['hau-CM', 'fuv-CM'].includes(this.currentTargetLang) ? 'Voix hébergée disponible avec une clé API. Un clic sur la page peut être nécessaire pour autoriser le son.' : 'Voix expérimentale en ligne avec une clé API ; prononciation non vérifiée.'}</span>
         </div>
 
         <div id="selection-preview" class="preview-box"></div>
@@ -2204,6 +2204,7 @@ class ExtensionAssistant {
       this.currentSourceLang = this.detectSourceLanguage();
       chrome.storage?.local?.set({ linguabridgeTargetLang: this.currentTargetLang });
       this.translationSpeechCache.clear();
+      this.voiceAvailable = null;
       this.stopSpeech();
       if (this.isPageTranslated) {
         this.translateFullPage();

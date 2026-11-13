@@ -163,6 +163,9 @@ export const speechRoutes: FastifyPluginAsync = async (fastify) => {
       if (installed.has(code.toLowerCase())) return 'model_installed_unverified';
       if (process.env.ENABLE_OPENROUTER_SPEECH === 'true' && process.env.OPENROUTER_API_KEY &&
         ['fuv-CM', 'hau-CM'].includes(code)) return 'hosted_voice_unverified';
+      if (process.env.ENABLE_OPENROUTER_SPEECH === 'true' && process.env.OPENROUTER_API_KEY &&
+        process.env.ENABLE_EXPERIMENTAL_SPEECH === 'true' &&
+        ['ewo-CM', 'knc-CM', 'pcm-CM'].includes(code)) return 'experimental_speech_unreviewed';
       return 'unavailable';
     };
     return reply.status(200).send({
@@ -170,7 +173,7 @@ export const speechRoutes: FastifyPluginAsync = async (fastify) => {
         { code: 'ewo-CM', name: 'Ewondo', family: 'Bantu', status: status('ewo-CM') },
         { code: 'fuv-CM', name: 'Fulfulde', family: 'Senegambian', status: status('fuv-CM') },
         { code: 'hau-CM', name: 'Haoussa', family: 'Chadic', status: status('hau-CM') },
-        { code: 'knc-CM', name: 'Kanuri', family: 'Saharan', status: 'unavailable' },
+        { code: 'knc-CM', name: 'Kanuri', family: 'Saharan', status: status('knc-CM') },
         { code: 'pcm-CM', name: 'Cameroon Pidgin', family: 'Creole', status: status('pcm-CM') },
         { code: 'fr-CM', name: 'French (Cameroon)', family: 'Romance', status: 'unavailable' },
         { code: 'en-CM', name: 'English (Cameroon)', family: 'Germanic', status: 'unavailable' },
