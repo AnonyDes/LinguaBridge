@@ -96,6 +96,7 @@ describe('Web Application UI', () => {
 
   it('mounts and unmounts WidgetMount lifecycle correctly', async () => {
     vi.stubEnv('NEXT_PUBLIC_API_URL', 'https://api.example.test');
+    vi.stubEnv('NEXT_PUBLIC_API_KEY', 'scoped-test-key');
     const initSpy = vi.spyOn(LinguaBridgeWidget, 'init');
     const root = createRoot(container);
 

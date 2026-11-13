@@ -21,22 +21,27 @@ export const ApiConnectorDoc: React.FC = () => {
   const [method, setMethod] = useState<'POST_TRANSLATE' | 'POST_TTS' | 'GET_LANGUAGES' | 'POST_VERIFY' | 'GET_HEALTH'>('POST_TRANSLATE');
   const [sourceText, setSourceText] = useState('Solde de votre compte Orange Money: 25 000 FCFA. Frais: 350 FCFA vers le 699123456.');
   const [targetLang, setTargetLang] = useState('ewo-CM');
+  const [consoleKey, setConsoleKey] = useState('');
   const [consoleResponse, setConsoleResponse] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
   const handleExecuteRequest = async () => {
     setLoading(true);
     const start = performance.now();
+    const headers = { 'Content-Type': 'application/json', ...(consoleKey.trim() ? { 'X-API-Key': consoleKey.trim() } : {}) };
     try {
       if (method === 'POST_TRANSLATE') {
-        const res = await fetch('http://localhost:3001/v1/translate', {
+        const res = await fetch(`${apiBase}/v1/translate`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             text: sourceText,
             targetLang,
             sourceLang: 'fr',
             domain: 'financial',
+            providerPreference: 'openrouter',
+            privacyPolicy: 'allow_external',
           }),
         });
         const data = await res.json();
@@ -46,22 +51,24 @@ export const ApiConnectorDoc: React.FC = () => {
           payload: data,
         });
       } else if (method === 'POST_TTS') {
-        const res = await fetch('http://localhost:3001/v1/speech/synthesize', {
+        const res = await fetch(`${apiBase}/v1/speech/synthesize`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             text: "Móni m'ékabedá: 25 000 FCFA",
             lang: targetLang,
           }),
         });
-        const data = await res.json();
+        const data = res.headers.get('content-type')?.includes('audio/')
+          ? { audioBytes: (await res.arrayBuffer()).byteLength }
+          : await res.json();
         setConsoleResponse({
           status: res.status,
           latencyMs: Math.round(performance.now() - start),
           payload: data,
         });
       } else if (method === 'GET_LANGUAGES') {
-        const res = await fetch('http://localhost:3001/v1/languages');
+        const res = await fetch(`${apiBase}/v1/languages`);
         const data = await res.json();
         setConsoleResponse({
           status: res.status,
@@ -69,9 +76,9 @@ export const ApiConnectorDoc: React.FC = () => {
           payload: data,
         });
       } else if (method === 'POST_VERIFY') {
-        const res = await fetch('http://localhost:3001/v1/verify', {
+        const res = await fetch(`${apiBase}/v1/verify`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             sourceText: 'Paiement de 15 000 FCFA',
             translatedText: 'Móni yá 15 000 FCFA',
@@ -84,7 +91,7 @@ export const ApiConnectorDoc: React.FC = () => {
           payload: data,
         });
       } else {
-        const res = await fetch('http://localhost:3001/v1/health');
+        const res = await fetch(`${apiBase}/v1/health`);
         const data = await res.json();
         setConsoleResponse({
           status: res.status,
@@ -92,25 +99,11 @@ export const ApiConnectorDoc: React.FC = () => {
           payload: data,
         });
       }
-    } catch {
-      // Mock demonstration fallback when server runs in sandbox
+    } catch (error) {
       setConsoleResponse({
-        status: 200,
-        latencyMs: 12,
-        payload: {
-          success: true,
-          method,
-          translatedText: "Móni m'ékabedá: 25 000 FCFA. Móni m'esí: 350 FCFA é be 699123456.",
-          sourceEntities: [{ type: 'amount', raw: '25 000 FCFA', normalized: '25000_FCFA' }],
-          translatedEntities: [{ type: 'amount', raw: '25 000 FCFA', normalized: '25000_FCFA' }],
-          fingerprint: 'sha256-4c9b88e1a7b...',
-          astDrift: 0,
-          vocalEngine: {
-            available: true,
-            provider: 'african-voice-engine',
-            tonalContour: ['H', 'L', 'H', 'L'],
-          },
-        },
+        status: 0,
+        latencyMs: Math.round(performance.now() - start),
+        payload: { error: error instanceof Error ? error.message : 'Request failed' },
       });
     } finally {
       setLoading(false);
@@ -685,6 +678,15 @@ console.log('Traduction:', translatedText);`}
             }}
           >
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <input
+                type="password"
+                value={consoleKey}
+                onChange={(e) => setConsoleKey(e.target.value)}
+                placeholder="Scoped API key for protected routes"
+                aria-label="Scoped API key"
+                autoComplete="off"
+                style={{ padding: '7px 12px', borderRadius: 'var(--radius, 4px)', border: '1px solid var(--line-strong, rgba(10, 10, 10, 0.32))' }}
+              />
               <select
                 value={method}
                 onChange={(e) => setMethod(e.target.value as any)}
@@ -795,7 +797,7 @@ console.log('Traduction:', translatedText);`}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '11.5px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--muted-invert, rgba(255, 255, 255, 0.62))' }}>
-                  Statut HTTP : <strong style={{ color: 'var(--green-glow, #4FE066)' }}>{consoleResponse.status} OK</strong>
+                  Statut HTTP : <strong style={{ color: consoleResponse.status >= 200 && consoleResponse.status < 300 ? 'var(--green-glow, #4FE066)' : '#ff8a8a' }}>{consoleResponse.status || 'Network error'}</strong>
                 </span>
                 <span style={{ fontSize: '11.5px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--muted-invert, rgba(255, 255, 255, 0.62))' }}>
                   Latence : <strong style={{ color: '#38bdf8' }}>{consoleResponse.latencyMs} ms</strong>

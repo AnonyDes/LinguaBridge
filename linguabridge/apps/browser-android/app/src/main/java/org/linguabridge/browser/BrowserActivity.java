@@ -95,6 +95,7 @@ public final class BrowserActivity extends Activity {
     private String documentId;
     private JavaScriptReplyProxy reply;
     private String sourceLanguage;
+    private String targetLanguage;
     private boolean autoTranslate;
 
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public final class BrowserActivity extends Activity {
         preferences = getSharedPreferences("browser", MODE_PRIVATE);
         autoTranslate = preferences.getBoolean("autoTranslate", false);
         sourceLanguage = preferences.getString("sourceLanguage", "auto");
+        targetLanguage = preferences.getString("targetLanguage", "ewo-CM");
         buildChrome();
         createWebView();
         if (Build.VERSION.SDK_INT >= 33) {
@@ -259,7 +261,7 @@ public final class BrowserActivity extends Activity {
         detail.setBackground(border(WHITE, 8));
         detail.setPadding(dp(16), dp(15), dp(16), dp(15));
         addSpaced(body, detail, 28);
-        detail.addView(text("French / English → Ewondo", 17, INK, true));
+        detail.addView(text("French / English → five Cameroon languages", 17, INK, true));
         addSpaced(detail, text("Supported phrases translate on your device. You can always show the original page.", 14, MUTED, false), 6);
         return scroll;
     }
@@ -433,6 +435,7 @@ public final class BrowserActivity extends Activity {
             message.put("documentId", documentId);
             message.put("enabled", shouldTranslate());
             message.put("source", sourceLanguage);
+            message.put("target", targetLanguage);
             reply.postMessage(message.toString());
         } catch (JSONException | IllegalStateException ignored) {
             reply = null;
@@ -449,16 +452,16 @@ public final class BrowserActivity extends Activity {
         if ("error".equals(state)) status.setText("Page couldn’t load");
         else if (!translationSupported) status.setText("Update Android System WebView to translate");
         else if (!autoTranslate) status.setText("Auto-translate off");
-        else if (!browsing) status.setText("Auto-translate on · Ewondo");
+        else if (!browsing) status.setText("Auto-translate on · " + targetName());
         else if (currentSite != null && preferences.getBoolean("paused:" + currentSite, false)) status.setText("Translation paused for this site");
         else if (showingOriginal) status.setText("Showing original page");
         else switch (state) {
-            case "loading", "translating" -> status.setText("Translating to Ewondo…");
-            case "translated" -> status.setText("Translated to Ewondo");
-            case "partial" -> status.setText("Some text translated · Ewondo");
+            case "loading", "translating" -> status.setText("Translating to " + targetName() + "…");
+            case "translated" -> status.setText("Translated to " + targetName());
+            case "partial" -> status.setText("Some text translated · " + targetName());
             case "protected" -> status.setText("Original · Protected page");
             case "unavailable" -> status.setText("No supported phrases found");
-            default -> status.setText("Auto-translate on · Ewondo");
+            default -> status.setText("Auto-translate on · " + targetName());
         }
         boolean showAction = browsing && !pageFailed && translationSupported && autoTranslate &&
             (showingOriginal || "translated".equals(state) || "partial".equals(state));
@@ -471,10 +474,25 @@ public final class BrowserActivity extends Activity {
         PopupMenu menu = new PopupMenu(this, anchor);
         menu.getMenu().add(autoTranslate ? "Turn off auto-translate" : "Turn on auto-translate").setOnMenuItemClickListener(item -> {
             if (autoTranslate) setAutoTranslate(false);
-            else new AlertDialog.Builder(this).setTitle("Automatically translate to Ewondo?")
+            else new AlertDialog.Builder(this).setTitle("Automatically translate pages?")
                 .setMessage("LinguaBridge translates supported French and English phrases on your device. You can pause translation for any site.")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Turn on", (dialog, which) -> setAutoTranslate(true)).show();
+            return true;
+        });
+        menu.getMenu().add("Target language · " + targetName()).setOnMenuItemClickListener(item -> {
+            String[] values = {"ewo-CM", "fuv-CM", "hau-CM", "knc-CM", "pcm-CM"};
+            String[] names = {"Ewondo", "Fulfulde", "Hausa", "Kanuri", "Cameroon Pidgin"};
+            int selected = java.util.Arrays.asList(values).indexOf(targetLanguage);
+            new AlertDialog.Builder(this).setTitle("Target language")
+                .setSingleChoiceItems(names, Math.max(selected, 0), (dialog, index) -> {
+                    targetLanguage = values[index];
+                    preferences.edit().putString("targetLanguage", targetLanguage).apply();
+                    showingOriginal = false;
+                    updateStatus(shouldTranslate() ? "translating" : "original");
+                    sendSettings();
+                    dialog.dismiss();
+                }).setNegativeButton("Cancel", null).show();
             return true;
         });
         menu.getMenu().add("Source language").setOnMenuItemClickListener(item -> {
@@ -510,6 +528,16 @@ public final class BrowserActivity extends Activity {
         preferences.edit().putBoolean("autoTranslate", enabled).apply();
         updateStatus(shouldTranslate() ? "translating" : "original");
         sendSettings();
+    }
+
+    private String targetName() {
+        return switch (targetLanguage) {
+            case "fuv-CM" -> "Fulfulde";
+            case "hau-CM" -> "Hausa";
+            case "knc-CM" -> "Kanuri";
+            case "pcm-CM" -> "Cameroon Pidgin";
+            default -> "Ewondo";
+        };
     }
 
     private void showBrowserMenu(View anchor) {

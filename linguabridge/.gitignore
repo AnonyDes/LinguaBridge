@@ -5,6 +5,7 @@ node_modules/
 dist/
 out/
 .next/
+.vercel/
 *.log
 .turbo/
 pgdata/
@@ -15,4 +16,3 @@ test-results/
 models/
 __pycache__/
 *.pyc
-

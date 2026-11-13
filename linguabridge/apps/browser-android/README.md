@@ -1,10 +1,10 @@
 # LinguaBridge Browser for Android
 
-The Android pilot opens HTTPS websites and translates eligible French or English text into Ewondo with the bundled LinguaBridge lexicon. After turning on auto-translate once, open a page normally. The toolbar reports when some text was translated and lets you switch back to the original. The browser also remembers the source-language override and site pauses.
+The Android pilot opens HTTPS websites and translates eligible French or English text into Ewondo, Fulfulde, Hausa, Kanuri, or Cameroon Pidgin with the bundled LinguaBridge lexicon. Choose a target from **Translate → Target language**, turn on auto-translate, then open a page normally. The toolbar reports when some text was translated and lets you switch back to the original. The browser remembers the target and source-language override and site pauses.
 
 Use **Translate → Turn on auto-translate**, then **Open translation demo**. The demo is bundled with the app and works offline. Scroll to **Afficher** and tap it to add new text to the page. Use **Show original** to restore the French text. The FCFA amounts stay in the original form throughout.
 
-The shared translator matches whole phrases, works through visible text as you scroll and observes changes within the main document. Unknown phrases and numeric text stay in the source language. It leaves editable controls, protected routes, password forms and cross-origin frames alone. Page text stays in the isolated script. The native message channel carries configuration and status only.
+The shared translator works through visible text as you scroll and observes changes within the main document. Unknown text stays in the source language. It leaves editable controls, protected routes, password forms and cross-origin frames alone. Page text stays in the isolated script. The native message channel carries configuration and status only. The APK does not yet connect to the Railway model API, so the five targets have partial offline coverage.
 
 ## Build and install
 
@@ -23,4 +23,4 @@ The debug APK is also usable for internal installation by opening it on an Andro
 
 ## Pilot scope
 
-The target is fixed to Ewondo. Lexicon coverage varies, and language quality still needs native-speaker review. The prototype includes one browsing view with back, forward, reload and a home screen. Downloads, default-browser registration, iOS and cloud translation are outside this build. [AndroidX WebKit](https://developer.android.com/reference/androidx/webkit/WebViewCompat)
+Lexicon coverage varies, and language quality still needs native-speaker review. The prototype includes one browsing view with back, forward, reload and a home screen. Downloads, default-browser registration, iOS and cloud translation are outside this build. The CI debug APK uses a temporary debug signing key, so an installation signed by a different build may need to be uninstalled first. [AndroidX WebKit](https://developer.android.com/reference/androidx/webkit/WebViewCompat)

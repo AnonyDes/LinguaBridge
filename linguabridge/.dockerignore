@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/.env*
+**/.vercel
+.git
+models
+apps/browser-android/.gradle
+apps/browser-android/app/build
+coverage
+test-results
+*.apk

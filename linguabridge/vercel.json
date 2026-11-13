@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
+  "framework": null,
   "buildCommand": "pnpm turbo build --filter=@linguabridge/web...",
-  "outputDirectory": "apps/web/.next",
+  "outputDirectory": "apps/web/out",
   "installCommand": "pnpm install",
   "regions": ["cdg1"],
   "cleanUrls": true

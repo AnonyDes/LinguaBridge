@@ -575,7 +575,7 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
         new OpenRouterProvider({
           apiKey: process.env.OPENROUTER_API_KEY,
           baseUrl: process.env.OPENROUTER_BASE_URL,
-          model: process.env.OPENROUTER_MODEL || 'mistralai/mistral-7b-instruct',
+          model: process.env.OPENROUTER_MODEL || 'openai/gpt-6-luna',
           fallbackModels: (process.env.OPENROUTER_FALLBACK_MODELS || '').split(',').filter(Boolean),
         })
       );

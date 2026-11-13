@@ -29,7 +29,7 @@ export class OpenRouterProvider implements TranslationProvider {
   constructor(config: OpenRouterConfig) {
     this.apiKey = config.apiKey;
     this.baseUrl = config.baseUrl || 'https://openrouter.ai/api/v1';
-    this.model = config.model || 'mistralai/mistral-7b-instruct';
+    this.model = config.model || 'openai/gpt-6-luna';
     this.fallbackModels = (config.fallbackModels || []).map((model) => model.trim())
       .filter((model) => model && model !== this.model);
   }

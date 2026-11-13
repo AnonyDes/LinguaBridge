@@ -87,6 +87,25 @@ export class ApiKeyService {
       this.keysById.set(envId, envRecord);
       this.keysByDigest.set(this.digest(envRawKey), envId);
     }
+
+    // A stable, translation-only credential for a single-instance extension pilot.
+    // Never put the administrative API_KEY in a browser extension.
+    const extensionRawKey = process.env.EXTENSION_API_KEY?.trim();
+    if (extensionRawKey && extensionRawKey !== demoRawKey && extensionRawKey !== process.env.API_KEY?.trim()) {
+      const extensionId = 'env-extension-key';
+      this.keysById.set(extensionId, {
+        id: extensionId,
+        name: 'Environment Extension Key',
+        prefix: extensionRawKey.slice(0, 12),
+        permissions: ['translate:read', 'translate:batch', 'speech:write'],
+        quota: { requestsPerMinute: 30, requestsPerDay: 1000 },
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        revokedAt: null,
+        lastUsedAt: null,
+      });
+      this.keysByDigest.set(this.digest(extensionRawKey), extensionId);
+    }
   }
 
   /**

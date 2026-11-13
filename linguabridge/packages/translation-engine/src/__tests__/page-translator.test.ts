@@ -55,4 +55,12 @@ describe('offline page translation', () => {
     await vi.waitFor(() => expect(report).toHaveBeenLastCalledWith('protected'));
     expect(document.querySelector('h1')?.textContent).toBe('Bienvenue');
   });
+
+  it('switches the Android page target and restores the source text', async () => {
+    const title = document.querySelector('h1')!;
+    translator.configure({ enabled: true, source: 'auto', target: 'hau-CM' });
+    await vi.waitFor(() => expect(title.textContent).toBe('Barka da zuwa'));
+    translator.configure({ enabled: false, source: 'auto', target: 'hau-CM' });
+    expect(title.textContent).toBe('Bienvenue');
+  });
 });

@@ -3,7 +3,7 @@ dotenv.config();
 
 import { buildApp } from './app';
 
-const port = Number(process.env.API_PORT) || 3001;
+const port = Number(process.env.PORT || process.env.API_PORT) || 3001;
 const host = process.env.API_HOST || (process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1');
 
 async function main() {

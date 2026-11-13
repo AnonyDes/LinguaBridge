@@ -16,9 +16,10 @@ if (window === window.top && location.protocol === 'https:' && typeof linguaBrid
   const translator = createPageTranslator((status) => send('status', status));
   linguaBridgeNative.onmessage = (event) => {
     const message = JSON.parse(event.data);
-    if (message.documentId !== documentId || !['auto', 'fr', 'en'].includes(message.source)) return;
+    if (message.documentId !== documentId || !['auto', 'fr', 'en'].includes(message.source) ||
+      !['ewo-CM', 'fuv-CM', 'hau-CM', 'knc-CM', 'pcm-CM'].includes(message.target)) return;
     started = true;
-    activeSettings = { enabled: message.enabled === true, source: message.source };
+    activeSettings = { enabled: message.enabled === true, source: message.source, target: message.target };
     translator.configure(activeSettings);
   };
   send('ready');

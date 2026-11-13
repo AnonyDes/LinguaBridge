@@ -1,5 +1,6 @@
 import { FinancialEntityExtractor } from '@linguabridge/financial-domain';
 import { lookupEwondoFromEnglish, lookupEwondoWord } from './providers/ewondo-lexicon';
+import { translateLocalText } from './providers/duala-research';
 import { detectFrenchOrEnglish } from './stages/language-detector';
 
 const extractor = new FinancialEntityExtractor();
@@ -18,6 +19,7 @@ const protectedRoute = /(?:^|[^a-z])(?:log[-_ ]?in|sign[-_ ]?in|sign[-_ ]?up|aut
 export interface PageTranslationSettings {
   enabled: boolean;
   source: 'auto' | 'fr' | 'en';
+  target?: 'ewo-CM' | 'fuv-CM' | 'hau-CM' | 'knc-CM' | 'pcm-CM';
 }
 export type PageTranslationStatus = 'original' | 'translating' | 'translated' | 'partial' | 'unavailable' | 'protected';
 
@@ -38,6 +40,16 @@ export function translateEwondoSegment(text: string, source: 'fr' | 'en'): strin
   if (!translated || translated === content ||
     !extractor.compare(extractor.extract(content), extractor.extract(translated)).safe) return null;
   return before + translated + (exact ? '' : normalized.slice(plain.length)) + after;
+}
+
+function translateLocalSegment(text: string, source: 'fr' | 'en', target: NonNullable<PageTranslationSettings['target']>): string | null {
+  if (target === 'ewo-CM') return translateEwondoSegment(text, source);
+  const match = /^(\s*)([\s\S]*?)(\s*)$/.exec(text);
+  if (!match?.[2] || !/\p{L}/u.test(match[2]) || match[2].length > 420) return null;
+  const result = translateLocalText(match[2], source, target);
+  if (result.status !== 'success' || result.translatedText === match[2] ||
+    !extractor.compare(extractor.extract(match[2]), extractor.extract(result.translatedText)).safe) return null;
+  return match[1] + result.translatedText + match[3];
 }
 
 export function createPageTranslator(report: (status: PageTranslationStatus) => void) {
@@ -151,7 +163,7 @@ export function createPageTranslator(report: (status: PageTranslationStatus) => 
         if (!element || !eligible(element)) return;
         if (written.has(node)) { applied++; return; }
         const localSource = sourceFor(element);
-        const translated = localSource && translateEwondoSegment(node.data, localSource);
+        const translated = localSource && translateLocalSegment(node.data, localSource, settings.target || 'ewo-CM');
         if (translated) pending.push({ node, original: node.data, applied: translated });
         else if (!/\p{N}/u.test(node.data)) untranslated++;
       } else if (node instanceof Element && eligible(node)) {
@@ -160,7 +172,7 @@ export function createPageTranslator(report: (status: PageTranslationStatus) => 
           const original = node.getAttribute(attribute);
           if (!original || !/\p{L}/u.test(original)) continue;
           if (attributes.get(node)?.has(attribute)) { applied++; continue; }
-          const translated = localSource && translateEwondoSegment(original, localSource);
+          const translated = localSource && translateLocalSegment(original, localSource, settings.target || 'ewo-CM');
           if (translated) pending.push({ element: node, attribute, original, applied: translated });
           else untranslated++;
         }
@@ -259,7 +271,8 @@ export function createPageTranslator(report: (status: PageTranslationStatus) => 
 
   return {
     configure(next: PageTranslationSettings) {
-      if (next.enabled === settings.enabled && next.source === settings.source && status) {
+      if (next.enabled === settings.enabled && next.source === settings.source &&
+        next.target === settings.target && status) {
         report(status);
         return;
       }

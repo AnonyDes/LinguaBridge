@@ -8,11 +8,21 @@ Do not describe this as complete translation of every site or verified linguisti
 
 ## What an operator needs
 
-1. **Runtime:** Node.js, pnpm 11.25.0, a Chromium browser, and a reachable LinguaBridge API. Run commands below from the `linguabridge` directory. The API currently runs as a long-lived Fastify process. The repository's `vercel.json` builds the Next.js web app; it does not deploy this Fastify API or Python voice service.
+1. **Runtime:** Node.js, pnpm 11.25.0, a Chromium browser, and a reachable LinguaBridge API. Run commands below from the `linguabridge` directory. The API runs as a Fastify process in a Railway Docker service. The repository's `vercel.json` builds the static Next.js web app; it does not deploy the API or Python voice service.
 2. **OpenRouter:** Create an OpenRouter API key with a spending limit. Put it only in the API's environment, never in an extension or Git commit. Choose a primary model after testing each target language. `OPENROUTER_FALLBACK_MODELS` accepts comma-separated model IDs for provider errors; OpenRouter fallback does not judge translation quality. Costs and language capability depend on the selected models.
 3. **API access:** Set a unique `API_KEY` for administration, `NODE_ENV=production`, `REQUIRE_API_KEY=true`, and `CORS_ORIGINS` for trusted web clients. Provision a separate key with only `translate:batch` (and `translate:read` if needed) for an extension user. Extension keys are visible to that user and should have a strict quota. Do not use the administration key in the extension. Key and quota state is currently process-local: multi-instance/serverless production requires durable key storage and quota enforcement first.
-4. **Hosting:** Host the Fastify API behind HTTPS on a Node service that can remain running. Host the Next.js web app independently if desired. A Vercel API deployment requires a serverless adapter and durable state work before this repository is ready for it. The optional Python voice model service needs downloaded, licensed, language-matched checkpoints and a persistent inference host; set `VOICE_SERVICE_URL` on the API to its reachable address. Text translation works without voice.
+4. **Hosting:** The API is deployed on Railway with a Dockerfile and a Railway HTTPS domain. The static Next.js web app is deployed separately on Vercel. Set the API's `OPENROUTER_MODEL=openai/gpt-6-luna` and keep the OpenRouter, admin, and scoped extension keys in Railway service variables. The optional Python voice model service needs downloaded, licensed, language-matched checkpoints and a persistent inference host; set `VOICE_SERVICE_URL` on the API to its reachable address. Text translation works without voice.
 5. **Quality evidence:** Obtain a licensed, native-reviewed corpus for every target language and variety, including financial terms, realistic web pages, forms, and long text. Benchmark each configured model on held-out sentences. Review untranslated spans and meaning, inline markup, numbers, names, dialect and spelling. Native speakers must sign off before claiming full or production-ready coverage. Review the voice model licenses separately before hosting speech commercially.
+
+## Hosted pilot
+
+- Web: `https://linguabridge-web.vercel.app` (static export on Vercel).
+- API: `https://api-production-72bac574.up.railway.app` (Fastify Docker service on Railway).
+- Model: `openai/gpt-6-luna` through OpenRouter. The provider key is configured only on Railway and in the ignored local API environment.
+- Extension: enter the Railway API origin and the limited `EXTENSION_API_KEY` from the ignored local API `.env` in its server settings, then enable enhanced translation. Never enter the administrator `API_KEY` in a browser.
+- Android APK: the current pilot uses the bundled offline lexicon for five target languages. It does not yet call the Railway API, so broad model translation is currently available in the desktop extension, not in the Android browser.
+
+Railway is configured with a separate extension key, `REQUIRE_API_KEY=true`, a production environment, and CORS restricted to the web origin. The quota counters are process-local. A public multi-instance release needs durable key and quota storage, cost controls, and native-speaker validation. The web API console accepts a user's scoped key for protected routes and reports real HTTP failures. The page widget stays hidden in production unless a public key or safer web proxy is deliberately configured.
 
 ## Local setup
 
@@ -27,7 +37,7 @@ In `apps/api/.env`, set at least:
 ```dotenv
 API_PORT=3001
 OPENROUTER_API_KEY=<private OpenRouter key>
-OPENROUTER_MODEL=<tested model ID>
+OPENROUTER_MODEL=openai/gpt-6-luna
 OPENROUTER_FALLBACK_MODELS=<optional tested fallback IDs, comma separated>
 ENABLE_LLM_TRANSLATION=true
 ```
@@ -39,7 +49,7 @@ pnpm --filter @linguabridge/api dev
 pnpm --filter @linguabridge/extension build
 ```
 
-On a single-instance pilot API, an administrator can issue a scoped extension key with `POST /v1/keys`, sending the bootstrap `API_KEY` as `X-API-Key` and a JSON body such as `{"name":"extension-pilot","permissions":["translate:batch"],"quota":{"requestsPerMinute":30,"requestsPerDay":1000}}`. Store the returned secret once. This key is lost on API restart until key storage becomes durable, so it is unsuitable for a multi-instance public rollout.
+On a single-instance pilot API, set `EXTENSION_API_KEY` to a distinct random secret in Railway. It is available after restarts with translation and speech scopes, but its quota counters remain process-local. Alternatively, an administrator can issue a scoped key with `POST /v1/keys`; dynamically issued keys are lost on restart until key storage becomes durable. Neither key strategy is ready for a multi-instance public rollout.
 
 Open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select `C:\Projects\LinguaBridge\linguabridge\apps\extension\dist`. In the popup, set the API URL to `http://localhost:3001`, save it, enable **Traduction approfondie**, choose a language, and activate page translation. Refresh an already-open site tab if needed. When using a hosted API, enter its HTTPS origin and the scoped LinguaBridge API key in the popup; the extension asks Chrome for that origin's permission. The OpenRouter key belongs only on the API server.
 

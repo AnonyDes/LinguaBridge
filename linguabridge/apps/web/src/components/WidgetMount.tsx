@@ -11,15 +11,18 @@ export function WidgetMount() {
     const mq = window.matchMedia('(max-width: 767px)');
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ||
       (process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : '');
+    const apiKey = process.env.NEXT_PUBLIC_API_KEY;
     let widget: LinguaBridgeWidget | null = null;
     const extensionPresent = () => document.documentElement.getAttribute('data-linguabridge-extension') === 'active' || !!document.getElementById('linguabridge-extension-root');
     const sync = () => {
       if (extensionPresent() || mq.matches) {
         widget?.destroy();
         widget = null;
-      } else if (apiUrl && !widget && window.location.pathname.indexOf('/assistant') === -1) {
+      } else if (apiUrl && (process.env.NODE_ENV === 'development' || apiKey) &&
+        !widget && window.location.pathname.indexOf('/assistant') === -1) {
         widget = LinguaBridgeWidget.init({
           apiUrl,
+          apiKey,
           voiceUrl: process.env.NEXT_PUBLIC_VOICE_URL || 'http://127.0.0.1:3002',
           position: 'bottom-right',
         });
